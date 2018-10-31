@@ -4,28 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CameraActivity">
+    tools:context=".ResultActivity">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextureView
-            android:id="@+id/camera_view"
+        <ImageView
+            android:id="@+id/img_captured_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3"
+            android:layout_weight="2"
             android:padding="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-        <Button
-            android:id="@+id/take_photo_button"
+        <TextView
+            android:id="@+id/ocr_text_view"
             android:text="@string/take_photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
             android:layout_gravity="center_horizontal|center"/>
     </LinearLayout>
 

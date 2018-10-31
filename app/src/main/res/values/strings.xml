@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">OCRCamera</string>
+    <string name="take_photo">Click</string>
 </resources>
