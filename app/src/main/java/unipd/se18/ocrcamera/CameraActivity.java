@@ -56,7 +56,7 @@ public class CameraActivity extends AppCompatActivity {
     private CaptureRequest.Builder mCaptureRequestBuilder;
 
     /**
-     * CameraPatureSession used for the camera preview;
+     * CameraCaptureSession used for the camera preview;
      */
     private CameraCaptureSession mCameraCaptureSession;
 
