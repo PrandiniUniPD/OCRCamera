@@ -26,8 +26,8 @@
         <!-- Button to take pics - author (g3) -->
         <Button
             android:id="@+id/take_photo_button"
-            android:layout_width="120sp"
-            android:layout_height="120sp"
+            android:layout_width="100sp"
+            android:layout_height="100sp"
             android:gravity="center_vertical"
             android:drawableTop="@drawable/ic_photo_camera"
             android:paddingTop="25sp"
@@ -43,14 +43,14 @@
             android:layout_weight="0.1"
             android:layout_gravity="center_horizontal|center"/> -->
 
-        <!-- TODO remove the button last_photo_button -->
-        <Button
+        <!-- TODO remove the button last_photo_button - author (g2) -->
+        <!--<Button
             android:id="@+id/last_photo_button"
             android:text="@string/view_last_photo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.1"
-            android:layout_gravity="center_horizontal|center"/>
+            android:layout_gravity="center_horizontal|center"/>-->
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

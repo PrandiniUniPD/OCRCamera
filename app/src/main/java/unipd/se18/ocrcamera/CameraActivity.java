@@ -217,13 +217,14 @@ public class CameraActivity extends AppCompatActivity {
                 takePhoto();
             }
         });
-        Button mButtonLastPhoto = findViewById(R.id.last_photo_button);
+        // TODO implement a method to store photos, the group 2 used a button to retrieve the last photo
+        /*Button mButtonLastPhoto = findViewById(R.id.last_photo_button);
         mButtonLastPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 lastPhoto();
             }
-        });
+        });*/
     }
 
     /**
