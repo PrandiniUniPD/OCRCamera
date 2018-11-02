@@ -2,6 +2,7 @@ package unipd.se18.ocrcamera;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -77,6 +78,15 @@ public class CameraActivity extends AppCompatActivity {
     private CameraDevice mCameraDevice;
 
     /**
+     *
+     */
+     private TextureView mCameraTextureView;
+
+    /**
+     *
+     */
+    private Button mButtonTakePhoto;
+    /**
      * cameraManager id
      */
     private String cameraId;
@@ -110,10 +120,6 @@ public class CameraActivity extends AppCompatActivity {
      */
     private Handler mBackgroundHandler;
 
-    /**
-     *
-     */
-    private TextureView mCameraTextureView;
 
     /**
      * Callback of the camera states
@@ -144,22 +150,19 @@ public class CameraActivity extends AppCompatActivity {
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            //open your camera here
             openCamera();
         }
-
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-
+            // Transform you image captured size according to the surface width and height
         }
-
         @Override
         public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
             return false;
         }
-
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
         }
     };
 
@@ -171,8 +174,9 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
         // Initializing of the UI components
-        TextureView mCameraTextureView = findViewById(R.id.camera_view);
-        Button mButtonTakePhoto = findViewById(R.id.take_photo_button);
+        mCameraTextureView = (TextureView) findViewById(R.id.camera_view);
+        mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
+        mButtonTakePhoto = (Button) findViewById(R.id.take_photo_button);
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,13 +188,21 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume");
+        Log.e(TAG, "onResume");
+        startBackgroundThread();
+        if (mCameraTextureView.isAvailable()) {
+            openCamera();
+        } else {
+            mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
+        }
     }
 
     @Override
     protected void onPause() {
+        Log.e(TAG, "onPause");
+        //closeCamera();
+        stopBackgroundThread();
         super.onPause();
-        Log.d(TAG, "onPause");
     }
 
     /**
@@ -198,17 +210,6 @@ public class CameraActivity extends AppCompatActivity {
      */
     private void openCamera() {
         CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        int currentTime = Calendar.getInstance().getTime().hashCode();
-        final File file = new File(Environment.getExternalStorageDirectory()+"/"+Environment.DIRECTORY_PICTURES+"/camera2/"+currentTime+".jpg");
-        file.mkdirs();
-        try {
-            if(file.exists()){
-                file.delete();
-            }
-            file.createNewFile();
-        } catch(IOException e){
-            e.printStackTrace();
-        }
         Log.d(TAG,"Camera is open");
         try {
             cameraId = cameraManager.getCameraIdList()[0];
@@ -314,6 +315,8 @@ public class CameraActivity extends AppCompatActivity {
             if (jpegSizes != null && 0 < jpegSizes.length) {
                 width = jpegSizes[0].getWidth();
                 height = jpegSizes[0].getHeight();
+                width-=50;
+                height-=50;
                 //devo fare un print delle dimensioni!!!!!!!!!!!!!!
             }
             ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
@@ -338,6 +341,8 @@ public class CameraActivity extends AppCompatActivity {
             } catch(IOException e){
                 e.printStackTrace();
             }
+            final Intent intentOCR= new Intent(this,ResultActivity.class);
+            intentOCR.putExtra("PATH_I_NEED", file.getPath());
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -378,8 +383,8 @@ public class CameraActivity extends AppCompatActivity {
                     Log.d(TAG, "foto salvata");
                     super.onCaptureCompleted(session, request, result);
                     Toast.makeText(CameraActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
-                    //createCameraPreview();
-                    //startActivity(intentOCR);
+                    createCameraPreview();
+                    startActivity(intentOCR);
                 }
             };
             mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
@@ -409,6 +414,28 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Start Background Thread
+     */
+    protected void startBackgroundThread() {
+        mBackgroundHandlerThread = new HandlerThread("Camera Background");
+        mBackgroundHandlerThread.start();
+        mBackgroundHandler = new Handler(mBackgroundHandlerThread.getLooper());
+    }
+
+    /**
+     * Start Background Thread
+     */
+    protected void stopBackgroundThread() {
+        mBackgroundHandlerThread.quitSafely();
+        try {
+            mBackgroundHandlerThread.join();
+            mBackgroundHandlerThread = null;
+            mBackgroundHandler = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * Closes resources related to the camera.
      */
