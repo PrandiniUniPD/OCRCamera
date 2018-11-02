@@ -10,6 +10,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <TextureView
             android:id="@+id/camera_view"
             android:layout_width="match_parent"
@@ -20,6 +21,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
         <Button
             android:id="@+id/take_photo_button"
             android:text="@string/take_photo"
@@ -27,6 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.1"
             android:layout_gravity="center_horizontal|center"/>
+
         <Button
             android:id="@+id/last_photo_button"
             android:text="@string/view_last_photo"
