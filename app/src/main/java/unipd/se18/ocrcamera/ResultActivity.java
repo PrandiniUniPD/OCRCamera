@@ -2,6 +2,7 @@ package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -64,6 +65,7 @@ public class ResultActivity extends AppCompatActivity {
     private void displayImageFromByteArray(String path) {
         File file = new File(path);
         Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
+        bmp = rotateBitmap90Degrees(bmp);
         mImageView.setImageBitmap(Bitmap.createScaledBitmap(bmp, 300, 300, false));
     }
 
@@ -77,6 +79,7 @@ public class ResultActivity extends AppCompatActivity {
         //Converting byte array into bitmap
         File file = new File(path);
         Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
+        bmp = rotateBitmap90Degrees(bmp);
         //Call to text extractor method to get the text from the given image
         TextExtractor extractor = new TextExtractor(this);
         extractor.getTextFromImg(bmp);
@@ -92,6 +95,18 @@ public class ResultActivity extends AppCompatActivity {
             }
         };
         extractor.extractedText.observe(this, obsText);
+    }
+
+    /**
+     * Rotate bitmap image counter clockwise by 90 degrees
+     * @param bmp original bitmap image
+     * @author Group 3
+     */
+    private Bitmap rotateBitmap90Degrees(Bitmap bmp){
+        Matrix matrix = new Matrix();
+        matrix.postRotate(90); // anti-clockwise by 90 degrees
+        bmp = Bitmap.createBitmap(bmp , 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+        return bmp;
     }
 
 }
