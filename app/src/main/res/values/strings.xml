@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">OCRCamera</string>
-    <string name="take_photo">Take photo</string>
-    <string name="view_last_photo">Last photo</string>
+    <string name="take_photo">Take pic</string>
+    <string name="view_last_photo">Last pic</string>
     <string name="preview_failed">Preview failed!</string>
     <string name="surface_texture_bug">There is a bug in the SurfaceTexture instance.</string>
     <string name="state_callback_onError">Error in the state of the camera.</string>
@@ -10,4 +10,6 @@
     <string name="no_last_photo">There are not a last photo</string>
     <string name="no_text_found">No text find, retry please</string>
     <string name="processing">Processing..</string>
+    <string name="photoFileName">lastPhoto.jpg</string>
+    <string name="savedPhotoPathKey">savedPhotoPathKey</string>
 </resources>

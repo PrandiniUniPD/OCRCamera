@@ -2,8 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="unipd.se18.ocrcamera">
 
-    <!-- Permissions for using the camera -->
-    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Permissions for using the external storage  - author (g3) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <!-- Permissions for using the camera - author Pietro Prandini (g2) -->
+    <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera2.full"/>
 
     <application
@@ -13,6 +16,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!-- Content Provider configurations - author (g3) -->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.example.android.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+
         <activity android:name=".CameraActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,6 +36,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ResultActivity"></activity>
+        <!-- Useful for automatic upgrades of the ocr models - author Pietro Prandini (g2) -->
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
