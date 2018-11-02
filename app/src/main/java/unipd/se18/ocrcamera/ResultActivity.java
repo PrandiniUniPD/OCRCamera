@@ -97,6 +97,7 @@ public class ResultActivity extends AppCompatActivity {
         extractor.extractedText.observe(this, obsText);
     }
 
+    //TODO Resolve this bug (this method resolve the bug only for some devices (i.e.: to an Android 8.1 (API Level 27) the app works without this method and it not works with it))
     /**
      * Rotate bitmap image counter clockwise by 90 degrees
      * @param bmp original bitmap image
