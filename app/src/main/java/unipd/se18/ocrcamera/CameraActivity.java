@@ -37,6 +37,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import java.io.OutputStream;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +57,10 @@ public class CameraActivity extends AppCompatActivity {
      * TAG used for logs
      */
     private static final String TAG = "CameraActivity";
+
+    private static final File SAVE_DIR = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/OCRCamera/Pictures/");
+
+    //creation intent
 
     /**
      * Code for the permission requested
@@ -73,11 +80,30 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     // Shared variables
+    //private Intent intent;
+    //private File file;
+    private TextureView mCameraTextureView;
+    private String mCameraId;
+    private Handler mBackgroundHandler;
+    private HandlerThread mBackgroundThread;
     /**
      * The CameraDevice used to interact with the physical camera.
      */
     private CameraDevice mCameraDevice;
 
+    /**
+     *
+     */
+     private TextureView mCameraTextureView;
+
+    /**
+     *
+     */
+    private Button mButtonTakePhoto;
+    /**
+     * cameraManager id
+     */
+    private String cameraId;
     /**
      * CaptureRequest.Builder used for the camera preview.
      */
@@ -99,6 +125,7 @@ public class CameraActivity extends AppCompatActivity {
     private ImageReader mImageReader;
 
     /**
+
      * Thread used for running tasks in background
      */
     private HandlerThread mBackgroundHandlerThread;
@@ -113,13 +140,18 @@ public class CameraActivity extends AppCompatActivity {
 
 
     /**
+
      * Callback of the camera states
      */
     private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
-            //This is called when the camera is open
-            Log.e(TAG, "onOpened");
+
+
+
+            Log.d(TAG, "onOpened");
+
+
             mCameraDevice = camera;
             createCameraPreview();
         }
@@ -143,20 +175,16 @@ public class CameraActivity extends AppCompatActivity {
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            //Open your camera
             openCamera();
         }
-
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
             // Transform you image captured size according to the surface width and height
         }
-
         @Override
         public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
             return false;
         }
-
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         }
@@ -167,7 +195,9 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-
+        // Create the directories for the app
+        createOCRCDirs();
+        //create intent
         // Initializing of the UI components
         mCameraTextureView = findViewById(R.id.camera_view);
         assert mCameraTextureView != null;
@@ -225,19 +255,15 @@ public class CameraActivity extends AppCompatActivity {
      * Opens a connection with a camera if it is permitted, otherwise return.
      */
     private void openCamera() {
-        String cameraId;
-        //A system service manager for detecting, characterizing, and connecting to Camera devices.
-        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        Log.e(TAG, "is camera open");
+        CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        Log.d(TAG,"Camera is open");
         try {
-            //Get the camera ID
-            cameraId = manager.getCameraIdList()[0];
-            //Get the characteristics of the camera
-            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+            cameraId = cameraManager.getCameraIdList()[0];
+            CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            assert map != null;
-            mPreviewSize  = map.getOutputSizes(SurfaceTexture.class)[0];
-            // Add permission for camera and let user grant the permission
+            assert map!=null;
+            mPreviewSize = map.getOutputSizes(SurfaceTexture.class)[0];
+            //Add permession for camera and lt user grant the permission
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(CameraActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_CAMERA_REQUEST_CODE);
                 return;
@@ -245,6 +271,7 @@ public class CameraActivity extends AppCompatActivity {
             //Opens the camera
             manager.openCamera(cameraId, mStateCallback, null);
         } catch (CameraAccessException e) {
+
             e.printStackTrace();
         }
     }
@@ -257,8 +284,7 @@ public class CameraActivity extends AppCompatActivity {
      * @param grantResults The results of the requests
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         if (requestCode == MY_CAMERA_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 // close the app
@@ -290,6 +316,7 @@ public class CameraActivity extends AppCompatActivity {
                     @param session The session returned by CameraDevice.createCaptureSession(SessionConfiguration).
                            This value must never be null
                  */
+
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
                     //The camera is already closed
@@ -301,11 +328,13 @@ public class CameraActivity extends AppCompatActivity {
                     updatePreview();
                 }
 
+
                 /*
                     This method is called if the session cannot be configured as requested.
                     @param session The session returned by CameraDevice.createCaptureSession(SessionConfiguration).
                            This value must never be null
                  */
+
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
                     Toast.makeText(CameraActivity.this, "Configuration change", Toast.LENGTH_SHORT).show();
@@ -320,7 +349,8 @@ public class CameraActivity extends AppCompatActivity {
      * Updates the preview of the camera frames.
      */
     private void updatePreview() {
-        if (null == mCameraDevice) {
+        if(null == mCameraDevice) {
+
             Log.e(TAG, "updatePreview error, return");
         }
         mCaptureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
@@ -329,13 +359,28 @@ public class CameraActivity extends AppCompatActivity {
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+
+    }
+
+    /**
+     * Create App's Directories
+     */
+
+    public void createOCRCDirs(){
+        File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/OCRCamera/Pictures");
+        if(!f.exists()){
+            f.mkdirs();
+            Log.d("createOCRCDirs", "CREATED");
+        }else{
+            Log.d("createOCRCDirs", "already exists");
+        }
+        //Log.e("createTessDirs", "launching copyTessDataForTextRecognizor()");
     }
 
     /**
      * Takes a photo.
      */
-    private void takePhoto(CameraDevice camera) {
-        //Verify if the object camera is Null
+    //Verify if the object camera is Null
         if (null == camera) {
             Log.e(TAG, "cameraDevice is null");
             return;
@@ -392,12 +437,20 @@ public class CameraActivity extends AppCompatActivity {
                             image.close();
                         }
                     }
-
-
-
+                }
+                private void save(byte[] bytes) throws IOException {
+                    OutputStream output = null;
+                    try {
+                        output = new FileOutputStream(file);
+                        output.write(bytes);
+                    } finally {
+                        if (null != output) {
+                            output.flush();
+                            output.close();
+                        }
+                    }
                 }
             };
-
             //Register a listener to be invoked when a new image becomes available from the ImageReader
             mImageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
 
@@ -431,12 +484,12 @@ public class CameraActivity extends AppCompatActivity {
                 public void onConfigured(@NonNull CameraCaptureSession session) {
                     try {
                         //Submit a request for an image to be captured by the camera device.
+
                         session.capture(captureBuilder.build(), captureListener, mBackgroundHandler);
                     } catch (CameraAccessException e) {
                         e.printStackTrace();
                     }
                 }
-
                 /*
                     This method is called if the session cannot be configured as requested.
                     @param session The session returned by CameraDevice.createCaptureSession(SessionConfiguration).
@@ -453,48 +506,56 @@ public class CameraActivity extends AppCompatActivity {
 
 
     /**
-     * Saves a photo previously taken.
+     * Start Background Thread
      */
-    private void savePhoto(Image image) throws IOException {
-        FileOutputStream output = null;
-        byte[] bytes;
-        int currentTime = Calendar.getInstance().getTime().hashCode();
-        final File file = new File(Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/camera2/" + currentTime + ".jpg");
-        filePath = file.getPath();
-        //Create the folder
-        file.mkdirs();
-        //Verify that a file with the same name exists. If it exist it deletes and make a new one
-        try {
-            if (file.exists()) {
-                file.delete();
-            }
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            bytes = new byte[buffer.capacity()];
-            buffer.get(bytes);
-            output = new FileOutputStream(file);
-            output.write(bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (null != output) {
-                output.flush();
-                output.close();
-            }
-        }
-
+    protected void startBackgroundThread() {
+        mBackgroundHandlerThread = new HandlerThread("Camera Background");
+        mBackgroundHandlerThread.start();
+        mBackgroundHandler = new Handler(mBackgroundHandlerThread.getLooper());
     }
 
+    /**
+     * Start Background Thread
+     */
+    protected void stopBackgroundThread() {
+        mBackgroundHandlerThread.quitSafely();
+        try {
+            mBackgroundHandlerThread.join();
+            mBackgroundHandlerThread = null;
+            mBackgroundHandler = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * Closes resources related to the camera.
      */
     private void closeCamera() {
+        if (null != mCameraDevice) {
+            mCameraDevice.close();
+            mCameraDevice = null;
+        }
+        if (null != mImageReader) {
+            mImageReader.close();
+            mImageReader = null;
+        }
 
+    }
+
+    protected void startBackgroundThread() {
+        mBackgroundThread = new HandlerThread("Camera Background");
+        mBackgroundThread.start();
+        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+    protected void stopBackgroundThread() {
+        mBackgroundThread.quitSafely();
+        try {
+            mBackgroundThread.join();
+            mBackgroundThread = null;
+            mBackgroundHandler = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
 
