@@ -16,7 +16,7 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 /**
  * Class the implements the common OCR wrapper to retrieve text from an image
- * @author Leonardo Rossi
+ * @author Leonardo Rossi (g2)
  */
 public class TextExtractor implements OCRInterface {
     MutableLiveData<String> extractedText;
@@ -34,7 +34,7 @@ public class TextExtractor implements OCRInterface {
      * Extracts a text from a given image.
      * @param img The image in a Bitmap format
      * @return The String of the text recognized (empty String if nothing is recognized)
-     * @author Leonardo Rossi
+     * @author Leonardo Rossi (g2)
      */
     @Override
     public String getTextFromImg(Bitmap img) {
@@ -64,7 +64,7 @@ public class TextExtractor implements OCRInterface {
     /**
      * Saves the given text into the shared preferences so that it can be reused in the future
      * @param text The text to save into the shared preferences
-     * @author Leonardo Rossi
+     * @author Leonardo Rossi (g2)
      */
     private void storeText(String text) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
