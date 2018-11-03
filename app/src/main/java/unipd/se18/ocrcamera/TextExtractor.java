@@ -6,23 +6,23 @@ import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import android.widget.Toast;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.vision.label.internal.client.INativeImageLabeler;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.document.FirebaseVisionDocumentText;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.concurrent.Semaphore;
+import java.util.List;
+
 
 /**
  * Implements the common OCR wrapper to retrieve text from an image.
  */
 class TextExtractor implements OCRInterface {
+
     private FirebaseVisionImage fbImage;
     private FirebaseVisionTextRecognizer textRecognizer;
     private FirebaseVisionDocumentText documentText;
@@ -58,6 +58,7 @@ class TextExtractor implements OCRInterface {
         resultText = "";
     }
 
+
     /**
      * Extract a text from a given image.
      *
@@ -66,22 +67,30 @@ class TextExtractor implements OCRInterface {
      */
     @Override
     public String getTextFromImg(Bitmap img) {
-        //String res="";
-        fbImage = FirebaseVisionImage.fromBitmap(img);
-        textRecognizer = FirebaseVision.getInstance().getOnDeviceTextRecognizer();
-        textRecognizer.processImage(fbImage).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+
+        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(img);
+        final FirebaseVisionTextRecognizer textRecognizer = FirebaseVision.getInstance()
+                .getOnDeviceTextRecognizer();
+        textRecognizer.processImage(image).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
             @Override
             public void onSuccess(FirebaseVisionText result) {
-                firebaseVisionText = result;
-                //resultText= result.getText();
+                txtresult = txtresult + result.getText();
+                Log.d("CameraActivity", txtresult);
+                Log.d("CameraActivity", "Testo riconosciuto");
             }
-        });
-        //.addOnSuccessListener(successListener).addOnFailureListener(failureListener)
-        //Log.e("getTextFromImg", "final:" + resultText.getValue());
-        return processText(firebaseVisionText);
+        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
 
-    }
-    public String processText(FirebaseVisionText result){
-        return result.getText();
-    }
+                                txtresult="Fail";
+                                Log.d("CameraActivity", "Testo NON riconosciuto");
+
+                            }
+                        });
+        return txtresult;
+
+    
+
 }

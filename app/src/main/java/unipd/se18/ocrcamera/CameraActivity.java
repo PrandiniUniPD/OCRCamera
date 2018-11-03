@@ -88,6 +88,19 @@ public class CameraActivity extends AppCompatActivity {
     private CameraDevice mCameraDevice;
 
     /**
+     *
+     */
+     private TextureView mCameraTextureView;
+
+    /**
+     *
+     */
+    private Button mButtonTakePhoto;
+    /**
+     * cameraManager id
+     */
+    private String cameraId;
+    /**
      * CaptureRequest.Builder used for the camera preview.
      */
     private CaptureRequest.Builder mCaptureRequestBuilder;
@@ -108,12 +121,27 @@ public class CameraActivity extends AppCompatActivity {
     private ImageReader mImageReader;
 
     /**
+
+     * Thread used for running tasks in background
+     */
+    private HandlerThread mBackgroundHandlerThread;
+
+    /**
+     * Handler associated to the background Thread
+     */
+    private Handler mBackgroundHandler;
+
+
+    /**
+
      * Callback of the camera states
      */
     private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
-            Log.e(TAG, "onOpened");
+
+            Log.d(TAG, "onOpened");
+
             mCameraDevice = camera;
             createCameraPreview();
         }
@@ -136,22 +164,21 @@ public class CameraActivity extends AppCompatActivity {
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+
+            //open your camera here
+
             openCamera();
         }
-
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-
+            // Transform you image captured size according to the surface width and height
         }
-
         @Override
         public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
             return false;
         }
-
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
         }
     };
 
@@ -165,8 +192,11 @@ public class CameraActivity extends AppCompatActivity {
         createOCRCDirs();
         //create intent
         // Initializing of the UI components
-        mCameraTextureView = findViewById(R.id.camera_view);
-        Button mButtonTakePhoto = findViewById(R.id.take_photo_button);
+
+        mCameraTextureView = (TextureView) findViewById(R.id.camera_view);
+        mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
+        mButtonTakePhoto = (Button) findViewById(R.id.take_photo_button);
+
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -179,7 +209,9 @@ public class CameraActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.e(TAG, "onResume");
-        //startBackgroundThread();
+
+        startBackgroundThread();
+
         if (mCameraTextureView.isAvailable()) {
             openCamera();
         } else {
@@ -189,8 +221,11 @@ public class CameraActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        closeCamera();
-        //stopBackgroundThread();
+
+        Log.e(TAG, "onPause");
+        //closeCamera();
+        stopBackgroundThread();
+
         super.onPause();
     }
 
@@ -198,21 +233,25 @@ public class CameraActivity extends AppCompatActivity {
      * Opens a connection with a camera if it is permitted, otherwise return.
      */
     private void openCamera() {
-        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        Log.e(TAG, "is camera open");
+
+        CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        Log.d(TAG,"Camera is open");
         try {
-            mCameraId = manager.getCameraIdList()[0];
-            CameraCharacteristics characteristics = manager.getCameraCharacteristics(mCameraId);
+            cameraId = cameraManager.getCameraIdList()[0];
+            CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            assert map != null;
+            assert map!=null;
             mPreviewSize = map.getOutputSizes(SurfaceTexture.class)[0];
-            // Add permission for camera and let user grant the permission
+            //Add permession for camera and lt user grant the permission
+
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(CameraActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_CAMERA_REQUEST_CODE);
                 return;
             }
+
             manager.openCamera(mCameraId, mStateCallback, null);
         } catch (CameraAccessException e) {
+
             e.printStackTrace();
         }
     }
@@ -225,6 +264,7 @@ public class CameraActivity extends AppCompatActivity {
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+
         if (requestCode == MY_CAMERA_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 // close the app
@@ -239,12 +279,10 @@ public class CameraActivity extends AppCompatActivity {
      */
     private void createCameraPreview() {
         try {
-            //intent.putExtra("imgPath", file.getPath());
-            //
             SurfaceTexture texture = mCameraTextureView.getSurfaceTexture();
             assert texture != null;
             texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
-            //Output
+
             Surface surface = new Surface(texture);
             mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             mCaptureRequestBuilder.addTarget(surface);
@@ -287,6 +325,7 @@ public class CameraActivity extends AppCompatActivity {
     /**
      * Create App's Directories
      */
+
     public void createOCRCDirs(){
         File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/OCRCamera/Pictures");
         if(!f.exists()){
@@ -411,6 +450,28 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     /**
+     * Start Background Thread
+     */
+    protected void startBackgroundThread() {
+        mBackgroundHandlerThread = new HandlerThread("Camera Background");
+        mBackgroundHandlerThread.start();
+        mBackgroundHandler = new Handler(mBackgroundHandlerThread.getLooper());
+    }
+
+    /**
+     * Start Background Thread
+     */
+    protected void stopBackgroundThread() {
+        mBackgroundHandlerThread.quitSafely();
+        try {
+            mBackgroundHandlerThread.join();
+            mBackgroundHandlerThread = null;
+            mBackgroundHandler = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
      * Closes resources related to the camera.
      */
     private void closeCamera() {
@@ -422,6 +483,7 @@ public class CameraActivity extends AppCompatActivity {
             mImageReader.close();
             mImageReader = null;
         }
+
     }
 
     protected void startBackgroundThread() {

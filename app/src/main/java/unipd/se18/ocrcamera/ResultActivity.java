@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,19 +14,24 @@ import android.widget.TextView;
 
 import java.io.File;
 
+
 /**
  * Class used for showing the result of the OCR processing
  */
 public class ResultActivity extends AppCompatActivity {
+
+    private Bundle extras;
     private ImageView iv;
     private TextView tv;
     private TextExtractor te;
     //private File imgFile;
     private Bitmap img;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
+
         te = new TextExtractor(this.getApplicationContext());
         tv = (TextView)findViewById(R.id.ocr_text_view);
         tv.setMovementMethod(new ScrollingMovementMethod());
@@ -36,5 +42,6 @@ public class ResultActivity extends AppCompatActivity {
         img = BitmapFactory.decodeFile(message);
         iv.setImageBitmap(img);
         tv.setText(te.getTextFromImg(img));
+
     }
 }
