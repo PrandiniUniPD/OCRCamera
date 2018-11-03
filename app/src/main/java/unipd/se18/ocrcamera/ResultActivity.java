@@ -34,14 +34,17 @@ public class ResultActivity extends AppCompatActivity {
         // UI components
         mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
+        mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
 
 
         //Retrieving captured image data and text from intent
         String pathImage = getIntent().getStringExtra("imageDataPath");
         String OCRText = getIntent().getStringExtra("text");
+        Log.d("ResultActivity", "OCRText: -->" + OCRText + "<--");
 
         //Displaying the captured image to the user
-        displayImageFromByteArray(pathImage);
+        //displayImageFromByteArray(pathImage);
+        mImageView.setImageBitmap(BitmapFactory.decodeFile(pathImage));
 
         //Displaying the text, from OCR or preferences
         if(OCRText != null) {
@@ -56,18 +59,20 @@ public class ResultActivity extends AppCompatActivity {
         //Text shows when OCR are processing the image
         mOCRTextView.setText(R.string.processing);
     }
+
+    // TODO check if unusued
     /**
      * Displays the captured image into UI given a specific byte array
      * @param path A string that contains the path where is temporary saved the captured image. Not null.
      * @modify mImageView The image view that is modified by the method
      * @author Leonardo Rossi
      */
-    private void displayImageFromByteArray(String path) {
+    /*private void displayImageFromByteArray(String path) {
         File file = new File(path);
         Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
         //bmp = rotateBitmap90Degrees(bmp);
         mImageView.setImageBitmap(Bitmap.createScaledBitmap(bmp, 300, 300, false));
-    }
+    }*/
 
     /**
      * Retrieves the text from the given byte array

@@ -15,7 +15,7 @@ import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 /**
- * Class the implements the common OCR wrapper to retrieve text from an image
+ * Class the implements the common OCR interface to retrieve text from an image
  * @author Leonardo Rossi (g2)
  */
 public class TextExtractor implements OCRInterface {
@@ -45,10 +45,13 @@ public class TextExtractor implements OCRInterface {
         textRecognizer.processImage(fbImage).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
             @Override
             public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                String textRetrieved = firebaseVisionText.getText());
                 //Saving of the retrieved text into shared preferences
-                storeText(firebaseVisionText.getText());
+                storeText(textRetrieved);
                 //If there's some text the live data is updated so that can be updated the UI too
-                extractedText.setValue(firebaseVisionText.getText());
+                extractedText.setValue(textRetrieved);
+                // (g1)
+                Log.d("TextExtractor", "Recognized text: -->" + textRetrieved +"<--")
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
