@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 /**
  * Implements the common OCR wrapper to retrieve text from an image.
  */
-class TextExtractor implements OCRWrapper {
+class TextExtractor implements OCRInterface {
 
     /**
      * Extract a text from a given image.
