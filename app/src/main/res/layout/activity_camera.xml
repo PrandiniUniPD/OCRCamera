@@ -9,7 +9,9 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:gravity="center">
+
         <TextureView
             android:id="@+id/camera_view"
             android:layout_width="match_parent"
@@ -20,13 +22,35 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Button to take pics - author (g3) -->
         <Button
             android:id="@+id/take_photo_button"
+            android:layout_width="100sp"
+            android:layout_height="100sp"
+            android:gravity="center_vertical"
+            android:drawableTop="@drawable/ic_photo_camera"
+            android:paddingTop="25sp"
+            android:background="@drawable/roundedbutton"
+            android:textColor="#FFFFFF"
+            android:drawablePadding="-15sp"
+            android:layout_margin="15sp"
+            />
+            <!-- - author (g2)
             android:text="@string/take_photo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.1"
-            android:layout_gravity="center_horizontal|center"/>
+            android:layout_gravity="center_horizontal|center"/> -->
+
+        <!-- TODO remove the button last_photo_button - author (g2) -->
+        <!--<Button
+            android:id="@+id/last_photo_button"
+            android:text="@string/view_last_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:layout_gravity="center_horizontal|center"/>-->
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
