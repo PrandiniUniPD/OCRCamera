@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".CameraActivity">
 
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
