@@ -39,7 +39,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".ResultActivity"
-            android:name="android.support.PARENT_ACTIVITY"
             android:value=".CameraActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>

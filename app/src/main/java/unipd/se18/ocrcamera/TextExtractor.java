@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,13 +46,13 @@ public class TextExtractor implements OCRInterface {
         textRecognizer.processImage(fbImage).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
             @Override
             public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                String textRetrieved = firebaseVisionText.getText());
+                String textRetrieved = firebaseVisionText.getText();
                 //Saving of the retrieved text into shared preferences
                 storeText(textRetrieved);
                 //If there's some text the live data is updated so that can be updated the UI too
                 extractedText.setValue(textRetrieved);
                 // (g1)
-                Log.d("TextExtractor", "Recognized text: -->" + textRetrieved +"<--")
+                Log.d("TextExtractor", "Recognized text: -->" + textRetrieved +"<--");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

@@ -152,6 +152,7 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private String filePath;
+    private File file;
 
 
     /**
@@ -566,6 +567,7 @@ public class CameraActivity extends AppCompatActivity {
         //Log.e("createTessDirs", "launching copyTessDataForTextRecognizor()");
     }
 
+    //TODO Choose form this takePhoto and the takePhoto after this or a merged version from both
     /**
      * Takes a photo.
      * <p>Saves the captured photo, previously converted into Base64 String, into the current
@@ -574,8 +576,137 @@ public class CameraActivity extends AppCompatActivity {
      * @author Alberto Valente (g2), Taulant Bullaku (g2)
      */
     private void takePhoto() {
+
+        if(mCameraDevice == null)
+        {
+            Log.e("cameraDevice", "cameraDevice is null");
+            return;
+        }
+
+        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+
+        try
+        {
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(mCameraDevice.getId());
+            Size[] jpegSizes = Objects.requireNonNull(characteristics.get(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)).getOutputSizes(ImageFormat.JPEG);
+            int width = 640;
+            int height = 480;
+            if(jpegSizes != null && jpegSizes.length > 0)
+            {
+                width = jpegSizes[0].getWidth();
+                height = jpegSizes[0].getHeight();
+            }
+
+            mImageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
+
+            ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener()
+            {
+                @Override
+                public void onImageAvailable(ImageReader reader) {
+                    //acquires the last image and delivers it to a buffer
+                    Image image = reader.acquireLatestImage();
+                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                    byte[] photoByteArray = new byte[buffer.capacity()];
+                    buffer.get(photoByteArray);
+
+                    //Converts the byte array related to the given photo to a String in Base64 format
+                    String photoBitmapToString = Base64.encodeToString(photoByteArray, Base64.DEFAULT);
+
+                    //Create sharedPref file to save the Bitmap of last taken photo in a String form
+                    SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("photoBitmap", photoBitmapToString);
+                    editor.commit();
+
+                    //@author Leonardo Rossi
+                    //Temporary stores the caprured photo into a file that will be used from the Camera Result activity
+                    Bitmap bmp = BitmapFactory.decodeByteArray(photoByteArray, 0, photoByteArray.length);
+                    String filePath= tempFileImage(CameraActivity.this, bmp,"capturedImage");
+
+                    //An intent that will launch the activity that will analyse the photo
+                    Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                    i.putExtra("imageDataPath", filePath);
+                    startActivity(i);
+                }
+            };
+            mImageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
+
+            //@author Leonardo Rosi
+
+            //Output surfaces
+            List<Surface> outputSurface = new ArrayList<>(2);
+            outputSurface.add(mImageReader.getSurface());
+            outputSurface.add(new Surface(mCameraTextureView.getSurfaceTexture()));
+
+            //Creation of a capture request to take a photo from the camera
+            final CaptureRequest.Builder captureBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            captureBuilder.addTarget(mImageReader.getSurface());
+            captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+
+            //Check orientation base on device
+            int rotation = getWindowManager().getDefaultDisplay().getRotation();
+            captureBuilder.set(CaptureRequest.JPEG_ORIENTATION,ORIENTATIONS.get(rotation));
+
+            final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+                                               @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                    super.onCaptureCompleted(session, request, result);
+                    createCameraPreview();
+                }
+            };
+
+            mCameraDevice.createCaptureSession(outputSurface, new CameraCaptureSession.StateCallback() {
+                @Override
+                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                    try {
+                        cameraCaptureSession.capture(captureBuilder.build(),captureListener, mBackgroundHandler);
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession)
+                {
+                }
+            },mBackgroundHandler);
+        } catch(CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Stores the captured image into a temporary file useful to pass large data between activities
+     * and returns the file's path.
+     * @param context The reference of the current activity
+     * @param bitmap The captured image to store into the file. Not null or empty.
+     * @param name The name of the file. Not null or empty.
+     * @return The files path
+     * @author Leonardo Rossi
+     */
+    private String tempFileImage(Context context, Bitmap bitmap, String name) {
+
+        File outputDir = context.getCacheDir();
+        File imageFile = new File(outputDir, name + ".jpg");
+
+        OutputStream os;
+        try {
+            os = new FileOutputStream(imageFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            os.flush();
+            os.close();
+        } catch (Exception e) {
+            Log.e(context.getClass().getSimpleName(), "Error writing file", e);
+        }
+
+        return imageFile.getAbsolutePath();
+    }
+    //TODO Choose form this takePhoto and the takePhoto before this or a merged version from both
+/*    private void takePhoto() {
     //Verify if the object camera is Null
-        if (null == camera) {
+        if (null == mCameraDevice) {
             Log.e(TAG, "cameraDevice is null");
             return;
         }
@@ -601,7 +732,7 @@ public class CameraActivity extends AppCompatActivity {
             outputSurfaces.add(mImageReader.getSurface());
             outputSurfaces.add(new Surface(mCameraTextureView.getSurfaceTexture()));
             //A builder for capture requests
-            final CaptureRequest.Builder captureBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            final CaptureRequest.Builder captureBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             //Add a surface to the list of targets for this request
             captureBuilder.addTarget(mImageReader.getSurface());
             //Set a capture request field to a value
@@ -615,14 +746,17 @@ public class CameraActivity extends AppCompatActivity {
                     Callback that is called when a new image is available from ImageReader
                     @param reader the ImageReader the callback is associated with.
                  */
-                @Override
+/*                @Override
                 public void onImageAvailable(ImageReader reader) {
                     Image image;
                     //Trying to acquire the last image available and putting it on a vector to save it
                     image = reader.acquireLatestImage();
+                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                    byte[] photoByteArray = new byte[buffer.capacity()];
+                    buffer.get(photoByteArray);
                     //Save the photo
                     try {
-                        savePhoto(image);
+                        save(photoByteArray);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }finally {
@@ -649,7 +783,7 @@ public class CameraActivity extends AppCompatActivity {
             mImageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
 
             //Callback object for tracking the progress of a CaptureRequest submitted to the camera device
-            final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
+            final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {*/
                 /*
                     This method is called when an image capture has fully completed and all the result metadata is available.
                     @param session the session returned by CameraDevice.createCaptureSession(SessionConfiguration).
@@ -658,7 +792,7 @@ public class CameraActivity extends AppCompatActivity {
                     @param result The total output metadata from the capture, including the final capture parameters
                            and the state of the camera system during capture.
                  */
-                @Override
+/*                @Override
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
                     super.onCaptureCompleted(session, request, result);
                     Toast.makeText(CameraActivity.this, "Saved:" + filePath, Toast.LENGTH_SHORT).show();
@@ -667,14 +801,14 @@ public class CameraActivity extends AppCompatActivity {
             };
 
             //Create a new camera capture session by providing the target output set of Surfaces to the camera device.
-            mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
+            mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {*/
                 /*
                     This method is called when the camera device has finished configuring itself,
                     and the session can start processing capture requests.
                     @param session The session returned by CameraDevice.createCaptureSession(SessionConfiguration).
                            This value must never be null
                  */
-                @Override
+/*                @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
                     try {
                         //Submit a request for an image to be captured by the camera device.
@@ -683,22 +817,28 @@ public class CameraActivity extends AppCompatActivity {
                     } catch (CameraAccessException e) {
                         e.printStackTrace();
                     }
-                }
+                }*/
                 /*
                     This method is called if the session cannot be configured as requested.
                     @param session The session returned by CameraDevice.createCaptureSession(SessionConfiguration).
                            This value must never be null
                  */
-                @Override
+/*                @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession session) {
                 }
             }, mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
+
+    /**
+     * Saves a photo previously taken.
+     */
+    private void savePhoto() {
+        // TODO savePhoto method
     }
 
     /**
