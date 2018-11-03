@@ -18,7 +18,7 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
  * Class the implements the common OCR wrapper to retrieve text from an image
  * @author Leonardo Rossi
  */
-public class TextExtractor implements OCRWrapper {
+public class TextExtractor implements OCRInterface {
     MutableLiveData<String> extractedText;
     Context context;
 
