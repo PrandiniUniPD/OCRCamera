@@ -55,6 +55,10 @@ public class CameraActivity extends AppCompatActivity {
      */
     private static final String TAG = "CameraActivity";
 
+    private static final File SAVE_DIR = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/OCRCamera/Pictures/");
+
+    //creation intent
+
     /**
      * Code for the permission requested
      */
@@ -72,6 +76,12 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     // Shared variables
+    //private Intent intent;
+    //private File file;
+    private TextureView mCameraTextureView;
+    private String mCameraId;
+    private Handler mBackgroundHandler;
+    private HandlerThread mBackgroundThread;
     /**
      * The CameraDevice used to interact with the physical camera.
      */
@@ -111,6 +121,7 @@ public class CameraActivity extends AppCompatActivity {
     private ImageReader mImageReader;
 
     /**
+
      * Thread used for running tasks in background
      */
     private HandlerThread mBackgroundHandlerThread;
@@ -122,12 +133,15 @@ public class CameraActivity extends AppCompatActivity {
 
 
     /**
+
      * Callback of the camera states
      */
     private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
+
             Log.d(TAG, "onOpened");
+
             mCameraDevice = camera;
             createCameraPreview();
         }
@@ -150,7 +164,9 @@ public class CameraActivity extends AppCompatActivity {
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+
             //open your camera here
+
             openCamera();
         }
         @Override
@@ -172,11 +188,15 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-
+        // Create the directories for the app
+        createOCRCDirs();
+        //create intent
         // Initializing of the UI components
+
         mCameraTextureView = (TextureView) findViewById(R.id.camera_view);
         mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         mButtonTakePhoto = (Button) findViewById(R.id.take_photo_button);
+
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,7 +209,9 @@ public class CameraActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.e(TAG, "onResume");
+
         startBackgroundThread();
+
         if (mCameraTextureView.isAvailable()) {
             openCamera();
         } else {
@@ -199,9 +221,11 @@ public class CameraActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+
         Log.e(TAG, "onPause");
         //closeCamera();
         stopBackgroundThread();
+
         super.onPause();
     }
 
@@ -209,6 +233,7 @@ public class CameraActivity extends AppCompatActivity {
      * Opens a connection with a camera if it is permitted, otherwise return.
      */
     private void openCamera() {
+
         CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         Log.d(TAG,"Camera is open");
         try {
@@ -218,13 +243,15 @@ public class CameraActivity extends AppCompatActivity {
             assert map!=null;
             mPreviewSize = map.getOutputSizes(SurfaceTexture.class)[0];
             //Add permession for camera and lt user grant the permission
+
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(CameraActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_CAMERA_REQUEST_CODE);
                 return;
             }
-            cameraManager.openCamera(cameraId, mStateCallback, null);
 
-        }catch (Exception e){
+            manager.openCamera(mCameraId, mStateCallback, null);
+        } catch (CameraAccessException e) {
+
             e.printStackTrace();
         }
     }
@@ -236,8 +263,8 @@ public class CameraActivity extends AppCompatActivity {
      * @param grantResults The results of the requests
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+
         if (requestCode == MY_CAMERA_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 // close the app
@@ -255,6 +282,7 @@ public class CameraActivity extends AppCompatActivity {
             SurfaceTexture texture = mCameraTextureView.getSurfaceTexture();
             assert texture != null;
             texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
+
             Surface surface = new Surface(texture);
             mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             mCaptureRequestBuilder.addTarget(surface);
@@ -295,6 +323,22 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     /**
+     * Create App's Directories
+     */
+
+    public void createOCRCDirs(){
+        File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/OCRCamera/Pictures");
+        if(!f.exists()){
+            f.mkdirs();
+            Log.d("createOCRCDirs", "CREATED");
+        }else{
+            Log.d("createOCRCDirs", "already exists");
+        }
+        //Log.e("createTessDirs", "launching copyTessDataForTextRecognizor()");
+        //copyTessDataForTextRecognizor();
+    }
+
+    /**
      * Takes a photo.
      */
     private void takePhoto() {
@@ -310,13 +354,11 @@ public class CameraActivity extends AppCompatActivity {
             if (characteristics != null) {
                 jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
             }
-            int width = 600;
-            int height = 450;
+            int width = 6440;
+            int height = 480;
             if (jpegSizes != null && 0 < jpegSizes.length) {
                 width = jpegSizes[0].getWidth();
                 height = jpegSizes[0].getHeight();
-                width-=50;
-                height-=50;
                 //devo fare un print delle dimensioni!!!!!!!!!!!!!!
             }
             ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
@@ -331,7 +373,7 @@ public class CameraActivity extends AppCompatActivity {
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
             // file name
             int currentTime = Calendar.getInstance().getTime().hashCode();
-            final File file = new File(Environment.getExternalStorageDirectory()+"/"+Environment.DIRECTORY_PICTURES+"/camera2/"+currentTime+".jpg");
+            final File file = new File(Environment.getExternalStorageDirectory()+"/OCRCamera/Pictures/"+currentTime+".jpg");
             file.mkdirs();
             try {
                 if(file.exists()){
@@ -342,7 +384,7 @@ public class CameraActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             final Intent intentOCR= new Intent(this,ResultActivity.class);
-            intentOCR.putExtra("PATH_I_NEED", file.getPath());
+            intentOCR.putExtra("imgPath", file.getPath());
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -383,7 +425,7 @@ public class CameraActivity extends AppCompatActivity {
                     Log.d(TAG, "foto salvata");
                     super.onCaptureCompleted(session, request, result);
                     Toast.makeText(CameraActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
-                    createCameraPreview();
+                    //createCameraPreview();
                     startActivity(intentOCR);
                 }
             };
@@ -403,15 +445,8 @@ public class CameraActivity extends AppCompatActivity {
                 }
             }, mBackgroundHandler);
         }catch (Exception e){
-
+            e.printStackTrace();
         }
-    }
-
-    /**
-     * Saves a photo previously taken.
-     */
-    private void savePhoto() {
-
     }
 
     /**
@@ -447,6 +482,23 @@ public class CameraActivity extends AppCompatActivity {
         if (null != mImageReader) {
             mImageReader.close();
             mImageReader = null;
+        }
+
+    }
+
+    protected void startBackgroundThread() {
+        mBackgroundThread = new HandlerThread("Camera Background");
+        mBackgroundThread.start();
+        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+    protected void stopBackgroundThread() {
+        mBackgroundThread.quitSafely();
+        try {
+            mBackgroundThread.join();
+            mBackgroundThread = null;
+            mBackgroundHandler = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
