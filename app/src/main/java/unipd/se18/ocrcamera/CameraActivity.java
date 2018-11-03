@@ -37,11 +37,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import java.io.OutputStream;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,11 +71,12 @@ public class CameraActivity extends AppCompatActivity {
      * SparseIntArray used for the conversion from screen rotation to Bitmap orientation
      */
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-    static{
-        ORIENTATIONS.append(Surface.ROTATION_0,90);
-        ORIENTATIONS.append(Surface.ROTATION_90,0);
-        ORIENTATIONS.append(Surface.ROTATION_180,270);
-        ORIENTATIONS.append(Surface.ROTATION_270,180);
+
+    static {
+        ORIENTATIONS.append(Surface.ROTATION_0, 90);
+        ORIENTATIONS.append(Surface.ROTATION_90, 0);
+        ORIENTATIONS.append(Surface.ROTATION_180, 270);
+        ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
 
     // Shared variables
@@ -106,7 +110,7 @@ public class CameraActivity extends AppCompatActivity {
     private CaptureRequest.Builder mCaptureRequestBuilder;
 
     /**
-     * CameraPatureSession used for the camera preview;
+     * CameraCaptureSession used for the camera preview;
      */
     private CameraCaptureSession mCameraCaptureSession;
 
@@ -131,6 +135,9 @@ public class CameraActivity extends AppCompatActivity {
      */
     private Handler mBackgroundHandler;
 
+    private TextureView mCameraTextureView;
+    private String filePath;
+
 
     /**
 
@@ -140,7 +147,10 @@ public class CameraActivity extends AppCompatActivity {
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
 
+
+
             Log.d(TAG, "onOpened");
+
 
             mCameraDevice = camera;
             createCameraPreview();
@@ -148,15 +158,16 @@ public class CameraActivity extends AppCompatActivity {
 
         @Override
         public void onDisconnected(@NonNull CameraDevice camera) {
-            mCameraDevice.close();
+            camera.close();
         }
 
         @Override
         public void onError(@NonNull CameraDevice camera, int error) {
-            mCameraDevice.close();
+            camera.close();
             mCameraDevice = null;
         }
     };
+
 
     /**
      * SurfaceTextureListener used for the preview
@@ -164,9 +175,6 @@ public class CameraActivity extends AppCompatActivity {
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-
-            //open your camera here
-
             openCamera();
         }
         @Override
@@ -183,7 +191,6 @@ public class CameraActivity extends AppCompatActivity {
     };
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -192,15 +199,14 @@ public class CameraActivity extends AppCompatActivity {
         createOCRCDirs();
         //create intent
         // Initializing of the UI components
-
-        mCameraTextureView = (TextureView) findViewById(R.id.camera_view);
+        mCameraTextureView = findViewById(R.id.camera_view);
+        assert mCameraTextureView != null;
         mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-        mButtonTakePhoto = (Button) findViewById(R.id.take_photo_button);
-
+        Button mButtonTakePhoto = findViewById(R.id.take_photo_button);
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                takePhoto();
+                takePhoto(mCameraDevice);
             }
         });
     }
@@ -209,9 +215,7 @@ public class CameraActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.e(TAG, "onResume");
-
         startBackgroundThread();
-
         if (mCameraTextureView.isAvailable()) {
             openCamera();
         } else {
@@ -221,19 +225,36 @@ public class CameraActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-
         Log.e(TAG, "onPause");
         //closeCamera();
         stopBackgroundThread();
-
         super.onPause();
     }
+
+
+    protected void startBackgroundThread() {
+        mBackgroundHandlerThread = new HandlerThread("Camera Background");
+        mBackgroundHandlerThread.start();
+        mBackgroundHandler = new Handler(mBackgroundHandlerThread.getLooper());
+    }
+
+    //The method that stops the thread when the camera is closed
+    protected void stopBackgroundThread() {
+        mBackgroundHandlerThread.quitSafely();
+        try {
+            mBackgroundHandlerThread.join();
+            mBackgroundHandlerThread = null;
+            mBackgroundHandler = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Opens a connection with a camera if it is permitted, otherwise return.
      */
     private void openCamera() {
-
         CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         Log.d(TAG,"Camera is open");
         try {
@@ -243,13 +264,12 @@ public class CameraActivity extends AppCompatActivity {
             assert map!=null;
             mPreviewSize = map.getOutputSizes(SurfaceTexture.class)[0];
             //Add permession for camera and lt user grant the permission
-
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(CameraActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_CAMERA_REQUEST_CODE);
                 return;
             }
-
-            manager.openCamera(mCameraId, mStateCallback, null);
+            //Opens the camera
+            manager.openCamera(cameraId, mStateCallback, null);
         } catch (CameraAccessException e) {
 
             e.printStackTrace();
@@ -258,13 +278,13 @@ public class CameraActivity extends AppCompatActivity {
 
     /**
      * Controls the output of the permissions requests.
-     * @param requestCode The code assigned to the request
-     * @param permissions The list of the permissions requested
+     *
+     * @param requestCode  The code assigned to the request
+     * @param permissions  The list of the permissions requested
      * @param grantResults The results of the requests
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-
         if (requestCode == MY_CAMERA_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 // close the app
@@ -279,14 +299,24 @@ public class CameraActivity extends AppCompatActivity {
      */
     private void createCameraPreview() {
         try {
+            //Creates a new surface identical at textureView
             SurfaceTexture texture = mCameraTextureView.getSurfaceTexture();
             assert texture != null;
+            //Set the default size of the image buffers
             texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
-
             Surface surface = new Surface(texture);
+            //Create a CaptureRequest.Builder for new capture requests, initialized with template for a target use case.
             mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             mCaptureRequestBuilder.addTarget(surface);
-            mCameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback(){
+            //Create a new camera capture session by providing the target output set of Surfaces to the camera device.
+            mCameraDevice.createCaptureSession(Collections.singletonList(surface), new CameraCaptureSession.StateCallback() {
+                /*
+                    This method is called when the camera device has finished configuring itself,
+                    and the session can start processing capture requests.
+                    @param session The session returned by CameraDevice.createCaptureSession(SessionConfiguration).
+                           This value must never be null
+                 */
+
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
                     //The camera is already closed
@@ -297,6 +327,14 @@ public class CameraActivity extends AppCompatActivity {
                     mCameraCaptureSession = cameraCaptureSession;
                     updatePreview();
                 }
+
+
+                /*
+                    This method is called if the session cannot be configured as requested.
+                    @param session The session returned by CameraDevice.createCaptureSession(SessionConfiguration).
+                           This value must never be null
+                 */
+
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
                     Toast.makeText(CameraActivity.this, "Configuration change", Toast.LENGTH_SHORT).show();
@@ -312,6 +350,7 @@ public class CameraActivity extends AppCompatActivity {
      */
     private void updatePreview() {
         if(null == mCameraDevice) {
+
             Log.e(TAG, "updatePreview error, return");
         }
         mCaptureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
@@ -320,6 +359,7 @@ public class CameraActivity extends AppCompatActivity {
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+
     }
 
     /**
@@ -335,72 +375,65 @@ public class CameraActivity extends AppCompatActivity {
             Log.d("createOCRCDirs", "already exists");
         }
         //Log.e("createTessDirs", "launching copyTessDataForTextRecognizor()");
-        //copyTessDataForTextRecognizor();
     }
 
     /**
      * Takes a photo.
      */
-    private void takePhoto() {
-        Log.d(TAG,"takePicture");
-        if(null == mCameraDevice) {
+    //Verify if the object camera is Null
+        if (null == camera) {
             Log.e(TAG, "cameraDevice is null");
             return;
         }
+        //A system service manager for detecting, characterizing, and connecting to the camera devices
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
+            //Get the properties from the camera device
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(mCameraDevice.getId());
-            Size[] jpegSizes = null;
-            if (characteristics != null) {
-                jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
-            }
-            int width = 6440;
-            int height = 480;
+            //Create a vector that contains the sizes of the image format jpeg
+            Size[] jpegSizes;
+            //Initialize the vector
+            jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
+            //Declaring the variables and reassigning the value of them
+            int width = 600;
+            int height = 450;
             if (jpegSizes != null && 0 < jpegSizes.length) {
                 width = jpegSizes[0].getWidth();
                 height = jpegSizes[0].getHeight();
-                //devo fare un print delle dimensioni!!!!!!!!!!!!!!
             }
-            ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
-            List<Surface> outputSurfaces = new ArrayList<Surface>(2);
-            outputSurfaces.add(reader.getSurface());
+            //Create a new reader for images of the desired size and format
+            mImageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 2);
+            List<Surface> outputSurfaces = new ArrayList<>(2);
+            outputSurfaces.add(mImageReader.getSurface());
             outputSurfaces.add(new Surface(mCameraTextureView.getSurfaceTexture()));
-            final CaptureRequest.Builder captureBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            captureBuilder.addTarget(reader.getSurface());
+            //A builder for capture requests
+            final CaptureRequest.Builder captureBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            //Add a surface to the list of targets for this request
+            captureBuilder.addTarget(mImageReader.getSurface());
+            //Set a capture request field to a value
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-            // Orientation
+            //Getting the orientation of the window and putting in the captureBuilder
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-            // file name
-            int currentTime = Calendar.getInstance().getTime().hashCode();
-            final File file = new File(Environment.getExternalStorageDirectory()+"/OCRCamera/Pictures/"+currentTime+".jpg");
-            file.mkdirs();
-            try {
-                if(file.exists()){
-                    file.delete();
-                }
-                file.createNewFile();
-            } catch(IOException e){
-                e.printStackTrace();
-            }
-            final Intent intentOCR= new Intent(this,ResultActivity.class);
-            intentOCR.putExtra("imgPath", file.getPath());
+            //Callback interface for being notified that a new image is available.
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
+                /*
+                    Callback that is called when a new image is available from ImageReader
+                    @param reader the ImageReader the callback is associated with.
+                 */
                 @Override
                 public void onImageAvailable(ImageReader reader) {
-                    Image image = null;
+                    Image image;
+                    //Trying to acquire the last image available and putting it on a vector to save it
+                    image = reader.acquireLatestImage();
+                    //Save the photo
                     try {
-                        image = reader.acquireLatestImage();
-                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                        byte[] bytes = new byte[buffer.capacity()];
-                        buffer.get(bytes);
-                        save(bytes);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                        savePhoto(image);
                     } catch (IOException e) {
                         e.printStackTrace();
-                    } finally {
+                    }finally {
                         if (image != null) {
+                            //Free up this frame for reuse
                             image.close();
                         }
                     }
@@ -418,36 +451,59 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 }
             };
-            reader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
+            //Register a listener to be invoked when a new image becomes available from the ImageReader
+            mImageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
+
+            //Callback object for tracking the progress of a CaptureRequest submitted to the camera device
             final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
+                /*
+                    This method is called when an image capture has fully completed and all the result metadata is available.
+                    @param session the session returned by CameraDevice.createCaptureSession(SessionConfiguration).
+                           This value must never be null.
+                    @param request The request that was given to the CameraDevice. This value must never be null.
+                    @param result The total output metadata from the capture, including the final capture parameters
+                           and the state of the camera system during capture.
+                 */
                 @Override
-                public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
-                    Log.d(TAG, "foto salvata");
+                public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
                     super.onCaptureCompleted(session, request, result);
-                    Toast.makeText(CameraActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
-                    //createCameraPreview();
-                    startActivity(intentOCR);
+                    Toast.makeText(CameraActivity.this, "Saved:" + filePath, Toast.LENGTH_SHORT).show();
+                    //Starts the activity for the OCR recognition
                 }
             };
+
+            //Create a new camera capture session by providing the target output set of Surfaces to the camera device.
             mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
+                /*
+                    This method is called when the camera device has finished configuring itself,
+                    and the session can start processing capture requests.
+                    @param session The session returned by CameraDevice.createCaptureSession(SessionConfiguration).
+                           This value must never be null
+                 */
                 @Override
-                public void onConfigured(CameraCaptureSession session) {
-                    Log.d(TAG, "configure");
+                public void onConfigured(@NonNull CameraCaptureSession session) {
                     try {
+                        //Submit a request for an image to be captured by the camera device.
+
                         session.capture(captureBuilder.build(), captureListener, mBackgroundHandler);
                     } catch (CameraAccessException e) {
                         e.printStackTrace();
                     }
                 }
+                /*
+                    This method is called if the session cannot be configured as requested.
+                    @param session The session returned by CameraDevice.createCaptureSession(SessionConfiguration).
+                           This value must never be null
+                 */
                 @Override
-                public void onConfigureFailed(CameraCaptureSession session) {
-                    Log.d(TAG, "configure failed");
+                public void onConfigureFailed(@NonNull CameraCaptureSession session) {
                 }
             }, mBackgroundHandler);
-        }catch (Exception e){
+        } catch (CameraAccessException e) {
             e.printStackTrace();
         }
     }
+
 
     /**
      * Start Background Thread
@@ -502,3 +558,4 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 }
+

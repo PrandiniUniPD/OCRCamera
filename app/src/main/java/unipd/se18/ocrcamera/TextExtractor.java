@@ -22,7 +22,6 @@ import java.util.List;
  * Implements the common OCR wrapper to retrieve text from an image.
  */
 class TextExtractor implements OCRInterface {
-
     private FirebaseVisionImage fbImage;
     private FirebaseVisionTextRecognizer textRecognizer;
     private FirebaseVisionDocumentText documentText;
@@ -57,7 +56,6 @@ class TextExtractor implements OCRInterface {
         this.context = applicationContext;
         resultText = "";
     }
-
 
     /**
      * Extract a text from a given image.
