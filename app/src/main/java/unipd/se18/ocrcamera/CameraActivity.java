@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -21,22 +22,23 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Size;
-import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -47,6 +49,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.media.ExifInterface;
 
 /**
  * The Activity useful for making photos
@@ -65,15 +73,13 @@ public class CameraActivity extends AppCompatActivity {
     private final int MY_CAMERA_REQUEST_CODE = 200;
 
     /**
-     * SparseIntArray used for the conversion from screen rotation to Bitmap orientation
+     * Variable needed for rotation device through class
      */
-    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-    static{
-        ORIENTATIONS.append(Surface.ROTATION_0,90);
-        ORIENTATIONS.append(Surface.ROTATION_90,0);
-        ORIENTATIONS.append(Surface.ROTATION_180,270);
-        ORIENTATIONS.append(Surface.ROTATION_270,180);
-    }
+    private Sensor accelerometer;
+    private Sensor magnetometer;
+    private Sensor vectorSensor;
+    private DeviceOrientation deviceOrientation;
+    private SensorManager mSensorManager;
 
     // Shared variables
     /**
@@ -207,6 +213,12 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        //Initializing the gyroscope component
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        deviceOrientation = new DeviceOrientation();
+
         // Initializing of the UI components
         mCameraTextureView = findViewById(R.id.camera_view);
         mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
@@ -244,6 +256,10 @@ public class CameraActivity extends AppCompatActivity {
             Log.v(TAG, "onResume -> cemaraPreview is not available");
             mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
+
+        //Restart gyroscope
+        mSensorManager.registerListener(deviceOrientation.getEventListener(), accelerometer, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(deviceOrientation.getEventListener(), magnetometer, SensorManager.SENSOR_DELAY_UI);
     }
 
     /**
@@ -256,6 +272,8 @@ public class CameraActivity extends AppCompatActivity {
         closeCamera();
         stopBackgroundThread();
         super.onPause();
+        //Stop gyroscope
+        mSensorManager.unregisterListener(deviceOrientation.getEventListener());
     }
 
     /**
@@ -520,6 +538,7 @@ public class CameraActivity extends AppCompatActivity {
 
         try
         {
+
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(mCameraDevice.getId());
             Size[] jpegSizes = Objects.requireNonNull(characteristics.get(
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)).getOutputSizes(ImageFormat.JPEG);
@@ -552,9 +571,12 @@ public class CameraActivity extends AppCompatActivity {
                     editor.putString("photoBitmap", photoBitmapToString);
                     editor.commit();
 
-                    //@author Leonardo Rossi
+                    //@author Leonardo Rossi & Giovanni Furlan
                     //Temporary stores the caprured photo into a file that will be used from the Camera Result activity
                     Bitmap bmp = BitmapFactory.decodeByteArray(photoByteArray, 0, photoByteArray.length);
+                    //Rotate the image based on the gyroscope
+                    int rotation = deviceOrientation.getOrientation();
+                    bmp = rotateBitmap(bmp, rotation);
                     String filePath= tempFileImage(CameraActivity.this, bmp,"capturedImage");
 
                     //An intent that will launch the activity that will analyse the photo
@@ -577,9 +599,6 @@ public class CameraActivity extends AppCompatActivity {
             captureBuilder.addTarget(mImageReader.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
-            //Check orientation base on device
-            int rotation = getWindowManager().getDefaultDisplay().getRotation();
-            captureBuilder.set(CaptureRequest.JPEG_ORIENTATION,ORIENTATIONS.get(rotation));
 
             final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
                 @Override
@@ -635,6 +654,46 @@ public class CameraActivity extends AppCompatActivity {
         }
 
         return imageFile.getAbsolutePath();
+    }
+
+    /**
+     * Convert DeviceOrientation's rotation value in 90 grades rotation value and
+     * rotate bitmap image counter clockwise by the rotation value
+     * @param bmp original bitmap image
+     * @param int rotation based on DeviceOrientation class
+     * @return Bitmap rotated image
+     * @author Giovanni Furlan
+     */
+    private Bitmap rotateBitmap(Bitmap bmp, int rotation){
+
+        int rot = 0;
+        switch (rotation) {
+            case 6:
+                rot = 0;
+                break;
+            case 1:
+                rot = 3;
+            break;
+            case 3:
+                rot = 1;
+                break;
+            case 8:
+                rot = 2;
+                break;
+        }
+        int i=rot;
+
+        if(rot>0) {
+            Matrix matrix = new Matrix();
+            while(i>0) {
+                matrix.postRotate(90); // anti-clockwise by 90 degrees
+                i--;
+            }
+            bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+
+        }
+
+        return bmp;
     }
 
     /**
@@ -694,6 +753,114 @@ public class CameraActivity extends AppCompatActivity {
         }
         finally {
             mCameraOpenCloseLock.release();
+        }
+    }
+
+
+
+    /**
+     * External class that find screen rotation based on gyroscope
+     * @author Giovanni Furlan
+     * based on github https://gist.github.com/abdelhady/501f6e48c1f3e32b253a#file-deviceorientation
+     */
+    public class DeviceOrientation {
+        private final int ORIENTATION_PORTRAIT = ExifInterface.ORIENTATION_ROTATE_90; // 6
+        private final int ORIENTATION_LANDSCAPE_REVERSE = ExifInterface.ORIENTATION_ROTATE_180; // 3
+        private final int ORIENTATION_LANDSCAPE = ExifInterface.ORIENTATION_NORMAL; // 1
+        private final int ORIENTATION_PORTRAIT_REVERSE = ExifInterface.ORIENTATION_ROTATE_270; // 8
+
+        int smoothness = 1;
+        private float averagePitch = 0;
+        private float averageRoll = 0;
+        private int orientation = ORIENTATION_PORTRAIT;
+
+        private float[] pitches;
+        private float[] rolls;
+
+        public DeviceOrientation() {
+            pitches = new float[smoothness];
+            rolls = new float[smoothness];
+        }
+
+        public SensorEventListener getEventListener() {
+            return sensorEventListener;
+        }
+
+        /**
+         * Based on gyroscope return the rotation screen's value
+         * @return int DeviceOrientation rotation value
+         */
+
+        public int getOrientation() {
+            return orientation;
+        }
+
+        SensorEventListener sensorEventListener = new SensorEventListener() {
+            float[] mGravity;
+            float[] mGeomagnetic;
+
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+                    mGravity = event.values;
+                if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+                    mGeomagnetic = event.values;
+                if (mGravity != null && mGeomagnetic != null) {
+                    float R[] = new float[9];
+                    float I[] = new float[9];
+                    boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+                    if (success) {
+                        float orientationData[] = new float[3];
+                        SensorManager.getOrientation(R, orientationData);
+                        averagePitch = addValue(orientationData[1], pitches);
+                        averageRoll = addValue(orientationData[2], rolls);
+                        orientation = calculateOrientation();
+                    }
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                // TODO Auto-generated method stub
+
+            }
+        };
+
+        private float addValue(float value, float[] values) {
+            value = (float) Math.round((Math.toDegrees(value)));
+            float average = 0;
+            for (int i = 1; i < smoothness; i++) {
+                values[i - 1] = values[i];
+                average += values[i];
+            }
+            values[smoothness - 1] = value;
+            average = (average + value) / smoothness;
+            return average;
+        }
+
+        private int calculateOrientation() {
+            // finding local orientation dip
+            if (((orientation == ORIENTATION_PORTRAIT || orientation == ORIENTATION_PORTRAIT_REVERSE)
+                    && (averageRoll > -30 && averageRoll < 30))) {
+                if (averagePitch > 0)
+                    return ORIENTATION_PORTRAIT_REVERSE;
+                else
+                    return ORIENTATION_PORTRAIT;
+            } else {
+                // divides between all orientations
+                if (Math.abs(averagePitch) >= 30) {
+                    if (averagePitch > 0)
+                        return ORIENTATION_PORTRAIT_REVERSE;
+                    else
+                        return ORIENTATION_PORTRAIT;
+                } else {
+                    if (averageRoll > 0) {
+                        return ORIENTATION_LANDSCAPE_REVERSE;
+                    } else {
+                        return ORIENTATION_LANDSCAPE;
+                    }
+                }
+            }
         }
     }
 
