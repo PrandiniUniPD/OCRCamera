@@ -38,10 +38,10 @@ public class InternalStorageManager {
 
 
     /**
-     *
+     * Saves a bitmap inside internal storage, using filename and directory provided on construction
      * @param bitmap image to save inside internal storage
      *
-     * Modifies shared preferences to store the image's path
+     * @odifies shared preferences to store the image's path
      */
     public void saveBitmapToInternalStorage(Bitmap bitmap) {
         ContextWrapper cw = new ContextWrapper(context);
@@ -74,7 +74,10 @@ public class InternalStorageManager {
         editor.apply();
     }
 
-
+    /**
+     *
+     * @return Bitmap loaded from internal storage if exists, null otherwise
+     */
     public Bitmap loadBitmapFromInternalStorage() {
         try {
             File f=new File(this.path, fileName);
@@ -90,6 +93,10 @@ public class InternalStorageManager {
         return null;
     }
 
+    public Boolean existsFile() {
+        File f=new File(this.path, fileName);
+        return f.exists();
+    }
 
 
 

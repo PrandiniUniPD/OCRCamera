@@ -81,10 +81,6 @@ public class CameraActivity extends AppCompatActivity {
      */
     private static final String TAG = "CameraActivity";
 
-    /**
-     * File object used to store the pic (g1)
-     */
-    private static final File SAVE_DIR = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/OCRCamera/Pictures/");
 
     /**
      * Code for the permission requested
@@ -153,6 +149,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private String filePath;
     private File file;
+    public InternalStorageManager bitmapManager;
 
 
     /**
@@ -239,8 +236,28 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-        // Create the directories for the app (g1)
-        createOCRCDirs();
+
+        bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
+
+        //If already exists a photo, launch result activity to show it with text attached - Author Luca Moroldo
+        if(bitmapManager.existsFile()) {
+            //load last extracted text
+            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
+            String lastExtractedText = sharedPref.getString("lastExtractedText", "");
+
+            if(lastExtractedText != "") {
+                //An intent that will launch the activity
+                Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                i.putExtra("text", lastExtractedText);
+                startActivity(i);
+            }
+            else {
+                Log.e(TAG, "Error retrieving last extr text");
+            }
+
+        }
+
+
         //create intent
         // Initializing of the UI components
         mCameraTextureView = findViewById(R.id.camera_view);
@@ -552,22 +569,6 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * Create App's Directories
-     * @author Mattia Molinaro (g1)
-     */
-    public void createOCRCDirs(){
-        File f=new File(SAVE_DIR.getAbsolutePath());
-        if(!f.exists()){
-            if(f.mkdirs())
-                Log.d("createOCRCDirs", "CREATED");
-            else
-                Log.e("createOCRDirs", "PROBLEM");
-        }else{
-            Log.d("createOCRCDirs", "already exists");
-        }
-        //Log.e("createTessDirs", "launching copyTessDataForTextRecognizor()");
-    }
 
     //TODO Choose form this takePhoto and the takePhoto after this or a merged version from both
     /**
@@ -601,6 +602,56 @@ public class CameraActivity extends AppCompatActivity {
             }
 
             mImageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
+
+            ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener()
+            {
+                @Override
+                public void onImageAvailable(ImageReader reader) {
+                    /*
+                    //acquires the last image and delivers it to a buffer
+                    Image image = reader.acquireLatestImage();
+                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                    byte[] photoByteArray = new byte[buffer.capacity()];
+                    buffer.get(photoByteArray);
+
+                    //Converts the byte array related to the given photo to a String in Base64 format
+                    String photoBitmapToString = Base64.encodeToString(photoByteArray, Base64.DEFAULT);
+
+                    //Create sharedPref file to save the Bitmap of last taken photo in a String form
+                    SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("photoBitmap", photoBitmapToString);
+                    editor.commit();
+
+                    //@author Leonardo Rossi
+                    //Temporary stores the caprured photo into a file that will be used from the Camera Result activity
+                    Bitmap bmp = BitmapFactory.decodeByteArray(photoByteArray, 0, photoByteArray.length);
+                    String filePath= tempFileImage(CameraActivity.this, bmp,"capturedImage");
+
+                    //An intent that will launch the activity that will analyse the photo
+                    Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                    i.putExtra("imageDataPath", filePath);
+                    startActivity(i);
+                    */
+
+
+                    //Get image and convert it to Bitmap
+                    Image image = reader.acquireLatestImage();
+                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                    byte[] bytes = new byte[buffer.capacity()];
+                    buffer.get(bytes);
+                    Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+
+                    //save Bitmap inside internal storage
+                    bitmapManager.saveBitmapToInternalStorage(bitmapImage);
+
+                    Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                    startActivity(i);
+
+                }
+            };
+            mImageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
+
             //@author Leonardo Rosi
 
             //Output surfaces
@@ -617,94 +668,12 @@ public class CameraActivity extends AppCompatActivity {
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION,ORIENTATIONS.get(rotation));
 
-            //declaring the file that will contains photo
-            //int currentTime = Calendar.getInstance().getTime().hashCode();
-            //String mFilename = currentTime + ".jpg";
-            //file = new File(SAVE_DIR,mFilename);
-
-
-            int currentTime = Calendar.getInstance().getTime().hashCode();
-            file = new File(Environment.getExternalStorageDirectory()+"/OCRCamera/Pictures/"+currentTime+".jpg");
-            file.mkdirs();
-            try {
-                if(file.exists()){
-                    file.delete();
-                }
-                file.createNewFile();
-            } catch(IOException e) {
-                e.printStackTrace();
-            }
-            ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener()
-            {
-                @Override
-                public void onImageAvailable(ImageReader reader) {
-                    //acquires the last image and delivers it to a buffer
-                    Image image = reader.acquireLatestImage();
-                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                    byte[] photoByteArray = new byte[buffer.capacity()];
-                    buffer.get(photoByteArray);
-                    //Create sharedPref file to save the Bitmap of last taken photo in a String form
-                    SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("photoBitmapPath", file.getPath());
-                    editor.commit();
-
-                    //CHANGES from
-                    //------------
-                    //Converts the byte array related to the given photo to a String in Base64 format
-                    //String photoBitmapToString = Base64.encodeToString(photoByteArray, Base64.DEFAULT);
-                    //@author Leonardo Rossi
-                    //Temporary stores the caprured photo into a file that will be used from the Camera Result activit
-                    // Bitmap bmp = BitmapFactory.decodeByteArray(photoByteArray, 0, photoByteArray.length);
-                    //String filePath= tempFileImage(CameraActivity.this, bmp,"capturedImage");
-                    //------------
-                    //to
-
-                    //Save the photo
-                    try {
-                        save(photoByteArray);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }finally {
-                        if (image != null) {
-                            //Free up this frame for reuse
-                            image.close();
-                        }
-                    }
-
-
-
-
-                    //QUA C'ERA UN INTENT, L'HO SPOSTATO IN onCaptureCompleted
-
-                }
-                //@author Mattia Molinaro
-                //method for save photo
-                private void save(byte[] bytes) throws IOException {
-                    OutputStream output = null;
-                    try {
-                        output = new FileOutputStream(file);
-                        output.write(bytes);
-                    } finally {
-                        if (null != output) {
-                            output.flush();
-                            output.close();
-                        }
-                    }
-                }
-            };
-            mImageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
-
             final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
                 @Override
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
                     super.onCaptureCompleted(session, request, result);
                     createCameraPreview();
-                    //An intent that will launch the activity that will analyse the photo
-                    Intent i = new Intent(CameraActivity.this, ResultActivity.class);
-                    i.putExtra("imageDataPath", filePath);
-                    startActivity(i);
                 }
             };
 
@@ -726,7 +695,7 @@ public class CameraActivity extends AppCompatActivity {
         } catch(CameraAccessException e) {
             e.printStackTrace();
         }
-    }
+    } //end takePhoto
 
     /**
      * Stores the captured image into a temporary file useful to pass large data between activities
