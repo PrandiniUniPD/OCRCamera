@@ -8,7 +8,7 @@
     <string name="permissions_not_granted">Missing permissions.</string>
     <string name="update_preview_failed">Update preview failed.</string>
     <string name="no_last_photo">There are not a last photo</string>
-    <string name="no_text_found">No text found, retry please</string>
+    <string name="no_text_found">No text found, please try again</string>
     <string name="processing">Processing..</string>
     <string name="photoFileName">lastPhoto.jpg</string>
     <string name="savedPhotoPathKey">savedPhotoPathKey</string>

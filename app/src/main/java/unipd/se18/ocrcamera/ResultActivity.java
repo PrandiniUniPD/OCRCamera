@@ -61,7 +61,7 @@ public class ResultActivity extends AppCompatActivity {
         Bitmap lastPhoto = bitmapManager.loadBitmapFromInternalStorage();
 
         if(lastPhoto != null) {
-            mImageView.setImageBitmap(lastPhoto);
+            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 960, 960, false));
         }
         else {
             Log.e("ResultActivity", "error retrieving last photo");
@@ -146,17 +146,17 @@ public class ResultActivity extends AppCompatActivity {
         android.arch.lifecycle.Observer<String> obsText = new android.arch.lifecycle.Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
-                if(s != null && s.equals("")) {
-                    mOCRTextView.setText(R.string.no_text_found);
-                } else if (s != null) {
-                    mOCRTextView.setText(s.toUpperCase());
+                if(s != null) {
+                    if(s.equals(""))
+                        mOCRTextView.setText(R.string.no_text_found);
+                    else
+                        mOCRTextView.setText(s.toUpperCase());
 
                     //store on shared pref the extracted text
                     SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("lastExtractedText", s);
                     editor.commit();
-
                 }
             }
         };

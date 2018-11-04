@@ -23,7 +23,7 @@ public class InternalStorageManager {
      * @param context application context
      * @param dirName the directory where the file will be saved
      * @param fileName  name of the file
-     *
+     * @author Luca Moroldo
      */
     public InternalStorageManager(Context context, String dirName, String fileName) {
         this.dirName = dirName;
@@ -40,8 +40,8 @@ public class InternalStorageManager {
     /**
      * Saves a bitmap inside internal storage, using filename and directory provided on construction
      * @param bitmap image to save inside internal storage
-     *
      * @odifies shared preferences to store the image's path
+     * @author Luca Moroldo
      */
     public void saveBitmapToInternalStorage(Bitmap bitmap) {
         ContextWrapper cw = new ContextWrapper(context);
@@ -77,6 +77,7 @@ public class InternalStorageManager {
     /**
      *
      * @return Bitmap loaded from internal storage if exists, null otherwise
+     * @author Luca Moroldo
      */
     public Bitmap loadBitmapFromInternalStorage() {
         try {
@@ -93,6 +94,10 @@ public class InternalStorageManager {
         return null;
     }
 
+    /**
+     * @return Boolean true if the file exists
+     * @author Luca Moroldo
+     */
     public Boolean existsFile() {
         File f=new File(this.path, fileName);
         return f.exists();
