@@ -246,26 +246,6 @@ public class CameraActivity extends AppCompatActivity {
 
         bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
 
-        //If already exists a photo, launch result activity to show it with text attached - Author Luca Moroldo
-        if(bitmapManager.existsFile()) {
-            //load last extracted text
-            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
-            String lastExtractedText = sharedPref.getString("lastExtractedText", "");
-
-            if(lastExtractedText != "") {
-                //An intent that will launch the activity
-                Intent i = new Intent(CameraActivity.this, ResultActivity.class);
-                i.putExtra("text", lastExtractedText);
-                startActivity(i);
-            }
-            else {
-                Log.e(TAG, "Error retrieving last extr text");
-            }
-
-        }
-
-
-        //create intent
         // Initializing of the UI components
         mCameraTextureView = findViewById(R.id.camera_view);
         mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
