@@ -14,7 +14,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -88,16 +91,13 @@ public class CameraActivity extends AppCompatActivity {
     private final int MY_CAMERA_REQUEST_CODE = 200;
 
     /**
-     * SparseIntArray used for the conversion from screen rotation to Bitmap orientation
+     * Gyroscope
      */
-    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-
-    static {
-        ORIENTATIONS.append(Surface.ROTATION_0, 90);
-        ORIENTATIONS.append(Surface.ROTATION_90, 0);
-        ORIENTATIONS.append(Surface.ROTATION_180, 270);
-        ORIENTATIONS.append(Surface.ROTATION_270, 180);
-    }
+    private Sensor accelerometer;
+    private Sensor magnetometer;
+    private Sensor vectorSensor;
+    private DeviceOrientation deviceOrientation;
+    private SensorManager mSensorManager;
 
     // Shared variables
     /**
@@ -237,6 +237,12 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        //Initialising gyroscope
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        deviceOrientation = new DeviceOrientation();
+
         bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
 
         //If already exists a photo, launch result activity to show it with text attached - Author Luca Moroldo
@@ -288,6 +294,11 @@ public class CameraActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.v(TAG,"onResume");
+
+        //Restarting gyroscope
+        mSensorManager.registerListener(deviceOrientation.getEventListener(), accelerometer, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(deviceOrientation.getEventListener(), magnetometer, SensorManager.SENSOR_DELAY_UI);
+
         startBackgroundThread();
         if (mCameraTextureView.isAvailable()) {
             Log.v(TAG, "onResume -> cameraPreview is available");
@@ -308,6 +319,10 @@ public class CameraActivity extends AppCompatActivity {
         closeCamera();
         stopBackgroundThread();
         super.onPause();
+
+        //Stop gyroscope
+        mSensorManager.unregisterListener(deviceOrientation.getEventListener());
+
     }
 
     /**
@@ -642,6 +657,10 @@ public class CameraActivity extends AppCompatActivity {
                     buffer.get(bytes);
                     Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
 
+                    //Image rotation
+                    int rotation = deviceOrientation.getOrientation();
+                    bitmapImage = rotateBitmap(bitmapImage, rotation);
+
                     //save Bitmap inside internal storage
                     bitmapManager.saveBitmapToInternalStorage(bitmapImage);
 
@@ -664,9 +683,6 @@ public class CameraActivity extends AppCompatActivity {
             captureBuilder.addTarget(mImageReader.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
-            //Check orientation base on device
-            int rotation = getWindowManager().getDefaultDisplay().getRotation();
-            captureBuilder.set(CaptureRequest.JPEG_ORIENTATION,ORIENTATIONS.get(rotation));
 
             final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
                 @Override
@@ -851,6 +867,46 @@ public class CameraActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }*/
+
+    /**
+     * Convert DeviceOrientation's rotation value in 90 grades rotation value and
+     * rotate bitmap image counter clockwise by the rotation value
+     * @param bmp original bitmap image
+     * @param int rotation based on DeviceOrientation class
+     * @return Bitmap rotated image
+     * @author Giovanni Furlan
+     */
+    private Bitmap rotateBitmap(Bitmap bmp, int rotation){
+
+        int rot = 0;
+        switch (rotation) {
+            case 6:
+                rot = 0;
+                break;
+            case 1:
+                rot = 3;
+                break;
+            case 3:
+                rot = 1;
+                break;
+            case 8:
+                rot = 2;
+                break;
+        }
+        int i=rot;
+
+        if(rot>0) {
+            Matrix matrix = new Matrix();
+            while(i>0) {
+                matrix.postRotate(90); // anti-clockwise by 90 degrees
+                i--;
+            }
+            bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+
+        }
+
+        return bmp;
+    }
 
 
 
