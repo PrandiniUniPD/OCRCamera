@@ -7,35 +7,8 @@ import android.hardware.SensorManager;
 import android.media.ExifInterface;
 
 /**
- * Created by abdelhady on 9/23/14.
- *
- * to use this class do the following 3 steps in your activity:
- *
- * define 3 sensors as member variables
- Sensor accelerometer;
- Sensor magnetometer;
- Sensor vectorSensor;
- DeviceOrientation deviceOrientation;
- *
- * add this to the activity's onCreate
- mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
- accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
- magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
- deviceOrientation = new DeviceOrientation();
- *
- * add this to onResume
- mSensorManager.registerListener(deviceOrientation.getEventListener(), accelerometer, SensorManager.SENSOR_DELAY_UI);
- mSensorManager.registerListener(deviceOrientation.getEventListener(), magnetometer, SensorManager.SENSOR_DELAY_UI);
- *
- * add this to onPause
- mSensorManager.unregisterListener(deviceOrientation.getEventListener());
- *
- *
- * then, you can simply call * deviceOrientation.getOrientation() * wherever you want
- *
- *
- * another alternative to this class's approach:
- * http://stackoverflow.com/questions/11175599/how-to-measure-the-tilt-of-the-phone-in-xy-plane-using-accelerometer-in-android/15149421#15149421
+ * This class use the gyroscope to get the camera orientation
+ * @author Giovanni Furlan (g2)
  *
  */
 public class DeviceOrientation {
