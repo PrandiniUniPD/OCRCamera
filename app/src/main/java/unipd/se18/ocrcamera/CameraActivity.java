@@ -14,7 +14,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -24,6 +27,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.ExifInterface;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Environment;
@@ -88,16 +92,13 @@ public class CameraActivity extends AppCompatActivity {
     private final int MY_CAMERA_REQUEST_CODE = 200;
 
     /**
-     * SparseIntArray used for the conversion from screen rotation to Bitmap orientation
+     * Gyroscope
      */
-    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-
-    static {
-        ORIENTATIONS.append(Surface.ROTATION_0, 90);
-        ORIENTATIONS.append(Surface.ROTATION_90, 0);
-        ORIENTATIONS.append(Surface.ROTATION_180, 270);
-        ORIENTATIONS.append(Surface.ROTATION_270, 180);
-    }
+    private Sensor accelerometer;
+    private Sensor magnetometer;
+    private Sensor vectorSensor;
+    private DeviceOrientation deviceOrientation;
+    private SensorManager mSensorManager;
 
     // Shared variables
     /**
@@ -237,6 +238,12 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        //Initialising gyroscope
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        deviceOrientation = new DeviceOrientation();
+
         bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
 
         //If already exists a photo, launch result activity to show it with text attached - Author Luca Moroldo
@@ -288,6 +295,11 @@ public class CameraActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.v(TAG,"onResume");
+
+        //Restarting gyroscope
+        mSensorManager.registerListener(deviceOrientation.getEventListener(), accelerometer, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(deviceOrientation.getEventListener(), magnetometer, SensorManager.SENSOR_DELAY_UI);
+
         startBackgroundThread();
         if (mCameraTextureView.isAvailable()) {
             Log.v(TAG, "onResume -> cameraPreview is available");
@@ -308,6 +320,10 @@ public class CameraActivity extends AppCompatActivity {
         closeCamera();
         stopBackgroundThread();
         super.onPause();
+
+        //Stop gyroscope
+        mSensorManager.unregisterListener(deviceOrientation.getEventListener());
+
     }
 
     /**
@@ -615,6 +631,10 @@ public class CameraActivity extends AppCompatActivity {
                     buffer.get(bytes);
                     Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
 
+                    //Image rotation
+                    int rotation = deviceOrientation.getOrientation();
+                    bitmapImage = imageOrientation(bitmapImage, rotation);
+
                     //save Bitmap inside internal storage and reset extracted text
                     bitmapManager.saveBitmapToInternalStorage(bitmapImage);
                     SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
@@ -641,9 +661,6 @@ public class CameraActivity extends AppCompatActivity {
             captureBuilder.addTarget(mImageReader.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
-            //Check orientation base on device
-            int rotation = getWindowManager().getDefaultDisplay().getRotation();
-            captureBuilder.set(CaptureRequest.JPEG_ORIENTATION,ORIENTATIONS.get(rotation));
 
             final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
                 @Override
@@ -674,6 +691,46 @@ public class CameraActivity extends AppCompatActivity {
         }
     } //end takePhoto
 
+//TODO correct the rotation bug for some device, now it's just 90 degrees rotated
+    /**
+     * rotate bitmap image counter clockwise by the rotation value
+     * Convert DeviceOrientation's rotation value in 90 grades rotation value and
+     * @param bmp original bitmap image
+     * @param int rotation based on DeviceOrientation class
+     * @return Bitmap rotated image
+     * @author Giovanni Furlan (g2)
+     */
+
+    private Bitmap imageOrientation(Bitmap bmp, int rotation){
+        //TODO comment the following line if ur image is rotated by 90 degrees
+        bmp=rotateImage(bmp, 90);
+        switch (rotation) {
+            case 6:
+                return bmp;
+            case 1:
+                return rotateImage(bmp, 270);
+            case 3:
+                return rotateImage(bmp, 90);
+            case 8:
+                return rotateImage(bmp, 180);
+        }
+
+        return bmp;
+    }
+
+
+    /**
+     * Rotate the bitmap image of the angle
+     * @param Bitmap the image
+     * @param angle angle of rotation
+     * @return Bitmap image rotated
+     */
+    public static Bitmap rotateImage(Bitmap source, int angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
+    }
 
     /**
      * Closes resources related to the camera.
