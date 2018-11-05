@@ -4,7 +4,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.ExifInterface;
+import android.support.media.ExifInterface;
 
 /**
  * This class use the gyroscope to get the camera orientation
@@ -17,7 +17,7 @@ public class DeviceOrientation {
     private final int ORIENTATION_LANDSCAPE = ExifInterface.ORIENTATION_NORMAL; // 1
     private final int ORIENTATION_PORTRAIT_REVERSE = ExifInterface.ORIENTATION_ROTATE_270; // 8
 
-    int smoothness = 1;
+    private int smoothness = 1;
     private float averagePitch = 0;
     private float averageRoll = 0;
     private int orientation = ORIENTATION_PORTRAIT;
@@ -25,12 +25,12 @@ public class DeviceOrientation {
     private float[] pitches;
     private float[] rolls;
 
-    public DeviceOrientation() {
+    DeviceOrientation() {
         pitches = new float[smoothness];
         rolls = new float[smoothness];
     }
 
-    public SensorEventListener getEventListener() {
+    SensorEventListener getEventListener() {
         return sensorEventListener;
     }
 
@@ -38,7 +38,7 @@ public class DeviceOrientation {
         return orientation;
     }
 
-    SensorEventListener sensorEventListener = new SensorEventListener() {
+    private SensorEventListener sensorEventListener = new SensorEventListener() {
         float[] mGravity;
         float[] mGeomagnetic;
 

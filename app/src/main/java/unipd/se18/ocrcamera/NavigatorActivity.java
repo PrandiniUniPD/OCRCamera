@@ -37,7 +37,7 @@ public class NavigatorActivity extends AppCompatActivity {
             SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
             String lastExtractedText = sharedPref.getString("lastExtractedText", "");
 
-            if(lastExtractedText != "") {
+            if(lastExtractedText != null && !(lastExtractedText.equals(""))) {
                 //An intent that will launch the activity
                 intent = new Intent(NavigatorActivity.this, ResultActivity.class);
                 intent.putExtra("text", lastExtractedText);

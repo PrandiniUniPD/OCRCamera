@@ -26,7 +26,7 @@ public class TextExtractor implements OCRInterface {
     /**
      * It defines an object of type TextExtractor
      */
-    public TextExtractor(Context context) {
+    TextExtractor(Context context) {
         extractedText = new MutableLiveData<>();
         this.context = context;
     }
@@ -74,6 +74,6 @@ public class TextExtractor implements OCRInterface {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("text", text);
-        editor.commit();
+        editor.apply();
     }
 }

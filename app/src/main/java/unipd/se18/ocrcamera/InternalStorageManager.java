@@ -12,7 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class InternalStorageManager {
+class InternalStorageManager {
     private String dirName;
     private Context context;
     private String fileName;
@@ -25,7 +25,7 @@ public class InternalStorageManager {
      * @param fileName  name of the file
      * @author Luca Moroldo
      */
-    public InternalStorageManager(Context context, String dirName, String fileName) {
+    InternalStorageManager(Context context, String dirName, String fileName) {
         this.dirName = dirName;
         this.context = context;
         this.fileName = fileName;
@@ -40,10 +40,10 @@ public class InternalStorageManager {
     /**
      * Saves a bitmap inside internal storage, using filename and directory provided on construction
      * @param bitmap image to save inside internal storage
-     * @odifies shared preferences to store the image's path
+     * @modify shared preferences to store the image's path
      * @author Luca Moroldo
      */
-    public void saveBitmapToInternalStorage(Bitmap bitmap) {
+    void saveBitmapToInternalStorage(Bitmap bitmap) {
         ContextWrapper cw = new ContextWrapper(context);
         File directory = cw.getDir(this.dirName, Context.MODE_PRIVATE);
         File file = new File(directory, fileName);
@@ -79,11 +79,10 @@ public class InternalStorageManager {
      * @return Bitmap loaded from internal storage if exists, null otherwise
      * @author Luca Moroldo
      */
-    public Bitmap loadBitmapFromInternalStorage() {
+    Bitmap loadBitmapFromInternalStorage() {
         try {
             File f=new File(this.path, fileName);
-            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(f));
-            return bitmap;
+            return BitmapFactory.decodeStream(new FileInputStream(f));
         }
         catch (FileNotFoundException e)
         {
@@ -98,7 +97,7 @@ public class InternalStorageManager {
      * @return Boolean true if the file exists
      * @author Luca Moroldo
      */
-    public Boolean existsFile() {
+    Boolean existsFile() {
         File f=new File(this.path, fileName);
         return f.exists();
     }

@@ -12,4 +12,5 @@
     <string name="processing">Processing..</string>
     <string name="photoFileName">lastPhoto.jpg</string>
     <string name="savedPhotoPathKey">savedPhotoPathKey</string>
+    <string name="pic_captured">Pic captured</string>
 </resources>
