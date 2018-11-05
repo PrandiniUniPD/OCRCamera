@@ -597,8 +597,22 @@ public class CameraActivity extends AppCompatActivity {
             int height = 480;
             if(jpegSizes != null && jpegSizes.length > 0)
             {
+                /*
+                * @author Giovanni Fasan (g1)
+                * Fix bug with OnePlus5t ==> E/CameraCaptureSession: Session 1: Failed to create capture session; configuration failed
+                * jpegSizes[0].getWidth()=4608; ==> Doesn't work with height= 0,1,2
+                * jpegSizes[1].getWidth()=4608; ==> Doesn't work with height= 0,1,2
+                * jpegSizes[2].getWidth()=4608; ==> Doesn't work with height= 0,1,2
+                * jpegSizes[3].getWidth()=4160;
+                * jpegSizes[4].getWidth()=3840;
+                * height = jpegSizes[0].getHeight()=3456;
+                * height = jpegSizes[1].getHeight()=2592;
+                * height = jpegSizes[2].getHeight()=2304;
+                * height = jpegSizes[3].getHeight()=3120;
+                * height = jpegSizes[4].getHeight()=2160;
+                * */
                 width = jpegSizes[0].getWidth();
-                height = jpegSizes[0].getHeight();
+                height = jpegSizes[3].getHeight();
             }
 
             mImageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
