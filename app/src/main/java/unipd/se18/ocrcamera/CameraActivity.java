@@ -28,10 +28,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.support.media.ExifInterface;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Size;
+import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -121,6 +123,24 @@ public class CameraActivity extends AppCompatActivity {
      * Instance of InternalStorageManager for managing the pic data
      */
     public InternalStorageManager bitmapManager;
+
+    private static final SparseIntArray ExifInterfaceORIENTATIONS = new SparseIntArray();
+    static {
+        ExifInterfaceORIENTATIONS.append(ExifInterface.ORIENTATION_NORMAL, 90);
+        ExifInterfaceORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_90, 0);
+        ExifInterfaceORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_180, 270);
+        ExifInterfaceORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_270, 180);
+    }
+    private static final SparseIntArray SurfaceORIENTATIONS = new SparseIntArray();
+    static {
+        SurfaceORIENTATIONS.append(Surface.ROTATION_0, 90);
+        SurfaceORIENTATIONS.append(Surface.ROTATION_90, 0);
+        SurfaceORIENTATIONS.append(Surface.ROTATION_180, 270);
+        SurfaceORIENTATIONS.append(Surface.ROTATION_270, 180);
+    }
+
+
+    private String cameraId;
 
 
     /**
@@ -293,7 +313,6 @@ public class CameraActivity extends AppCompatActivity {
 
         //Camera opening process
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        String cameraId;
         try {
             cameraId = manager.getCameraIdList()[0];
             CameraCharacteristics mCameraCharacteristics = manager.getCameraCharacteristics(cameraId);
@@ -645,19 +664,32 @@ public class CameraActivity extends AppCompatActivity {
      * @param bmp original bitmap image
      * @param rotation based on DeviceOrientation class
      * @return Bitmap rotated image
-     * @author Giovanni Furlan (g2)
+     * @author Giovanni Furlan (g2), Pietro Prandini (g2)
      */
     private Bitmap imageOrientation(Bitmap bmp, int rotation){
-        //TODO comment the following line if ur image is rotated by 90 degrees
-        bmp=rotateImage(bmp, 90);
+        Log.v(TAG, "imageOrientation -> rotation == " + rotation);
+        CameraManager internalCameraManager = (CameraManager) this.getSystemService(CAMERA_SERVICE);
+        int sensorOrientation = 0;
+        try {
+            sensorOrientation = internalCameraManager
+                    .getCameraCharacteristics(cameraId)
+                    .get(CameraCharacteristics.SENSOR_ORIENTATION);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        int rotationCompensation = ExifInterfaceORIENTATIONS.get(rotation);
+        Log.v(TAG, "imageOrientation -> sensorOrientation == " + sensorOrientation + ", rotationCompensation == "
+                + rotationCompensation);
+        rotation = (sensorOrientation + rotationCompensation + 270) % 360;
+                Log.v(TAG, "calculated rotation == " + rotation);
         switch (rotation) {
-            case 6:
-                return bmp;
-            case 1:
-                return rotateImage(bmp, 270);
-            case 3:
+            case 0:
                 return rotateImage(bmp, 90);
-            case 8:
+            case 90:
+                return rotateImage(bmp, 0);
+            case 180:
+                return rotateImage(bmp, 270);
+            case 270:
                 return rotateImage(bmp, 180);
         }
 
