@@ -657,7 +657,7 @@ public class CameraActivity extends AppCompatActivity {
         }
     } //end takePhoto
 
-//TODO correct the rotation bug for some device, now it's just 90 degrees rotated
+    //TODO test this method
     /**
      * rotate bitmap image counter clockwise by the rotation value
      * Convert DeviceOrientation's rotation value in 90 grades rotation value and
