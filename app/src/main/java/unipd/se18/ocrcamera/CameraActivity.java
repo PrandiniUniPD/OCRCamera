@@ -269,7 +269,7 @@ public class CameraActivity extends AppCompatActivity {
             Log.v(TAG, "onResume -> cameraPreview is available");
             openCamera();
         } else {
-            Log.v(TAG, "onResume -> cemaraPreview is not available");
+            Log.v(TAG, "onResume -> cameraPreview is not available");
             mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
     }
