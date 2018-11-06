@@ -661,10 +661,9 @@ public class CameraActivity extends AppCompatActivity {
 
     //TODO test this method
     /**
-     * rotate bitmap image counter clockwise by the rotation value
-     * Convert DeviceOrientation's rotation value in 90 grades rotation value and
+     * Rotate bitmap image relatively the rotation of the smartphone
      * @param bmp original bitmap image
-     * @param rotation based on DeviceOrientation class
+     * @param rotation based on DeviceOrientation class // TODO check if unusued
      * @return Bitmap rotated image
      * @author Giovanni Furlan (g2), Pietro Prandini (g2)
      */
@@ -679,11 +678,15 @@ public class CameraActivity extends AppCompatActivity {
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+        // ExifInterfaceOrientations
         int rotationCompensation = ExifInterfaceORIENTATIONS.get(rotation);
+        // SurfaceOrientations
+        //int rotationCompensation = SurfaceORIENTATIONS.get(CameraActivity.this.getWindowManager().getDefaultDisplay().getRotation());
         Log.v(TAG, "imageOrientation -> sensorOrientation == " + sensorOrientation + ", rotationCompensation == "
                 + rotationCompensation);
         rotation = (sensorOrientation + rotationCompensation + 270) % 360;
                 Log.v(TAG, "imageOrientation -> calculated rotation == " + rotation);
+        // ExifInterfaceOrientations
         switch (rotation) {
             case 0:
                 return rotateImage(bmp, 90);
@@ -694,7 +697,17 @@ public class CameraActivity extends AppCompatActivity {
             case 270:
                 return rotateImage(bmp, 180);
         }
-
+        // SurfaceOrientations
+        /*switch (rotation) {
+            case 0:
+                return rotateImage(bmp, 0);
+            case 90:
+                return rotateImage(bmp, 90);
+            case 180:
+                return rotateImage(bmp, 180);
+            case 270:
+                return rotateImage(bmp, 270);
+        }*/
         return bmp;
     }
 
