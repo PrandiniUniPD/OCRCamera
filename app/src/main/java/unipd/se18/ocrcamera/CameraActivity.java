@@ -139,7 +139,9 @@ public class CameraActivity extends AppCompatActivity {
         SurfaceORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
 
-
+    /**
+     * The id of the camera used
+     */
     private String cameraId;
 
 
@@ -681,7 +683,7 @@ public class CameraActivity extends AppCompatActivity {
         Log.v(TAG, "imageOrientation -> sensorOrientation == " + sensorOrientation + ", rotationCompensation == "
                 + rotationCompensation);
         rotation = (sensorOrientation + rotationCompensation + 270) % 360;
-                Log.v(TAG, "calculated rotation == " + rotation);
+                Log.v(TAG, "imageOrientation -> calculated rotation == " + rotation);
         switch (rotation) {
             case 0:
                 return rotateImage(bmp, 90);
