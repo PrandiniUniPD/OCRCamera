@@ -2,6 +2,11 @@ package unipd.se18.ocrcamera;
 
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import java.io.File;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 
 /**
@@ -10,6 +15,7 @@ import android.graphics.Bitmap;
  */
 public class PhotoTester {
 
+    public static final String[] IMAGE_EXTENSIONTS = {"jpeg", "jpg"};
     /**
      * Stores the path to the directory containing photos and description
      */
@@ -28,27 +34,40 @@ public class PhotoTester {
      */
     public String testAndReport() {
         //For each file.jpeg in directory, load it and convert it to bitmap, get the description, apply ocr, compare texts, build report
-        //TODO define how to campare the two strings and how to evaluate the compare
+
+
+        File directory = new File(this.dirPath);
+
+
+        for (File file : directory.listFiles()) {
+
+            Bitmap photoBitmap = null;
+            String photoDesc = null;
+
+            String filePath = file.getPath();
+            String fileExtension = Utils.getFileExtension(filePath);
+
+            if(Arrays.asList(IMAGE_EXTENSIONTS).contains(fileExtension)) {
+                photoBitmap = Utils.loadBitmap(filePath);
+            } else if(fileExtension.equals("txt")) {
+                photoDesc = Utils.getDescription(filePath);
+            }
+
+            String extractedText = extractText(photoBitmap);
+
+            //TODO get ingredients from description - NB the description is in JSON format
+            String photoIngredients = "";
+
+            int confidence = compareTexts(extractedText, photoIngredients);
+
+            //TODO build report
+
+        }
 
         return null;
     }
 
-    /**
-     * @param filename name of a jpeg file to convert to bitmap
-     * @return image converted to bitmap
-     */
-    private Bitmap loadBitmap(String filename) {
-        return null;
-    }
 
-
-    /**
-     * @param fileName
-     * @return String with the text inside the fileName.txt
-     */
-    private String getDescription(String fileName) {
-        return null;
-    }
 
     /**
      *
@@ -58,6 +77,19 @@ public class PhotoTester {
     private String extractText(Bitmap bitmap) {
         return null;
     }
+
+
+    //TODO define how to campare the two strings and how to evaluate the compare - a possible solution may be a % normalized in 0 to 100
+    /**
+     *
+     * @param text1
+     * @param text2
+     * @return a value representing the confidence
+     */
+    private int compareTexts(String text1, String text2) {
+        return 0;
+    }
+
 
 
 
