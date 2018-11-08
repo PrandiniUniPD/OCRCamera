@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -46,23 +47,25 @@ public class TextExtractor implements OCRInterface {
     private String extractText(Bitmap img) {
         Log.v(TAG, "extractText");
         long beforeWaiting = java.lang.System.currentTimeMillis();
-        //Defines the image that will be analysed to get the text
+        // Defines the image that will be analysed to get the text
         FirebaseVisionImage fbImage = FirebaseVisionImage.fromBitmap(img);
-        //Defines that will be used an on device text recognizer
+        // Defines that will be used an on device text recognizer
         FirebaseVisionTextRecognizer textRecognizer = FirebaseVision.getInstance().getOnDeviceTextRecognizer();
-        Task<FirebaseVisionText>fbText = textRecognizer.processImage(fbImage).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+        //
+        Task<FirebaseVisionText>fbText = textRecognizer.processImage(fbImage)
+                .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
             @Override
             public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                Log.v(TAG, "extractText -> onSuccess ->\n-----      RECOGNIZED TEXT       -----\n" + firebaseVisionText.getText() + "\n----- END OF THE RECOGNIZED TEXT -----");
+                Log.v(TAG, "extractText -> onSuccess ->\n-----      RECOGNIZED TEXT       -----\n"
+                        + firebaseVisionText.getText() + "\n----- END OF THE RECOGNIZED TEXT -----");
             }
         });
-        while (!fbText.isSuccessful());
+        // Wait until the end of the task
+        while (!fbText.isSuccessful()); // TODO optimization of this statement
         long afterWaiting = java.lang.System.currentTimeMillis();
         Log.v(TAG, "extractText -> text extracted in " + (afterWaiting - beforeWaiting) + " milliseconds");
-        if (fbText.getResult().getText() != null) {
-            return fbText.getResult().getText();
-        } else {
-            return "";
-        }
+        // Return the recognized text
+        String ocrResult = fbText.getResult().getText();
+        return ocrResult;
     }
 }
