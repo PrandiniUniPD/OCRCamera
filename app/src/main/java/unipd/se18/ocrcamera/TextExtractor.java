@@ -1,11 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 import android.util.Log;
-import android.util.TimeUtils;
-
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.ml.vision.FirebaseVision;
@@ -15,13 +11,17 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 /**
  * Class the implements the common OCR interface to retrieve text from an image
- * @author Leonardo Rossi (g2)
+ * @author Pietro Prandini (g2)
  */
 public class TextExtractor implements OCRInterface {
+    /**
+     * TAG used for the logs of this class
+     */
     private final String TAG = "TextExtractor";
-    private Bitmap img;
-    private String resultText;
 
+    /**
+     * Constructor
+     */
     TextExtractor() {    }
 
     /**
@@ -33,12 +33,17 @@ public class TextExtractor implements OCRInterface {
      */
     public String getTextFromImg(Bitmap img) {
         Log.v(TAG, "getTextFromImg");
-        resultText = "";
-        this.img = img;
-        return extractText();
+        return extractText(img);
     }
 
-    private String extractText() {
+    /**
+     * Extracts a text from a given image.
+     *
+     * @param img The image in a Bitmap format
+     * @return The String of the text recognized (empty String if nothing is recognized)
+     * @author Pietro Prandini (g2)
+     */
+    private String extractText(Bitmap img) {
         Log.v(TAG, "extractText");
         long beforeWaiting = java.lang.System.currentTimeMillis();
         //Defines the image that will be analysed to get the text
