@@ -10,7 +10,7 @@ public class TestInstance {
     private String ingredients;
     private Bitmap picture;
 
-    public TestInstance(String ingredients, Bitmap picture) {
+    public TestInstance(Bitmap picture, String ingredients) {
         this.ingredients = ingredients;
         this.picture = picture;
     }

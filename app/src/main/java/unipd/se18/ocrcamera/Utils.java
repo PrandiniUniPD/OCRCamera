@@ -18,7 +18,7 @@ public class Utils {
      * @param filePath
      * @return String with the text inside the fileName.txt
      */
-    public static String getDescription(String filePath) {
+    public static String getIngredientsFromFile(String filePath) {
 
         return null;
     }
@@ -32,6 +32,18 @@ public class Utils {
         int strLength = filePath.lastIndexOf(".");
         if(strLength > 0)
             return filePath.substring(strLength + 1).toLowerCase();
+        return null;
+    }
+
+    /**
+     *
+     * @param filePath path to file
+     * @return file name without extension if exists, null otherwise
+     */
+    public static String getFilePrefix(String filePath) {
+        int strLength = filePath.lastIndexOf(".");
+        if(strLength > 0)
+            return filePath.substring(0,strLength);
         return null;
     }
 }

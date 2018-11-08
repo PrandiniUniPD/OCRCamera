@@ -14,7 +14,7 @@ import java.util.Arrays;
  */
 public class PhotoTester {
 
-    public static final String[] IMAGE_EXTENSIONTS = {"jpeg", "jpg"};
+    public static final String[] IMAGE_EXTENSIONS = {"jpeg", "jpg"};
     private ArrayList<TestInstance> testInstances;
 
     /**
@@ -27,19 +27,15 @@ public class PhotoTester {
 
         for (File file : directory.listFiles()) {
 
-            Bitmap photoBitmap = null;
-            String photoDesc = null;
-
             String filePath = file.getPath();
             String fileExtension = Utils.getFileExtension(filePath);
+            String fileName = Utils.getFilePrefix(filePath);
 
-            if(Arrays.asList(IMAGE_EXTENSIONTS).contains(fileExtension)) {
-                photoBitmap = Utils.loadBitmap(filePath);
-            } else if(fileExtension.equals("txt")) {
-                photoDesc = Utils.getIngredientsFromFile(filePath);
+            if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
+                Bitmap photoBitmap = Utils.loadBitmap(filePath);
+                String photoDesc = Utils.getIngredientsFromFile(fileName+".txt");
+                testInstances.add(new TestInstance(photoBitmap, photoDesc));
             }
-
-            testInstances.add(new TestInstance(photoBitmap, photoDesc));
         }
     }
 
@@ -49,7 +45,12 @@ public class PhotoTester {
      */
     public String testAndReport() {
         //For each test instance apply ocr, compare texts, build report
-
+        for(TestInstance test : testInstances){
+            String extractedIngredients = executeOcr(test.getPicture());
+            String correctIngredients = test.getIngredients();
+            int confidence = ingredientsStringComparison(correctIngredients, extractedIngredients);
+        }
+        //TODO generate report
         return null;
     }
 
