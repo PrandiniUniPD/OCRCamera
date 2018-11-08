@@ -14,12 +14,15 @@ public class PhotoTester {
      * Stores the path to the directory containing photos and description
      */
     private String dirPath;
+    private TestInstance testInstances[];
 
     /**
+     * Load test instances (images + correct ingredients)
      * @param dirPath stores the path to the directory containing photos and description
      */
     public PhotoTester(String dirPath) {
         this.dirPath = dirPath;
+        //TODO initialize testinstances
     }
 
     //TODO think of a better report
@@ -27,11 +30,18 @@ public class PhotoTester {
      * @return String with the test's report, each line contains: image name, extracted text, real text, photo tags, notes if present, confidence
      */
     public String testAndReport() {
-        //For each file.jpeg in directory, load it and convert it to bitmap, get the description, apply ocr, compare texts, build report
-        //TODO define how to campare the two strings and how to evaluate the compare
+        //For each test instance apply ocr, compare texts, build report
 
         return null;
     }
+
+    /**
+     * Compare the list of ingredients extracted by OCR and the correct list of ingredients
+     * @param correct correct list of ingredients loaded from file
+     * @param extracted list of ingredients extracted by the OCR
+     * @return percentage of matched words.
+     */
+    private int ingredientsStringComparison(String correct, String extracted){ return 0;}
 
     /**
      * @param filename name of a jpeg file to convert to bitmap
@@ -46,7 +56,7 @@ public class PhotoTester {
      * @param fileName
      * @return String with the text inside the fileName.txt
      */
-    private String getDescription(String fileName) {
+    private String getIngredientsFromFile(String fileName) {
         return null;
     }
 
@@ -55,11 +65,9 @@ public class PhotoTester {
      * @param bitmap from which the text is extracted
      * @return String - the text extracted
      */
-    private String extractText(Bitmap bitmap) {
+    private String executeOcr(Bitmap bitmap) {
         return null;
     }
-
-
 
 
 
