@@ -50,6 +50,8 @@ public class ResultActivity extends AppCompatActivity {
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
 
+        String OCRText = getIntent().getStringExtra("text");
+
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,14 +69,27 @@ public class ResultActivity extends AppCompatActivity {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-        ocr = new TextExtractor();
-        mOCRTextView.setText(R.string.processing);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mOCRTextView.setText(ocr.getTextFromImg(lastPhoto));
+        //Displaying the text, from OCR or preferences
+        if(OCRText != null) {
+            //Show the text of the last image
+            mOCRTextView.setText(OCRText);
+        } else{
+            ocr = new TextExtractor();
+            if(lastPhoto != null) {
+                //Text shows when OCR are processing the image
+                mOCRTextView.setText(R.string.processing);
+                String textRecognized = ocr.getTextFromImg(lastPhoto);
+                mOCRTextView.setText(textRecognized);
+                // Saving in the preferences
+                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("lastExtractedText", textRecognized);
+                editor.apply();
+            }
+            else {
+                Log.e("NOT_FOUND", "photo not found");
+            }
+        }
     }
 }
 
