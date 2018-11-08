@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 /**
  * Class built to test the application's OCR
- * @author Luca Moroldo (g3)
+ * @author Luca Moroldo (g3) & Francesco Pham
  */
 public class PhotoTester {
 
@@ -48,7 +48,7 @@ public class PhotoTester {
         for(TestInstance test : testInstances){
             String extractedIngredients = executeOcr(test.getPicture());
             String correctIngredients = test.getIngredients();
-            int confidence = ingredientsStringComparison(correctIngredients, extractedIngredients);
+            int confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
         }
         //TODO generate report
         return null;
@@ -60,7 +60,7 @@ public class PhotoTester {
      * @param extracted list of ingredients extracted by the OCR
      * @return percentage of matched words.
      */
-    private int ingredientsStringComparison(String correct, String extracted){
+    private int ingredientsTextComparison(String correct, String extracted){
         return 0;
     }
 
