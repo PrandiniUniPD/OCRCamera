@@ -27,6 +27,16 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView mOCRTextView;
 
+    /**
+     * TextExtractor object useful for extracting text from pics
+     */
+    private TextExtractor ocr;
+
+    /**
+     * Bitmap of the lastPhoto saved
+     */
+    private Bitmap lastPhoto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +59,7 @@ public class ResultActivity extends AppCompatActivity {
         });
 
         bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
-        Bitmap lastPhoto = bitmapManager.loadBitmapFromInternalStorage();
+        lastPhoto = bitmapManager.loadBitmapFromInternalStorage();
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 960, 960, false));
@@ -57,10 +67,14 @@ public class ResultActivity extends AppCompatActivity {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-        TextExtractor ocr = new TextExtractor();
+        ocr = new TextExtractor();
         mOCRTextView.setText(R.string.processing);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         mOCRTextView.setText(ocr.getTextFromImg(lastPhoto));
-        //ocrProcess(mOCRTextView, lastPhoto);
     }
 }
 
