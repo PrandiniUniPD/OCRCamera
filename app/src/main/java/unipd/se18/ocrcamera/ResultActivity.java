@@ -71,15 +71,25 @@ public class ResultActivity extends AppCompatActivity {
 
         //Displaying the text, from OCR or preferences
         if(OCRText != null) {
-            //Show the text of the last image
-            mOCRTextView.setText(OCRText);
+            // Text in preferences
+            if(OCRText.equals("")) {
+                mOCRTextView.setText(R.string.no_text_found);
+            } else {
+                //Show the text of the last image
+                mOCRTextView.setText(OCRText);
+            }
         } else{
+            // text from OCR
             ocr = new TextExtractor();
             if(lastPhoto != null) {
                 //Text shows when OCR are processing the image
                 mOCRTextView.setText(R.string.processing);
                 String textRecognized = ocr.getTextFromImg(lastPhoto);
-                mOCRTextView.setText(textRecognized);
+                if(textRecognized.equals("")) {
+                    mOCRTextView.setText(R.string.no_text_found);
+                } else {
+                    mOCRTextView.setText(textRecognized);
+                }
                 // Saving in the preferences
                 SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
