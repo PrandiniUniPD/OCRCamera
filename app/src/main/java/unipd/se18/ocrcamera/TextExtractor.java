@@ -15,6 +15,8 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Class the implements the common OCR interface to retrieve text from an image
  * @author Leonardo Rossi (g2)
@@ -71,9 +73,14 @@ public class TextExtractor implements OCRInterface {
      * @author Leonardo Rossi (g2)
      */
     private void storeText(String text) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+     /*   SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("text", text);
-        editor.apply();
+        editor.apply();*/
+
+        SharedPreferences prefs = context.getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString("text", text.trim());
+        edit.apply();
     }
 }

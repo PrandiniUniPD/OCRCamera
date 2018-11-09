@@ -3,9 +3,14 @@ package unipd.se18.ocrcamera;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+
+import java.io.File;
 
 /*
     This activity is the starting activity that chooses which activity to start
@@ -23,24 +28,25 @@ public class NavigatorActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        InternalStorageManager bitmapManager = new InternalStorageManager(
-                getApplicationContext(), "OCRPhoto", "lastPhoto");
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = prefs.getString("imagePath", "");
+
 
         Intent intent;
 
-        /*
+        /**
             If already exists a photo, launch result activity to show it
             with text attached - Author Luca Moroldo modified by Francesco Pham
-        */
-        if(bitmapManager.existsFile()) {
+        **/
+        if(pathImage != "") {
             //load last extracted text
-            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
-            String lastExtractedText = sharedPref.getString("lastExtractedText", "");
+            prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+            String OCRText = prefs.getString("text", "");
 
-            if(lastExtractedText != null && !(lastExtractedText.equals(""))) {
+            if(OCRText != null && !(OCRText.equals(""))) {
                 //An intent that will launch the activity
                 intent = new Intent(NavigatorActivity.this, ResultActivity.class);
-                intent.putExtra("text", lastExtractedText);
+
             }
             else {
                 Log.e(TAG, "Error retrieving last extr text");

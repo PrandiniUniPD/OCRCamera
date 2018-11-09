@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.File;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -29,9 +32,6 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        // Instance of InternalStorageManager for managing the pic data
-        InternalStorageManager bitmapManager;
-
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
@@ -45,10 +45,12 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
-        String OCRText = getIntent().getStringExtra("text");
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = prefs.getString("imagePath", "");
 
-        bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
-        Bitmap lastPhoto = bitmapManager.loadBitmapFromInternalStorage();
+        String OCRText = prefs.getString("text", null);
+
+        Bitmap lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if(lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 960, 960, false));
@@ -68,7 +70,7 @@ public class ResultActivity extends AppCompatActivity {
             if(lastPhoto != null) {
                 //Text shows when OCR are processing the image
                 mOCRTextView.setText(R.string.processing);
-                extractTextFromImage(lastPhoto);
+                extractTextFromImage(pathImage);
             }
             else {
                 Log.e("NOT_FOUND", "photo not found");
@@ -85,7 +87,10 @@ public class ResultActivity extends AppCompatActivity {
      * @modify sharedPreferences if recognized text is not null
      * @author Leonardo Rossi - Modified by Luca Moroldo
      */
-    private void extractTextFromImage(Bitmap bitmap) {
+    private void extractTextFromImage(String path) {
+        //Converting byte array into bitmap
+        File file = new File(path);
+        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
         //Call to text extractor method to get the text from the given image
         TextExtractor extractor = new TextExtractor(this);
         extractor.getTextFromImg(bitmap);
@@ -99,11 +104,16 @@ public class ResultActivity extends AppCompatActivity {
                     else
                         mOCRTextView.setText(s);
 
-                    //store on shared pref the extracted text
+                    SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+                    SharedPreferences.Editor edit = prefs.edit();
+                    edit.putString("text", s.trim());
+                    edit.apply();
+
+                /*    //store on shared pref the extracted text
                     SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("lastExtractedText", s);
-                    editor.apply();
+                    editor.apply(); */
                 }
             }
         };

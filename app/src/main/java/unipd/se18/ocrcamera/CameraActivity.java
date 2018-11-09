@@ -38,6 +38,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -120,7 +123,7 @@ public class CameraActivity extends AppCompatActivity {
     /**
      * Instance of InternalStorageManager for managing the pic data
      */
-    public InternalStorageManager bitmapManager;
+   // public InternalStorageManager bitmapManager;
 
 
     /**
@@ -214,7 +217,7 @@ public class CameraActivity extends AppCompatActivity {
         magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         deviceOrientation = new DeviceOrientation();
 
-        bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
+       // bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
 
         // Initializing of the UI components
         mCameraTextureView = findViewById(R.id.camera_view);
@@ -582,15 +585,19 @@ public class CameraActivity extends AppCompatActivity {
                     int rotation = deviceOrientation.getOrientation();
                     bitmapImage = imageOrientation(bitmapImage, rotation);
 
-                    //save Bitmap inside internal storage and reset extracted text
-                    bitmapManager.saveBitmapToInternalStorage(bitmapImage);
-                    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("lastExtractedText", "");
-                    editor.apply();
+                    //Temporary stores the captured photo into a file that will be used from the Camera Result activity
+                    String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
 
+                    SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+                    SharedPreferences.Editor edit = prefs.edit();
+                    edit.putString("imagePath", filePath.trim());
+                    edit.apply();
+
+                    //An intent that will launch the activity that will analyse the photo
                     Intent i = new Intent(CameraActivity.this, ResultActivity.class);
                     startActivity(i);
+
+
 
                 }
             };
@@ -662,6 +669,35 @@ public class CameraActivity extends AppCompatActivity {
         }
 
         return bmp;
+    }
+
+
+    /**
+     * Stores the captured image into a temporary file useful to pass large data between activities
+     * and returns the file's path.
+     * @param context The reference of the current activity
+     * @param bitmap The captured image to store into the file. Not null or empty.
+     * @param name The name of the file. Not null or empty.
+     * @return The files path
+     * @author Leonardo Rossi
+     */
+    private String tempFileImage(Context context, Bitmap bitmap, String name)
+    {
+
+        File outputDir = context.getCacheDir();
+        File imageFile = new File(outputDir, name + ".jpg");
+
+        OutputStream os;
+        try {
+            os = new FileOutputStream(imageFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            os.flush();
+            os.close();
+        } catch (Exception e) {
+            Log.e(context.getClass().getSimpleName(), "Error writing file", e);
+        }
+
+        return imageFile.getAbsolutePath();
     }
 
 
