@@ -52,9 +52,10 @@ public class PhotoTester {
 
                 try {
                     JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
-                    String[] ingredients = Utils.getStringArrayFromJSON(jsonPhotoDescription, "ingredients");
+                    String[] ingredients = jsonPhotoDescription.getString("ingredients").split(",");
                     String[] tags = Utils.getStringArrayFromJSON(jsonPhotoDescription, "tags");
                     String notes = jsonPhotoDescription.getString("notes");
+
 
                     testInstances.add(new TestInstance(photoBitmap, ingredients, tags, notes, fileName));
 
@@ -76,6 +77,8 @@ public class PhotoTester {
      */
     public String testAndReport() {
 
+        String report = "";
+
         //For each test instance apply ocr, compare texts, build report
         for(TestInstance test : testInstances){
 
@@ -90,6 +93,7 @@ public class PhotoTester {
 
             //TODO generate report
 
+            String reportLine = "";
         }
 
         return null;
