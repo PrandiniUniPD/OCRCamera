@@ -226,6 +226,11 @@ public class CameraActivity extends AppCompatActivity {
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+                SharedPreferences.Editor edit = prefs.edit();
+                edit.putString("text", null);
+                edit.putString("imageDataPath", null);
+                edit.apply();
                 takePhoto();
             }
         });

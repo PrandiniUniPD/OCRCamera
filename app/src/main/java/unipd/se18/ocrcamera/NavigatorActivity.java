@@ -28,8 +28,9 @@ public class NavigatorActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
+        //Get image path of last image
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-        String pathImage = prefs.getString("imagePath", "");
+        String pathImage = prefs.getString("imagePath", null);
 
 
         Intent intent;
@@ -38,10 +39,10 @@ public class NavigatorActivity extends AppCompatActivity {
             If already exists a photo, launch result activity to show it
             with text attached - Author Luca Moroldo modified by Francesco Pham
         **/
-        if(pathImage != "") {
+        if(pathImage != null) {
             //load last extracted text
             prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-            String OCRText = prefs.getString("text", "");
+            String OCRText = prefs.getString("text", null);
 
             if(OCRText != null && !(OCRText.equals(""))) {
                 //An intent that will launch the activity
@@ -49,7 +50,7 @@ public class NavigatorActivity extends AppCompatActivity {
 
             }
             else {
-                Log.e(TAG, "Error retrieving last extr text");
+                Log.e(TAG, "Error retrieving last extracted text");
                 intent = new Intent(NavigatorActivity.this, CameraActivity.class);
             }
 

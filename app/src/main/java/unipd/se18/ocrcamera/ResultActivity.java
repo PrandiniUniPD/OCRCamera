@@ -45,9 +45,9 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
+        //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-        String pathImage = prefs.getString("imagePath", "");
-
+        String pathImage = prefs.getString("imagePath", null);
         String OCRText = prefs.getString("text", null);
 
         Bitmap lastPhoto = BitmapFactory.decodeFile(pathImage);
@@ -104,16 +104,12 @@ public class ResultActivity extends AppCompatActivity {
                     else
                         mOCRTextView.setText(s);
 
+                    //Save text in preferences
                     SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
                     SharedPreferences.Editor edit = prefs.edit();
                     edit.putString("text", s.trim());
                     edit.apply();
 
-                /*    //store on shared pref the extracted text
-                    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("lastExtractedText", s);
-                    editor.apply(); */
                 }
             }
         };
