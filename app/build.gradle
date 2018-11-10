@@ -16,6 +16,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    //Start - For android testing
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+    //End - For android testing
 }
 
 dependencies {

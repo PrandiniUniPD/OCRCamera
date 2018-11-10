@@ -7,6 +7,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class Utils {
     /**
      * @param filePath name of a jpeg file to convert to bitmap
@@ -20,11 +25,22 @@ public class Utils {
 
     /**
      * @param filePath
-     * @return String with the text inside the fileName.txt
+     * @return String with the text inside the file pointed by filePath, empty string if file doesn't exist
      */
     public static String getTextFromFile(String filePath) {
 
-        return null;
+        String text ="";
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(filePath));
+            text = br.readLine();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return text;
+
     }
 
     /**
@@ -44,10 +60,10 @@ public class Utils {
      */
     public static String getFilePrefix(String filePath) {
 
-        //TODO correct method - use UtilsTest to verify correction
-        int strLength = filePath.lastIndexOf(".");
-        if (strLength > 0)
-            return filePath.substring(0, strLength);
+        int start = filePath.lastIndexOf("/") + 1;
+        int end = filePath.lastIndexOf(".");
+        if (end > start)
+            return filePath.substring(start, end);
         return null;
     }
 

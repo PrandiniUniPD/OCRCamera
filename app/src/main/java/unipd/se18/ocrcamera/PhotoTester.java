@@ -26,7 +26,6 @@ public class PhotoTester {
 
     private static final String TAG = "PhotoTester";
 
-    //another solution
     private ArrayList<TestInstance> testInstances = new ArrayList<TestInstance>();
 
 
@@ -42,6 +41,7 @@ public class PhotoTester {
         for (File file : directory.listFiles()) {
 
             String filePath = file.getPath();
+
             String fileExtension = Utils.getFileExtension(filePath);
             String fileName = Utils.getFilePrefix(filePath);
 
@@ -50,18 +50,7 @@ public class PhotoTester {
             if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
                 Bitmap photoBitmap = Utils.loadBitmapFromFile(filePath);
 
-                String txtFile = fileName + ".txt";
-                String photoDesc="";
-                BufferedReader br = null;
-                try {
-                    br = new BufferedReader(new FileReader(txtFile));
-                    photoDesc = br.readLine();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
 
                 //create test instance giving filename, description and bitmap
                 try {
@@ -152,7 +141,16 @@ public class PhotoTester {
         public String[] getIngredients() throws JSONException {
             String ingredients = jsonObject.getString("ingredients");
             String[] ingredientsArr = ingredients.split(",");
-            //TODO remove useless spaces in strings elements
+
+            //eliminate useless spaces at the start/end of ingredient
+            for (String ingredient : ingredientsArr) {
+                while(ingredient.startsWith(" ")) {
+                    ingredient = ingredient.substring(1);
+                }
+                while (ingredient.endsWith(" ")) {
+                    ingredient = ingredient.substring(0, ingredient.length() - 2);
+                }
+            }
             return ingredientsArr;
 
         }
