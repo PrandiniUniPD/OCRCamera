@@ -22,7 +22,8 @@ public class PhotoTester {
 
     private static final String TAG = "PhotoTester";
 
-    private ArrayList<TestInstance> testInstances;
+    //another solution
+    private ArrayList<TestInstance2> testInstances2;
 
 
 
@@ -48,22 +49,14 @@ public class PhotoTester {
                 String photoDesc = Utils.getTextFromFile(fileName+".txt");
 
 
-                //decode JSON and get fields
-
+                //create test instance giving filename, description and bitmap
                 try {
                     JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
-                    String[] ingredients = jsonPhotoDescription.getString("ingredients").split(",");
-                    String[] tags = Utils.getStringArrayFromJSON(jsonPhotoDescription, "tags");
-                    String notes = jsonPhotoDescription.getString("notes");
-
-
-                    testInstances.add(new TestInstance(photoBitmap, ingredients, tags, notes, fileName));
-
-                } catch (JSONException e) {
+                    testInstances2.add(new TestInstance2(photoBitmap, jsonPhotoDescription, fileName));
+                } catch(JSONException e) {
                     e.printStackTrace();
                     Log.e(TAG, "Error decoding JSON");
                 }
-
             }
         }
     }
@@ -72,31 +65,35 @@ public class PhotoTester {
 
 
     /**
-     * @return String with the test's report, each line contains: image name, extracted text,
-     *  real text, photo tags, notes if present, confidence
+     * @return String in JSON format with the test's report, each object is named with the filename and contains:
+     * ingrediens, tags, notes, original photo name, confidence
      */
     public String testAndReport() {
 
-        String report = "";
+
+        JSONObject jsonReport = new JSONObject();
 
         //For each test instance apply ocr, compare texts, build report
-        for(TestInstance test : testInstances){
+        for(TestInstance2 test : testInstances2){
 
-            String extractedIngredients = executeOcr(test.getPicture());
-            String[] correctIngredients = test.getIngredients();
 
-            int confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+            try {
 
-            String[] tags = test.getTags();
-            String notes = test.getNotes();
-            String filename = test.getFileName();
+                //evaluate text extraction
+                String extractedIngredients = executeOcr(test.getPicture());
+                String[] correctIngredients = test.getIngredients();
+                int confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
-            //TODO generate report
+                //insert test in report
+                test.setConfidence(confidence);
+                jsonReport.put(test.getFileName(), test.getJsonObject());
 
-            String reportLine = "";
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
-        return null;
+        return jsonReport.toString();
     }
 
 
@@ -124,43 +121,55 @@ public class PhotoTester {
 
     /**
      * Class that contains a single test instance
-     * @author Francesco Pham
+     * @author Francesco Pham - Luca Moroldo
      */
-    private class TestInstance {
-        private String[] ingredients;
-        private String[] tags;
+    private class TestInstance2 {
+
         private Bitmap picture;
-        private String notes;
+        private JSONObject jsonObject;
         private String fileName;
 
-
-        public TestInstance(Bitmap picture, String[] ingredients, String[] tags, String notes, String filename) {
+        public TestInstance2(Bitmap picture, JSONObject jsonObject, String fileName) {
             this.picture = picture;
-            this.ingredients = ingredients;
-            this.tags = tags;
-            this.notes = notes;
-            this.fileName = filename;
+           this.jsonObject = jsonObject;
+            this.fileName = fileName;
+        }
+
+        public String[] getIngredients() throws JSONException {
+            String ingredients = jsonObject.getString("ingredients");
+            String[] ingredientsArr = ingredients.split(",");
+            //TODO remove useless spaces in strings elements
+            return ingredientsArr;
 
         }
 
-        public String[] getIngredients() {
-            return this.ingredients;
+        public String[] getTags() throws JSONException {
+            return Utils.getStringArrayFromJSON(jsonObject, "tags");
         }
-
-        public String[] getTags() { return this.tags; }
 
         public Bitmap getPicture() {
-            return this.picture;
+            return picture;
         }
 
         public String getFileName() {
             return fileName;
         }
 
-        public String getNotes() {
-            return this.notes;
-
+        public String getNotes() throws JSONException {
+            return jsonObject.getString("notes");
         }
 
+        @Override
+        public String toString() {
+            return jsonObject.toString();
+        }
+
+        public JSONObject getJsonObject() {
+            return jsonObject;
+        }
+
+        public void setConfidence(int confidence) throws JSONException {
+            jsonObject.put("confidence", confidence);
+        }
     }
 }
