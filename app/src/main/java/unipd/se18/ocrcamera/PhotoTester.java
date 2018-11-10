@@ -7,7 +7,11 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -23,7 +27,7 @@ public class PhotoTester {
     private static final String TAG = "PhotoTester";
 
     //another solution
-    private ArrayList<TestInstance> testInstances;
+    private ArrayList<TestInstance> testInstances = new ArrayList<TestInstance>();
 
 
 
@@ -46,7 +50,17 @@ public class PhotoTester {
             if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
                 Bitmap photoBitmap = Utils.loadBitmapFromFile(filePath);
 
-                String photoDesc = Utils.getTextFromFile(fileName+".txt");
+                String txtFile = fileName + ".txt";
+                String photoDesc="";
+                BufferedReader br = null;
+                try {
+                    br = new BufferedReader(new FileReader(txtFile));
+                    photoDesc = br.readLine();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
 
                 //create test instance giving filename, description and bitmap
