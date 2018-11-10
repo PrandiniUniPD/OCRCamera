@@ -23,7 +23,7 @@ public class PhotoTester {
     private static final String TAG = "PhotoTester";
 
     //another solution
-    private ArrayList<TestInstance2> testInstances2;
+    private ArrayList<TestInstance> testInstances;
 
 
 
@@ -52,7 +52,7 @@ public class PhotoTester {
                 //create test instance giving filename, description and bitmap
                 try {
                     JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
-                    testInstances2.add(new TestInstance2(photoBitmap, jsonPhotoDescription, fileName));
+                    testInstances.add(new TestInstance(photoBitmap, jsonPhotoDescription, fileName));
                 } catch(JSONException e) {
                     e.printStackTrace();
                     Log.e(TAG, "Error decoding JSON");
@@ -74,7 +74,7 @@ public class PhotoTester {
         JSONObject jsonReport = new JSONObject();
 
         //For each test instance apply ocr, compare texts, build report
-        for(TestInstance2 test : testInstances2){
+        for(TestInstance test : testInstances){
 
 
             try {
@@ -123,13 +123,13 @@ public class PhotoTester {
      * Class that contains a single test instance
      * @author Francesco Pham - Luca Moroldo
      */
-    private class TestInstance2 {
+    private class TestInstance {
 
         private Bitmap picture;
         private JSONObject jsonObject;
         private String fileName;
 
-        public TestInstance2(Bitmap picture, JSONObject jsonObject, String fileName) {
+        public TestInstance(Bitmap picture, JSONObject jsonObject, String fileName) {
             this.picture = picture;
            this.jsonObject = jsonObject;
             this.fileName = fileName;
