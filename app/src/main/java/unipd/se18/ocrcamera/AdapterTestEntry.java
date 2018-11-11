@@ -5,17 +5,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.zip.Inflater;
 
 public class AdapterTestEntry extends BaseAdapter
 {
@@ -57,9 +51,10 @@ public class AdapterTestEntry extends BaseAdapter
 
         ClipData.Item entry = (ClipData.Item) getItem(position);
 
+        //TODO Implement getPhoto() method in TestEntry.java to get a pic preview
         // Set the image preview
-        ImageView pic = convertView.findViewById(R.id.analyzed_pic);
-        //pic.setImageBitmap(entries.get(position).getPhoto()); //TODO Implement getPhoto() method in TestEntry.java
+        //ImageView pic = convertView.findViewById(R.id.analyzed_pic);
+        //pic.setImageBitmap(entries.get(position).getPhoto());
 
         // Set the name of the pic
         TextView name = convertView.findViewById(R.id.pic_name);
