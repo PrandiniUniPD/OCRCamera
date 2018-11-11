@@ -11,6 +11,10 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+/**
+ * Adapter for the view of the processing result of the pics
+ * @author Pietro Prandini
+ */
 public class AdapterTestEntry extends BaseAdapter
 {
     private Context context;
