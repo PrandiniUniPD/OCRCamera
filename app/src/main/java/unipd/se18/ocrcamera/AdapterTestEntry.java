@@ -3,7 +3,11 @@ package unipd.se18.ocrcamera;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -25,12 +29,12 @@ public class AdapterTestEntry extends BaseAdapter
 
     @Override
     public int getCount() {
-        return 0;
+        return entries.size();
     }
 
     @Override
-    public Object getItem(int position) {
-        return null;
+    public TestEntry getItem(int position) {
+        return entries.get(position);
     }
 
     @Override
@@ -41,6 +45,18 @@ public class AdapterTestEntry extends BaseAdapter
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        return null;
+        // Layout that contains the views of the result
+        RelativeLayout resultView = convertView.findViewById(R.id.result_view);
+
+        // Set the image preview
+        ImageView pic = resultView.findViewById(R.id.analyzed_pic);
+        //pic.setImageBitmap(entries.get(position).);
+
+        // Set the name of the pic
+        TextView name = resultView.findViewById(R.id.pic_name);
+        name.setText(entries.get(position).getPhotoName());
+
+        //
+        return resultView;
     }
 }
