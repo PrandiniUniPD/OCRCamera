@@ -49,8 +49,6 @@ public class AdapterTestEntry extends BaseAdapter
             convertView = LayoutInflater.from(context).inflate(R.layout.test_entry, parent, false);
         }
 
-        ClipData.Item entry = (ClipData.Item) getItem(position);
-
         //TODO Implement getPhoto() method in TestEntry.java to get a pic preview
         // Set the image preview
         //ImageView pic = convertView.findViewById(R.id.analyzed_pic);
