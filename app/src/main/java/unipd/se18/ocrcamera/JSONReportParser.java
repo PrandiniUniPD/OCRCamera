@@ -18,7 +18,7 @@ public class JSONReportParser {
 
     /**
      * Get a JSONObject where the key are linked with JSONObject with the photo information.
-     * Pass the information to a TestEntry and return all the TestEnrty in an array
+     * Pass the information to a TestEntry and return all the TestEntry in an array
      * @param json JSONObject file extracted by PhotoTester class
      * @return TestEntry[]
      */
