@@ -84,11 +84,12 @@ public class PhotoTester {
 
                 //evaluate text extraction
                 String extractedIngredients = executeOcr(test.getPicture());
-                String[] correctIngredients = test.getIngredients();
+                String[] correctIngredients = test.getIngredientsArray();
                 int confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
                 //insert test in report
                 test.setConfidence(confidence);
+
                 jsonReport.put(test.getFileName(), test.getJsonObject());
 
             } catch (JSONException e) {
@@ -97,6 +98,7 @@ public class PhotoTester {
         }
 
         return jsonReport.toString();
+
     }
 
 
@@ -138,10 +140,14 @@ public class PhotoTester {
             this.fileName = fileName;
         }
 
-        public String[] getIngredients() throws JSONException {
+        public String[] getIngredientsArray() throws JSONException {
             String ingredients = jsonObject.getString("ingredients");
             String[] ingredientsArr = ingredients.trim().split("\\s*,\\s*"); //split removing whitespaces
             return ingredientsArr;
+        }
+        public String getIngredients() throws  JSONException {
+            String ingredients = jsonObject.getString("ingredients");
+            return ingredients;
         }
 
         public String[] getTags() throws JSONException {

@@ -1,7 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.util.Log;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -22,17 +20,22 @@ public class PhotoTesterTest {
     public void testAndReport() {
         try {
             String report = photoTester.testAndReport();
+            assertNotNull(report);
+            assertNotEquals("", report);
+
+
+
             JSONObject jsonReport = new JSONObject(report);
-
             JSONObject testElem = jsonReport.getJSONObject("foto11");
+            String[] expected = new String[]{"non_inclinata","non_angolata","testo_presente","poca_luce","etichetta_piana","caratteri_non_danneggiati","nitida","foto_non_mossa","alta_risoluzione"};
+            String[] actual = Utils.getStringArrayFromJSON(testElem, "tags");
 
-            assertEquals(testElem.get("ingredients"), "ing1,ing2,ing 3");
 
-            assertEquals(Utils.getStringArrayFromJSON(testElem, "tags"), new String[]{"non_inclinata","non_angolata","testo_presente","poca_luce","etichetta_piana","caratteri_non_danneggiati","nitida","foto_non_mossa","alta_risoluzione"});
+            assertEquals(expected, actual);
+
         } catch (JSONException e) {
 
         }
-
     }
 
 }
