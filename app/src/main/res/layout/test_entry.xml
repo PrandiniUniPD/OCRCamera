@@ -10,8 +10,8 @@
         android:layout_height="match_parent">
         <ImageView
             android:id="@+id/analyzed_pic"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="50sp"
+            android:layout_height="50sp"
             android:contentDescription="@string/analyzed_pic"
             android:layout_alignParentStart="true"/>
         <TextView
@@ -20,8 +20,27 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/analyzed_pic"/>
         <TextView
+            android:id="@+id/correctness_text"
+            android:text="@string/correcteness"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@id/pic_name"/>
+        <TextView
+            android:id="@+id/calculated_correctness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/correctness_text"/>
+        <TextView
+            android:id="@+id/tags_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/pic_name"/>
+        <TextView
+            android:id="@+id/assigned_tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/tags_text"/>
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>
