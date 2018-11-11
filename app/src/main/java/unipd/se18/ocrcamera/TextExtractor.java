@@ -2,11 +2,11 @@ package unipd.se18.ocrcamera;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -15,80 +15,65 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
-import java.util.List;
-
-
 /**
- * Implements the common OCR wrapper to retrieve text from an image.
+ * Class the implements the common OCR interface to retrieve text from an image
+ * @author Leonardo Rossi (g2)
  */
-class TextExtractor implements OCRInterface {
-    private FirebaseVisionImage fbImage;
-    private FirebaseVisionTextRecognizer textRecognizer;
-    private FirebaseVisionDocumentText documentText;
-    private Context context;
-    private String resultText;
-    private FirebaseVisionText firebaseVisionText;
+public class TextExtractor implements OCRInterface {
+    MutableLiveData<String> extractedText;
+    Context context;
 
-    /*protected OnSuccessListener successListener = new OnSuccessListener<FirebaseVisionText>(); {
-        @Override
-        public void onSuccess(FirebaseVisionText result) {
-            sem1.release();
-            //printText(result);
-            //resultText.setValue(result.getText());
-            //resultText.flush();
-            //Log.d("getTextFromImg", "on success\n" + resultText.getValue());
-        }
-    };*/
-
-    /*protected OnFailureListener failureListener = new OnFailureListener() {
-        @Override
-        public void onFailure(@NonNull Exception e) {
-            // Task failed with an exception
-
-            resultText.setValue("no Text recognized");
-            //resultText.flush();
-            //Log.d("getTextFromImg", "on fail");
-            e.printStackTrace();
-        }
-    };*/
-
-    public TextExtractor(Context applicationContext) {
-        this.context = applicationContext;
-        resultText = "";
+    /**
+     * It defines an object of type TextExtractor
+     */
+    TextExtractor(Context context) {
+        extractedText = new MutableLiveData<>();
+        this.context = context;
     }
 
     /**
-     * Extract a text from a given image.
-     *
+     * Extracts a text from a given image.
      * @param img The image in a Bitmap format
      * @return The String of the text recognized (empty String if nothing is recognized)
+     * @author Leonardo Rossi (g2)
      */
     @Override
     public String getTextFromImg(Bitmap img) {
-
-        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(img);
-        final FirebaseVisionTextRecognizer textRecognizer = FirebaseVision.getInstance()
-                .getOnDeviceTextRecognizer();
-        textRecognizer.processImage(image).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+        //Defines the image that will be analysed to get the text
+        FirebaseVisionImage fbImage = FirebaseVisionImage.fromBitmap(img);
+        //Defines that will be used an on device text recognizer
+        FirebaseVisionTextRecognizer textRecognizer = FirebaseVision.getInstance().getOnDeviceTextRecognizer();
+        textRecognizer.processImage(fbImage).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
             @Override
-            public void onSuccess(FirebaseVisionText result) {
-                txtresult = txtresult + result.getText();
-                Log.d("CameraActivity", txtresult);
-                Log.d("CameraActivity", "Testo riconosciuto");
+            public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                String textRetrieved = firebaseVisionText.getText();
+                //Saving of the retrieved text into shared preferences
+                storeText(textRetrieved);
+                //If there's some text the live data is updated so that can be updated the UI too
+                extractedText.setValue(textRetrieved);
+                // (g1)
+                Log.d("TextExtractor", "Recognized text: -->" + textRetrieved +"<--");
             }
-        })
-                .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                extractedText.setValue("No text retrieved");
+            }
+        });
 
-                                txtresult="Fail";
-                                Log.d("CameraActivity", "Testo NON riconosciuto");
+        return extractedText.getValue();
+    }
 
-                            }
-                        });
-        return txtresult;
 
-    
-
+    /**
+     * Saves the given text into the shared preferences so that it can be reused in the future
+     * @param text The text to save into the shared preferences
+     * @author Leonardo Rossi (g2)
+     */
+    private void storeText(String text) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("text", text);
+        editor.apply();
+    }
 }
