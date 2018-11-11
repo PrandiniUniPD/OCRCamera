@@ -140,19 +140,8 @@ public class PhotoTester {
 
         public String[] getIngredients() throws JSONException {
             String ingredients = jsonObject.getString("ingredients");
-            String[] ingredientsArr = ingredients.split(",");
-
-            //eliminate useless spaces at the start/end of ingredient
-            for (String ingredient : ingredientsArr) {
-                while(ingredient.startsWith(" ")) {
-                    ingredient = ingredient.substring(1);
-                }
-                while (ingredient.endsWith(" ")) {
-                    ingredient = ingredient.substring(0, ingredient.length() - 2);
-                }
-            }
+            String[] ingredientsArr = ingredients.trim().split("\\s*,\\s*"); //split removing whitespaces
             return ingredientsArr;
-
         }
 
         public String[] getTags() throws JSONException {
