@@ -39,13 +39,18 @@ public class GallerySelectionActivity extends AppCompatActivity {
         final ArrayList imageItems = new ArrayList();
         File directory = new File(dirPath);
         File[] imageFiles = directory.listFiles();
+        Log.e("GalleryActivity", "imagefiles = " + imageFiles);
         for (int i = 0; i < imageFiles.length; i++) {
             String imagePath = imageFiles[i].getAbsolutePath();
             String imageName = imageFiles[i].getName();
-            Bitmap bitmap = BitmapFactory.decodeFile(imageFiles[i].getAbsolutePath());
+
+            //Log.e("GalleryActivity", imagePath);
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+            //Log.e("GalleryActivity", "Bitmap = " + bitmap);
             Bitmap imageThumbnail = ThumbnailUtils.extractThumbnail(bitmap, 100, 100);
+            //Log.e("GalleryActivity", "Thumbnail = " + imageThumbnail);
             imageItems.add(new ImageItem(imageThumbnail, imageName, imagePath));
-            bitmap.recycle();
+            //bitmap.recycle(); "Fa crashare l'app"
         }
 
         return imageItems;}
