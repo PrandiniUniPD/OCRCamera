@@ -1,15 +1,10 @@
 package unipd.se18.ocrcamera;
 
 import android.util.Log;
-import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-
 import static android.support.constraint.Constraints.TAG;
 
 public class JSONReportParser {
@@ -17,12 +12,13 @@ public class JSONReportParser {
     //TODO no need a class for those two methods
 
     /**
-     * Get a JSONObject where the key are linked with JSONObject with the photo information.
-     * Pass the information to a TestEntry and return all the TestEntry in an array
+     * Get a JSONObject with keys linked to JSONObjects that contains the photo information.
+     * Pass the information of a single JSONObject to a TestEntry and return all the TestEntry in an array
      * @param json JSONObject file extracted by PhotoTester class
-     * @return TestEntry[]
+     * @return TestEntry[] an array of TestEntry
+     * @author Giovanni Furlan (gr2)
      */
-    public TestEntry[] JSONReader(JSONObject json) {
+    public TestEntry[] JSONReportParser(JSONObject json) {
 
         int lenght = json.length();
         TestEntry[] entryArray = new TestEntry[lenght-1];
@@ -43,12 +39,12 @@ public class JSONReportParser {
     }
 
     /**
-     * Add in TestEntry all the given JSONObject value
+     * Add all the given JSONObject value in avTestEntry
      * @param json the JSONObject where to find the value
-     * @modify TestEntry add all json value
      * @return TestEntry with all the JSONObject value
+     * @author Giovanni Furlan (gr2)
      */
-    public TestEntry JSONExtractValue(JSONObject json) {
+    private TestEntry JSONExtractValue(JSONObject json) {
 
         TestEntry entry = null;
         try {
