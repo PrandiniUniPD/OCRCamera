@@ -18,14 +18,14 @@ import java.util.ArrayList;
 public class AdapterTestEntry extends BaseAdapter
 {
     private Context context;
-    private ArrayList<TestEntry> entries;
+    private TestEntry[] entries;
 
     /**
      * Defines an object of AdapterTestEntry type
      * @param context The reference to the activity where the adapter will be used
      * @param entries The list of the entries containing data from photos test
      */
-    AdapterTestEntry(Context context, ArrayList<TestEntry> entries)
+    AdapterTestEntry(Context context, TestEntry[] entries)
     {
         this.context = context;
         this.entries = entries;
@@ -33,13 +33,11 @@ public class AdapterTestEntry extends BaseAdapter
 
     @Override
     public int getCount() {
-        return entries.size();
+        return entries.length;
     }
 
     @Override
-    public Object getItem(int position) {
-        return entries.get(position);
-    }
+    public Object getItem(int position) { return entries[position]; }
 
     @Override
     public long getItemId(int position) {
@@ -60,17 +58,17 @@ public class AdapterTestEntry extends BaseAdapter
 
         // Set the name of the pic
         TextView name = convertView.findViewById(R.id.pic_name);
-        name.setText(entries.get(position).getPhotoName());
+        name.setText(entries[position].getPhotoName());
 
         // Set the correctness value
         TextView correctness = convertView.findViewById(R.id.calculated_correctness);
-        String confidence = new DecimalFormat("#0.00").format(entries.get(position).getConfidence()) + " %";
+        String confidence = new DecimalFormat("#0.00").format(entries[position].getConfidence()) + " %";
         correctness.setText(confidence);
 
         // Set the Tags text
         TextView tags = convertView.findViewById(R.id.assigned_tags);
         StringBuilder assignedTags = new StringBuilder();
-        for(String tag : entries.get(position).getTags()) {
+        for(String tag : entries[position].getTags()) {
             assignedTags.append(", ").append(tag);
         }
         tags.setText(assignedTags.toString());
