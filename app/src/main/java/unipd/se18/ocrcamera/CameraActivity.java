@@ -28,16 +28,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.support.media.ExifInterface;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Size;
+import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -120,7 +125,27 @@ public class CameraActivity extends AppCompatActivity {
     /**
      * Instance of InternalStorageManager for managing the pic data
      */
-    public InternalStorageManager bitmapManager;
+   // public InternalStorageManager bitmapManager;
+
+    private static final SparseIntArray ExifInterfaceORIENTATIONS = new SparseIntArray();
+    static {
+        ExifInterfaceORIENTATIONS.append(ExifInterface.ORIENTATION_NORMAL, 90);
+        ExifInterfaceORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_90, 0);
+        ExifInterfaceORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_180, 270);
+        ExifInterfaceORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_270, 180);
+    }
+    private static final SparseIntArray SurfaceORIENTATIONS = new SparseIntArray();
+    static {
+        SurfaceORIENTATIONS.append(Surface.ROTATION_0, 90);
+        SurfaceORIENTATIONS.append(Surface.ROTATION_90, 0);
+        SurfaceORIENTATIONS.append(Surface.ROTATION_180, 270);
+        SurfaceORIENTATIONS.append(Surface.ROTATION_270, 180);
+    }
+
+    /**
+     * The id of the camera used
+     */
+    private String cameraId;
 
 
     /**
@@ -214,7 +239,7 @@ public class CameraActivity extends AppCompatActivity {
         magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         deviceOrientation = new DeviceOrientation();
 
-        bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
+       // bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
 
         // Initializing of the UI components
         mCameraTextureView = findViewById(R.id.camera_view);
@@ -223,6 +248,11 @@ public class CameraActivity extends AppCompatActivity {
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+                SharedPreferences.Editor edit = prefs.edit();
+                edit.putString("text", null);
+                edit.putString("imageDataPath", null);
+                edit.apply();
                 takePhoto();
             }
         });
@@ -293,7 +323,6 @@ public class CameraActivity extends AppCompatActivity {
 
         //Camera opening process
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        String cameraId;
         try {
             cameraId = manager.getCameraIdList()[0];
             CameraCharacteristics mCameraCharacteristics = manager.getCameraCharacteristics(cameraId);
@@ -582,15 +611,19 @@ public class CameraActivity extends AppCompatActivity {
                     int rotation = deviceOrientation.getOrientation();
                     bitmapImage = imageOrientation(bitmapImage, rotation);
 
-                    //save Bitmap inside internal storage and reset extracted text
-                    bitmapManager.saveBitmapToInternalStorage(bitmapImage);
-                    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("lastExtractedText", "");
-                    editor.apply();
+                    //Temporary stores the captured photo into a file that will be used from the Camera Result activity
+                    String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
 
+                    SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+                    SharedPreferences.Editor edit = prefs.edit();
+                    edit.putString("imagePath", filePath.trim());
+                    edit.apply();
+
+                    //An intent that will launch the activity that will analyse the photo
                     Intent i = new Intent(CameraActivity.this, ResultActivity.class);
                     startActivity(i);
+
+
 
                 }
             };
@@ -638,30 +671,85 @@ public class CameraActivity extends AppCompatActivity {
         }
     } //end takePhoto
 
-//TODO correct the rotation bug for some device, now it's just 90 degrees rotated
+    //TODO test this method
     /**
-     * rotate bitmap image counter clockwise by the rotation value
-     * Convert DeviceOrientation's rotation value in 90 grades rotation value and
+     * Rotate bitmap image relatively the rotation of the smartphone
      * @param bmp original bitmap image
-     * @param rotation based on DeviceOrientation class
+     * @param rotation based on DeviceOrientation class // TODO check if unusued
      * @return Bitmap rotated image
-     * @author Giovanni Furlan (g2)
+     * @author Giovanni Furlan (g2), Pietro Prandini (g2)
      */
     private Bitmap imageOrientation(Bitmap bmp, int rotation){
-        //TODO comment the following line if ur image is rotated by 90 degrees
-        bmp=rotateImage(bmp, 90);
+        Log.v(TAG, "imageOrientation -> rotation == " + rotation);
+        CameraManager internalCameraManager = (CameraManager) this.getSystemService(CAMERA_SERVICE);
+        int sensorOrientation = 0;
+        try {
+            sensorOrientation = internalCameraManager
+                    .getCameraCharacteristics(cameraId)
+                    .get(CameraCharacteristics.SENSOR_ORIENTATION);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        // ExifInterfaceOrientations
+        int rotationCompensation = ExifInterfaceORIENTATIONS.get(rotation);
+        // SurfaceOrientations
+        //int rotationCompensation = SurfaceORIENTATIONS.get(CameraActivity.this.getWindowManager().getDefaultDisplay().getRotation());
+        Log.v(TAG, "imageOrientation -> sensorOrientation == " + sensorOrientation + ", rotationCompensation == "
+                + rotationCompensation);
+        rotation = (sensorOrientation + rotationCompensation + 270) % 360;
+                Log.v(TAG, "imageOrientation -> calculated rotation == " + rotation);
+        // ExifInterfaceOrientations
         switch (rotation) {
-            case 6:
-                return bmp;
-            case 1:
-                return rotateImage(bmp, 270);
-            case 3:
+            case 0:
                 return rotateImage(bmp, 90);
-            case 8:
+            case 90:
+                return rotateImage(bmp, 0);
+            case 180:
+                return rotateImage(bmp, 270);
+            case 270:
                 return rotateImage(bmp, 180);
         }
-
+        // SurfaceOrientations
+        /*switch (rotation) {
+            case 0:
+                return rotateImage(bmp, 0);
+            case 90:
+                return rotateImage(bmp, 90);
+            case 180:
+                return rotateImage(bmp, 180);
+            case 270:
+                return rotateImage(bmp, 270);
+        }*/
         return bmp;
+    }
+
+
+    /**
+     * Stores the captured image into a temporary file useful to pass large data between activities
+     * and returns the file's path.
+     * @param context The reference of the current activity
+     * @param bitmap The captured image to store into the file. Not null or empty.
+     * @param name The name of the file. Not null or empty.
+     * @return The files path
+     * @author Leonardo Rossi
+     */
+    private String tempFileImage(Context context, Bitmap bitmap, String name)
+    {
+
+        File outputDir = context.getCacheDir();
+        File imageFile = new File(outputDir, name + ".jpg");
+
+        OutputStream os;
+        try {
+            os = new FileOutputStream(imageFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            os.flush();
+            os.close();
+        } catch (Exception e) {
+            Log.e(context.getClass().getSimpleName(), "Error writing file", e);
+        }
+
+        return imageFile.getAbsolutePath();
     }
 
 

@@ -1,11 +1,14 @@
 package unipd.se18.ocrcamera;
 
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -24,13 +27,15 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView mOCRTextView;
 
+    /**
+     * Bitmap of the lastPhoto saved
+     */
+    private Bitmap lastPhoto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
-
-        // Instance of InternalStorageManager for managing the pic data
-        InternalStorageManager bitmapManager;
 
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
@@ -41,72 +46,90 @@ public class ResultActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(ResultActivity.this,CameraActivity.class));
+                startActivity(new Intent(ResultActivity.this, CameraActivity.class));
             }
         });
 
-        String OCRText = getIntent().getStringExtra("text");
 
-        bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
-        Bitmap lastPhoto = bitmapManager.loadBitmapFromInternalStorage();
+        //Get image path and text of the last image from preferences
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = prefs.getString("imagePath", null);
+        String OCRText = prefs.getString("text", null);
 
-        if(lastPhoto != null) {
+        lastPhoto = BitmapFactory.decodeFile(pathImage);
+
+        if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 960, 960, false));
-        }
-        else {
+        } else {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-
         //Displaying the text, from OCR or preferences
         if(OCRText != null) {
-            //Show the text of the last image
-            mOCRTextView.setText(OCRText);
-        }
-        else{
-
-            if(lastPhoto != null) {
-                //Text shows when OCR are processing the image
-                mOCRTextView.setText(R.string.processing);
-                extractTextFromImage(lastPhoto);
+            // Text in preferences
+            if(OCRText.equals("")) {
+                mOCRTextView.setText(R.string.no_text_found);
+            } else {
+                //Show the text of the last image
+                mOCRTextView.setText(OCRText);
             }
-            else {
-                Log.e("NOT_FOUND", "photo not found");
-            }
+        } else{
+            // text from OCR
+            AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+            ocrTask.execute(lastPhoto);
         }
-
-
     }
 
     /**
-     * Retrieves the text from the given byte array
-     * @param bitmap the bitmap from wich the text will be extracted
-     * @modify mOCRTextView It will contains the text extracts from the image
-     * @modify sharedPreferences if recognized text is not null
-     * @author Leonardo Rossi - Modified by Luca Moroldo
+     * Execute a task and post the result on the TextView given on construction
+     * (g3)
      */
-    private void extractTextFromImage(Bitmap bitmap) {
-        //Call to text extractor method to get the text from the given image
-        TextExtractor extractor = new TextExtractor(this);
-        extractor.getTextFromImg(bitmap);
-        //Definition of the observer which will be responsible of updating the UI once the text extractor has finished its work
-        android.arch.lifecycle.Observer<String> obsText = new android.arch.lifecycle.Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                if(s != null) {
-                    if(s.equals(""))
-                        mOCRTextView.setText(R.string.no_text_found);
-                    else
-                        mOCRTextView.setText(s);
+    @SuppressLint("StaticFieldLeak")
+    private class AsyncLoad extends AsyncTask<Bitmap, Void, String> {
 
-                    //store on shared pref the extracted text
-                    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("lastExtractedText", s);
-                    editor.apply();
+        private ProgressDialog progressDialog;
+        private TextView resultTextView;
+        private String progressMessage;
+
+        AsyncLoad(TextView view, String progressMessage) {
+            this.resultTextView = view;
+            this.progressMessage = progressMessage;
+        }
+
+        @Override
+        protected String doInBackground(Bitmap... bitmaps) {
+            TextExtractor ocr = new TextExtractor();
+            String textRecognized = "";
+            if(lastPhoto != null) {
+                textRecognized = ocr.getTextFromImg(lastPhoto);
+                if(textRecognized.equals("")) {
+                    textRecognized = getString(R.string.no_text_found);
+                    mOCRTextView.setText(textRecognized);
+                } else {
+                    mOCRTextView.setText(textRecognized);
                 }
+            } else {
+                Log.e("NOT_FOUND", "photo not found");
             }
-        };
-        extractor.extractedText.observe(this, obsText);
+            return textRecognized;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            progressDialog.dismiss();
+            // Saving in the preferences
+            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("text", s);
+            editor.apply();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(ResultActivity.this,
+                    progressMessage,
+                    "");
+        }
     }
 }
+
