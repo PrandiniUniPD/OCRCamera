@@ -1,7 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -17,8 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.io.File;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -29,11 +26,6 @@ public class ResultActivity extends AppCompatActivity {
      * The TextView of the extracted test from the captured photo.
      */
     private TextView mOCRTextView;
-
-    /**
-     * TextExtractor object useful for extracting text from pics
-     */
-    private TextExtractor ocr;
 
     /**
      * Bitmap of the lastPhoto saved
@@ -58,6 +50,7 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
+
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
@@ -71,7 +64,6 @@ public class ResultActivity extends AppCompatActivity {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-
         //Displaying the text, from OCR or preferences
         if(OCRText != null) {
             // Text in preferences
@@ -83,25 +75,61 @@ public class ResultActivity extends AppCompatActivity {
             }
         } else{
             // text from OCR
-            ocr = new TextExtractor();
+            AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+            ocrTask.execute(lastPhoto);
+        }
+    }
+
+    /**
+     * Execute a task and post the result on the TextView given on construction
+     * (g3)
+     */
+    @SuppressLint("StaticFieldLeak")
+    private class AsyncLoad extends AsyncTask<Bitmap, Void, String> {
+
+        private ProgressDialog progressDialog;
+        private TextView resultTextView;
+        private String progressMessage;
+
+        AsyncLoad(TextView view, String progressMessage) {
+            this.resultTextView = view;
+            this.progressMessage = progressMessage;
+        }
+
+        @Override
+        protected String doInBackground(Bitmap... bitmaps) {
+            TextExtractor ocr = new TextExtractor();
+            String textRecognized = "";
             if(lastPhoto != null) {
-                //Text shows when OCR are processing the image
-                mOCRTextView.setText(R.string.processing);
-                String textRecognized = ocr.getTextFromImg(lastPhoto);
+                textRecognized = ocr.getTextFromImg(lastPhoto);
                 if(textRecognized.equals("")) {
-                    mOCRTextView.setText(R.string.no_text_found);
+                    textRecognized = getString(R.string.no_text_found);
+                    mOCRTextView.setText(textRecognized);
                 } else {
                     mOCRTextView.setText(textRecognized);
                 }
-                // Saving in the preferences
-                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("lastExtractedText", textRecognized);
-                editor.apply();
-            }
-            else {
+            } else {
                 Log.e("NOT_FOUND", "photo not found");
             }
+            return textRecognized;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            progressDialog.dismiss();
+            resultTextView.setText((s));
+            // Saving in the preferences
+            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("text", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("text", s);
+            editor.apply();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(ResultActivity.this,
+                    progressMessage,
+                    "");
         }
     }
 }
