@@ -64,9 +64,20 @@ public class ResultActivity extends AppCompatActivity {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-        // text from OCR
-        AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
-        ocrTask.execute(lastPhoto);
+        //Displaying the text, from OCR or preferences
+        if(OCRText != null) {
+            // Text in preferences
+            if(OCRText.equals("")) {
+                mOCRTextView.setText(R.string.no_text_found);
+            } else {
+                //Show the text of the last image
+                mOCRTextView.setText(OCRText);
+            }
+        } else{
+            // text from OCR
+            AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+            ocrTask.execute(lastPhoto);
+        }
     }
 
     /**
