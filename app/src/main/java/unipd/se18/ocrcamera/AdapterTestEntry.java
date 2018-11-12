@@ -56,9 +56,9 @@ public class AdapterTestEntry extends BaseAdapter
         String confidenceText = new DecimalFormat("#0.00").format(confidence*100) + " %";
 
         // Set the color of the correctness
-        if(confidence < 70) {
+        if(confidence < 0.70) {
             correctness.setTextColor(Color.RED);
-        } else if (confidence < 85) {
+        } else if (confidence < 0.85) {
             correctness.setTextColor(Color.YELLOW);
         } else {
             correctness.setTextColor(Color.GREEN);
