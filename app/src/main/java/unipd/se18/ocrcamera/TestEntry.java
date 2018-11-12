@@ -59,13 +59,24 @@ public class TestEntry
      * Returns the list of the photo's tags
      * @return The list of the photo's tags
      */
-    public String[] getTags(){ return (String[]) tags.toArray(); }
+    public String[] getTags(){
+        return tags.toArray(new String[0]);
+        /*
+        Object[] arr = tags.toArray();
+
+        String[] stringArr = new String[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            stringArr[i] = (String) arr[i];
+
+        return stringArr;
+        */
+    }
 
     /**
      * Returns the list of photo's ingredients
      * @return The photo's ingredients
      */
-    public String[] getIngredients(){ return (String[]) ingredients.toArray(); }
+    public String[] getIngredients(){ return ingredients.toArray(new String[0]); }
 
     /**
      * Returns the additional text

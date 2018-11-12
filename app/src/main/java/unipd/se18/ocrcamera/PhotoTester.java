@@ -110,7 +110,31 @@ public class PhotoTester {
      * @return percentage of matched words.
      */
     private int ingredientsTextComparison(String[] correct, String extracted){
-        return 0;
+
+        int matchCount = 0;
+        int ingredientsStartAtIndex = 0;
+
+        if(extracted.contains("ingredients")) {
+            ingredientsStartAtIndex = extracted.indexOf("ingredients");
+            extracted = extracted.substring(ingredientsStartAtIndex + "ingredients".length());
+        }
+        else if(extracted.contains("ingredienti")) {
+            ingredientsStartAtIndex = extracted.indexOf("ingredienti");
+            extracted = extracted.substring(ingredientsStartAtIndex + "ingredienti".length());
+        }
+
+        String[] extractedWords = extracted.trim().split("\\s*,\\s*");
+
+        for (String ingredient : correct) {
+
+            for (String extractedWord : extractedWords) {
+                if (ingredient.equals(extractedWord))
+                    matchCount++;
+            }
+        }
+
+        return matchCount / correct.length;
+
     }
 
 
@@ -120,7 +144,9 @@ public class PhotoTester {
      * @return String - the text extracted
      */
     private String executeOcr(Bitmap bitmap) {
-        return null;
+
+        TextExtractor textExtractor = new TextExtractor();
+        return textExtractor.getTextFromImg(bitmap);
     }
 
 

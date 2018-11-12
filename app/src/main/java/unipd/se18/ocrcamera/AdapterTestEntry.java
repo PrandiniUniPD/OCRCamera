@@ -54,12 +54,12 @@ public class AdapterTestEntry extends BaseAdapter
         // Set the correctness value
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         double confidence = entries[position].getConfidence();
-        String confidenceText = new DecimalFormat("#0.00").format(confidence*100) + " %";
+        String confidenceText = new DecimalFormat("#0.00").format(confidence) + " %";
 
         // Set the color of the correctness
-        if(confidence < 0.70) {
+        if(confidence < 70) {
             correctness.setTextColor(Color.RED);
-        } else if (confidence < 0.85) {
+        } else if (confidence < 85) {
             correctness.setTextColor(Color.YELLOW);
         } else {
             correctness.setTextColor(Color.GREEN);

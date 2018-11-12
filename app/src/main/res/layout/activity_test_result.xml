@@ -6,12 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".TestResultActivity">
 
-    <android.support.v7.widget.RecyclerView
+    <ListView
         android:id="@+id/test_entries_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical">
 
-    </android.support.v7.widget.RecyclerView>
+    </ListView>
 
 </android.support.constraint.ConstraintLayout>

@@ -25,6 +25,7 @@ import android.Manifest;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
@@ -254,6 +255,18 @@ public class CameraActivity extends AppCompatActivity {
                 edit.putString("imageDataPath", null);
                 edit.apply();
                 takePhoto();
+            }
+        });
+
+        Button mButtonTestActivity = findViewById(R.id.test_button);
+        mButtonTestActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Toast.makeText(getApplicationContext(), "The path of test directory is: " + getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath(), Toast.LENGTH_LONG).show();
+
+                Intent i = new Intent(CameraActivity.this, TestResultActivity.class);
+                startActivity(i);
             }
         });
     }
