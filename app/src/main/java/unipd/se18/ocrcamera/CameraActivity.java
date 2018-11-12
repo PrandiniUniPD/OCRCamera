@@ -280,7 +280,7 @@ public class CameraActivity extends AppCompatActivity {
         mSensorManager.unregisterListener(deviceOrientation.getEventListener());
 
     }
- /* commit gruppo 1 leopra */
+
     /**
      * Opens a connection with a camera if it is permitted, otherwise return.
      * <p>The method open a connection with the frontal camera if the permission is granted
