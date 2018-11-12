@@ -61,11 +61,9 @@ public class ResultActivity extends AppCompatActivity {
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
-        OCRText = prefs.getString("text", null);
+        String OCRText = prefs.getString("text", null);
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
-        bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
-        lastPhoto = bitmapManager.loadBitmapFromInternalStorage();
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 960, 960, false));
