@@ -9,7 +9,8 @@ import static android.support.constraint.Constraints.TAG;
 
 public class JSONReportParser {
 
-    //TODO no need a class for those two methods
+    //TODO: Convert all the method in static so that in this way they can be used like JSONReportParser.methodName() without object creation
+    //TODO: Implement a method that given in input a string (the report file content) returns an array of TestEntries
 
     /**
      * Get a JSONObject with keys linked to JSONObjects that contains the photo information.
@@ -48,6 +49,11 @@ public class JSONReportParser {
 
         TestEntry entry = null;
         try {
+
+            //TODO: It's not necessary to pass null as parameters in the constructor you can do like this
+            //TestEntry test = new TestEntry("name", 23);
+            //All the other parameters are initialized by default. Look at class definition
+
             //Construct a new TestEntry with the JSONObject value
             entry = new TestEntry(json.getString("original_name"),
                     json.getDouble("confidence"), null, null,
@@ -72,5 +78,13 @@ public class JSONReportParser {
         }
         return entry;
     }
+
+    //The method you should implement
+    /*
+    public static TestEntry[] parseReport(String fileContent)
+    {
+        //...
+    }
+    */
 
 }
