@@ -46,7 +46,8 @@ public class AdapterTestEntry extends BaseAdapter
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        if (convertView == null) {
+        if (convertView == null)
+        {
             convertView = LayoutInflater.from(context).inflate(R.layout.test_entry, parent, false);
         }
 
@@ -73,6 +74,7 @@ public class AdapterTestEntry extends BaseAdapter
         // Set the Tags text
         TextView tags = convertView.findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
+        assignedTags.append("Tags: ");
         for(String tag: entries[position].getTags()) {
             assignedTags.append(", ").append(tag);
         }
@@ -81,6 +83,7 @@ public class AdapterTestEntry extends BaseAdapter
         // Set the ingredients text
         TextView ingredients = convertView.findViewById(R.id.ingredients_view);
         StringBuilder realIngredients = new StringBuilder();
+        realIngredients.append("Ingredients: ");
         for(String ingredient: entries[position].getIngredients()) {
             realIngredients.append(", ").append(ingredient);
         }
