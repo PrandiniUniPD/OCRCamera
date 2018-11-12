@@ -117,9 +117,8 @@ public class ResultActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             progressDialog.dismiss();
-            resultTextView.setText((s));
             // Saving in the preferences
-            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("text", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("text", s);
             editor.apply();
