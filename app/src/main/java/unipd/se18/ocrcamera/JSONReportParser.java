@@ -5,6 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import static android.support.constraint.Constraints.TAG;
 
@@ -20,10 +21,13 @@ public class JSONReportParser {
     public static TestEntry[] parseReport(String fileContent)
     {
         TestEntry[] array = null;
-        try{
+        try
+        {
             JSONObject json = new JSONObject(fileContent);
             array = JSONReader(json);
-        } catch(JSONException e) {
+        }
+        catch(JSONException e)
+        {
             Log.e(TAG, "Error in parseReport");
         }
 
@@ -38,23 +42,26 @@ public class JSONReportParser {
      * Pass the information of a single JSONObject to a TestEntry and return all the TestEntry in an array
      * @param json JSONObject file extracted by PhotoTester class
      * @return TestEntry[] an array of Test Enrty with all the JSONObject
-     * @author Giovanni Furlan (gr2)
+     * @author Giovanni Furlan (gr2) - modified by Leonardo Rossi (g2)
      */
-    private static TestEntry[] JSONReader(JSONObject json) {
+    private static TestEntry[] JSONReader(JSONObject json)
+    {
 
-        int lenght = json.length();
-        TestEntry[] entryArray = new TestEntry[lenght-1];
-        try {
-            for(int i=1; i <= lenght; i++ )
+        TestEntry[] entryArray = new TestEntry[json.length()];
+        try
+        {
+            Iterator<String> keys = json.keys();
+            int i = 0;
+            while(keys.hasNext())
             {
-                //TODO check if filename is right
-                String filename = "filename" + i;
-                JSONObject jsonDetails = json.getJSONObject(filename);
+                JSONObject jsonDetails = json.getJSONObject(keys.next());
                 TestEntry entry = JSONExtractValue(jsonDetails);
-                entryArray[i-1]=entry;
-
+                entryArray[i]=entry;
+                i++;
             }
-        } catch(org.json.JSONException e) {
+        }
+        catch(org.json.JSONException e)
+        {
             Log.e(TAG, "Error in JSONReader");
         }
         return entryArray;
@@ -64,12 +71,13 @@ public class JSONReportParser {
      * Add all the given JSONObject value in a TestEntry
      * @param json the JSONObject where to find the value
      * @return TestEntry with all the JSONObject value
-     * @author Giovanni Furlan (gr2)
+     * @author Giovanni Furlan (gr2) - modified by Leonardo Rossi (g2)
      */
     private static TestEntry JSONExtractValue(JSONObject json) {
 
         TestEntry entry = null;
-        try {
+        try
+        {
 
             //Construct a new TestEntry with the JSONObject value
             entry = new TestEntry(json.getString("original_name"), json.getDouble("confidence"));
@@ -81,19 +89,20 @@ public class JSONReportParser {
             entry.setNotes(json.getString("notes"));
 
             //Add tag
-            List<String> list = new ArrayList<String>();;
+            List<String> list = new ArrayList<String>();
             JSONArray jsonArray = json.getJSONArray("tags");
-            if (jsonArray != null) {
-                int len = jsonArray.length();
-                for (int i=0;i<len;i++){
-                    list.add(jsonArray.get(i).toString());
-                }
+            if (jsonArray != null)
+            {
+                for (int i=0; i < jsonArray.length() ;i++) { list.add(jsonArray.get(i).toString()); }
             }
             entry.addTags(list);
 
-        }  catch(org.json.JSONException e) {
+        }
+        catch(org.json.JSONException e)
+        {
             Log.e(TAG, "Error in JSONExtractValue");
         }
+
         return entry;
     }
 
