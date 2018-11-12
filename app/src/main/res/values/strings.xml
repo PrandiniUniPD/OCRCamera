@@ -14,6 +14,7 @@
     <string name="savedPhotoPathKey">savedPhotoPathKey</string>
     <string name="pic_captured">Pic captured</string>
     <string name="analyzed_pic">Pic analyzed</string>
-    <string name="correcteness">Text successfully recognized</string>
-    <string name="tags">TAGs: </string>
+    <string name="tags">TAGs:</string>
+    <string name="ingredients">Ingredients:</string>
+    <string name="notes">Notes:</string>
 </resources>

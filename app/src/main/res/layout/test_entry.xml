@@ -8,39 +8,90 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <ImageView
-            android:id="@+id/analyzed_pic"
-            android:layout_width="50sp"
-            android:layout_height="50sp"
-            android:contentDescription="@string/analyzed_pic"
-            android:layout_alignParentStart="true"/>
+
+        <!-- Correctness -->
         <TextView
-            android:id="@+id/pic_name"
+            android:id="@+id/correctness_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/analyzed_pic"/>
+            android:layout_alignParentStart="true"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:padding="10sp"/>
+
+        <!-- Name -->
         <TextView
-            android:id="@+id/correctness_text"
-            android:text="@string/correcteness"
+            android:id="@+id/pic_name_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/correctness_view"
             android:layout_alignParentEnd="true"
-            android:layout_toEndOf="@id/pic_name"/>
+            android:layout_alignParentStart="true"
+            android:paddingStart="40sp"
+            android:paddingEnd="20sp"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:padding="10sp"/>
+
+        <!-- Tags -->
         <TextView
-            android:id="@+id/calculated_correctness"
+            android:id="@+id/tags_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/correctness_text"/>
+            android:text="@string/tags"
+            android:layout_below="@id/correctness_view"
+            android:layout_alignParentStart="true"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:padding="5sp"/>
         <TextView
-            android:id="@+id/tags_text"
+            android:id="@+id/tags_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/pic_name"/>
+            android:layout_below="@id/correctness_view"
+            android:layout_toEndOf="@id/tags_title"
+            android:textSize="15sp"
+            android:padding="5sp"/>
+
+        <!-- Ingredients -->
         <TextView
-            android:id="@+id/assigned_tags"
+            android:id="@+id/ingredients_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/tags_text"/>
+            android:text="@string/ingredients"
+            android:layout_below="@id/tags_title"
+            android:layout_alignParentStart="true"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:padding="5sp"/>
+        <TextView
+            android:id="@+id/ingredients_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tags_title"
+            android:layout_toEndOf="@id/ingredients_title"
+            android:textSize="15sp"
+            android:padding="5sp"/>
+
+        <!-- Notes -->
+        <TextView
+            android:id="@+id/notes_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/notes"
+            android:layout_below="@id/ingredients_title"
+            android:layout_alignParentStart="true"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:padding="5sp"/>
+        <TextView
+            android:id="@+id/notes_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ingredients_title"
+            android:layout_toEndOf="@id/notes_title"
+            android:textSize="15sp"
+            android:padding="5sp"/>
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

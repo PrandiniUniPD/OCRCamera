@@ -1,7 +1,7 @@
 package unipd.se18.ocrcamera;
 
-import android.content.ClipData;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +9,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 
 /**
  * Adapter for the view of the processing result of the pics
@@ -51,27 +50,45 @@ public class AdapterTestEntry extends BaseAdapter
             convertView = LayoutInflater.from(context).inflate(R.layout.test_entry, parent, false);
         }
 
-        //TODO Implement getPhoto() method in TestEntry.java to get a pic preview
-        // Set the image preview
-        //ImageView pic = convertView.findViewById(R.id.analyzed_pic);
-        //pic.setImageBitmap(entries.get(position).getPhoto());
+        // Set the correctness value
+        TextView correctness = convertView.findViewById(R.id.correctness_view);
+        double confidence = entries[position].getConfidence();
+        String confidenceText = new DecimalFormat("#0.00").format(confidence*100) + " %";
+
+        // Set the color of the correctness
+        if(confidence < 70) {
+            correctness.setTextColor(Color.RED);
+        } else if (confidence < 85) {
+            correctness.setTextColor(Color.YELLOW);
+        } else {
+            correctness.setTextColor(Color.GREEN);
+        }
+
+        correctness.setText(confidenceText);
 
         // Set the name of the pic
-        TextView name = convertView.findViewById(R.id.pic_name);
+        TextView name = convertView.findViewById(R.id.pic_name_view);
         name.setText(entries[position].getPhotoName());
 
-        // Set the correctness value
-        TextView correctness = convertView.findViewById(R.id.calculated_correctness);
-        String confidence = new DecimalFormat("#0.00").format(entries[position].getConfidence()) + " %";
-        correctness.setText(confidence);
-
         // Set the Tags text
-        TextView tags = convertView.findViewById(R.id.assigned_tags);
+        TextView tags = convertView.findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
-        for(String tag : entries[position].getTags()) {
+        for(String tag: entries[position].getTags()) {
             assignedTags.append(", ").append(tag);
         }
         tags.setText(assignedTags.toString());
+
+        // Set the ingredients text
+        TextView ingredients = convertView.findViewById(R.id.ingredients_view);
+        StringBuilder realIngredients = new StringBuilder();
+        for(String ingredient: entries[position].getIngredients()) {
+            realIngredients.append(", ").append(ingredient);
+        }
+        ingredients.setText(realIngredients);
+
+        // Set the notes text
+        TextView notes = convertView.findViewById(R.id.notes_view);
+        notes.setText(entries[position].getNotes());
 
         // return the view of the entry
         return convertView;
