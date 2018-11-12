@@ -24,7 +24,7 @@ public class JSONReportParser {
         try
         {
             JSONObject json = new JSONObject(fileContent);
-            array = JSONReader(json);
+            array = retrieveEntries(json);
         }
         catch(JSONException e)
         {
@@ -44,7 +44,7 @@ public class JSONReportParser {
      * @return TestEntry[] an array of Test Enrty with all the JSONObject
      * @author Giovanni Furlan (gr2) - modified by Leonardo Rossi (g2)
      */
-    private static TestEntry[] JSONReader(JSONObject json)
+    private static TestEntry[] retrieveEntries(JSONObject json)
     {
 
         TestEntry[] entryArray = new TestEntry[json.length()];
@@ -55,7 +55,7 @@ public class JSONReportParser {
             while(keys.hasNext())
             {
                 JSONObject jsonDetails = json.getJSONObject(keys.next());
-                TestEntry entry = JSONExtractValue(jsonDetails);
+                TestEntry entry = extractValues(jsonDetails);
                 entryArray[i]=entry;
                 i++;
             }
@@ -73,7 +73,7 @@ public class JSONReportParser {
      * @return TestEntry with all the JSONObject value
      * @author Giovanni Furlan (gr2) - modified by Leonardo Rossi (g2)
      */
-    private static TestEntry JSONExtractValue(JSONObject json) {
+    private static TestEntry extractValues(JSONObject json) {
 
         TestEntry entry = null;
         try
