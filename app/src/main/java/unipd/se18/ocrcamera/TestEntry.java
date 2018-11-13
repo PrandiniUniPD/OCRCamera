@@ -118,7 +118,7 @@ public class TestEntry
      */
     public void addTags(List<String> newTags)
     {
-        for (int i = 0; i < tags.size(); i++){ tags.add(newTags.get(i)); }
+        for (int i = 0; i < newTags.size(); i++){ tags.add(newTags.get(i)); }
     }
 
     /**
