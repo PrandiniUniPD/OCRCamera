@@ -54,7 +54,7 @@ public class AdapterTestEntry extends BaseAdapter
         // Set the correctness value
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         double confidence = entries[position].getConfidence();
-        String confidenceText = new DecimalFormat("#0.00").format(confidence) + " %";
+        String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
 
         // Set the color of the correctness
         if(confidence < 70) {
@@ -75,7 +75,7 @@ public class AdapterTestEntry extends BaseAdapter
         TextView tags = convertView.findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
         for(String tag: entries[position].getTags()) {
-            assignedTags.append(", ").append(tag);
+            assignedTags.append(tag).append(", ");
         }
         tags.setText(assignedTags.toString());
 
@@ -83,7 +83,7 @@ public class AdapterTestEntry extends BaseAdapter
         TextView ingredients = convertView.findViewById(R.id.ingredients_view);
         StringBuilder realIngredients = new StringBuilder();
         for(String ingredient: entries[position].getIngredients()) {
-            realIngredients.append(", ").append(ingredient);
+            realIngredients.append(ingredient).append(", ");
         }
         ingredients.setText(realIngredients);
 
