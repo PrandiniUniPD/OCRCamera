@@ -159,7 +159,7 @@ public class PhotoTester {
             }
         }
         Log.i(TAG, "ingredientsTextComparison -> matchCount == " + matchCount);
-        float confidence = (matchCount / correct.length)*100;
+        float confidence = ((float)matchCount / correct.length)*100;
         Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
         return confidence;
 
