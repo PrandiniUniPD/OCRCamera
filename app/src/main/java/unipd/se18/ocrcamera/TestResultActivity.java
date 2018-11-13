@@ -9,10 +9,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -48,72 +51,62 @@ public class TestResultActivity extends AppCompatActivity {
         }
 
 
-        //try 1
         /*
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-
-        File myDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "folder");
-
-        path = myDir.getAbsolutePath();
-        Log.v(TAG, "PATH => " + path);
-
-        //path += "/foto";
-
-        //Log.v(TAG, "PATH => " + path);
-
-        PhotoTester photoTester = new PhotoTester(path);
-        String report = photoTester.testAndReport();
-        ListView results = findViewById(R.id.test_entries_list);
-        AdapterTestEntry adapter = new AdapterTestEntry(this, JSONReportParser.parseReport(report));
-        results.setAdapter(adapter);
-        */
-        //End try 1
-
-
-        //try 2
         ListView listEntriesView = findViewById(R.id.test_entries_list);
         //TODO execute in background
-        AsyncReport report = new AsyncReport(listEntriesView,
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+        AsyncReport report = new AsyncReport(listEntriesView, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 "OCRCameraDB",
                 getString(R.string.processing));
         report.execute();
-        /*PhotoTester tester = new PhotoTester(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "OCRCameraDB");
-        String report = tester.testAndReport();
-        AdapterTestEntry adapter = new AdapterTestEntry(TestResultActivity.this, JSONReportParser.parseReport(report));
-        listEntriesView.setAdapter(adapter);*/
-
-
-
-
-
-        //end try 2
-
-        //TODO fix select folder dialog
-        /*
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("file/*");
-        startActivityForResult(intent,666);
-
         */
+
+
+        //TODO this solution must be tested
+
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.setType("file/*");
+        startActivityForResult(Intent.createChooser(i, "Choose directory"), 666);
+
 
 
 
 
     }
 
+    /**
+     *
+     * @param uri URI pointing a file inside the storage
+     * @return String path of the uri
+     */
+    public String getRealPathFromURI(Uri uri)
+    {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getApplicationContext().getContentResolver().query(uri, proj,
+                null, null, null);
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        String path = cursor.getString(column_index);
+        cursor.close();
+        return path;
+    }
 
-    //TODO fix select folder dialog
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == 666) {
-            String FilePath = data.getData().getPath();
-            String FileName = data.getData().getLastPathSegment();
-            int lastPos = FilePath.length() - FileName.length();
-            String folderPath = FilePath.substring(0, lastPos);
 
-            Log.v(TAG, "PATH => " + folderPath);
+            String filePath = getRealPathFromURI(data.getData());
+
+
+            File directory = new File(new File(filePath).getParent());
+            Log.v(TAG, "PATH => " + filePath);
+
+            ListView listEntriesView = findViewById(R.id.test_entries_list);
+
+            AsyncReport report = new AsyncReport(listEntriesView, directory,
+                    getString(R.string.processing));
+            report.execute();
 
         }
     }
@@ -127,24 +120,25 @@ public class TestResultActivity extends AppCompatActivity {
     private class AsyncReport extends AsyncTask<Void, Void, Void> {
 
         private ListView listEntriesView;
-        private File environment;
-        private String dirName;
+        private File directory;
         private String progressMessage;
         private ProgressDialog progressDialog;
         private PhotoTester tester;
         private String report;
 
-        AsyncReport(ListView listEntriesView,File environment, String dirName, String progressMessage) {
+        AsyncReport(ListView listEntriesView,File directory, String progressMessage) {
             this.listEntriesView = listEntriesView;
-            this.environment = environment;
-            this.dirName = dirName;
+            this.directory = directory;
+
             this.progressMessage = progressMessage;
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            this.tester = new PhotoTester(environment,dirName);
+
+            this.tester = new PhotoTester(directory);
             report = tester.testAndReport();
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
