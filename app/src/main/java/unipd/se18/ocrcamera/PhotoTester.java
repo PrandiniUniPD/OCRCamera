@@ -128,28 +128,29 @@ public class PhotoTester {
      * @param correct correct list of ingredients loaded from file
      * @param extracted list of ingredients extracted by the OCR
      * @return percentage of matched words.
+     * @author Francesco Pham
      */
     private int ingredientsTextComparison(String[] correct, String extracted){
 
-        int matchCount = 0;
-        int ingredientsStartAtIndex = 0;
-
-        if(extracted.contains("ingredients")) {
-            ingredientsStartAtIndex = extracted.indexOf("ingredients");
-            extracted = extracted.substring(ingredientsStartAtIndex + "ingredients".length());
-        }
-        else if(extracted.contains("ingredienti")) {
-            ingredientsStartAtIndex = extracted.indexOf("ingredienti");
-            extracted = extracted.substring(ingredientsStartAtIndex + "ingredienti".length());
-        }
-
+        extracted = extracted.toLowerCase();
         String[] extractedWords = extracted.trim().split("\\s*,\\s*");
 
-        for (String ingredient : correct) {
+        int matchCount = 0;
+        int lastMatchedWord = 0;
 
-            for (String extractedWord : extractedWords) {
-                if (ingredient.equals(extractedWord))
-                    matchCount++;
+        for (String ingredient : correct) {
+            String ingredientLower = ingredient.toLowerCase();
+            int i=lastMatchedWord;
+            boolean found = false;
+            while(i<extractedWords.length && !found){
+                if (extractedWords[i].contains(ingredientLower)) {
+                    found = true;
+                }
+                i++;
+            }
+            if(found){
+                matchCount++;
+                lastMatchedWord = i;
             }
         }
 
