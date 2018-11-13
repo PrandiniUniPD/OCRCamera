@@ -17,4 +17,6 @@
     <string name="tags">TAGs:</string>
     <string name="ingredients">Ingredients:</string>
     <string name="notes">Notes:</string>
+    <string name="pic">PIC</string>
+    <string name="test">TEST</string>
 </resources>

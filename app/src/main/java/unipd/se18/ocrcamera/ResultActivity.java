@@ -9,13 +9,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -42,7 +45,7 @@ public class ResultActivity extends AppCompatActivity {
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
 
-        FloatingActionButton fab = findViewById(R.id.newPictureFab);
+        Button fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,6 +81,18 @@ public class ResultActivity extends AppCompatActivity {
             AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
             ocrTask.execute(lastPhoto);
         }
+
+        Button mButtonTestActivity = findViewById(R.id.test_button);
+        mButtonTestActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Toast.makeText(getApplicationContext(), "The path of test directory is: " + getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath(), Toast.LENGTH_LONG).show();
+
+                Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
     /**

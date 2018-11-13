@@ -257,18 +257,6 @@ public class CameraActivity extends AppCompatActivity {
                 takePhoto();
             }
         });
-
-        Button mButtonTestActivity = findViewById(R.id.test_button);
-        mButtonTestActivity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Toast.makeText(getApplicationContext(), "The path of test directory is: " + getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath(), Toast.LENGTH_LONG).show();
-
-                Intent i = new Intent(CameraActivity.this, TestResultActivity.class);
-                startActivity(i);
-            }
-        });
     }
 
     /**

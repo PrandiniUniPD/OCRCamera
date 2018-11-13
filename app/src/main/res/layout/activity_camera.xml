@@ -21,25 +21,19 @@
             android:padding="20sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <RelativeLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="bottom">
+        android:layout_height="match_parent">
         <!-- Button to take pics - author (g3) -->
         <Button
             android:id="@+id/take_photo_button"
-            android:gravity="center_vertical"
-            android:text="PIC"
+            android:text="@string/pic"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            />
-        <Button
-            android:id="@+id/test_button"
-            android:gravity="center_vertical"
-            android:text="TEST"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
-    </LinearLayout>
+            android:layout_centerInParent="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="20sp" />
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>
