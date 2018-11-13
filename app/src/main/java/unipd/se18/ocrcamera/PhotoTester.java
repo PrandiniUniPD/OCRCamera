@@ -105,7 +105,7 @@ public class PhotoTester {
 
                 //evaluate text extraction
                 String extractedIngredients = executeOcr(test.getPicture());
-                String[] correctIngredients = test.getIngredientsArray();
+                String correctIngredients = test.getIngredients();
                 float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
                 //insert test in report
@@ -131,19 +131,20 @@ public class PhotoTester {
      * @return percentage of matched words.
      * @author Francesco Pham
      */
-    private float ingredientsTextComparison(String[] correct, String extracted){
+    private float ingredientsTextComparison(String correct, String extracted){
 
         extracted = extracted.toLowerCase();
-        String[] extractedWords = extracted.trim().split("\\s*,\\s*");
+        String[] extractedWords = extracted.trim().split("[ ,./]+");
+        String[] correctWords = correct.trim().split("[ ,./]+");
 
         Log.i(TAG, "ingredientsTextComparison -> Start of comparing");
-        Log.i(TAG, "ingredientsTextComparison -> correct.length == " + correct.length + ", extractedWords.length == " + extractedWords.length);
+        Log.i(TAG, "ingredientsTextComparison -> correctWords.length == " + correctWords.length + ", extractedWords.length == " + extractedWords.length);
 
         int matchCount = 0;
         int lastMatchedWord = 0;
 
-        for (String ingredient : correct) {
-            String ingredientLower = ingredient.toLowerCase();
+        for (String word : correctWords) {
+            String ingredientLower = word.toLowerCase();
             int i=lastMatchedWord;
             boolean found = false;
             while(i<extractedWords.length && !found){
@@ -155,11 +156,11 @@ public class PhotoTester {
             if(found){
                 matchCount++;
                 lastMatchedWord = i;
-                Log.d(TAG, "ingredientsTextComparison -> \"" + ingredient + "\" == \"" + extractedWords[i] + "\" -> matchCount++");
+                Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[i] + "\" -> matchCount++");
             }
         }
         Log.i(TAG, "ingredientsTextComparison -> matchCount == " + matchCount);
-        float confidence = ((float)matchCount / correct.length)*100;
+        float confidence = ((float)matchCount / correctWords.length)*100;
         Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
         return confidence;
 
@@ -195,7 +196,7 @@ public class PhotoTester {
         }
 
         public String[] getIngredientsArray() throws JSONException {
-            String ingredients = jsonObject.getString("ingredients");
+            String ingredients = getIngredients();
             String[] ingredientsArr = ingredients.trim().split("\\s*,\\s*"); //split removing whitespaces
             return ingredientsArr;
         }
