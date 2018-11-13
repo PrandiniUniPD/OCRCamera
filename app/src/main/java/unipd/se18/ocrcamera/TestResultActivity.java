@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -12,7 +13,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -31,11 +34,18 @@ import java.io.IOException;
  */
 public class TestResultActivity extends AppCompatActivity {
     private static final String TAG = "TestResultActivity";
+    private static final int MY_READ_EXTERNAL_STORAGE_REQUEST_CODE = 300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_result);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            String[] permissions = { Manifest.permission.READ_EXTERNAL_STORAGE };
+            ActivityCompat.requestPermissions(this, permissions, MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
+            return;
+        }
 
 
         //try 1
@@ -61,17 +71,19 @@ public class TestResultActivity extends AppCompatActivity {
 
 
         //try 2
-        File directory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        ListView listEntriesView = findViewById(R.id.test_entries_list);
+        /*AsyncReport report = new AsyncReport(listEntriesView,
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "OCRCameraDB",
+                getString(R.string.processing));
+        report.execute();*/
+        PhotoTester tester = new PhotoTester(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "OCRCameraDB");
+        String report = tester.testAndReport();
+        AdapterTestEntry adapter = new AdapterTestEntry(TestResultActivity.this, JSONReportParser.parseReport(report));
+        listEntriesView.setAdapter(adapter);
 
 
-        String path = directory.getAbsolutePath();
-
-        Log.v(TAG, "PATH => " + path);
-
-        Toast.makeText(getApplicationContext(), "The path of test directory is: " + path, Toast.LENGTH_LONG).show();
-        ListView listEntries = findViewById(R.id.test_entries_list);
-        AsyncReport report = new AsyncReport(listEntries,path,getString(R.string.processing));
-        report.execute();
 
 
 
@@ -112,28 +124,27 @@ public class TestResultActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     private class AsyncReport extends AsyncTask<Void, Void, Void> {
 
-        private ProgressDialog progressDialog;
+        private ListView listEntriesView;
+        private File environment;
+        private String dirName;
         private String progressMessage;
-        private ListView listEntries;
-        private String path;
+        private ProgressDialog progressDialog;
+        private PhotoTester tester;
+        private String report;
 
-        AsyncReport(ListView listEntries,String path, String progressMessage) {
+        AsyncReport(ListView listEntriesView,File environment, String dirName, String progressMessage) {
+            this.listEntriesView = listEntriesView;
+            this.environment = environment;
+            this.dirName = dirName;
+            this.tester = new PhotoTester(environment,dirName);
             this.progressMessage = progressMessage;
-            this.listEntries = listEntries;
-            this.path = path;
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            PhotoTester photoTester = new PhotoTester(path);
-            final String report = photoTester.testAndReport();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    AdapterTestEntry adapter = new AdapterTestEntry(TestResultActivity.this, JSONReportParser.parseReport(report));
-                    listEntries.setAdapter(adapter);
-                }
-            });
+            report = tester.testAndReport();
+            AdapterTestEntry adapter = new AdapterTestEntry(TestResultActivity.this, JSONReportParser.parseReport(report));
+            listEntriesView.setAdapter(adapter);
             return null;
         }
 
@@ -148,5 +159,34 @@ public class TestResultActivity extends AppCompatActivity {
                     progressMessage,
                     "");
         }
+    }
+
+    /**
+     * Controls the output of the permissions requests.
+     * @param requestCode The code assigned to the request
+     * @param permissions The list of the permissions requested
+     * @param grantResults The results of the requests
+     * @author Pietro Prandini (g2)
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_READ_EXTERNAL_STORAGE_REQUEST_CODE: {
+                if(grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    // Notify by a toast
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(TestResultActivity.this,
+                                    R.string.permissions_not_granted, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    // Destroy the activity
+                    finish();
+                }
+            }
+        }
+
     }
 }

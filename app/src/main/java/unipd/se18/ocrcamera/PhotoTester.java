@@ -2,6 +2,7 @@ package unipd.se18.ocrcamera;
 
 
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -34,9 +35,8 @@ public class PhotoTester {
      * Load test instances (images + description)
      * @param dirPath stores the path to the directory containing photos and description
      */
-    public PhotoTester(String dirPath) {
-        File directory = new File(dirPath);
-
+    public PhotoTester(File environment, String dirPath) {
+        File directory = getStorageDir(environment, dirPath);
 
         for (File file : directory.listFiles()) {
 
@@ -65,6 +65,23 @@ public class PhotoTester {
     }
 
 
+    /**
+     * Get a File directory from an environment
+     * @param environment parent environment
+     * @param dirName name of the directory
+     * @return the file relative to the environment and the dirName
+     * @author Pietro Prandini (g2)
+     */
+    private File getStorageDir(File environment, String dirName) {
+        // Get the directory for the user's public pictures directory.
+        File file = new File(environment, dirName);
+        if(!file.isDirectory()) {
+            Log.e(TAG, file.getAbsolutePath() + "It's not a directory");
+        } else {
+            Log.v(TAG, "Directory => " + file.getAbsolutePath());
+        }
+        return file;
+    }
 
 
     /**
