@@ -17,18 +17,15 @@
             android:layout_alignParentStart="true"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:padding="10sp"/>
+            android:paddingStart="5sp"/>
 
         <!-- Name -->
         <TextView
             android:id="@+id/pic_name_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/correctness_view"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
-            android:paddingStart="40sp"
-            android:paddingEnd="20sp"
+            android:layout_below="@id/correctness_view"
+            android:layout_centerInParent="true"
             android:textSize="20sp"
             android:textStyle="italic"
             android:padding="10sp"/>
@@ -39,8 +36,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/tags"
-            android:layout_below="@id/correctness_view"
+            android:layout_below="@id/pic_name_view"
             android:layout_alignParentStart="true"
+            android:layout_toEndOf="@id/ingredients_title"
             android:textSize="15sp"
             android:textStyle="bold"
             android:padding="5sp"/>
@@ -48,8 +46,8 @@
             android:id="@+id/tags_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/correctness_view"
-            android:layout_toEndOf="@id/tags_title"
+            android:layout_below="@id/pic_name_view"
+            android:layout_toEndOf="@id/ingredients_title"
             android:textSize="15sp"
             android:padding="5sp"/>
 
@@ -59,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ingredients"
-            android:layout_below="@id/tags_title"
+            android:layout_below="@id/tags_view"
             android:layout_alignParentStart="true"
             android:textSize="15sp"
             android:textStyle="bold"
@@ -68,7 +66,7 @@
             android:id="@+id/ingredients_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tags_title"
+            android:layout_below="@id/tags_view"
             android:layout_toEndOf="@id/ingredients_title"
             android:textSize="15sp"
             android:padding="5sp"/>
@@ -79,7 +77,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/notes"
-            android:layout_below="@id/ingredients_title"
+            android:layout_below="@id/ingredients_view"
             android:layout_alignParentStart="true"
             android:textSize="15sp"
             android:textStyle="bold"
@@ -88,8 +86,8 @@
             android:id="@+id/notes_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/ingredients_title"
-            android:layout_toEndOf="@id/notes_title"
+            android:layout_below="@id/ingredients_view"
+            android:layout_toEndOf="@id/ingredients_title"
             android:textSize="15sp"
             android:padding="5sp"/>
     </RelativeLayout>
