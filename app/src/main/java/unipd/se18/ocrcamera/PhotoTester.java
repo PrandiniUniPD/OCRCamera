@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
@@ -150,7 +151,7 @@ public class PhotoTester {
         Log.i(TAG, "ingredientsTextComparison -> correct.length == " + correct.length + ", extractedWords.length == " + extractedWords.length);
         for (String ingredient : correct) {
             for (String extractedWord : extractedWords) {
-                if (ingredient.equals(extractedWord)) {
+                if (ingredient.toLowerCase().equals(extractedWord.toLowerCase())) {
                     matchCount++;
                     Log.d(TAG, "ingredientsTextComparison -> \"" + ingredient + "\" == \"" + extractedWord + "\" -> matchCount++");
                 } else {
@@ -159,8 +160,8 @@ public class PhotoTester {
             }
         }
         Log.i(TAG, "ingredientsTextComparison -> matchCount == " + matchCount);
-        int confidence = (matchCount / correct.length)*100;
-        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence);
+        int confidence = matchCount % correct.length;
+        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
         return confidence;
 
     }
