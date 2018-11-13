@@ -73,16 +73,16 @@ public class TestResultActivity extends AppCompatActivity {
         //try 2
         ListView listEntriesView = findViewById(R.id.test_entries_list);
         //TODO execute in background
-        /*AsyncReport report = new AsyncReport(listEntriesView,
+        AsyncReport report = new AsyncReport(listEntriesView,
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 "OCRCameraDB",
                 getString(R.string.processing));
-        report.execute();*/
-        PhotoTester tester = new PhotoTester(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+        report.execute();
+        /*PhotoTester tester = new PhotoTester(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 "OCRCameraDB");
         String report = tester.testAndReport();
         AdapterTestEntry adapter = new AdapterTestEntry(TestResultActivity.this, JSONReportParser.parseReport(report));
-        listEntriesView.setAdapter(adapter);
+        listEntriesView.setAdapter(adapter);*/
 
 
 
@@ -138,15 +138,20 @@ public class TestResultActivity extends AppCompatActivity {
             this.listEntriesView = listEntriesView;
             this.environment = environment;
             this.dirName = dirName;
-            this.tester = new PhotoTester(environment,dirName);
             this.progressMessage = progressMessage;
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
+            this.tester = new PhotoTester(environment,dirName);
             report = tester.testAndReport();
-            AdapterTestEntry adapter = new AdapterTestEntry(TestResultActivity.this, JSONReportParser.parseReport(report));
-            listEntriesView.setAdapter(adapter);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AdapterTestEntry adapter = new AdapterTestEntry(TestResultActivity.this, JSONReportParser.parseReport(report));
+                    listEntriesView.setAdapter(adapter);
+                }
+            });
             return null;
         }
 
