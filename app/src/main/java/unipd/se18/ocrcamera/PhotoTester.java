@@ -33,10 +33,13 @@ public class PhotoTester {
 
     /**
      * Load test instances (images + description)
-     * @param dirPath stores the path to the directory containing photos and description
+     * @param environment environment where find the directory with dirName
+     * @param dirName stores the path to the directory containing photos and description
      */
-    public PhotoTester(File environment, String dirPath) {
-        File directory = getStorageDir(environment, dirPath);
+    public PhotoTester(File environment, String dirName) {
+        File directory = getStorageDir(environment, dirName);
+        String dirPath = directory.getPath();
+        Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
 
         for (File file : directory.listFiles()) {
 

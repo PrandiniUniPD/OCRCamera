@@ -72,6 +72,7 @@ public class TestResultActivity extends AppCompatActivity {
 
         //try 2
         ListView listEntriesView = findViewById(R.id.test_entries_list);
+        //TODO execute in background
         /*AsyncReport report = new AsyncReport(listEntriesView,
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 "OCRCameraDB",
@@ -117,6 +118,7 @@ public class TestResultActivity extends AppCompatActivity {
         }
     }
 
+    //TODO execute in background
     /**
      * Execute the ocr task for every pics and store the report in a String
      * Luca Moroldo (g3) - Pietro Prandini (g2)
