@@ -132,7 +132,8 @@ public class PhotoTester {
     private int ingredientsTextComparison(String[] correct, String extracted){
 
         int matchCount = 0;
-        int ingredientsStartAtIndex = 0;
+        //TODO mlkit seems that not respect the order of the lines (issue #18)
+        /*int ingredientsStartAtIndex = 0;
 
         if(extracted.contains("ingredients")) {
             ingredientsStartAtIndex = extracted.indexOf("ingredients");
@@ -141,19 +142,26 @@ public class PhotoTester {
         else if(extracted.contains("ingredienti")) {
             ingredientsStartAtIndex = extracted.indexOf("ingredienti");
             extracted = extracted.substring(ingredientsStartAtIndex + "ingredienti".length());
-        }
+        }*/
 
         String[] extractedWords = extracted.trim().split("\\s*,\\s*");
 
+        Log.i(TAG, "ingredientsTextComparison -> Start of comparing");
+        Log.i(TAG, "ingredientsTextComparison -> correct.length == " + correct.length + ", extractedWords.length == " + extractedWords.length);
         for (String ingredient : correct) {
-
             for (String extractedWord : extractedWords) {
-                if (ingredient.equals(extractedWord))
+                if (ingredient.equals(extractedWord)) {
                     matchCount++;
+                    Log.d(TAG, "ingredientsTextComparison -> \"" + ingredient + "\" == \"" + extractedWord + "\" -> matchCount++");
+                } else {
+                    Log.d(TAG, "ingredientsTextComparison -> \"" + ingredient + "\" != \"" + extractedWord + "\"");
+                }
             }
         }
-
-        return matchCount / correct.length;
+        Log.i(TAG, "ingredientsTextComparison -> matchCount == " + matchCount);
+        int confidence = (matchCount / correct.length)*100;
+        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence);
+        return confidence;
 
     }
 
