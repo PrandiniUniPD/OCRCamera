@@ -106,7 +106,7 @@ public class PhotoTester {
                 //evaluate text extraction
                 String extractedIngredients = executeOcr(test.getPicture());
                 String[] correctIngredients = test.getIngredientsArray();
-                int confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+                float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
                 //insert test in report
                 test.setConfidence(confidence);
@@ -131,7 +131,7 @@ public class PhotoTester {
      * @return percentage of matched words.
      * @author Francesco Pham
      */
-    private int ingredientsTextComparison(String[] correct, String extracted){
+    private float ingredientsTextComparison(String[] correct, String extracted){
 
         extracted = extracted.toLowerCase();
         String[] extractedWords = extracted.trim().split("\\s*,\\s*");
@@ -159,7 +159,7 @@ public class PhotoTester {
             }
         }
         Log.i(TAG, "ingredientsTextComparison -> matchCount == " + matchCount);
-        int confidence = (matchCount / correct.length)*100;
+        float confidence = (matchCount / correct.length)*100;
         Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
         return confidence;
 
@@ -229,7 +229,7 @@ public class PhotoTester {
             return jsonObject;
         }
 
-        public void setConfidence(int confidence) throws JSONException {
+        public void setConfidence(float confidence) throws JSONException {
             jsonObject.put("confidence", confidence);
         }
     }
