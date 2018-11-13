@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
@@ -135,6 +136,9 @@ public class PhotoTester {
         extracted = extracted.toLowerCase();
         String[] extractedWords = extracted.trim().split("\\s*,\\s*");
 
+        Log.i(TAG, "ingredientsTextComparison -> Start of comparing");
+        Log.i(TAG, "ingredientsTextComparison -> correct.length == " + correct.length + ", extractedWords.length == " + extractedWords.length);
+
         int matchCount = 0;
         int lastMatchedWord = 0;
 
@@ -146,15 +150,18 @@ public class PhotoTester {
                 if (extractedWords[i].contains(ingredientLower)) {
                     found = true;
                 }
-                i++;
+                else i++;
             }
             if(found){
                 matchCount++;
                 lastMatchedWord = i;
+                Log.d(TAG, "ingredientsTextComparison -> \"" + ingredient + "\" == \"" + extractedWords[i] + "\" -> matchCount++");
             }
         }
-
-        return matchCount / correct.length;
+        Log.i(TAG, "ingredientsTextComparison -> matchCount == " + matchCount);
+        int confidence = (matchCount / correct.length)*100;
+        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
+        return confidence;
 
     }
 
