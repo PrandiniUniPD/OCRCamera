@@ -177,7 +177,7 @@ public class PhotoTester {
             if(found){
                 matchCount++;
                 lastMatchedWord = i;
-                Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[i] + "\" -> matchCount++");
+                Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[i] + "\" -> matchCount++");
             }
         }
         Log.i(TAG, "ingredientsTextComparison -> matchCount == " + matchCount);
@@ -307,7 +307,7 @@ public class PhotoTester {
                 countDownLatch.countDown();
 
                 long ended = java.lang.System.currentTimeMillis();
-                Log.i(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
+                Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
 
                 //let start another task
                 semaphore.release();
