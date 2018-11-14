@@ -113,7 +113,7 @@ public class PhotoTester {
         //stores the total number of tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestInstances);
 
-        Semaphore availableThread = new Semaphore(MAX_CONCURRENT_TASKS);
+        Semaphore availableThread = new Semaphore(1);
 
         for(TestInstance test : testInstances){
             try {
@@ -306,12 +306,11 @@ public class PhotoTester {
                 //done test process signal
                 countDownLatch.countDown();
 
+                long ended = java.lang.System.currentTimeMillis();
+                Log.i(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
+
                 //let start another task
                 semaphore.release();
-
-                long ended = java.lang.System.currentTimeMillis();
-
-                Log.i(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
 
             }catch (JSONException e) {
                 Log.e(TAG, "Error elaborating JSON test instance");
