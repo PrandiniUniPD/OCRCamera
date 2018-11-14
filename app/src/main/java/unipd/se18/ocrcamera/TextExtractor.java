@@ -35,7 +35,7 @@ public class TextExtractor implements OCRInterface {
      * @author Pietro Prandini (g2)
      */
     public String getTextFromImg(Bitmap img) {
-        Log.v(TAG, "getTextFromImg");
+        Log.d(TAG, "getTextFromImg");
         return extractText(img);
     }
 
@@ -47,7 +47,7 @@ public class TextExtractor implements OCRInterface {
      * @author Pietro Prandini (g2)
      */
     private String extractText(Bitmap img) {
-        Log.v(TAG, "extractText");
+        Log.d(TAG, "extractText");
         long beforeWaiting = java.lang.System.currentTimeMillis();
         // Defines the image that will be analysed to get the text
         FirebaseVisionImage fbImage = FirebaseVisionImage.fromBitmap(img);
@@ -82,7 +82,7 @@ public class TextExtractor implements OCRInterface {
         }
 
         long afterWaiting = java.lang.System.currentTimeMillis();
-        Log.v(TAG, "extractText -> text extracted in " + (afterWaiting - beforeWaiting) + " milliseconds");
+        Log.i(TAG, "extractText -> text extracted in " + (afterWaiting - beforeWaiting) + " milliseconds");
         // Return the recognized text
         String ocrResult = fbText.getResult().getText();
         return ocrResult;

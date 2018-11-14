@@ -103,6 +103,8 @@ public class PhotoTester {
      */
     public String testAndReport() {
 
+        Log.i(TAG,"testAndReport started");
+        long started = java.lang.System.currentTimeMillis();
 
         final JSONObject jsonReport = new JSONObject();
 
@@ -134,6 +136,8 @@ public class PhotoTester {
             e.printStackTrace();
         }
 
+        long ended = java.lang.System.currentTimeMillis();
+        Log.i(TAG,"testAndReport ended (runned for " + (ended - started) + " ms)");
         //TODO write to file testReport.txt the string jsonReport.toString()
 
         return jsonReport.toString();
@@ -284,6 +288,8 @@ public class PhotoTester {
         @Override
         public void run() {
             try {
+                Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
+                long started = java.lang.System.currentTimeMillis();
                 //evaluate text extraction
                 String extractedIngredients = executeOcr(test.getPicture());
                 String correctIngredients = test.getIngredients();
@@ -302,6 +308,10 @@ public class PhotoTester {
 
                 //let start another task
                 semaphore.release();
+
+                long ended = java.lang.System.currentTimeMillis();
+
+                Log.i(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
 
             }catch (JSONException e) {
                 Log.e(TAG, "Error elaborating JSON test instance");
