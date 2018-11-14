@@ -113,7 +113,7 @@ public class PhotoTester {
         //stores the total number of tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestInstances);
 
-        Semaphore availableThread = new Semaphore(1);
+        Semaphore availableThread = new Semaphore(MAX_CONCURRENT_TASKS);
 
         for(TestInstance test : testInstances){
             try {
