@@ -96,6 +96,7 @@ public class PhotoTester {
 
 
     /**
+     * Elaborate tests using 4 concurrent threads, stores the json report to string in testReport.txt
      * @return String in JSON format with the test's report, each object is named with the filename and contains:
      * ingrediens, tags, notes, original photo name, confidence
      * @author Luca Moroldo (g3)
@@ -132,6 +133,8 @@ public class PhotoTester {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        //TODO write to file testReport.txt the string jsonReport.toString()
 
         return jsonReport.toString();
     }
@@ -249,6 +252,9 @@ public class PhotoTester {
         public void setConfidence(float confidence) throws JSONException {
             jsonObject.put("confidence", confidence);
         }
+        public void setRecognizedText(String text) throws JSONException {
+            jsonObject.put("extracted_text", text);
+        }
     }
 
     /**
@@ -285,6 +291,9 @@ public class PhotoTester {
 
                 //insert test in report
                 test.setConfidence(confidence);
+                //insert extracted test
+                test.setRecognizedText(extractedIngredients);
+
 
                 addTestInstance(jsonReport, test);
 
