@@ -14,6 +14,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -45,11 +48,12 @@ public class ResultActivity extends AppCompatActivity {
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
 
-        Button fab = findViewById(R.id.newPictureFab);
+        FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
+                finish();
             }
         });
 
@@ -81,15 +85,35 @@ public class ResultActivity extends AppCompatActivity {
             AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
             ocrTask.execute(lastPhoto);
         }
+    }
 
-        Button mButtonTestActivity = findViewById(R.id.test_button);
-        mButtonTestActivity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    /**
+     * Menu inflater
+     * @author Francesco Pham
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.result_menu, menu);
+        return true;
+    }
+
+    /**
+     * Handling click events on the menu
+     * @author Francesco Pham
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.test:
                 Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
                 startActivity(i);
-            }
-        });
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /**
