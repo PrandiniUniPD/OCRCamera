@@ -143,6 +143,13 @@ public class TestResultActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String path = environment + "/" + dirName;
+                    Toast.makeText(TestResultActivity.this,"Directory where the photo should be stored:\n" + path,Toast.LENGTH_LONG).show();
+                }
+            });
             this.tester = new PhotoTester(environment,dirName);
             report = tester.testAndReport();
             runOnUiThread(new Runnable() {
