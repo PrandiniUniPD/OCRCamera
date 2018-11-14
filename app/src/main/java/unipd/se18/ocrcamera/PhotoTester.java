@@ -3,6 +3,7 @@ package unipd.se18.ocrcamera;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
@@ -16,6 +17,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -28,7 +32,10 @@ public class PhotoTester {
 
     private static final String TAG = "PhotoTester";
 
+    private static final int MAX_CONCURRENT_TASKS = 4;
+
     private ArrayList<TestInstance> testInstances = new ArrayList<TestInstance>();
+
 
 
 
@@ -91,35 +98,42 @@ public class PhotoTester {
     /**
      * @return String in JSON format with the test's report, each object is named with the filename and contains:
      * ingrediens, tags, notes, original photo name, confidence
+     * @author Luca Moroldo (g3)
      */
     public String testAndReport() {
 
 
-        JSONObject jsonReport = new JSONObject();
+        final JSONObject jsonReport = new JSONObject();
 
-        //For each test instance apply ocr, compare texts, build report
+        int totalTestInstances = testInstances.size();
+
+        //stores the total number of tests
+        CountDownLatch countDownLatch = new CountDownLatch(totalTestInstances);
+
+        Semaphore availableThread = new Semaphore(MAX_CONCURRENT_TASKS);
+
         for(TestInstance test : testInstances){
-
-
             try {
+                //wait for available thread
+                availableThread.acquire();
 
-                //evaluate text extraction
-                String extractedIngredients = executeOcr(test.getPicture());
-                String correctIngredients = test.getIngredients();
-                float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+                //launch thread
+                new Thread(new RunnableTest(jsonReport, test, countDownLatch, availableThread)).start();
 
-                //insert test in report
-                test.setConfidence(confidence);
-
-                jsonReport.put(test.getFileName(), test.getJsonObject());
-
-            } catch (JSONException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+        }
+
+        //wait for all tests to complete
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         return jsonReport.toString();
-
     }
 
 
@@ -176,6 +190,8 @@ public class PhotoTester {
 
         TextExtractor textExtractor = new TextExtractor();
         return textExtractor.getTextFromImg(bitmap);
+
+
     }
 
 
@@ -233,5 +249,65 @@ public class PhotoTester {
         public void setConfidence(float confidence) throws JSONException {
             jsonObject.put("confidence", confidence);
         }
+    }
+
+    /**
+     * Class used to run a single test
+     * @author Luca Moroldo (g3)
+     */
+    public class RunnableTest implements Runnable {
+        private TestInstance test;
+        private JSONObject jsonReport;
+        private CountDownLatch countDownLatch;
+        private Semaphore semaphore;
+
+        /**
+         *
+         * @param jsonReport JSONObject containing tests data
+         * @param test instance of a test - must contain bitmap and ingredients fields
+         * @param countDownLatch used to signal the task completion
+         * @param semaphore semaphore used to signal the end of the task
+         */
+        public RunnableTest(JSONObject jsonReport, TestInstance test, CountDownLatch countDownLatch, Semaphore semaphore) {
+            this.jsonReport = jsonReport;
+            this.test = test;
+            this.countDownLatch = countDownLatch;
+            this.semaphore = semaphore;
+        }
+
+        @Override
+        public void run() {
+            try {
+                //evaluate text extraction
+                String extractedIngredients = executeOcr(test.getPicture());
+                String correctIngredients = test.getIngredients();
+                float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+
+                //insert test in report
+                test.setConfidence(confidence);
+
+                addTestInstance(jsonReport, test);
+
+                //done test process signal
+                countDownLatch.countDown();
+
+                //let start another task
+                semaphore.release();
+
+            }catch (JSONException e) {
+                Log.e(TAG, "Error elaborating JSON test instance");
+            }
+        }
+    }
+
+    /**
+     * Puts the json object of the TestInstance inside the JSONObject jsonReport, multi thread safe
+     * @param jsonReport the report containing tests in JSON format
+     * @param test instance of a test
+     * @throws JSONException
+     * @author Luca Moroldo (g3)
+     */
+    synchronized void addTestInstance(JSONObject jsonReport, TestInstance test) throws JSONException {
+        jsonReport.put(test.getFileName(), test.getJsonObject());
     }
 }

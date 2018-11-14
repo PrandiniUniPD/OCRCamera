@@ -64,12 +64,16 @@ public class TextExtractor implements OCRInterface {
             public void onSuccess(FirebaseVisionText firebaseVisionText) {
                 Log.v(TAG, "extractText -> onSuccess ->\n-----      RECOGNIZED TEXT       -----\n"
                         + firebaseVisionText.getText() + "\n----- END OF THE RECOGNIZED TEXT -----");
+
+                //analogous to signal
                 latch.countDown();
             }
         });
 
         if(!fbText.isSuccessful()) {
             try {
+
+                //analogous to wait
                 latch.await();
             } catch (InterruptedException e) {
                 return "Failed to extract text.";
