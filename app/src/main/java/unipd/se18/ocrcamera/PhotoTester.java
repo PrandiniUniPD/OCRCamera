@@ -7,10 +7,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Stream;
 
 /**
  * Class built to test the application's OCR
@@ -24,7 +28,8 @@ public class PhotoTester {
 
     private ArrayList<TestInstance> testInstances = new ArrayList<TestInstance>();
 
-
+    //stores the path of the directory containing test files
+    private String dirPath;
 
 
     /**
@@ -34,7 +39,8 @@ public class PhotoTester {
      */
     public PhotoTester(File environment, String dirName) {
         File directory = getStorageDir(environment, dirName);
-        String dirPath = directory.getPath();
+
+        dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
 
         for (File file : directory.listFiles()) {
@@ -128,9 +134,12 @@ public class PhotoTester {
 
         long ended = java.lang.System.currentTimeMillis();
         Log.i(TAG,"testAndReport ended (" + totalTestInstances + " pics tested in " + (ended - started) + " ms)");
-        //TODO write to file testReport.txt the string jsonReport.toString()
 
-        return jsonReport.toString();
+        String report = jsonReport.toString();
+
+        writeReportToExternalStorage(report, dirPath, "report.txt");
+
+        return report;
     }
 
 
@@ -174,6 +183,45 @@ public class PhotoTester {
         float confidence = ((float)matchCount / correctWords.length)*100;
         Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
         return confidence;
+
+    }
+
+    /**
+     *
+     * @param report text that will be saved to filename
+     * @param dirPath path to a directory with writing permissions
+     * @param filename name of the file - will be overwritten if already exist
+     * @author Luca Moroldo (g3)
+     */
+    private void writeReportToExternalStorage(String report, String dirPath, String filename) {
+        //Write report to report.txt
+        File file = new File(dirPath, filename);
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Error creating file");
+        }
+
+        FileOutputStream stream = null;
+
+        try {
+            stream = new FileOutputStream(file);
+
+            try {
+                try {
+                    stream.write(report.getBytes());
+                } finally {
+                    stream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "Error writing report to file");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.e(TAG, "File not found");
+        }
 
     }
 

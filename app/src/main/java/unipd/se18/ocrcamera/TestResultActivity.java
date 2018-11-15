@@ -26,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -40,9 +42,9 @@ public class TestResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_result);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            String[] permissions = { Manifest.permission.READ_EXTERNAL_STORAGE };
+            String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
             ActivityCompat.requestPermissions(this, permissions, MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
             return;
         }
@@ -152,6 +154,7 @@ public class TestResultActivity extends AppCompatActivity {
             });
             this.tester = new PhotoTester(environment,dirName);
             report = tester.testAndReport();
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
