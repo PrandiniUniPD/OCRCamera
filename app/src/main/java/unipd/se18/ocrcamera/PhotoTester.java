@@ -161,11 +161,10 @@ public class PhotoTester {
         Log.i(TAG, "ingredientsTextComparison -> correctWords.length == " + correctWords.length + ", extractedWords.length == " + extractedWords.length);
 
         int matchCount = 0;
-        int lastMatchedWord = 0;
 
         for (String word : correctWords) {
             String ingredientLower = word.toLowerCase();
-            int i=lastMatchedWord;
+            int i=0;
             boolean found = false;
             while(i<extractedWords.length && !found){
                 if (extractedWords[i].contains(ingredientLower)) {
@@ -175,7 +174,6 @@ public class PhotoTester {
             }
             if(found){
                 matchCount++;
-                lastMatchedWord = i;
                 Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[i] + "\" -> matchCount++");
             }
         }
