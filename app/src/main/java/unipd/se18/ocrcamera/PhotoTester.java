@@ -1,26 +1,16 @@
 package unipd.se18.ocrcamera;
 
-
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.os.Environment;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-
 
 /**
  * Class built to test the application's OCR
@@ -31,8 +21,6 @@ public class PhotoTester {
     public static final String[] IMAGE_EXTENSIONS = {"jpeg", "jpg"};
 
     private static final String TAG = "PhotoTester";
-
-    private static final int MAX_CONCURRENT_TASKS = 4;
 
     private ArrayList<TestInstance> testInstances = new ArrayList<TestInstance>();
 
@@ -113,7 +101,9 @@ public class PhotoTester {
         //stores the total number of tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestInstances);
 
-        Semaphore availableThread = new Semaphore(MAX_CONCURRENT_TASKS);
+        int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
+        Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
+        Semaphore availableThread = new Semaphore(max_concurrent_tasks);
 
         for(TestInstance test : testInstances){
             try {
@@ -137,7 +127,7 @@ public class PhotoTester {
         }
 
         long ended = java.lang.System.currentTimeMillis();
-        Log.i(TAG,"testAndReport ended (runned for " + (ended - started) + " ms)");
+        Log.i(TAG,"testAndReport ended (" + totalTestInstances + " pics tested in " + (ended - started) + " ms)");
         //TODO write to file testReport.txt the string jsonReport.toString()
 
         return jsonReport.toString();
