@@ -16,6 +16,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Stream;
 
+import info.debatty.java.stringsimilarity.CharacterSubstitutionInterface;
+import info.debatty.java.stringsimilarity.WeightedLevenshtein;
+
 /**
  * Class built to test the application's OCR
  * @author Luca Moroldo (g3) - Francesco Pham (g3)
@@ -141,8 +144,43 @@ public class PhotoTester {
 
         return report;
     }
+    /**
+     * Compare the list of ingredients extracted by OCR and the correct list of ingredients
+     * @param correct correct list of ingredients loaded from file
+     * @param extracted list of ingredients extracted by the OCR
+     * @return sum of cost of different letters based also on custom costs
+     * @author Stefano Romanello
+     */
+    private double ingredientsTextComparisonLevenshtein(String correct, String extracted){
+        WeightedLevenshtein wl = new WeightedLevenshtein(
+                new CharacterSubstitutionInterface() {
+                    public double cost(char c1, char c2) {
 
+                        // The cost for substituting 't' and 'r' is considered
+                        // smaller as these 2 are located next to each other
+                        // on a keyboard
+                        //Per lettere simili posso mettere manualmente il costo del riconoscimento
+                        if (c1 == 't' && c2 == 'r') {
+                            return 0.5;
+                        }
+                        else if (c1 == 'q' && c2 == 'o') {
+                            return 0.5;
+                        }
+                        else if (c1 == 'I' && c2 == 'l') {
+                            return 0.5;
+                        }
+                        //ecc
 
+                        //Per tutte le altre lettere diverse il costo è 1
+                        // For most cases, the cost of substituting 2 characters
+                        // is 1.0
+                        return 1.0;
+                    }
+                });
+
+        return wl.distance(correct, extracted);
+
+    }
 
     /**
      * Compare the list of ingredients extracted by OCR and the correct list of ingredients
@@ -214,6 +252,10 @@ public class PhotoTester {
         return confidence;
 
     }
+
+
+
+
 
     /**
      *
@@ -360,7 +402,13 @@ public class PhotoTester {
                 //evaluate text extraction
                 String extractedIngredients = executeOcr(test.getPicture());
                 String correctIngredients = test.getIngredients();
-                float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+                //float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+
+
+                //Se il risultato è 0 le 2 stringhe sono uguali
+                //float confidence = (float)ingredientsTextComparisonLevenshtein("acqua","acoua");
+
+                float confidence = (float)ingredientsTextComparisonLevenshtein(correctIngredients,extractedIngredients);
 
                 //insert test in report
                 test.setConfidence(confidence);
