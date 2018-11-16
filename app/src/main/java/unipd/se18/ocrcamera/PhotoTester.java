@@ -154,8 +154,8 @@ public class PhotoTester {
     private float ingredientsTextComparison(String correct, String extracted){
 
         extracted = extracted.toLowerCase();
-        String[] extractedWords = extracted.trim().split("[ ,-./]+");
-        String[] correctWords = correct.trim().split("[ ,-./]+");
+        String[] extractedWords = extracted.trim().split("[ ,-./\\n\\r]+");
+        String[] correctWords = correct.trim().split("[ ,-./\\n\\r]+");
 
         Log.i(TAG, "ingredientsTextComparison -> Start of comparing");
         Log.i(TAG, "ingredientsTextComparison -> correctWords.length == " + correctWords.length + ", extractedWords.length == " + extractedWords.length);
@@ -164,20 +164,27 @@ public class PhotoTester {
         int maxPoints = 0;
 
         for (String word : correctWords) {
-            if(word.length() >= 4){ //ignore words with less than 4 characters
+            boolean found = false;
+            if(word.length() >= 5){
                 maxPoints += word.length();
                 String WordLower = word.toLowerCase();
-                int i = 0;
-                boolean found = false;
-                while (i < extractedWords.length && !found) {
+                for(int i=0; i<extractedWords.length && !found; i++) {
                     if (extractedWords[i].contains(WordLower)) {
+                        points += word.length(); //assign points based on number of characters
+                        Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[i] + "\"");
+                        extractedWords[i] = extractedWords[i].replace(WordLower,""); //remove found word
                         found = true;
-                    } else i++;
+                    }
                 }
-                if (found) {
-                    points += word.length(); //assign points based on number of characters
-                    Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[i] + "\"");
-                    extractedWords[i] = ""; //remove found word
+            } else if(word.length() >= 2){
+                maxPoints += word.length();
+                for(int i=0; i<extractedWords.length && !found; i++){
+                    if(word.equalsIgnoreCase(extractedWords[i])){
+                        points += word.length(); //assign points based on number of characters
+                        Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[i] + "\"");
+                        extractedWords[i] = ""; //remove found word
+                        found = true;
+                    }
                 }
             }
         }
