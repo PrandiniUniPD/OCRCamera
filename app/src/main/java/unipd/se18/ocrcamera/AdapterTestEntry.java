@@ -87,6 +87,10 @@ public class AdapterTestEntry extends BaseAdapter
         }
         ingredients.setText(realIngredients);
 
+        // Set the extracted text
+        TextView extractedText = convertView.findViewById(R.id.extractedText_view);
+        extractedText.setText(entries[position].getExtracted_text());
+
         // Set the notes text
         TextView notes = convertView.findViewById(R.id.notes_view);
         notes.setText(entries[position].getNotes());

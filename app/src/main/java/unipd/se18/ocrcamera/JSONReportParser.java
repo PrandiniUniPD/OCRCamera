@@ -85,6 +85,9 @@ public class JSONReportParser {
             //Add ingredients
             entry.addIngredient(json.getString("ingredients"));
 
+            //Add extracted text
+            entry.addExtractedText(json.getString("extracted_text"));
+
             //Add notes
             entry.setNotes(json.getString("notes"));
 

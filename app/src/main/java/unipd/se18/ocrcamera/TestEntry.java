@@ -13,6 +13,7 @@ public class TestEntry
     private double confidence;
     private List<String> tags;
     private List<String> ingredients;
+    private String extracted_text;
     private String notes;
 
     /**
@@ -30,6 +31,7 @@ public class TestEntry
         this.tags = tags;
         this.ingredients = ingredients;
         this.notes = notes;
+
     }
 
     TestEntry(String photoName, double confidence)
@@ -83,6 +85,7 @@ public class TestEntry
      * @return The additional text
      */
     public String getNotes() { return notes; }
+    public String getExtracted_text() { return extracted_text; }
 
 
     /**
@@ -127,6 +130,13 @@ public class TestEntry
      * @modifies ingredients - The list's size grows of one unit
      */
     public void addIngredient(String ingredient){ ingredients.add(ingredient); }
+
+    /**
+     * Adds the extracted text
+     * @param The extracted  text from the ocr
+     * @modifies ingredients - The list's size grows of one unit
+     */
+     public void addExtractedText(String text){ this.extracted_text = text; }
 
     /**
      * Adds the specified list of ingredients
