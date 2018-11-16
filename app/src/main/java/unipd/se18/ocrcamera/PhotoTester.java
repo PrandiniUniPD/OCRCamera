@@ -148,7 +148,7 @@ public class PhotoTester {
      * Compare the list of ingredients extracted by OCR and the correct list of ingredients
      * @param correct correct list of ingredients loaded from file
      * @param extracted list of ingredients extracted by the OCR
-     * @return percentage of matched words.
+     * @return confidence percentage based on number of matched words, number of characters and order
      * @author Francesco Pham
      */
     private float ingredientsTextComparison(String correct, String extracted){
@@ -160,35 +160,56 @@ public class PhotoTester {
         Log.i(TAG, "ingredientsTextComparison -> Start of comparing");
         Log.i(TAG, "ingredientsTextComparison -> correctWords.length == " + correctWords.length + ", extractedWords.length == " + extractedWords.length);
 
-        int points = 0;
+        float points = 0;
         int maxPoints = 0;
+        int posLastWordFound = 0;
+        int consecutiveNotFound = 0;
 
         for (String word : correctWords) {
             boolean found = false;
+            int index = posLastWordFound;
             if(word.length() >= 5){
                 maxPoints += word.length();
                 String WordLower = word.toLowerCase();
                 for(int i=0; i<extractedWords.length && !found; i++) {
-                    if (extractedWords[i].contains(WordLower)) {
-                        points += word.length(); //assign points based on number of characters
-                        Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[i] + "\"");
-                        extractedWords[i] = extractedWords[i].replace(WordLower,""); //remove found word
+                    index = (posLastWordFound+i)%extractedWords.length;
+                    if (extractedWords[index].contains(WordLower)) {
+                        if(points==0 || i<consecutiveNotFound+10) {
+                            points += word.length(); //assign points based on number of characters
+                        } else {
+                            points += (float)word.length()/2;
+                            Log.v(TAG, "ingredientsTextComparison -> after "+i+" words");
+                        }
+                        extractedWords[index] = extractedWords[index].replace(WordLower, ""); //remove found word
                         found = true;
                     }
                 }
             } else if(word.length() >= 2){
                 maxPoints += word.length();
                 for(int i=0; i<extractedWords.length && !found; i++){
-                    if(word.equalsIgnoreCase(extractedWords[i])){
-                        points += word.length(); //assign points based on number of characters
-                        Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[i] + "\"");
-                        extractedWords[i] = ""; //remove found word
+                    index = (posLastWordFound+i)%extractedWords.length;
+                    if(word.equalsIgnoreCase(extractedWords[index])){
+                        if(points==0 || i<consecutiveNotFound+10) {
+                            points += word.length(); //assign points based on number of characters
+                        } else {
+                            points += (float)word.length()/2;
+                            Log.v(TAG, "ingredientsTextComparison -> after "+i+" words");
+                        }
+                        extractedWords[index] = ""; //remove found word
                         found = true;
                     }
                 }
             }
+
+            if(found){
+                Log.v(TAG, "ingredientsTextComparison -> found word \"" + word + "\"");
+                consecutiveNotFound = 0;
+                posLastWordFound = index;
+            } else {
+                consecutiveNotFound++;
+            }
         }
-        float confidence = ((float)points / maxPoints)*100;
+        float confidence = (points / maxPoints)*100;
         Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
         return confidence;
 
