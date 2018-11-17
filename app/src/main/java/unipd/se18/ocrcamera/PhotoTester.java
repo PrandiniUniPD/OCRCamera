@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
-import java.util.stream.Stream;
+import info.debatty.java.stringsimilarity.*;
 
 /**
  * Class built to test the application's OCR
@@ -148,8 +148,8 @@ public class PhotoTester {
      * Compare the list of ingredients extracted by OCR and the correct list of ingredients
      * @param correct correct list of ingredients loaded from file
      * @param extracted list of ingredients extracted by the OCR
-     * @return confidence percentage based on number of matched words, number of characters and order
-     * @author Francesco Pham
+     * @return confidence percentage based on number of matched words, their similarity and order
+     * @author Francesco Pham credit to Stefano Romanello for Levenshtein library suggestion
      */
     private float ingredientsTextComparison(String correct, String extracted){
 
@@ -165,44 +165,75 @@ public class PhotoTester {
         int posLastWordFound = 0;
         int consecutiveNotFound = 0;
 
+
+        WeightedLevenshtein levenshtein = new WeightedLevenshtein(
+                new CharacterSubstitutionInterface() {
+                    public double cost(char c1, char c2) {
+
+                        // The cost for substituting 't' and 'r' is considered
+                        // smaller as these 2 are located next to each other
+                        // on a keyboard
+                        if (c1 == 't' && c2 == 'r') {
+                            return 0.5;
+                        }
+                        else if (c1 == 'q' && c2 == 'o') {
+                            return 0.5;
+                        }
+                        else if (c1 == 'I' && c2 == 'l') {
+                            return 0.5;
+                        }
+
+                        // For most cases, the cost of substituting 2 characters
+                        // is 1.0
+                        return 1.0;
+                    }
+                });
+
         for (String word : correctWords) {
             boolean found = false;
             int index = posLastWordFound;
-            if(word.length() >= 5){
+            word = word.toLowerCase();
+
+            if (word.length() >= 3) {
                 maxPoints += word.length();
-                String WordLower = word.toLowerCase();
-                for(int i=0; i<extractedWords.length && !found; i++) {
-                    index = (posLastWordFound+i)%extractedWords.length;
-                    if (extractedWords[index].contains(WordLower)) {
-                        if(points==0 || i<consecutiveNotFound+10) {
-                            points += word.length(); //assign points based on number of characters
+                for (int i = 0; i < extractedWords.length && !found; i++) {
+                    index = (posLastWordFound + i) % extractedWords.length;
+
+                    //Calculate similarity and normalize
+                    int maxLength = Math.max(word.length(),extractedWords[i].length());
+                    double similarity = 1.0 - levenshtein.distance(word,extractedWords[index])/maxLength;
+
+                    if (similarity > 0.8) {
+                        if (points == 0 || i < consecutiveNotFound + 10) {
+                            points += word.length()*similarity; //assign points based on number of characters
                         } else {
-                            points += (float)word.length()/2;
-                            Log.v(TAG, "ingredientsTextComparison -> after "+i+" words");
+                            points += (float) word.length()*similarity/2;
                         }
-                        extractedWords[index] = extractedWords[index].replace(WordLower, ""); //remove found word
-                        found = true;
-                    }
-                }
-            } else if(word.length() >= 2){
-                maxPoints += word.length();
-                for(int i=0; i<extractedWords.length && !found; i++){
-                    index = (posLastWordFound+i)%extractedWords.length;
-                    if(word.equalsIgnoreCase(extractedWords[index])){
-                        if(points==0 || i<consecutiveNotFound+10) {
-                            points += word.length(); //assign points based on number of characters
-                        } else {
-                            points += (float)word.length()/2;
-                            Log.v(TAG, "ingredientsTextComparison -> after "+i+" words");
-                        }
+                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
                         extractedWords[index] = ""; //remove found word
                         found = true;
                     }
                 }
             }
 
+            if(!found && word.length() >= 5){
+                maxPoints += word.length();
+                for(int i=0; i<extractedWords.length && !found; i++) {
+                    index = (posLastWordFound+i)%extractedWords.length;
+                    if (extractedWords[index].contains(word)) {
+                        if(points==0 || i<consecutiveNotFound+10) {
+                            points += word.length(); //assign points based on number of characters
+                        } else {
+                            points += (float)word.length()/2;
+                        }
+                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[index] + "\"");
+                        extractedWords[index] = extractedWords[index].replace(word, ""); //remove found word
+                        found = true;
+                    }
+                }
+            }
+
             if(found){
-                Log.v(TAG, "ingredientsTextComparison -> found word \"" + word + "\"");
                 consecutiveNotFound = 0;
                 posLastWordFound = index;
             } else {
