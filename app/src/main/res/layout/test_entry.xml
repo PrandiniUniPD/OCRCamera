@@ -19,7 +19,7 @@
             android:shadowRadius="5"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:paddingStart="5sp"/>
+            android:padding="5sp"/>
 
         <!-- Name -->
         <TextView
@@ -40,7 +40,6 @@
             android:text="@string/tags"
             android:layout_below="@id/pic_name_view"
             android:layout_alignParentStart="true"
-            android:layout_toEndOf="@id/ingredients_title"
             android:textSize="15sp"
             android:textStyle="bold"
             android:padding="5sp"/>
@@ -48,10 +47,11 @@
             android:id="@+id/tags_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/pic_name_view"
-            android:layout_toEndOf="@id/ingredients_title"
+            android:layout_below="@id/tags_title"
+            android:layout_alignParentStart="true"
             android:textSize="15sp"
-            android:padding="5sp"/>
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"/>
 
         <!-- Ingredients -->
         <TextView
@@ -68,17 +68,18 @@
             android:id="@+id/ingredients_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tags_view"
-            android:layout_toEndOf="@id/ingredients_title"
+            android:layout_below="@id/ingredients_title"
+            android:layout_alignParentStart="true"
             android:textSize="15sp"
-            android:padding="5sp"/>
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"/>
 
         <!-- Extracted -->
         <TextView
-            android:id="@+id/extracted_title"
+            android:id="@+id/extractedText_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Extracted Text:"
+            android:text="@string/extrected_text"
             android:layout_below="@id/ingredients_view"
             android:layout_alignParentStart="true"
             android:textSize="15sp"
@@ -88,10 +89,11 @@
             android:id="@+id/extractedText_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/ingredients_view"
-            android:layout_toEndOf="@id/extracted_title"
+            android:layout_below="@id/extractedText_title"
+            android:layout_alignParentStart="true"
             android:textSize="15sp"
-            android:padding="5sp"/>
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"/>
 
         <!-- Notes -->
         <TextView
@@ -108,10 +110,11 @@
             android:id="@+id/notes_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/extractedText_view"
-            android:layout_toEndOf="@id/ingredients_title"
+            android:layout_below="@id/notes_title"
+            android:layout_alignParentStart="true"
             android:textSize="15sp"
-            android:padding="5sp"/>
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"/>
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>
