@@ -53,7 +53,6 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
-                finish();
             }
         });
 
@@ -109,7 +108,6 @@ public class ResultActivity extends AppCompatActivity {
             case R.id.test:
                 Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
                 startActivity(i);
-                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

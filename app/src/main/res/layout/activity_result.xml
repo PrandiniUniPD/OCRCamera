@@ -41,6 +41,7 @@
         <!--</ScrollView>-->
     </LinearLayout>
 
+    <!-- Camera activity launcher button (Francesco Pham) -->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/newPictureFab"
         android:layout_width="wrap_content"
