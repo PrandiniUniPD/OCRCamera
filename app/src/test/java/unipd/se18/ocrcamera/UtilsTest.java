@@ -41,20 +41,17 @@ public class UtilsTest {
 
     @Test
     public void getStringArrayFromJSON() {
-
-
         try {
-            JSONObject json = new JSONObject(this.getClass().getClassLoader().getResource("txtJsonTest.txt").getFile());
-            String[] expected = {"non_inclinata","non_angolata","testo_presente","luce_ottimale","etichetta_piana","caratteri_non_danneggiati","nitida","foto_non_mossa","alta_risoluzione"};
-            String[] actual = Utils.getStringArrayFromJSON(json, "tags");
-            assertEquals(expected, actual);
+            JSONObject jsonObject = new JSONObject("{\"tags\": [\"testTag1\", \"testTag2\", \"testTag3\"]}");
 
+            String[] expected = {"testTag1", "testTag2", "testTag3"};
+            String[] actual = Utils.getStringArrayFromJSON(jsonObject, "tags");
+
+            assertArrayEquals(expected, actual);
 
         } catch (JSONException e) {
 
         }
-
-
 
     }
 
