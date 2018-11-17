@@ -29,6 +29,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.media.ExifInterface;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -245,7 +246,7 @@ public class CameraActivity extends AppCompatActivity {
         // Initializing of the UI components
         mCameraTextureView = findViewById(R.id.camera_view);
         mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-        Button mButtonTakePhoto = findViewById(R.id.take_photo_button);
+        FloatingActionButton mButtonTakePhoto = findViewById(R.id.take_photo_button);
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
