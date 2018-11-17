@@ -154,8 +154,8 @@ public class PhotoTester {
     private float ingredientsTextComparison(String correct, String extracted){
 
         extracted = extracted.toLowerCase();
-        String[] extractedWords = extracted.trim().split("[ ,-./\\n\\r]+");
-        String[] correctWords = correct.trim().split("[ ,-./\\n\\r]+");
+        String[] extractedWords = extracted.trim().split("[ ,-:./\\n\\r]+");
+        String[] correctWords = correct.trim().split("[ ,-:./\\n\\r]+");
 
         Log.i(TAG, "ingredientsTextComparison -> Start of comparing");
         Log.i(TAG, "ingredientsTextComparison -> correctWords.length == " + correctWords.length + ", extractedWords.length == " + extractedWords.length);
@@ -216,7 +216,7 @@ public class PhotoTester {
                 }
             }
 
-            if(!found && word.length() >= 5){
+            if(!found && word.length() >= 6){
                 maxPoints += word.length();
                 for(int i=0; i<extractedWords.length && !found; i++) {
                     index = (posLastWordFound+i)%extractedWords.length;
