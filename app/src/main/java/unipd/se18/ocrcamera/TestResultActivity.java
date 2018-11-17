@@ -50,27 +50,6 @@ public class TestResultActivity extends AppCompatActivity {
         }
 
 
-        //try 1
-        /*
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-
-        File myDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "folder");
-
-        path = myDir.getAbsolutePath();
-        Log.v(TAG, "PATH => " + path);
-
-        //path += "/foto";
-
-        //Log.v(TAG, "PATH => " + path);
-
-        PhotoTester photoTester = new PhotoTester(path);
-        String report = photoTester.testAndReport();
-        ListView results = findViewById(R.id.test_entries_list);
-        AdapterTestEntry adapter = new AdapterTestEntry(this, JSONReportParser.parseReport(report));
-        results.setAdapter(adapter);
-        */
-        //End try 1
-
 
         //try 2
         ListView listEntriesView = findViewById(R.id.test_entries_list);
@@ -80,27 +59,6 @@ public class TestResultActivity extends AppCompatActivity {
                 "OCRCameraDB",
                 getString(R.string.processing));
         report.execute();
-        /*PhotoTester tester = new PhotoTester(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "OCRCameraDB");
-        String report = tester.testAndReport();
-        AdapterTestEntry adapter = new AdapterTestEntry(TestResultActivity.this, JSONReportParser.parseReport(report));
-        listEntriesView.setAdapter(adapter);*/
-
-
-
-
-
-        //end try 2
-
-        //TODO fix select folder dialog
-        /*
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("file/*");
-        startActivityForResult(intent,666);
-
-        */
-
-
 
 
     }
@@ -120,7 +78,6 @@ public class TestResultActivity extends AppCompatActivity {
         }
     }
 
-    //TODO execute in background
     /**
      * Execute the ocr task for every pics and store the report in a String
      * Luca Moroldo (g3) - Pietro Prandini (g2)
@@ -158,7 +115,7 @@ public class TestResultActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    AdapterTestEntry adapter = new AdapterTestEntry(TestResultActivity.this, JSONReportParser.parseReport(report));
+                    AdapterTestElement adapter = new AdapterTestElement(TestResultActivity.this, tester.getTestElements());
                     listEntriesView.setAdapter(adapter);
                 }
             });

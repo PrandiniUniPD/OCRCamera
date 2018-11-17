@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+
 import info.debatty.java.stringsimilarity.*;
 
 /**
@@ -26,14 +27,14 @@ public class PhotoTester {
 
     private static final String TAG = "PhotoTester";
 
-    private ArrayList<TestInstance> testInstances = new ArrayList<TestInstance>();
+    private ArrayList<TestElement> testElements = new ArrayList<TestElement>();
 
     //stores the path of the directory containing test files
     private String dirPath;
 
 
     /**
-     * Load test instances (images + description)
+     * Load test elements (images + description)
      * @param environment environment where find the directory with dirName
      * @param dirName stores the path to the directory containing photos and description
      */
@@ -57,10 +58,10 @@ public class PhotoTester {
 
                 String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
 
-                //create test instance giving filename, description and bitmap
+                //create test element giving filename, description and bitmap
                 try {
                     JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
-                    testInstances.add(new TestInstance(photoBitmap, jsonPhotoDescription, fileName));
+                    testElements.add(new TestElement(photoBitmap, jsonPhotoDescription, fileName));
                 } catch(JSONException e) {
                     e.printStackTrace();
                     Log.e(TAG, "Error decoding JSON");
@@ -90,7 +91,7 @@ public class PhotoTester {
 
 
     /**
-     * Elaborate tests using 4 concurrent threads, stores the json report to string in testReport.txt
+     * Elaborate tests using threads, stores the json report to string in testReport.txt
      * @return String in JSON format with the test's report, each object is named with the filename and contains:
      * ingrediens, tags, notes, original photo name, confidence
      * @author Luca Moroldo (g3)
@@ -102,16 +103,16 @@ public class PhotoTester {
 
         final JSONObject jsonReport = new JSONObject();
 
-        int totalTestInstances = testInstances.size();
+        int totalTestElements = testElements.size();
 
         //stores the total number of tests
-        CountDownLatch countDownLatch = new CountDownLatch(totalTestInstances);
+        CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
         Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
         Semaphore availableThread = new Semaphore(max_concurrent_tasks);
 
-        for(TestInstance test : testInstances){
+        for(TestElement test : testElements){
             try {
                 //wait for available thread
                 availableThread.acquire();
@@ -133,15 +134,24 @@ public class PhotoTester {
         }
 
         long ended = java.lang.System.currentTimeMillis();
-        Log.i(TAG,"testAndReport ended (" + totalTestInstances + " pics tested in " + (ended - started) + " ms)");
+        Log.i(TAG,"testAndReport ended (" + totalTestElements + " pics tested in " + (ended - started) + " ms)");
 
         String report = jsonReport.toString();
 
-        writeReportToExternalStorage(report, dirPath, "report.txt");
+        //write report to file
+        try {
+            writeReportToExternalStorage(report, dirPath, "report.txt");
+        } catch (IOException e) {
+            Log.e(TAG, "Error writing report to file.");
+            e.printStackTrace();
+        }
 
         return report;
     }
 
+    public TestElement[] getTestElements() {
+        return testElements.toArray(new TestElement[0]);
+    }
 
 
     /**
@@ -247,21 +257,18 @@ public class PhotoTester {
     }
 
     /**
-     *
+     * Write the string given as argument to a file named with the fileName argument
      * @param report text that will be saved to filename
      * @param dirPath path to a directory with writing permissions
-     * @param filename name of the file - will be overwritten if already exist
+     * @param fileName name of the file - will be overwritten if already exist
      * @author Luca Moroldo (g3)
+     * @throws IOException
      */
-    private void writeReportToExternalStorage(String report, String dirPath, String filename) {
+    private void writeReportToExternalStorage(String report, String dirPath, String fileName) throws IOException {
         //Write report to report.txt
-        File file = new File(dirPath, filename);
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, "Error creating file");
-        }
+        File file = new File(dirPath, fileName);
+
+        file.createNewFile();
 
         FileOutputStream stream = null;
 
@@ -269,15 +276,11 @@ public class PhotoTester {
             stream = new FileOutputStream(file);
 
             try {
-                try {
-                    stream.write(report.getBytes());
-                } finally {
-                    stream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e(TAG, "Error writing report to file");
+                stream.write(report.getBytes());
+            } finally {
+                stream.close();
             }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.e(TAG, "File not found");
@@ -301,70 +304,11 @@ public class PhotoTester {
 
 
     /**
-     * Class that contains a single test instance
-     * @author Francesco Pham - Luca Moroldo
-     */
-    private class TestInstance {
-
-        private Bitmap picture;
-        private JSONObject jsonObject;
-        private String fileName;
-
-        public TestInstance(Bitmap picture, JSONObject jsonObject, String fileName) {
-            this.picture = picture;
-           this.jsonObject = jsonObject;
-            this.fileName = fileName;
-        }
-
-        public String[] getIngredientsArray() throws JSONException {
-            String ingredients = getIngredients();
-            String[] ingredientsArr = ingredients.trim().split("\\s*,\\s*"); //split removing whitespaces
-            return ingredientsArr;
-        }
-        public String getIngredients() throws  JSONException {
-            String ingredients = jsonObject.getString("ingredients");
-            return ingredients;
-        }
-
-        public String[] getTags() throws JSONException {
-            return Utils.getStringArrayFromJSON(jsonObject, "tags");
-        }
-
-        public Bitmap getPicture() {
-            return picture;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
-
-        public String getNotes() throws JSONException {
-            return jsonObject.getString("notes");
-        }
-
-        @Override
-        public String toString() {
-            return jsonObject.toString();
-        }
-
-        public JSONObject getJsonObject() {
-            return jsonObject;
-        }
-
-        public void setConfidence(float confidence) throws JSONException {
-            jsonObject.put("confidence", confidence);
-        }
-        public void setRecognizedText(String text) throws JSONException {
-            jsonObject.put("extracted_text", text);
-        }
-    }
-
-    /**
      * Class used to run a single test
      * @author Luca Moroldo (g3)
      */
     public class RunnableTest implements Runnable {
-        private TestInstance test;
+        private TestElement test;
         private JSONObject jsonReport;
         private CountDownLatch countDownLatch;
         private Semaphore semaphore;
@@ -372,11 +316,11 @@ public class PhotoTester {
         /**
          *
          * @param jsonReport JSONObject containing tests data
-         * @param test instance of a test - must contain bitmap and ingredients fields
+         * @param test element of a test - must contain bitmap and ingredients fields
          * @param countDownLatch used to signal the task completion
          * @param semaphore semaphore used to signal the end of the task
          */
-        public RunnableTest(JSONObject jsonReport, TestInstance test, CountDownLatch countDownLatch, Semaphore semaphore) {
+        public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch, Semaphore semaphore) {
             this.jsonReport = jsonReport;
             this.test = test;
             this.countDownLatch = countDownLatch;
@@ -386,9 +330,11 @@ public class PhotoTester {
         @Override
         public void run() {
             try {
+
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
                 long started = java.lang.System.currentTimeMillis();
-                //evaluate text extraction
+
+                //evaluate text extraction confidence
                 String extractedIngredients = executeOcr(test.getPicture());
                 String correctIngredients = test.getIngredients();
                 float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
@@ -399,7 +345,7 @@ public class PhotoTester {
                 test.setRecognizedText(extractedIngredients);
 
 
-                addTestInstance(jsonReport, test);
+                addTestElement(jsonReport, test);
 
                 //done test process signal
                 countDownLatch.countDown();
@@ -411,19 +357,19 @@ public class PhotoTester {
                 semaphore.release();
 
             }catch (JSONException e) {
-                Log.e(TAG, "Error elaborating JSON test instance");
+                Log.e(TAG, "Error elaborating JSON test element");
             }
         }
     }
 
     /**
-     * Puts the json object of the TestInstance inside the JSONObject jsonReport, multi thread safe
+     * Puts the json object of the TestElement inside the JSONObject jsonReport, multi thread safe
      * @param jsonReport the report containing tests in JSON format
-     * @param test instance of a test
+     * @param test element of a test
      * @throws JSONException
      * @author Luca Moroldo (g3)
      */
-    synchronized void addTestInstance(JSONObject jsonReport, TestInstance test) throws JSONException {
+    synchronized void addTestElement(JSONObject jsonReport, TestElement test) throws JSONException {
         jsonReport.put(test.getFileName(), test.getJsonObject());
     }
 }
