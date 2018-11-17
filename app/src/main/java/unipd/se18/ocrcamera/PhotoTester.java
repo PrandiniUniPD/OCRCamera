@@ -200,7 +200,7 @@ public class PhotoTester {
                     index = (posLastWordFound + i) % extractedWords.length;
 
                     //Calculate similarity and normalize
-                    int maxLength = Math.max(word.length(),extractedWords[i].length());
+                    int maxLength = Math.max(word.length(),extractedWords[index].length());
                     double similarity = 1.0 - levenshtein.distance(word,extractedWords[index])/maxLength;
 
                     if (similarity > 0.8) {
