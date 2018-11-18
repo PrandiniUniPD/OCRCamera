@@ -381,8 +381,6 @@ public class PhotoTester {
      * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
      */
 
-
-
     public HashMap getTagsStats() throws JSONException {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
@@ -402,8 +400,10 @@ public class PhotoTester {
             }
         }
 
+        Log.i(TAG, "getTagStats():");
         for(String tag : tagStats.keySet()){
             tagStats.put(tag, tagStats.get(tag)/tagOccurrences.get(tag)); // average of the scores
+            Log.i(TAG, "-" + tag + " score: " + tagStats.get(tag));
         }
         return tagStats;
     }

@@ -25,6 +25,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -111,6 +113,12 @@ public class TestResultActivity extends AppCompatActivity {
             });
             this.tester = new PhotoTester(environment,dirName);
             report = tester.testAndReport();
+
+            try {
+                tester.getTagsStats();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
             runOnUiThread(new Runnable() {
                 @Override
