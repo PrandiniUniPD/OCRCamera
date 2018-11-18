@@ -2,15 +2,9 @@ package unipd.se18.ocrcamera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -18,9 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.Adapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,9 +20,6 @@ import android.widget.Toast;
 import org.json.JSONException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Activity for printing the result
@@ -114,12 +103,6 @@ public class TestResultActivity extends AppCompatActivity {
             this.tester = new PhotoTester(environment,dirName);
             report = tester.testAndReport();
 
-            try {
-                tester.getTagsStats();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -133,6 +116,17 @@ public class TestResultActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void v) {
             progressDialog.dismiss();
+
+            //add statistics author: Francesco Pham
+            TextView statsView = new TextView(TestResultActivity.this);
+            String statsText = "";
+            try {
+                statsText = tester.getTagsStatsString();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            statsView.setText(statsText);
+            listEntriesView.addHeaderView(statsView);
         }
 
         @Override

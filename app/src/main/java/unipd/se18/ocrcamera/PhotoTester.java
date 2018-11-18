@@ -1,8 +1,6 @@
 package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -15,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -377,10 +376,9 @@ public class PhotoTester {
     }
 
     /**
-    *Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
-     * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
-     */
-
+    * Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
+    * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
+    */
     public HashMap getTagsStats() throws JSONException {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
@@ -406,5 +404,33 @@ public class PhotoTester {
             Log.i(TAG, "-" + tag + " score: " + tagStats.get(tag));
         }
         return tagStats;
+    }
+
+    /**
+     * Convert statistics returned by getTagsStats() into a readable text
+     * @author Francesco Pham (g3)
+     */
+    public String getTagsStatsString() throws JSONException {
+        HashMap tagsStats = getTagsStats();
+        String report = "Average confidence by tags: \n";
+        while(!tagsStats.isEmpty()){
+            String keymin = getMinKey(tagsStats);
+            report = report + keymin + " : " + tagsStats.get(keymin) + "%\n";
+            tagsStats.remove(keymin);
+        }
+        return report;
+    }
+
+    private String getMinKey(Map<String, Float> map) {
+        String minKey = null;
+        float minValue = Float.MAX_VALUE;
+        for(String key : map.keySet()) {
+            float value = map.get(key);
+            if(value < minValue) {
+                minValue = value;
+                minKey = key;
+            }
+        }
+        return minKey;
     }
 }
