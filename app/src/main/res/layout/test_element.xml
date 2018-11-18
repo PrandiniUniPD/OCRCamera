@@ -26,11 +26,19 @@
             android:id="@+id/pic_name_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/correctness_view"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
             android:textSize="20sp"
             android:textStyle="italic"
-            android:padding="10sp"/>
+            android:padding="5sp"/>
+
+        <!-- Analyzed Pic -->
+        <ImageView
+            android:id="@+id/pic_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/correctness_view"
+            android:contentDescription="@string/analyzed_pic" />
 
         <!-- Tags -->
         <TextView
@@ -38,11 +46,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/tags"
-            android:layout_below="@id/pic_name_view"
+            android:layout_below="@id/pic_view"
             android:layout_alignParentStart="true"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:padding="5sp"/>
+            android:padding="5sp" />
         <TextView
             android:id="@+id/tags_view"
             android:layout_width="wrap_content"

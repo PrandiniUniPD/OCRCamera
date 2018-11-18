@@ -1,11 +1,17 @@
 package unipd.se18.ocrcamera;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -46,18 +52,13 @@ public class AdapterTestElement extends BaseAdapter
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent)
-    {
-        if (convertView == null)
-        {
+    public View getView(int position, View convertView, ViewGroup parent) {
+        if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
         }
 
-
         // Set the correctness value
         try {
-
-
             TextView correctness = convertView.findViewById(R.id.correctness_view);
             float confidence = entries[position].getConfidence();
             String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
@@ -72,6 +73,22 @@ public class AdapterTestElement extends BaseAdapter
             }
 
             correctness.setText(confidenceText);
+
+            // Set the pic view
+            ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
+            Bitmap img = entries[position].getPicture();
+
+            // Scaling the pic view
+            int imgWidth = img.getWidth();
+            int imgHeight = img.getHeight();
+            WindowManager mWindowManager = (WindowManager) convertView.getContext().getSystemService(Context.WINDOW_SERVICE);
+            DisplayMetrics mDisplayMetrics = new DisplayMetrics();
+            Display mDisplay = mWindowManager.getDefaultDisplay();
+            mDisplay.getMetrics(mDisplayMetrics);
+            int scaledWidth = mDisplayMetrics.widthPixels;
+            int scaledHeight = (scaledWidth*imgHeight)/imgWidth;
+
+            analyzedPic.setImageBitmap(Bitmap.createScaledBitmap(img, scaledWidth, scaledHeight, false));
 
             // Set the name of the pic
             TextView name = convertView.findViewById(R.id.pic_name_view);
@@ -100,9 +117,6 @@ public class AdapterTestElement extends BaseAdapter
             // Set the notes text
             TextView notes = convertView.findViewById(R.id.notes_view);
             notes.setText(entries[position].getNotes());
-
-
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
