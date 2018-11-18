@@ -1,10 +1,10 @@
 package unipd.se18.ocrcamera;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +24,20 @@ import java.text.DecimalFormat;
  */
 public class AdapterTestElement extends BaseAdapter
 {
+    /**
+     * Context of the app
+     */
     private Context context;
+
+    /**
+     * Elements of test
+     */
     private TestElement[] entries;
+
+    /**
+     * String used for the logs of this class
+     */
+    private final String TAG = "AdapterTestElement";
 
     /**
      * Defines an object of AdapterTestElement type
@@ -74,6 +86,11 @@ public class AdapterTestElement extends BaseAdapter
 
             correctness.setText(confidenceText);
 
+            // Set the name of the pic
+            TextView name = convertView.findViewById(R.id.pic_name_view);
+            String picName = entries[position].getFileName();
+            name.setText(picName);
+
             // Set the pic view
             ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
             Bitmap img = entries[position].getPicture();
@@ -81,18 +98,17 @@ public class AdapterTestElement extends BaseAdapter
             // Scaling the pic view
             int imgWidth = img.getWidth();
             int imgHeight = img.getHeight();
-            WindowManager mWindowManager = (WindowManager) convertView.getContext().getSystemService(Context.WINDOW_SERVICE);
+            WindowManager mWindowManager = (WindowManager) convertView.getContext()
+                    .getSystemService(Context.WINDOW_SERVICE);
             DisplayMetrics mDisplayMetrics = new DisplayMetrics();
             Display mDisplay = mWindowManager.getDefaultDisplay();
             mDisplay.getMetrics(mDisplayMetrics);
             int scaledWidth = mDisplayMetrics.widthPixels;
             int scaledHeight = (scaledWidth*imgHeight)/imgWidth;
 
-            analyzedPic.setImageBitmap(Bitmap.createScaledBitmap(img, scaledWidth, scaledHeight, false));
-
-            // Set the name of the pic
-            TextView name = convertView.findViewById(R.id.pic_name_view);
-            name.setText(entries[position].getFileName());
+            Log.v(TAG,"pic \"" + picName + "\" scaled from " + imgWidth + "x" + imgHeight +
+                    " to " + scaledWidth + "x" + scaledHeight);
+            analyzedPic.setImageBitmap(Bitmap.createScaledBitmap(img, scaledWidth, scaledHeight,false));
 
             // Set the Tags text
             TextView tags = convertView.findViewById(R.id.tags_view);
