@@ -382,7 +382,7 @@ public class PhotoTester {
      */
 
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     public HashMap getTagsStats() throws JSONException {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
@@ -393,8 +393,8 @@ public class PhotoTester {
             for (String tag : element.getTags()) {
                 if(tagStats.containsKey(tag)) {
                     float newValue = tagStats.get(tag) + element.getConfidence();
-                    tagStats.replace(tag, newValue);
-                    tagOccurrences.replace(tag, tagOccurrences.get(tag) + 1);
+                    tagStats.put(tag, newValue);
+                    tagOccurrences.put(tag, tagOccurrences.get(tag) + 1);
                 }else{
                     tagStats.put(tag, element.getConfidence());
                     tagOccurrences.put(tag, 1);
@@ -403,7 +403,7 @@ public class PhotoTester {
         }
 
         for(String tag : tagStats.keySet()){
-            tagStats.replace(tag, tagStats.get(tag)/tagOccurrences.get(tag)); // average of the scores
+            tagStats.put(tag, tagStats.get(tag)/tagOccurrences.get(tag)); // average of the scores
         }
         return tagStats;
     }
