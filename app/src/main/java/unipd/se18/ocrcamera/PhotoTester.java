@@ -1,6 +1,8 @@
 package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -12,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -371,5 +374,37 @@ public class PhotoTester {
      */
     synchronized void addTestElement(JSONObject jsonReport, TestElement test) throws JSONException {
         jsonReport.put(test.getFileName(), test.getJsonObject());
+    }
+
+    /**
+    *Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
+     * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
+     */
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public HashMap getTagsStats() throws JSONException {
+
+        HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
+
+        HashMap<String, Integer> tagOccurrences = new HashMap<>(); //contains the number of occurrences of each tag
+
+        for(TestElement element : testElements) {
+            for (String tag : element.getTags()) {
+                if(tagStats.containsKey(tag)) {
+                    float newValue = tagStats.get(tag) + element.getConfidence();
+                    tagStats.replace(tag, newValue);
+                    tagOccurrences.replace(tag, tagOccurrences.get(tag) + 1);
+                }else{
+                    tagStats.put(tag, element.getConfidence());
+                    tagOccurrences.put(tag, 1);
+                }
+            }
+        }
+
+        for(String tag : tagStats.keySet()){
+            tagStats.replace(tag, tagStats.get(tag)/tagOccurrences.get(tag)); // average of the scores
+        }
+        return tagStats;
     }
 }
