@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -50,8 +51,18 @@ public class ResultActivity extends AppCompatActivity {
         bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
         Bitmap lastPhoto = bitmapManager.loadBitmapFromInternalStorage();
 
+        //parte leonardopratesi per la rotazione
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate(45);
+        Bitmap rotated = Bitmap.createBitmap(lastPhoto, 0, 0, lastPhoto.getWidth(), lastPhoto.getHeight(),
+                matrix, true);
+        mImageView.setImageBitmap(rotated);
+
         if(lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 960, 960, false));
+            mImageView.setImageBitmap(rotated);
+
         }
         else {
             Log.e("ResultActivity", "error retrieving last photo");
