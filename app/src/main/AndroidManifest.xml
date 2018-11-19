@@ -3,8 +3,8 @@
     package="unipd.se18.ocrcamera">
 
     <!-- Permissions for using the external storage  - author (g3) -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- Permissions for using the camera - author Pietro Prandini (g2) -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -33,8 +33,7 @@
         <activity
             android:name=".CameraActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ResultActivity"
             android:configChanges="orientation"
@@ -52,6 +51,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".TestResultActivity"></activity>
     </application>
 
 </manifest>

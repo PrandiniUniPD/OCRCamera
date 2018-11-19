@@ -46,10 +46,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:src="@drawable/ic_photo_camera_24px"
-        android:layout_margin="16dp"
+        android:layout_margin="20sp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:backgroundTint="@color/colorPrimary"/>
-
-
 </android.support.constraint.ConstraintLayout>

@@ -1,21 +1,27 @@
 package unipd.se18.ocrcamera;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -28,11 +34,6 @@ public class ResultActivity extends AppCompatActivity {
     private TextView mOCRTextView;
 
     /**
-     * TextExtractor object useful for extracting text from pics
-     */
-    private TextExtractor ocr;
-
-    /**
      * Bitmap of the lastPhoto saved
      */
     private Bitmap lastPhoto;
@@ -42,15 +43,10 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        // Instance of InternalStorageManager for managing the pic data
-        InternalStorageManager bitmapManager;
-
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
-
-        String OCRText = getIntent().getStringExtra("text");
 
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -60,8 +56,13 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
-        bitmapManager = new InternalStorageManager(getApplicationContext(), "OCRPhoto", "lastPhoto");
-        lastPhoto = bitmapManager.loadBitmapFromInternalStorage();
+
+        //Get image path and text of the last image from preferences
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = prefs.getString("imagePath", null);
+        String OCRText = prefs.getString("text", null);
+
+        lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 960, 960, false));
@@ -80,25 +81,88 @@ public class ResultActivity extends AppCompatActivity {
             }
         } else{
             // text from OCR
-            ocr = new TextExtractor();
+            AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+            ocrTask.execute(lastPhoto);
+        }
+    }
+
+    /**
+     * Menu inflater
+     * @author Francesco Pham
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.result_menu, menu);
+        return true;
+    }
+
+    /**
+     * Handling click events on the menu
+     * @author Francesco Pham
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.test:
+                Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
+                startActivity(i);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Execute a task and post the result on the TextView given on construction
+     * (g3)
+     */
+    @SuppressLint("StaticFieldLeak")
+    private class AsyncLoad extends AsyncTask<Bitmap, Void, String> {
+
+        private ProgressDialog progressDialog;
+        private TextView resultTextView;
+        private String progressMessage;
+
+        AsyncLoad(TextView view, String progressMessage) {
+            this.resultTextView = view;
+            this.progressMessage = progressMessage;
+        }
+
+        @Override
+        protected String doInBackground(Bitmap... bitmaps) {
+            TextExtractor ocr = new TextExtractor();
+            String textRecognized = "";
             if(lastPhoto != null) {
-                //Text shows when OCR are processing the image
-                mOCRTextView.setText(R.string.processing);
-                String textRecognized = ocr.getTextFromImg(lastPhoto);
+                textRecognized = ocr.getTextFromImg(lastPhoto);
                 if(textRecognized.equals("")) {
-                    mOCRTextView.setText(R.string.no_text_found);
+                    textRecognized = getString(R.string.no_text_found);
+                    mOCRTextView.setText(textRecognized);
                 } else {
                     mOCRTextView.setText(textRecognized);
                 }
-                // Saving in the preferences
-                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("extractedText", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("lastExtractedText", textRecognized);
-                editor.apply();
-            }
-            else {
+            } else {
                 Log.e("NOT_FOUND", "photo not found");
             }
+            return textRecognized;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            progressDialog.dismiss();
+            // Saving in the preferences
+            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("text", s);
+            editor.apply();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(ResultActivity.this,
+                    progressMessage,
+                    "");
         }
     }
 }
