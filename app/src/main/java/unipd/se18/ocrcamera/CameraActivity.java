@@ -245,11 +245,11 @@ public class CameraActivity extends AppCompatActivity {
 
         // Initializing of the UI components
         mCameraTextureView = findViewById(R.id.camera_view);
-        mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-        FloatingActionButton mButtonTakePhoto = findViewById(R.id.take_photo_button);
+        final FloatingActionButton mButtonTakePhoto = findViewById(R.id.take_photo_button);
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.v(TAG, "Click on mButtonTakePhoto");
                 SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
                 SharedPreferences.Editor edit = prefs.edit();
                 edit.putString("text", null);
@@ -270,6 +270,7 @@ public class CameraActivity extends AppCompatActivity {
         super.onResume();
         Log.v(TAG,"onResume");
 
+        mCameraTextureView.setSurfaceTextureListener(mSurfaceTextureListener); //TODO this statement was in onCreate, here is the right position for API 22
         //Restarting gyroscope
         mSensorManager.registerListener(deviceOrientation.getEventListener(),
                 accelerometer, SensorManager.SENSOR_DELAY_UI);
@@ -295,11 +296,11 @@ public class CameraActivity extends AppCompatActivity {
         Log.v(TAG,"onPause");
         closeCamera();
         stopBackgroundThread();
-        super.onPause();
 
         //Stop gyroscope
         mSensorManager.unregisterListener(deviceOrientation.getEventListener());
 
+        super.onPause();
     }
 
     /**
@@ -328,10 +329,10 @@ public class CameraActivity extends AppCompatActivity {
         try {
             cameraId = manager.getCameraIdList()[0];
             CameraCharacteristics mCameraCharacteristics = manager.getCameraCharacteristics(cameraId);
-            StreamConfigurationMap stremCfgMap = mCameraCharacteristics.get(
+            StreamConfigurationMap streamCfgMap = mCameraCharacteristics.get(
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            if (stremCfgMap != null) {
-                mPreviewSize = stremCfgMap.getOutputSizes(SurfaceTexture.class)[0];
+            if (streamCfgMap != null) {
+                mPreviewSize = streamCfgMap.getOutputSizes(SurfaceTexture.class)[0];
             }
             if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
@@ -344,7 +345,7 @@ public class CameraActivity extends AppCompatActivity {
             throw new RuntimeException("Interrupted while trying to lock camera opening.", e);
         }
 
-        Log.e(TAG, "connected");
+        Log.v(TAG, "camera opened");
     }
 
     /**
@@ -424,7 +425,7 @@ public class CameraActivity extends AppCompatActivity {
     private void createCameraPreview() {
         final String mTAG = "createCameraPreview -> ";
         final String mTAGCaptureSession = mTAG + "createCaptureSession -> ";
-        Log.v(TAG, "Start the creation of camera preview");
+        Log.v(TAG, mTAG + "Start the creation of camera preview");
 
         try
         {
@@ -461,7 +462,7 @@ public class CameraActivity extends AppCompatActivity {
             if (mSurfaceTexture != null) {
                 mSurfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
             } else {
-                Log.v(TAG, "createCameraPreview -> Bug in mSurfaceTexture: it is null");
+                Log.v(TAG, mTAG + "Bug in mSurfaceTexture: it is null");
                 return;
             }
 
@@ -489,6 +490,7 @@ public class CameraActivity extends AppCompatActivity {
                     Log.v(TAG, mTAGCaptureSession + "onConfigured");
                     // Check: if the camera is closed return
                     if(mCameraDevice == null) {
+                        Log.e(TAG, mTAGCaptureSession + "mCameraDevice == null");
                         return;
                     }
                     mCameraCaptureSession = session;
@@ -535,6 +537,7 @@ public class CameraActivity extends AppCompatActivity {
      * @author Pietro Prandini (g2)
      */
     private void updatePreview() {
+        Log.v(TAG, "updatePreview");
         CaptureRequest mCaptureRequest;
         // Check for every external call
         if(mCameraDevice == null)
@@ -575,6 +578,7 @@ public class CameraActivity extends AppCompatActivity {
      */
     private void takePhoto() {
 
+        Log.v(TAG, "takePhoto");
         if(mCameraDevice == null)
         {
             Log.e("cameraDevice", "cameraDevice is null");
@@ -648,8 +652,9 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                    Log.v(TAG, "takePhoto -> CameraCaptureSession.CaptureCallback captureListener -> onCaptureCompleted");
                     super.onCaptureCompleted(session, request, result);
-                    createCameraPreview();
+                    //createCameraPreview(); //TODO this statement cause a crash of the app in a virtual machine with API 22, is it really useful here?
                 }
             };
 

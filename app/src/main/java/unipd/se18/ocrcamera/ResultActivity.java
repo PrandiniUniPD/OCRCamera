@@ -124,6 +124,7 @@ public class ResultActivity extends AppCompatActivity {
         private ProgressDialog progressDialog;
         private TextView resultTextView;
         private String progressMessage;
+        private String textRecognized = "";
 
         AsyncLoad(TextView view, String progressMessage) {
             this.resultTextView = view;
@@ -133,17 +134,27 @@ public class ResultActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Bitmap... bitmaps) {
             TextExtractor ocr = new TextExtractor();
-            String textRecognized = "";
+            textRecognized = "";
             if(lastPhoto != null) {
                 textRecognized = ocr.getTextFromImg(lastPhoto);
                 if(textRecognized.equals("")) {
                     textRecognized = getString(R.string.no_text_found);
-                    mOCRTextView.setText(textRecognized);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mOCRTextView.setText(textRecognized);
+                        }
+                    });
                 } else {
                     mOCRTextView.setText(textRecognized);
                 }
             } else {
-                Log.e("NOT_FOUND", "photo not found");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mOCRTextView.setText(textRecognized);
+                    }
+                });
             }
             return textRecognized;
         }
