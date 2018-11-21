@@ -1,81 +1,29 @@
 package unipd.se18.ocrcamera;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
-import android.graphics.SurfaceTexture;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCaptureSession;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.CameraMetadata;
-import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.params.StreamConfigurationMap;
-import android.hardware.camera2.TotalCaptureResult;
-import android.Manifest;
-import android.media.Image;
-import android.media.ImageReader;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.media.ExifInterface;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Size;
-import android.util.SparseIntArray;
-import android.view.Display;
-import android.view.OrientationEventListener;
-import android.view.Surface;
-import android.view.TextureView;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.Toast;
-
 import com.camerakit.CameraKitView;
-import com.camerakit.CameraKit;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.List;
-import java.util.Objects;
-
-
 
 /**
  * The Activity useful for making photos
  */
 public class CameraActivity extends AppCompatActivity {
-
-    /**
-     * TAG used for logs
-     */
-    private static final String TAG = "CameraActivity";
-
 
     private CameraKitView cameraKitView;
     private static String orientationResult;
@@ -92,8 +40,7 @@ public class CameraActivity extends AppCompatActivity {
 
         cameraKitView = findViewById(R.id.cameraKitView);
 
-        //Initialising gyroscope
-
+        //Load sensor for understand the orientation of the phone
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(new SensorEventListener() {
             public int mOrientationDeg; //last rotation in degrees
@@ -130,7 +77,6 @@ public class CameraActivity extends AppCompatActivity {
                     mOrientationDeg = orientation;
                     //figure out actual orientation
                     if(orientation == -1){//basically flat
-
                     }
                     else if(orientation <= 45 || orientation > 315){//round to 0
                         Log.d("Sensor", "P"); //Portrait
@@ -154,14 +100,8 @@ public class CameraActivity extends AppCompatActivity {
 
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-
             }
         }, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-
-
-
-
 
         FloatingActionButton mButtonTakePhoto = findViewById(R.id.take_photo_button);
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
@@ -180,9 +120,7 @@ public class CameraActivity extends AppCompatActivity {
     /**
      * Takes a photo, saves it inside internal storage and resets the last extracted text
      *
-     * @modify mCameraDevice
      * @modify SharedPreferences
-     * @modify Application private storage
      * @author Romanello Stefano
      */
     private void takePhoto() {
@@ -201,7 +139,6 @@ public class CameraActivity extends AppCompatActivity {
                     default: break;
                 }
 
-
                 //Temporary stores the captured photo into a file that will be used from the Camera Result activity
                 String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
 
@@ -213,11 +150,10 @@ public class CameraActivity extends AppCompatActivity {
                 //An intent that will launch the activity that will analyse the photo
                 Intent i = new Intent(CameraActivity.this, ResultActivity.class);
                 startActivity(i);
-
             }
         });
 
-    } //end takePhoto
+    }
 
 
 
