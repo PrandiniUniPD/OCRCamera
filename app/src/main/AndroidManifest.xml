@@ -9,8 +9,6 @@
     <!-- Permissions for using the camera - author Pietro Prandini (g2) -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-feature android:name="android.hardware.camera2.full" />
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

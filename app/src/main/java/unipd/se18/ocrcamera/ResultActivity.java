@@ -65,7 +65,7 @@ public class ResultActivity extends AppCompatActivity {
         lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
-            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 960, 960, false));
+            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
         } else {
             Log.e("ResultActivity", "error retrieving last photo");
         }
