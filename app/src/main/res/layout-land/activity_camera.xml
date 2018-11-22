@@ -10,11 +10,17 @@
         android:layout_height="match_parent"
         android:gravity="center">
 
-        <TextureView
-            android:id="@+id/camera_view"
+        <com.camerakit.CameraKitView
+            android:id="@+id/cameraKitView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="20sp" />
+            android:adjustViewBounds="true"
+            android:keepScreenOn="true"
+            app:camera_flash="off"
+            app:camera_facing="back"
+            app:camera_focus="continuous"
+            app:camera_imageJpegQuality="100"
+            app:camera_permissions="camera" />
     </LinearLayout>
 
     <RelativeLayout
