@@ -116,7 +116,7 @@ public class ResultActivity extends AppCompatActivity {
 
     /**
      * Execute a task and post the result on the TextView given on construction
-     * (g3)
+     * (g3) - modified by Rossi Leonardo
      */
     @SuppressLint("StaticFieldLeak")
     private class AsyncLoad extends AsyncTask<Bitmap, Void, String> {
@@ -136,11 +136,26 @@ public class ResultActivity extends AppCompatActivity {
             String textRecognized = "";
             if(lastPhoto != null) {
                 textRecognized = ocr.getTextFromImg(lastPhoto);
-                if(textRecognized.equals("")) {
+                if(textRecognized.equals(""))
+                {
                     textRecognized = getString(R.string.no_text_found);
-                    mOCRTextView.setText(textRecognized);
-                } else {
-                    mOCRTextView.setText(textRecognized);
+                    final String finalTextRecognized = textRecognized;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mOCRTextView.setText(finalTextRecognized);
+                        }
+                    });
+                }
+                else
+                {
+                    final String finalTextRecognized = textRecognized;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mOCRTextView.setText(finalTextRecognized);
+                        }
+                    });
                 }
             } else {
                 Log.e("NOT_FOUND", "photo not found");

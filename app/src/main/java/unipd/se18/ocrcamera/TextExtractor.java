@@ -34,7 +34,8 @@ public class TextExtractor implements OCRInterface {
      * @return The String of the text recognized (empty String if nothing is recognized)
      * @author Pietro Prandini (g2)
      */
-    public String getTextFromImg(Bitmap img) {
+    public String getTextFromImg(Bitmap img)
+    {
         Log.d(TAG, "getTextFromImg");
         return extractText(img);
     }
@@ -46,7 +47,8 @@ public class TextExtractor implements OCRInterface {
      * @return The String of the text recognized (empty String if nothing is recognized)
      * @author Pietro Prandini (g2)
      */
-    private String extractText(Bitmap img) {
+    private String extractText(Bitmap img)
+    {
         Log.d(TAG, "extractText");
         long beforeWaiting = java.lang.System.currentTimeMillis();
         // Defines the image that will be analysed to get the text
@@ -58,10 +60,10 @@ public class TextExtractor implements OCRInterface {
         //latch used to wait for extraction to finish
         final CountDownLatch latch = new CountDownLatch(1);
 
-        Task<FirebaseVisionText>fbText = textRecognizer.processImage(fbImage)
-                .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+        Task<FirebaseVisionText>fbText = textRecognizer.processImage(fbImage).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
             @Override
             public void onSuccess(FirebaseVisionText firebaseVisionText) {
+
                 Log.v(TAG, "extractText -> onSuccess ->\n-----      RECOGNIZED TEXT       -----\n"
                         + firebaseVisionText.getText() + "\n----- END OF THE RECOGNIZED TEXT -----");
 
@@ -71,11 +73,13 @@ public class TextExtractor implements OCRInterface {
         });
 
         if(!fbText.isSuccessful()) {
-            try {
-
+            try
+            {
                 //analogous to wait
                 latch.await();
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e)
+            {
                 return "Failed to extract text.";
             }
 

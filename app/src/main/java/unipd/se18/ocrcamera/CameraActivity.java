@@ -121,7 +121,7 @@ public class CameraActivity extends AppCompatActivity {
      * Takes a photo, saves it inside internal storage and resets the last extracted text
      *
      * @modify SharedPreferences
-     * @author Romanello Stefano
+     * @author Romanello Stefano - modified by Leonardo Rossi
      */
     private void takePhoto() {
         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
@@ -131,25 +131,28 @@ public class CameraActivity extends AppCompatActivity {
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
                 //Image rotation
 
-                switch (orientationResult)
+                if(orientationResult != null)
                 {
-                    case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
-                    case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
-                    case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
-                    default: break;
+                    switch (orientationResult)
+                    {
+                        case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
+                        case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
+                        case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
+                        default: break;
+                    }
+
+                    //Temporary stores the captured photo into a file that will be used from the Camera Result activity
+                    String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
+
+                    SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+                    SharedPreferences.Editor edit = prefs.edit();
+                    edit.putString("imagePath", filePath.trim());
+                    edit.apply();
+
+                    //An intent that will launch the activity that will analyse the photo
+                    Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                    startActivity(i);
                 }
-
-                //Temporary stores the captured photo into a file that will be used from the Camera Result activity
-                String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
-
-                SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-                SharedPreferences.Editor edit = prefs.edit();
-                edit.putString("imagePath", filePath.trim());
-                edit.apply();
-
-                //An intent that will launch the activity that will analyse the photo
-                Intent i = new Intent(CameraActivity.this, ResultActivity.class);
-                startActivity(i);
             }
         });
 
