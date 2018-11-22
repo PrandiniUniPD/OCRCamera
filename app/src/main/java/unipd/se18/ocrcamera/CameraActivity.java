@@ -75,24 +75,31 @@ public class CameraActivity extends AppCompatActivity {
                 if (orientation != mOrientationDeg)
                 {
                     mOrientationDeg = orientation;
+
+                    View takePicButton = findViewById(R.id.take_photo_button);
+
                     //figure out actual orientation
                     if(orientation == -1){//basically flat
                     }
                     else if(orientation <= 45 || orientation > 315){//round to 0
                         Log.d("Sensor", "P"); //Portrait
                         orientationResult="P";
+                        takePicButton.setRotation(0); //rotate take picture button
                     }
                     else if(orientation > 45 && orientation <= 135){//round to 90
                         Log.d("Sensor", "LR"); //LandscapeRight
                         orientationResult="LR";
+                        takePicButton.setRotation(270);
                     }
                     else if(orientation > 135 && orientation <= 225){//round to 180
                         Log.d("Sensor", "PU"); //PortraitUpside
                         orientationResult="PU";
+                        takePicButton.setRotation(180);
                     }
                     else if(orientation > 225 && orientation <= 315){//round to 270
                         Log.d("Sensor", "LL"); //LandscapeLeft
                         orientationResult="LL";
+                        takePicButton.setRotation(90);
                     }
 
                 }
