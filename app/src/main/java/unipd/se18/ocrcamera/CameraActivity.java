@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,12 +11,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import com.camerakit.CameraKitView;
+import com.yalantis.ucrop.UCrop;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -157,7 +161,8 @@ public class CameraActivity extends AppCompatActivity {
                     edit.apply();
 
                     //An intent that will launch the activity that will analyse the photo
-                    Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                    Intent i = new Intent(CameraActivity.this, PostProcessingActivity.class);
+                    i.putExtra("imgUri", Uri.parse(filePath));
                     startActivity(i);
                 }
             }
