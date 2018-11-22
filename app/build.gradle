@@ -33,7 +33,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     //for json testing
-    testCompile 'org.json:json:20140107'
+    testImplementation 'org.json:json:20140107'
 
     implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.google.firebase:firebase-ml-vision:18.0.1'
