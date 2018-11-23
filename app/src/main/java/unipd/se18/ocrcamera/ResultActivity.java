@@ -135,7 +135,8 @@ public class ResultActivity extends AppCompatActivity {
             TextExtractor ocr = new TextExtractor();
             String textRecognized = "";
             if(lastPhoto != null) {
-                textRecognized = ocr.getTextFromImg(lastPhoto);
+                //textRecognized = ocr.getTextFromImg(lastPhoto); //TODO it is for avoiding the single point of failure
+                textRecognized = ocr.getIngredientsText(lastPhoto);
                 if(textRecognized.equals(""))
                 {
                     textRecognized = getString(R.string.no_ingredients_found);
