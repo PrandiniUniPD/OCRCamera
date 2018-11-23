@@ -138,7 +138,7 @@ public class ResultActivity extends AppCompatActivity {
                 textRecognized = ocr.getTextFromImg(lastPhoto);
                 if(textRecognized.equals(""))
                 {
-                    textRecognized = getString(R.string.no_text_found);
+                    textRecognized = getString(R.string.no_ingredients_found);
                     final String finalTextRecognized = textRecognized;
                     runOnUiThread(new Runnable() {
                         @Override
