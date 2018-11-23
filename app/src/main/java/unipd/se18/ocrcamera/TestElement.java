@@ -62,6 +62,18 @@ public class TestElement {
     }
 
     /**
+     * @return confidence if set, 0 otherwise
+     * @throws JSONException
+     */
+    public float getConfidenceWithoutIngredientFilter() throws JSONException {
+        String confidence = jsonObject.getString("confidence_without_ingredient_filter");
+        if(confidence != null)
+            return Float.parseFloat(confidence);
+        else
+            return 0;
+    }
+
+    /**
      *
      * @return recognized text if set, empty string otherwise
      * @throws JSONException
@@ -73,6 +85,18 @@ public class TestElement {
         return "";
     }
 
+    /**
+     *
+     * @return recognized ingredients if set, empty string otherwise
+     * @throws JSONException
+     */
+    public String getIngredientsFiltered() throws  JSONException {
+        String ingredients = jsonObject.getString("ingredients_filtered");
+        if(ingredients != null)
+            return ingredients;
+        return "";
+    }
+
     public JSONObject getJsonObject() {
         return jsonObject;
     }
@@ -80,8 +104,14 @@ public class TestElement {
     public void setConfidence(float confidence) throws JSONException {
         jsonObject.put("confidence", confidence);
     }
+    public void setConfidenceWithoutIngredientFilter(float confidence) throws JSONException {
+        jsonObject.put("confidence_without_ingredient_filter", confidence);
+    }
     public void setRecognizedText(String text) throws JSONException {
         jsonObject.put("extracted_text", text);
+    }
+    public void setIngredientsFiltered(String text) throws JSONException {
+        jsonObject.put("ingredients_filtered", text);
     }
 
     @Override

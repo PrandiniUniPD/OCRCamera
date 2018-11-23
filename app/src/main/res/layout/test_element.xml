@@ -9,17 +9,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Correctness -->
+        <!-- Correctness with ingredients filter -->
+        <TextView
+            android:id="@+id/correctness_with_ingredient_filter_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:text="@string/with_ingredient_filter"
+            android:padding="5sp"/>
         <TextView
             android:id="@+id/correctness_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
+            android:layout_below="@id/correctness_with_ingredient_filter_title"
             android:shadowColor="@color/pureBlack"
             android:shadowRadius="5"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:padding="5sp"/>
+            android:paddingStart="10sp"/>
 
         <!-- Name -->
         <TextView
@@ -30,6 +38,26 @@
             android:textSize="20sp"
             android:textStyle="italic"
             android:padding="5sp"/>
+
+        <!-- Correctness without ingredients filter -->
+        <TextView
+            android:id="@+id/correctness_without_ingredient_filter_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="@string/without_ingredient_filter"
+            android:padding="5sp"/>
+        <TextView
+            android:id="@+id/correctness_without_ingredient_filter_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/correctness_without_ingredient_filter_title"
+            android:shadowColor="@color/pureBlack"
+            android:shadowRadius="5"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:paddingEnd="10sp"/>
 
         <!-- Analyzed Pic -->
         <ImageView
@@ -103,13 +131,34 @@
             android:paddingStart="10sp"
             android:paddingEnd="10sp"/>
 
+        <!-- Ingredients extracted -->
+        <TextView
+            android:id="@+id/extractedIngredients_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ingredients_text"
+            android:layout_below="@id/extractedText_view"
+            android:layout_alignParentStart="true"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:padding="5sp"/>
+        <TextView
+            android:id="@+id/extractedIngredients_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/extractedIngredients_title"
+            android:layout_alignParentStart="true"
+            android:textSize="15sp"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"/>
+
         <!-- Notes -->
         <TextView
             android:id="@+id/notes_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/notes"
-            android:layout_below="@id/extractedText_view"
+            android:layout_below="@id/extractedIngredients_view"
             android:layout_alignParentStart="true"
             android:textSize="15sp"
             android:textStyle="bold"

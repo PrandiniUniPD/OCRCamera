@@ -336,15 +336,23 @@ public class PhotoTester {
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
                 long started = java.lang.System.currentTimeMillis();
 
+                TextExtractor mTextExtractor = new TextExtractor();
+
                 //evaluate text extraction confidence
-                String extractedIngredients = executeOcr(test.getPicture());
+                String extractedText = mTextExtractor.getTextFromImg(test.getPicture());
                 String correctIngredients = test.getIngredients();
-                float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+                String ingredientsFiltered = mTextExtractor.getIngredientsText(test.getPicture());
+
+                float confidence = ingredientsTextComparison(correctIngredients, ingredientsFiltered);
+                float confidenceWithoutFilterForIngredients = ingredientsTextComparison(correctIngredients, extractedText);
 
                 //insert test in report
                 test.setConfidence(confidence);
+                test.setConfidenceWithoutIngredientFilter(confidenceWithoutFilterForIngredients);
                 //insert extracted test
-                test.setRecognizedText(extractedIngredients);
+                test.setRecognizedText(extractedText);
+                //insert filtered ingredients
+                test.setIngredientsFiltered(ingredientsFiltered);
 
 
                 addTestElement(jsonReport, test);

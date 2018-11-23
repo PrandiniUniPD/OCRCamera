@@ -86,6 +86,22 @@ public class AdapterTestElement extends BaseAdapter
 
             correctness.setText(confidenceText);
 
+
+            TextView correctnessWithoutIngredientFilter = convertView.findViewById(R.id.correctness_without_ingredient_filter_view);
+            float confidenceWithoutIngredientFilter = entries[position].getConfidenceWithoutIngredientFilter();
+            String confidenceTextWithoutIngredientFilter = new DecimalFormat("#0").format(confidenceWithoutIngredientFilter) + " %";
+
+            // Set the color of the correctness
+            if(confidence < 70) {
+                correctness.setTextColor(Color.RED);
+            } else if (confidence < 85) {
+                correctness.setTextColor(Color.YELLOW);
+            } else {
+                correctness.setTextColor(Color.GREEN);
+            }
+
+            correctnessWithoutIngredientFilter.setText(confidenceTextWithoutIngredientFilter);
+
             // Set the name of the pic
             TextView name = convertView.findViewById(R.id.pic_name_view);
             String picName = entries[position].getFileName();
@@ -129,6 +145,10 @@ public class AdapterTestElement extends BaseAdapter
             // Set the extracted text
             TextView extractedText = convertView.findViewById(R.id.extractedText_view);
             extractedText.setText(entries[position].getRecognizedText());
+
+            // Set the ingredients filtered
+            TextView ingredientsFilteredText = convertView.findViewById(R.id.extractedIngredients_view);
+            ingredientsFilteredText.setText(entries[position].getIngredientsFiltered());
 
             // Set the notes text
             TextView notes = convertView.findViewById(R.id.notes_view);
