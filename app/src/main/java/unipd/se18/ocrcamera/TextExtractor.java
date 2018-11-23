@@ -105,7 +105,6 @@ public class TextExtractor implements OCRInterface {
                             ingredients = block.getText();
                             Log.d(TAG, "getIngredientsBlock ->\n-----      RECOGNIZED TEXT       -----\n"
                                     + ingredients + "\n----- END OF THE RECOGNIZED TEXT -----");
-                            Log.d(TAG, "Confidence of the block == " + block.getConfidence());
                             break;
                         }
                     }
