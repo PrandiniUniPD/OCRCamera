@@ -1,7 +1,6 @@
 package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -23,32 +22,25 @@ public class TextExtractor implements OCRInterface {
     private final String TAG = "TextExtractor";
 
     /**
-     * Constructor
-     */
-    TextExtractor() {    }
-
-    /**
      * Extracts a text from a given image.
      *
      * @param img The image in a Bitmap format
      * @return The String of the text recognized (empty String if nothing is recognized)
      * @author Pietro Prandini (g2)
      */
-    public String getTextFromImg(Bitmap img)
-    {
+    public String getTextFromImg(Bitmap img) {
         Log.d(TAG, "getTextFromImg");
-        return extractText(img);
+        return getIngredientsBlock(extractText(img));
     }
 
     /**
      * Extracts a text from a given image.
      *
      * @param img The image in a Bitmap format
-     * @return The String of the text recognized (empty String if nothing is recognized)
-     * @author Pietro Prandini (g2)
+     * @return The FirebaseVisionText of the text recognized, null if nothing is recognized
+     * @author Pietro Prandini (g2), Luca Moroldo (g3)
      */
-    private String extractText(Bitmap img)
-    {
+    private FirebaseVisionText extractText(Bitmap img) {
         Log.d(TAG, "extractText");
         long beforeWaiting = java.lang.System.currentTimeMillis();
         // Defines the image that will be analysed to get the text
@@ -73,14 +65,13 @@ public class TextExtractor implements OCRInterface {
         });
 
         if(!fbText.isSuccessful()) {
-            try
-            {
+            try {
                 //analogous to wait
                 latch.await();
             }
-            catch (InterruptedException e)
-            {
-                return "Failed to extract text.";
+            catch (InterruptedException e) {
+                Log.e(TAG,"Nothing recognized");
+                return null;
             }
 
         }
@@ -88,7 +79,39 @@ public class TextExtractor implements OCRInterface {
         long afterWaiting = java.lang.System.currentTimeMillis();
         Log.i(TAG, "extractText -> text extracted in " + (afterWaiting - beforeWaiting) + " milliseconds");
         // Return the recognized text
-        String ocrResult = fbText.getResult().getText();
-        return ocrResult;
+        return fbText.getResult();
+    }
+
+    /**
+     * Analyze the OCR result for recognizing only the ingredients
+     * @param OCRResult FirebaseVisionText result of the OCR processing
+     * @return The String of the ingredients recognized, empty String if nothing is recognized
+     * @author Pietro Prandini (g2)
+     */
+    private String getIngredientsBlock(FirebaseVisionText OCRResult) {
+        Log.i(TAG, "getIngredientsBlock");
+        String ingredients = "";
+        if(OCRResult != null) {
+            for (FirebaseVisionText.TextBlock block : OCRResult.getTextBlocks()) {
+                /*Log.v(TAG, "getIngredientsBlock -> block " + block.toString() + " ->\n-----      RECOGNIZED TEXT       -----\n"
+                        + block.getText() + "\n----- END OF THE RECOGNIZED TEXT -----");*/
+                for (FirebaseVisionText.Line line : block.getLines()) {
+                    /*Log.v(TAG, "getIngredientsBlock -> line " + line.toString() + " ->\n-----      RECOGNIZED TEXT       -----\n"
+                            + line.getText() + "\n----- END OF THE RECOGNIZED TEXT -----");*/
+                    for (FirebaseVisionText.Element element : line.getElements()) {
+                        /*Log.v(TAG, "getIngredientsBlock -> element " + element.toString() + " ->\n-----      RECOGNIZED TEXT       -----\n"
+                                + element.getText() + "\n----- END OF THE RECOGNIZED TEXT -----");*/
+                        if (element.getText().toLowerCase().contains("ingredients")) {
+                            ingredients = block.getText();
+                            Log.d(TAG, "getIngredientsBlock ->\n-----      RECOGNIZED TEXT       -----\n"
+                                    + ingredients + "\n----- END OF THE RECOGNIZED TEXT -----");
+                            Log.d(TAG, "Confidence of the block == " + block.getConfidence());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return ingredients;
     }
 }
