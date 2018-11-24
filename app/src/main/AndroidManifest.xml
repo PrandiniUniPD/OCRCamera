@@ -50,6 +50,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".TestResultActivity"></activity>
+        <service android:name=".DeskewTextService"
+                 android:exported="false"></service>
     </application>
 
 </manifest>

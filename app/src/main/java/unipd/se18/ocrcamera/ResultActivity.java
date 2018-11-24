@@ -62,7 +62,8 @@ public class ResultActivity extends AppCompatActivity {
         String pathImage = prefs.getString("imagePath", null);
         String OCRText = prefs.getString("text", null);
 
-        DeskewText.computeSkew(pathImage);
+        Intent imageProcessing = new Intent(this, DeskewTextService.class);
+        startService(imageProcessing);
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
 
