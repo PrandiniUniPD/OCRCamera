@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 
 import com.yalantis.ucrop.callback.OverlayViewChangeListener;
@@ -20,6 +22,8 @@ public class PostProcessingActivity extends AppCompatActivity
 
     private UCropView cropView;
     private Button btnConfirmCrop;
+    private MenuItem btnResetChanges;
+    private Uri captureImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -28,7 +32,7 @@ public class PostProcessingActivity extends AppCompatActivity
         setContentView(R.layout.activity_post_processing);
 
         //Get intent extra
-        Uri captureImageUri = getIntent().getParcelableExtra("imgUri");
+        captureImageUri = getIntent().getParcelableExtra("imgUri");
 
         //Cropview initialization
         cropView = findViewById(R.id.cropView);
@@ -45,6 +49,22 @@ public class PostProcessingActivity extends AppCompatActivity
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.crop_menu, menu);
+
+        //Menu reset button initialization
+        btnResetChanges = menu.findItem(R.id.btnResetChanges);
+
+        /**
+         * //When clicked, resets the cropView to original rotation, zoom and crop frame
+         * @author Alberto Valente
+         */
+        btnResetChanges.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                cropView.resetCropImageView();
+                cropView.getCropImageView().setImageURI(captureImageUri);
+                return true;
+            }
+        });
         return true;
     }
 }
