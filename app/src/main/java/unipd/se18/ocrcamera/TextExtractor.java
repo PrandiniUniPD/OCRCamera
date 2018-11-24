@@ -117,7 +117,7 @@ public class TextExtractor implements OCRInterface {
         return fbText.getResult();
     }
     /**
-     * Sort the blocks recognized
+     * Sorts the blocks recognized
      * @param OCRResult FirebaseVisionText object produced by an OCR recognition
      * @return An ArrayList of FirebaseVisionText sorted
      */
@@ -128,7 +128,7 @@ public class TextExtractor implements OCRInterface {
     }
 
     /**
-     * Sort the blocks recognized from top to bottom
+     * Sorts the blocks recognized from top to bottom
      * @param OCRBlocks ArrayList of FirebaseVisionText.TextBlock recognized by the OCR processing
      * @return An ArrayList of FirebaseVisionText sorted from top to bottom
      * @author Pietro Prandini (g2)
