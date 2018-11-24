@@ -52,5 +52,7 @@ dependencies {
 
     //Material design components
     implementation 'com.android.support:design:28.0.0-alpha3'
+
+    implementation 'com.github.yalantis:ucrop:2.2.2-native'
 }
 apply plugin: 'com.google.gms.google-services'
