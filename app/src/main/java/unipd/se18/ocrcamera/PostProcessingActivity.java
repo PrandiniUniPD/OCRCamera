@@ -54,7 +54,7 @@ public class PostProcessingActivity extends AppCompatActivity
         btnResetChanges = menu.findItem(R.id.btnResetChanges);
 
         /**
-         * //When clicked, resets the cropView to original rotation, zoom and crop frame
+         * When clicked, resets the cropView to original rotation, zoom and crop frame
          * @author Alberto Valente
          */
         btnResetChanges.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
