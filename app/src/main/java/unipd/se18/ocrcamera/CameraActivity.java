@@ -11,6 +11,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -148,8 +149,8 @@ public class CameraActivity extends AppCompatActivity {
                         default: break;
                     }
 
-                    //Temporary stores the captured photo into a file that will be used from the Camera Result activity
-                    String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
+                    //Stores the captured photo into a file that will be used from the Camera Result activity
+                    String filePath= saveFileImage(CameraActivity.this, bitmapImage,"capturedImage");
 
                     SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
                     SharedPreferences.Editor edit = prefs.edit();
@@ -199,18 +200,20 @@ public class CameraActivity extends AppCompatActivity {
 
 
     /**
-     * Stores the captured image into a temporary file useful to pass large data between activities
-     * and returns the file's path.
+     * Stores the captured image and returns the file's path.
      * @param context The reference of the current activity
      * @param bitmap The captured image to store into the file. Not null or empty.
      * @param name The name of the file. Not null or empty.
      * @return The files path
-     * @author Leonardo Rossi
+     * @author Leonardo Rossi, Thomas Porro
      */
-    private String tempFileImage(Context context, Bitmap bitmap, String name)
+    private String saveFileImage(Context context, Bitmap bitmap, String name)
     {
 
-        File outputDir = context.getCacheDir();
+        File outputDir = new File(Environment.getExternalStorageDirectory()+"/"+Environment.DIRECTORY_PICTURES+"/OCRCamera/");
+        if(!outputDir.exists()){
+            outputDir.mkdirs();
+        }
         File imageFile = new File(outputDir, name + ".jpg");
 
         OutputStream os;
