@@ -1,7 +1,6 @@
 package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -21,34 +20,34 @@ import java.util.concurrent.CountDownLatch;
  * @author Pietro Prandini (g2)
  */
 public class TextExtractor implements OCRInterface {
+
     /**
      * TAG used for the logs of this class
      */
     private final String TAG = "TextExtractor";
 
     /**
-     * Number to indicate the point on the top-left position of an Object
+     * Index of the point on the top-left position
      */
     private final int TOP_LEFT = 0;
 
     /**
-     * Number to indicate the point on the top-right position of an Object
+     * Index of the point on the top-right position
      */
     private final int TOP_RIGHT = 1;
 
     /**
-     * Number to indicate the point on the bottom-left position of an Object
+     * Index of the point on the bottom-left position
      */
     private final int BOTTOM_LEFT = 2;
 
     /**
-     * Number to indicate the point on the bottom-right position of an Object
+     * Index of the point on the bottom-right position
      */
     private final int BOTTOM_RIGHT = 3;
 
     /**
      * Extracts a text from a given image.
-     *
      * @param img The image in a Bitmap format
      * @return The String of the ingredients recognized (empty String if nothing is recognized)
      * @author Pietro Prandini (g2)
@@ -69,7 +68,6 @@ public class TextExtractor implements OCRInterface {
 
     /**
      * Extracts a text from a given image.
-     *
      * @param img The image in a Bitmap format
      * @return The FirebaseVisionText of the text recognized, null if nothing is recognized
      * @author Pietro Prandini (g2), Luca Moroldo (g3)
@@ -120,6 +118,7 @@ public class TextExtractor implements OCRInterface {
      * Sorts the blocks recognized
      * @param OCRResult FirebaseVisionText object produced by an OCR recognition
      * @return An ArrayList of FirebaseVisionText sorted
+     * @author Pietro Prandini (g2)
      */
     private ArrayList<FirebaseVisionText.TextBlock> sortBlocks(FirebaseVisionText OCRResult) {
         ArrayList<FirebaseVisionText.TextBlock> OCRBlocks = new ArrayList<>(OCRResult.getTextBlocks());
