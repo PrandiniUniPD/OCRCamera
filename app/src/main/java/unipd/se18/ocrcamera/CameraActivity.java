@@ -163,8 +163,9 @@ public class CameraActivity extends AppCompatActivity {
 
                     //Create a new result file and take his Uri
                     UCrop.Options options = new UCrop.Options();
-                    options.setHideBottomControls(true);
-                    options.setFreeStyleCropEnabled(false);
+                    options.setHideBottomControls(false);
+                    options.setFreeStyleCropEnabled(true);
+                    options.setActiveWidgetColor(getResources().getColor(R.color.colorPrimary));
                     options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
                     options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
                     options.setToolbarTitle("Focus on the ingredients");
