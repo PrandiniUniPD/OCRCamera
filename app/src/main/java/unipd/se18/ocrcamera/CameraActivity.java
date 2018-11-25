@@ -162,7 +162,7 @@ public class CameraActivity extends AppCompatActivity {
 
                     //An intent that will launch the activity that will analyse the photo
                     Intent i = new Intent(CameraActivity.this, PostProcessingActivity.class);
-                    i.putExtra("imgUri", Uri.parse(filePath));
+                    i.putExtra("imgUri", filePath);
                     startActivity(i);
                 }
             }
