@@ -22,12 +22,14 @@ import java.io.File;
 import java.net.URI;
 
 /**
- * @author Leonardo Rossi (g2)
+ * @author Giovanni Furlan (g2), Leonardo Rossi (g2), Pietro Prandini (g2)
  */
 public class PostProcessingActivity extends AppCompatActivity
 {
 
     private Button btnConfirmCrop;
+    final Uri resultImageUri = Uri.fromFile(new File("/data/user/0/unipd.se18.ocrcamera/cache/AFile.jpg"));
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -46,8 +48,17 @@ public class PostProcessingActivity extends AppCompatActivity
         final Uri captureImageUri = builder.build();
 
         //Create a new result file and take his Uri
-        final Uri resultImageUri = Uri.fromFile(new File("/data/user/0/unipd.se18.ocrcamera/cache/AFile.jpg"));
-        UCrop.of(captureImageUri, resultImageUri).start(PostProcessingActivity.this);
+        //final Uri resultImageUri = Uri.fromFile(new File("/data/user/0/unipd.se18.ocrcamera/cache/AFile.jpg"));
+
+        UCrop.Options options = new UCrop.Options();
+        options.setHideBottomControls(true);
+        options.setFreeStyleCropEnabled(true);
+        options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
+        options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+        options.setToolbarTitle("Focus on the ingredients");
+        UCrop.of(captureImageUri, resultImageUri)
+                .withOptions(options)
+                .start(PostProcessingActivity.this);
 
         btnConfirmCrop.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +88,15 @@ public class PostProcessingActivity extends AppCompatActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             final Uri resultUri = UCrop.getOutput(data);
+            //Raplace image of Uri with cropped one
+            SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+            SharedPreferences.Editor edit = prefs.edit();
+            edit.putString("imagePath", resultImageUri.getPath());
+            edit.apply();
+
+            //An intent that will launch the activity that will analyse the photo
+            Intent i = new Intent(PostProcessingActivity.this, ResultActivity.class);
+            startActivity(i);
         } else if (resultCode == UCrop.RESULT_ERROR) {
             final Throwable cropError = UCrop.getError(data);
         }
