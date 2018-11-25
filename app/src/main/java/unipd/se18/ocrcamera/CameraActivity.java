@@ -156,7 +156,7 @@ public class CameraActivity extends AppCompatActivity {
                     //Temporary stores the captured photo into a file that will be used from the Camera Result activity
                     String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
 
-                    final Uri resultImageUri = Uri.fromFile(new File("/data/user/0/unipd.se18.ocrcamera/cache/AFile.jpg"));
+                    final Uri resultImageUri = Uri.fromFile(new File(getCacheDir(),"croppedImg.jpg"));
                     //Build Uri from filePath adding scheme
                     Uri.Builder builder = new Uri.Builder().scheme("file").path(filePath);
                     final Uri captureImageUri = builder.build();
@@ -168,7 +168,7 @@ public class CameraActivity extends AppCompatActivity {
                     options.setActiveWidgetColor(getResources().getColor(R.color.colorPrimary));
                     options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
                     options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
-                    options.setToolbarTitle("Focus on the ingredients");
+                    options.setToolbarTitle(getResources().getString(R.string.focus_on_ingredients));
                     UCrop.of(captureImageUri, resultImageUri)
                             .withOptions(options)
                             .start(CameraActivity.this);
