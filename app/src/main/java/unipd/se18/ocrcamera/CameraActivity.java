@@ -210,10 +210,7 @@ public class CameraActivity extends AppCompatActivity {
     private String saveFileImage(Context context, Bitmap bitmap, String name)
     {
 
-        File outputDir = new File(Environment.getExternalStorageDirectory()+"/"+Environment.DIRECTORY_PICTURES+"/OCRCamera/");
-        if(!outputDir.exists()){
-            outputDir.mkdirs();
-        }
+        File outputDir = context.getCacheDir();
         File imageFile = new File(outputDir, name + ".jpg");
 
         OutputStream os;
