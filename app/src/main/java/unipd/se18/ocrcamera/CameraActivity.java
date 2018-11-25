@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import com.camerakit.CameraKitView;
 import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.UCropActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -140,8 +141,8 @@ public class CameraActivity extends AppCompatActivity {
             public void onImage(CameraKitView cameraKitView, final byte[] photo) {
 
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
-                //Image rotation
 
+                //Image rotation
                 if(orientationResult != null)
                 {
                     switch (orientationResult)
@@ -155,22 +156,49 @@ public class CameraActivity extends AppCompatActivity {
                     //Temporary stores the captured photo into a file that will be used from the Camera Result activity
                     String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
 
-                    SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-                    SharedPreferences.Editor edit = prefs.edit();
-                    edit.putString("imagePath", filePath.trim());
-                    edit.apply();
+                    final Uri resultImageUri = Uri.fromFile(new File("/data/user/0/unipd.se18.ocrcamera/cache/AFile.jpg"));
+                    //Build Uri from filePath adding scheme
+                    Uri.Builder builder = new Uri.Builder().scheme("file").path(filePath);
+                    final Uri captureImageUri = builder.build();
 
-                    //An intent that will launch the activity that will analyse the photo
-                    Intent i = new Intent(CameraActivity.this, PostProcessingActivity.class);
-                    i.putExtra("imgUri", filePath);
-                    startActivity(i);
+                    //Create a new result file and take his Uri
+                    UCrop.Options options = new UCrop.Options();
+                    options.setHideBottomControls(true);
+                    options.setFreeStyleCropEnabled(false);
+                    options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
+                    options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+                    options.setToolbarTitle("Focus on the ingredients");
+                    UCrop.of(captureImageUri, resultImageUri)
+                            .withOptions(options)
+                            .start(CameraActivity.this);
                 }
             }
         });
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP)
+        {
+            final Uri resultUri = UCrop.getOutput(data);
 
+            //Raplace image of Uri with cropped one
+            SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+            SharedPreferences.Editor edit = prefs.edit();
+            edit.putString("imagePath", resultUri.getPath());
+            edit.apply();
+
+            //An intent that will launch the activity that will analyse the photo
+            Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+            startActivity(i);
+
+        }
+        else if (resultCode == UCrop.RESULT_ERROR)
+        {
+            final Throwable cropError = UCrop.getError(data);
+        }
+    }
 
     @Override
     protected void onStart() {
