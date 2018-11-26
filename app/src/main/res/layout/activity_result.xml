@@ -32,11 +32,11 @@
             android:layout_gravity="center_horizontal|center"/>
         <TextView
             android:id="@+id/barcode_view"
-            android:text="@string/barcode_value"
+            android:text="Barcode here"
             android:layout_width="match_parent"
             android:layout_height="0pt"
             android:layout_weight="1"
-            android:layout_gravity="center_horizontal|center"/>
+            android:layout_gravity="center_horizontal|bottom"/>
 
     </LinearLayout>
 

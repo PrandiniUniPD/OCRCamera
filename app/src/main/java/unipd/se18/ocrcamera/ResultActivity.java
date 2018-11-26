@@ -44,6 +44,8 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView mOCRTextView;
 
+    private TextView mBarcodeView;
+
     /**
      * Bitmap of the lastPhoto saved
      */
@@ -56,8 +58,12 @@ public class ResultActivity extends AppCompatActivity {
 
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
+
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
+
+        mBarcodeView = findViewById(R.id.barcode_view);
+        mBarcodeView.setMovementMethod(new ScrollingMovementMethod());
 
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -66,7 +72,6 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
             }
         });
-
 
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
@@ -103,13 +108,13 @@ public class ResultActivity extends AppCompatActivity {
         if(barcodeText != null) {
             // Text in preferences
             if(barcodeText.equals("")) {
-                mOCRTextView.setText(R.string.no_barcode_found);
+                mBarcodeView.setText(R.string.barcode_not_found);
             } else {
                 //Show the text of the last image
-                mOCRTextView.setText(barcodeText);
+                mBarcodeView.setText(barcodeText);
             }
         } else{
-            BarcodeReader barcodeTask = new BarcodeReader(mOCRTextView,"Processing");
+            BarcodeReader barcodeTask = new BarcodeReader(mBarcodeView,"Processing");
             barcodeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, lastPhoto);
         }
     }
@@ -210,7 +215,7 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     /**
-     * Read the barcode in background and post the results on barcode textview.
+     * Read the barcode in background and post the results on barcodeView.
      *
      * @authon Luca Perali (g4)
      */
@@ -240,12 +245,11 @@ public class ResultActivity extends AppCompatActivity {
                 rawBarcode = barcodeExtractor.getTextFromImg(lastPhoto);
                 if(rawBarcode.equals(""))
                 {
-                    rawBarcode = getString(R.string.no_text_found);
                     final String finalTextRecognized = rawBarcode;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            mOCRTextView.setText(finalTextRecognized);
+                            barcodeTextView.setText(finalTextRecognized);
                         }
                     });
                 }
@@ -255,7 +259,7 @@ public class ResultActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            mOCRTextView.setText(finalTextRecognized);
+                            barcodeTextView.setText(finalTextRecognized);
                         }
                     });
                 }

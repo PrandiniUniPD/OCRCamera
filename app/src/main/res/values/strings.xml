@@ -20,6 +20,7 @@
     <string name="pic">PIC</string>
     <string name="test">TEST</string>
     <string name="extrected_text">Extracted text:</string>
-    <string name="barcode_value">Barcode value</string>
+    <string name="barcode_value"></string>
     <string name="no_barcode_found">Oops, no barcode found</string>
+    <string name="barcode_not_found">Oops, can\'t find barcode. Please try again!</string>
 </resources>

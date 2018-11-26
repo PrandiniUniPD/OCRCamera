@@ -27,9 +27,16 @@ public class BarcodeExtractor {
      * Constructor
      */
     BarcodeExtractor(){
-
+        //Nothing to initialize
     }
 
+    /**
+     * This method try to extract barcode information from an image if can,
+     * otherwise return an empty string.
+     *
+     * @param img Bitmap image with or without barcode in it
+     * @return string with barcode info if barcode found
+     */
     public String getTextFromImg(Bitmap img){
 
         Log.d(TAG, "extractTextFromImage");
@@ -47,6 +54,7 @@ public class BarcodeExtractor {
                 .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
                     @Override
                     public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
+
                         Log.v(TAG, "extractText -> onSuccess ->\n-----      RECOGNIZED BARCODE       -----\n"
                                 + getInfoFromBarcode(barcodes) + "\n----- END OF THE RECOGNIZED TEXT -----");
 
@@ -81,7 +89,7 @@ public class BarcodeExtractor {
                 " milliseconds");
 
         // Return the recognized text
-        String barcodeResult = task.getResult().toString(); //TODO this should be interested barcode string
+        String barcodeResult = getInfoFromBarcode(task.getResult());
         return barcodeResult;
 
     }
@@ -92,11 +100,6 @@ public class BarcodeExtractor {
             //int valueType = barcode.getValueType();
             result.append(barcode.getRawValue() + "\n");
         }
-        //TODO improve here string format of the output
-        if ("".equals(result.toString())) {
-            return "";
-        } else {
-            return result.toString();
-        }
+        return result.toString();
     }
 }
