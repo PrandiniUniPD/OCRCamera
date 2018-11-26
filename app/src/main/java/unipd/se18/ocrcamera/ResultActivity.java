@@ -96,7 +96,7 @@ public class ResultActivity extends AppCompatActivity {
         } else{
             // text from OCR
             AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
-            ocrTask.execute(lastPhoto);
+            ocrTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, lastPhoto);
         }
 
         //Displaying the text, from Barcode or preferences
@@ -110,7 +110,7 @@ public class ResultActivity extends AppCompatActivity {
             }
         } else{
             BarcodeReader barcodeTask = new BarcodeReader(mOCRTextView,"Processing");
-            barcodeTask.execute(lastPhoto);
+            barcodeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, lastPhoto);
         }
     }
 

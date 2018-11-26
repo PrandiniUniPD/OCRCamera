@@ -23,7 +23,14 @@ public class BarcodeExtractor {
 
     private static final String TAG = "BarcodeTextExtractor";
 
-    public static String getTextFromImg(Bitmap img){
+    /**
+     * Constructor
+     */
+    BarcodeExtractor(){
+
+    }
+
+    public String getTextFromImg(Bitmap img){
 
         Log.d(TAG, "extractTextFromImage");
         final String rawBarcode;
@@ -40,7 +47,7 @@ public class BarcodeExtractor {
                 .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
                     @Override
                     public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
-                        Log.v(TAG, "extractText -> onSuccess ->\n-----      RECOGNIZED TEXT       -----\n"
+                        Log.v(TAG, "extractText -> onSuccess ->\n-----      RECOGNIZED BARCODE       -----\n"
                                 + getInfoFromBarcode(barcodes) + "\n----- END OF THE RECOGNIZED TEXT -----");
 
                         //analogous to signal
@@ -63,6 +70,7 @@ public class BarcodeExtractor {
             }
             catch (InterruptedException e)
             {
+
                 return "Failed to extract text.";
             }
         }
