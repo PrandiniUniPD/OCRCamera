@@ -5,13 +5,10 @@ import android.util.Log;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt4;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import static org.opencv.core.CvType.CV_8UC1;
 
 /**
  * Class used to process the image
@@ -36,6 +33,9 @@ public class ImageProcessing {
      * @author Thomas Porro (g1)
      */
     public double computeSkew(String imagePath) {
+
+        //TODO some action if imagePath or the matrix lines is empty
+
         //Load this image in grayscale
         Log.d("openCV", "Image path = "+imagePath);
         Mat img = Imgcodecs.imread( imagePath, Imgcodecs.IMREAD_GRAYSCALE );
@@ -53,9 +53,10 @@ public class ImageProcessing {
         //Process the image with the Probabilistic Hough Transform
         Imgproc.HoughLinesP(img, lines,  1, Math.PI/180, 50, 50, 10);
 
-        //Detect if the
+        //Detect if the matrix line is empty
         boolean isEmpty=lines.empty();
         Log.d("openCV", "Lines empty = "+isEmpty);
+
         double meanAngle=0;
         Log.d("openCV", "rows = "+lines.cols()+"\ncols = "+lines.cols());
 
@@ -76,7 +77,7 @@ public class ImageProcessing {
             //Sum all the angle of the lines of text
             meanAngle += Math.atan2(y2-y1, x2-x1);
         }
-        
+
         //calculate the meanAngle by dividing it with the number of rows
         meanAngle /= lines.rows();
 
