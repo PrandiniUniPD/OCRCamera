@@ -15,7 +15,15 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import com.camerakit.CameraKitView;
+
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -109,7 +117,9 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
-        }, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        },
+
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
 
         FloatingActionButton mButtonTakePhoto = findViewById(R.id.take_photo_button);
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +130,10 @@ public class CameraActivity extends AppCompatActivity {
                 edit.putString("text", null);
                 edit.putString("imageDataPath", null);
                 edit.apply();
+
                 takePhoto();
+                Toast.makeText(getBaseContext(),"ok",
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -137,8 +150,11 @@ public class CameraActivity extends AppCompatActivity {
             public void onImage(CameraKitView cameraKitView, final byte[] photo) {
 
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
-                //Image rotation
+                boolean control = blurRecognition(bitmapImage);
+                Toast.makeText(getBaseContext(), "applicato blur control",
+                        Toast.LENGTH_LONG).show();
 
+                //Image rotation
                 if(orientationResult != null)
                 {
                     switch (orientationResult)
@@ -160,6 +176,7 @@ public class CameraActivity extends AppCompatActivity {
                     //An intent that will launch the activity that will analyse the photo
                     Intent i = new Intent(CameraActivity.this, ResultActivity.class);
                     startActivity(i);
+
                 }
             }
         });
@@ -241,7 +258,56 @@ public class CameraActivity extends AppCompatActivity {
                 matrix, true);
     }
 
+    public boolean blurRecognition(Bitmap bitmap1)
+    {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inDither = true;
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap image = bitmap1;
+        int l = CvType.CV_8UC1; //8-bit grey scale image
+        Mat matImage = new Mat();
+        org.opencv.android.Utils.bitmapToMat(image, matImage);
+        Mat matImageGrey = new Mat();
+        Imgproc.cvtColor(matImage, matImageGrey, Imgproc.COLOR_BGR2GRAY);
 
+        Bitmap destImage;
+        destImage = Bitmap.createBitmap(image);
+        Mat dst2 = new Mat();
+        org.opencv.android.Utils.bitmapToMat(destImage, dst2);
+        Mat laplacianImage = new Mat();
+        dst2.convertTo(laplacianImage, l);
+        Imgproc.Laplacian(matImageGrey, laplacianImage, CvType.CV_8U);
+        Mat laplacianImage8bit = new Mat();
+        laplacianImage.convertTo(laplacianImage8bit, l);
+
+        Bitmap bmp = Bitmap.createBitmap(laplacianImage8bit.cols(), laplacianImage8bit.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(laplacianImage8bit, bmp);
+        int[] pixels = new int[bmp.getHeight() * bmp.getWidth()];
+        bmp.getPixels(pixels, 0, bmp.getWidth(), 0, 0, bmp.getWidth(), bmp.getHeight()); // bmp为轮廓图
+
+        int maxLap = -16777216; // 16m
+        for (int pixel : pixels) {
+            if (pixel > maxLap)
+                maxLap = pixel;
+            return false;
+        }
+
+        int soglia = -6118750;
+        if (maxLap <= soglia) {
+            System.out.println("is blur image");
+            return true;
+        }
+        soglia += 6118750;
+        maxLap += 6118750;
+        // LogUtil.log("图片位置=" + picFilePath
+        //         + "\nimage.w=" + image.getWidth() + ", image.h=" + image.getHeight()
+        //         + "\nmaxLap= " + maxLap + "(清晰范围:0~6118750)"
+        //         + "\n" + Html.fromHtml("<font color='#eb5151'><b>" + (maxLap <= soglia ? "模糊" : "清晰") + "</b></font>"));
+        // opencvEnd = true;
+        //isBlur = maxLap <= soglia;
+        return true;
+
+    }
 
 
 
