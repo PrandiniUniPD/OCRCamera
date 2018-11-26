@@ -23,22 +23,21 @@
             app:layout_constraintTop_toTopOf="parent"
             android:contentDescription="@string/pic_captured" />
 
-        <!-- ScrollView - author (g3) -->
-        <!--<ScrollView
+        <TextView
+            android:id="@+id/ocr_text_view"
+            android:text="@string/take_photo"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="2"
-            android:scrollbars="vertical"
-            android:fillViewport="true">-->
-            <!-- TextView - author (g2) -->
-            <TextView
-                android:id="@+id/ocr_text_view"
-                android:text="@string/take_photo"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                android:layout_gravity="center_horizontal|center"/>
-        <!--</ScrollView>-->
+            android:layout_gravity="center_horizontal|center"/>
+        <TextView
+            android:id="@+id/barcode_view"
+            android:text="@string/barcode_value"
+            android:layout_width="match_parent"
+            android:layout_height="0pt"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal|center"/>
+
     </LinearLayout>
 
     <!-- Camera activity launcher button (Francesco Pham) -->

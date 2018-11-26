@@ -40,7 +40,7 @@
         <!-- Useful for automatic upgrades of the ocr models - author Pietro Prandini (g2) -->
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="ocr" />
+            android:value="ocr, barcode" />
         <!-- To use multiple models: android:value="ocr,model2,model3" -->
         <activity android:name=".NavigatorActivity">
             <intent-filter>

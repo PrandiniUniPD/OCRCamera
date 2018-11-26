@@ -25,7 +25,9 @@ public class TextExtractor implements OCRInterface {
     /**
      * Constructor
      */
-    TextExtractor() {    }
+    TextExtractor() {
+
+    }
 
     /**
      * Extracts a text from a given image.
@@ -54,23 +56,24 @@ public class TextExtractor implements OCRInterface {
         // Defines the image that will be analysed to get the text
         FirebaseVisionImage fbImage = FirebaseVisionImage.fromBitmap(img);
         // Defines that will be used an on device text recognizer
-        FirebaseVisionTextRecognizer textRecognizer = FirebaseVision.getInstance().getOnDeviceTextRecognizer();
-
+        FirebaseVisionTextRecognizer textRecognizer = FirebaseVision.getInstance()
+                .getOnDeviceTextRecognizer();
 
         //latch used to wait for extraction to finish
         final CountDownLatch latch = new CountDownLatch(1);
 
-        Task<FirebaseVisionText>fbText = textRecognizer.processImage(fbImage).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
-            @Override
-            public void onSuccess(FirebaseVisionText firebaseVisionText) {
+        Task<FirebaseVisionText> fbText = textRecognizer.processImage(fbImage)
+                .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                    @Override
+                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
 
-                Log.v(TAG, "extractText -> onSuccess ->\n-----      RECOGNIZED TEXT       -----\n"
-                        + firebaseVisionText.getText() + "\n----- END OF THE RECOGNIZED TEXT -----");
+                        Log.v(TAG, "extractText -> onSuccess ->\n-----      RECOGNIZED TEXT       -----\n"
+                                + firebaseVisionText.getText() + "\n----- END OF THE RECOGNIZED TEXT -----");
 
-                //analogous to signal
-                latch.countDown();
-            }
-        });
+                        //analogous to signal
+                        latch.countDown();
+                    }
+                });
 
         if(!fbText.isSuccessful()) {
             try
@@ -82,11 +85,13 @@ public class TextExtractor implements OCRInterface {
             {
                 return "Failed to extract text.";
             }
-
         }
 
         long afterWaiting = java.lang.System.currentTimeMillis();
-        Log.i(TAG, "extractText -> text extracted in " + (afterWaiting - beforeWaiting) + " milliseconds");
+        Log.i(TAG, "extractText -> text extracted in " +
+                (afterWaiting - beforeWaiting) +
+                " milliseconds");
+
         // Return the recognized text
         String ocrResult = fbText.getResult().getText();
         return ocrResult;

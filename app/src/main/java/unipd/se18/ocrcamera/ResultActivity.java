@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -22,6 +23,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+
+import java.util.List;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -61,11 +72,14 @@ public class ResultActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
         String OCRText = prefs.getString("text", null);
+        String barcodeText = prefs.getString("barcodeText",null);
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
-            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
+            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(),
+                            lastPhoto.getHeight(),
+                            false));
         } else {
             Log.e("ResultActivity", "error retrieving last photo");
         }
@@ -83,6 +97,20 @@ public class ResultActivity extends AppCompatActivity {
             // text from OCR
             AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
             ocrTask.execute(lastPhoto);
+        }
+
+        //Displaying the text, from Barcode or preferences
+        if(barcodeText != null) {
+            // Text in preferences
+            if(barcodeText.equals("")) {
+                mOCRTextView.setText(R.string.no_barcode_found);
+            } else {
+                //Show the text of the last image
+                mOCRTextView.setText(barcodeText);
+            }
+        } else{
+            BarcodeReader barcodeTask = new BarcodeReader(mOCRTextView,"Processing");
+            barcodeTask.execute(lastPhoto);
         }
     }
 
@@ -178,6 +206,75 @@ public class ResultActivity extends AppCompatActivity {
             progressDialog = ProgressDialog.show(ResultActivity.this,
                     progressMessage,
                     "");
+        }
+    }
+
+    /**
+     * Read the barcode in background and post the results on barcode textview.
+     *
+     * @authon Luca Perali (g4)
+     */
+    private class BarcodeReader extends AsyncTask<Bitmap, Void, String>{
+
+        protected ProgressDialog progressDialog;
+        protected TextView barcodeTextView;
+        protected String progressMessage;
+
+        BarcodeReader(TextView barcodeTextView, String progressMessage){
+            this.barcodeTextView = barcodeTextView;
+            this.progressMessage = progressMessage;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(ResultActivity.this,
+                    progressMessage,
+                    "");
+        }
+
+        @Override
+        protected String doInBackground(Bitmap... bitmaps){
+            String rawBarcode = "";
+            BarcodeExtractor barcodeExtractor = new BarcodeExtractor();
+            if(lastPhoto != null) {
+                rawBarcode = barcodeExtractor.getTextFromImg(lastPhoto);
+                if(rawBarcode.equals(""))
+                {
+                    rawBarcode = getString(R.string.no_text_found);
+                    final String finalTextRecognized = rawBarcode;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mOCRTextView.setText(finalTextRecognized);
+                        }
+                    });
+                }
+                else
+                {
+                    final String finalTextRecognized = rawBarcode;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mOCRTextView.setText(finalTextRecognized);
+                        }
+                    });
+                }
+            } else {
+                Log.e("NOT_FOUND", "barcode not found");
+            }
+            return rawBarcode;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            progressDialog.dismiss();
+            // Saving in the preferences
+            SharedPreferences sharedPref = getApplicationContext()
+                    .getSharedPreferences("prefs", Context.MODE_PRIVATE);
+
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("barcode", s);
+            editor.apply();
         }
     }
 }
