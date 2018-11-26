@@ -16,6 +16,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import com.camerakit.CameraKitView;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -138,18 +140,6 @@ public class CameraActivity extends AppCompatActivity {
 
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
 
-                //checks if image is analyzable
-
-                int brightness= IMG_Brightness(bitmapImage);
-                if (brightness == 0){
-                    Log.d("Capturedimage", "good image");
-                }
-                if (brightness == 1){
-                    Log.d("Capturedimage", "too bright image");
-                }
-                if (brightness == -1){
-                    Log.d("Capturedimage", "too dark image");
-                }
                 //Image rotation
 
                 if(orientationResult != null)
@@ -169,6 +159,15 @@ public class CameraActivity extends AppCompatActivity {
                     SharedPreferences.Editor edit = prefs.edit();
                     edit.putString("imagePath", filePath.trim());
                     edit.apply();
+
+                    //Checking the image brightness
+                    int brightness= IMG_Brightness(bitmapImage);
+                    if (brightness ==1){
+                        Toast.makeText(getApplicationContext(), "The picture might be too bright", Toast.LENGTH_LONG).show();
+                    }
+                    else if (brightness == -1){
+                        Toast.makeText(getApplicationContext(), "The picture might be too dark", Toast.LENGTH_LONG).show();
+                    }
 
                     //An intent that will launch the activity that will analyse the photo
                     Intent i = new Intent(CameraActivity.this, ResultActivity.class);
@@ -254,11 +253,11 @@ public class CameraActivity extends AppCompatActivity {
                 matrix, true);
     }
 
-    /*
-    This method calculates the brightness of the image
-    @param Bitmap the bitmap of the image to calculate the value of
-    @return int  1 if the image is too bright, -1 if it is too dark, 0 if it is neither
-    @author Pietro Balzan
+    /**
+     * This method calculates the brightness of the image
+     * @param bmp the bitmap of the image to calculate the value of
+     * @return int  1 if the image is too bright, -1 if it is too dark, 0 if it is neither
+     * @author Pietro Balzan
      */
     public static int IMG_Brightness (Bitmap bmp){
         // image size
@@ -279,17 +278,21 @@ public class CameraActivity extends AppCompatActivity {
                 if (brightness >= 190) {
                     bright_pixels++;   //pixel is too bright
                 }
-                else if (brightness < 100) {
+                else if (brightness < 80) {
                     dark_pixels++;      //pixel is too dark
                 }
             }
         }
-        if (bright_pixels>total_pixels*0.4){
+        if (bright_pixels>total_pixels*0.5 && (bright_pixels/(dark_pixels+1))>2){
+            Log.d("Capturedimage", "too bright image");
             return 1;   // image is too bright
         }
-        else if (dark_pixels>total_pixels*0.4){
+        else if (dark_pixels>total_pixels*0.5 && (dark_pixels/(bright_pixels+1))>2){
+            Log.d("Capturedimage", "too dark image");
             return -1;   //image is too dark
         }
+        Log.d("Capturedimage", "good image");
         return 0; // image is neither too bright nor too dark
     }
+
 }
