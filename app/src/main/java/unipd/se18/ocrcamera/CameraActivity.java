@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -136,6 +137,19 @@ public class CameraActivity extends AppCompatActivity {
             public void onImage(CameraKitView cameraKitView, final byte[] photo) {
 
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
+
+                //checks if image is analyzable
+
+                int brightness= IMG_Brightness(bitmapImage);
+                if (brightness == 0){
+                    Log.d("Capturedimage", "good image");
+                }
+                if (brightness == 1){
+                    Log.d("Capturedimage", "too bright image");
+                }
+                if (brightness == -1){
+                    Log.d("Capturedimage", "too dark image");
+                }
                 //Image rotation
 
                 if(orientationResult != null)
@@ -240,11 +254,42 @@ public class CameraActivity extends AppCompatActivity {
                 matrix, true);
     }
 
-
-
-
-
-
+    /*
+    This method calculates the brightness of the image
+    @param Bitmap the bitmap of the image to calculate the value of
+    @return int  1 if the image is too bright, -1 if it is too dark, 0 if it is neither
+    @author Pietro Balzan
+     */
+    public static int IMG_Brightness (Bitmap bmp){
+        // image size
+        int width = bmp.getWidth();
+        int height = bmp.getHeight();
+        int R, G, B, pixel;
+        int dark_pixels = 0;
+        int bright_pixels = 0;
+        int total_pixels = width*height;
+        for(int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                // get pixel color
+                pixel = bmp.getPixel(x, y);
+                R = Color.red(pixel);
+                G = Color.green(pixel);
+                B = Color.blue(pixel);
+                double brightness = (0.2126 * R + 0.7152 * G + 0.0722 * B); //  RGB/Luma conversion formula, dermines luminance of a pixel
+                if (brightness >= 190) {
+                    bright_pixels++;   //pixel is too bright
+                }
+                else if (brightness < 100) {
+                    dark_pixels++;      //pixel is too dark
+                }
+            }
+        }
+        if (bright_pixels>total_pixels*0.4){
+            return 1;   // image is too bright
+        }
+        else if (dark_pixels>total_pixels*0.4){
+            return -1;   //image is too dark
+        }
+        return 0; // image is neither too bright nor too dark
+    }
 }
-
-
