@@ -20,12 +20,21 @@ import java.util.concurrent.Semaphore;
 import info.debatty.java.stringsimilarity.*;
 
 /**
- * Class built to test the application's OCR
+ * Class built to test the application's OCR comparing the goal text with the recognized text and
+ * providing a JSON report containing stats and results.
  * @author Luca Moroldo (g3) - Francesco Pham (g3)
  */
 public class PhotoTester {
 
+    /**
+     * Contains the available extensions for the test
+     */
     public static final String[] IMAGE_EXTENSIONS = {"jpeg", "jpg"};
+
+    /**
+     * Contains the base name of a photo used for the test
+     */
+    public static final String PHOTO_BASE_NAME = "foto";
 
     private static final String TAG = "PhotoTester";
 
@@ -37,8 +46,8 @@ public class PhotoTester {
 
     /**
      * Load test elements (images + description)
-     * @param environment environment where find the directory with dirName
-     * @param dirName stores the path to the directory containing photos and description
+     * @param environment environment where the function will look for the directory with dirName
+     * @param dirName stores the name of the directory containing photos and description
      */
     public PhotoTester(File environment, String dirName) {
         File directory = getStorageDir(environment, dirName);
@@ -46,29 +55,55 @@ public class PhotoTester {
         dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
 
-        for (File file : directory.listFiles()) {
 
+        //create a TestElement for each original photo - then link all the alterations to the relative original TestElement
+        for(File file : directory.listFiles()) {
             String filePath = file.getPath();
-
-            String fileExtension = Utils.getFileExtension(filePath);
             String fileName = Utils.getFilePrefix(filePath);
 
+            //if the file is not an alteration then create a test element for it
+            if(fileName.contains(PHOTO_BASE_NAME)) {
 
-            //Each photo has a description.txt with the same filename - so when an image is found we know the description filename
-            if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
-                Bitmap photoBitmap = Utils.loadBitmapFromFile(filePath);
+                //check if extension is available
+                String fileExtension = Utils.getFileExtension(filePath);
 
-                String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
+                if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
 
-                //create test element giving filename, description and bitmap
-                try {
-                    JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
-                    testElements.add(new TestElement(photoBitmap, jsonPhotoDescription, fileName));
-                } catch(JSONException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "Error decoding JSON");
+                    Bitmap photoBitmap = Utils.loadBitmapFromFile(filePath);
+
+                    //Each photo has a description.txt with the same filename - so when an image is found we know the description filename
+                    String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
+
+                    //create test element giving filename, description and bitmap
+                    //author Luca Moroldo - g3
+                    try {
+                        JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
+                        TestElement originalTest = new TestElement(photoBitmap, jsonPhotoDescription, fileName);
+
+                        //associate the relative bitmap to each alteration of the original test if there is any
+                        String[] alterationsFilenames = originalTest.getAlterationsNames();
+                        if(alterationsFilenames != null) {
+                            //search for alteration file
+                            for(File alterationCandidate : directory.listFiles()) {
+                                String alterationCandidateFileName = alterationCandidate.getName();
+                                if(Arrays.asList(alterationsFilenames).contains(alterationCandidateFileName)) {
+                                    Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationCandidate.getPath());
+                                    originalTest.setAlterationBitmap(alterationCandidateFileName, alterationBitmap);
+                                    //alteration found, break for loop
+                                    break;
+                                }
+                            }
+                        }
+
+                        testElements.add(originalTest);
+
+                    } catch(JSONException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "Error decoding JSON");
+                    }
                 }
             }
+
         }
     }
 
@@ -93,12 +128,12 @@ public class PhotoTester {
 
 
     /**
-     * Elaborate tests using threads, stores the json report to string in testReport.txt
-     * @return String in JSON format with the test's report, each object is named with the filename and contains:
-     * ingrediens, tags, notes, original photo name, confidence
+     * Elaborate tests using threads, stores the json report in string format to testReport.txt
+     * @return String in JSON format with the test's report, each object is a single test named with the filename and contains:
+     * ingredients, tags, notes, original photo name, confidence and alterations (if any), each alteration contains alteration tags and alteration notes
      * @author Luca Moroldo (g3)
      */
-    public String testAndReport() {
+    public String testAndReport() throws InterruptedException {
 
         Log.i(TAG,"testAndReport started");
         long started = java.lang.System.currentTimeMillis();
@@ -112,28 +147,20 @@ public class PhotoTester {
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
         Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
+
         Semaphore availableThread = new Semaphore(max_concurrent_tasks);
 
         for(TestElement test : testElements){
-            try {
-                //wait for available thread
-                availableThread.acquire();
+            //wait for available thread
+            availableThread.acquire();
 
-                //launch thread
-                new Thread(new RunnableTest(jsonReport, test, countDownLatch, availableThread)).start();
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            //launch thread
+            new Thread(new RunnableTest(jsonReport, test, countDownLatch, availableThread)).start();
 
         }
 
         //wait for all tests to complete
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        countDownLatch.await();
 
         long ended = java.lang.System.currentTimeMillis();
         Log.i(TAG,"testAndReport ended (" + totalTestElements + " pics tested in " + (ended - started) + " ms)");
@@ -341,11 +368,23 @@ public class PhotoTester {
                 String correctIngredients = test.getIngredients();
                 float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
-                //insert test in report
+                //insert results in test
                 test.setConfidence(confidence);
-                //insert extracted test
                 test.setRecognizedText(extractedIngredients);
 
+                //evaluate alterations if any
+                String[] alterationsFileNames = test.getAlterationsNames();
+                if(alterationsFileNames != null) {
+                    for(String alterationFilename : alterationsFileNames) {
+
+                        String alterationExtractedIngredients = executeOcr(test.getAlterationBitmap(alterationFilename));
+                        float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
+
+                        //insert results
+                        test.setAlterationConfidence(alterationFilename, alterationConfidence);
+                        test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
+                    }
+                }
 
                 addTestElement(jsonReport, test);
 

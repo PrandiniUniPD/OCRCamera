@@ -5,9 +5,8 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Class used to test TestElement class
@@ -15,68 +14,73 @@ import static org.junit.Assert.*;
  */
 public class TestElementTest {
 
-    private static final String testString = "{\"ingredients\": \"testIng1, testIng2 ,TestIng3\",\"tags\": [\"testTag1\", \"testTag2\", \"testTag3\"],\"notes\": \"testNote\",\"original_name\": \"testOriginalName.jpg\"}\n";
+    //fake JSON data used to test TestElement class
+    private static final String testString = "{\n" +
+            "\t\"ingredients\": \"testIng1, testIng2 ,TestIng3\",\n" +
+            "\t\"tags\": [\"testTag1\", \"testTag2\", \"testTag3\"],\n" +
+            "\t\"alterations\": {\n" +
+            "\t\t\"alteration10.jpeg\": {\n" +
+            "\t\t\t\"tags\": [\"tagliata\"],\n" +
+            "\t\t\t\"notes\": \"alterationTestNotes\"\n" +
+            "\t\t},\n" +
+            "\t\t\"alteration11.jpeg\": {\n" +
+            "\t\t\t\"tags\": [\"angolata\"],\n" +
+            "\t\t\t\"notes\": \"alterationTestNotes\"\n" +
+            "\t\t}\n" +
+            "\t},\n" +
+            "\t\"notes\": \"testNote\",\n" +
+            "\t\"original_name\": \"testOriginalName.jpg\"\n" +
+            "}";
     private TestElement testElement;
+
     @Before
-    public void init() {
-        JSONObject jsonElement = null;
-        try {
-            jsonElement = new JSONObject(testString);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void init()  throws JSONException{
+
+        JSONObject jsonElement = new JSONObject(testString);
 
         testElement = new TestElement(null, jsonElement, "test");
 
-        try {
+        //init test with fake data
             testElement.setConfidence(1);
             testElement.setRecognizedText("testRecogText");
-        }catch (JSONException e) {
 
-        }
+            for(String alterationName : testElement.getAlterationsNames()) {
+                testElement.setAlterationRecognizedText(alterationName, "RecognizedText");
+                testElement.setAlterationConfidence(alterationName, 1);
+            }
+
+
+
+
     }
 
     @Test
-    public void getIngredientsArray() {
-        try {
+    public void getIngredientsArray() throws JSONException {
             String[] expected = {"testIng1", "testIng2" ,"TestIng3"};
             String[] actual = testElement.getIngredientsArray();
 
 
             assertArrayEquals(expected, actual);
 
-        } catch (JSONException e) {
-
-        }
     }
 
     @Test
-    public void getIngredients() {
-        try {
+    public void getIngredients() throws JSONException {
             String expected = "testIng1, testIng2 ,TestIng3";
             String actual = testElement.getIngredients();
 
             assertEquals(expected, actual);
 
-        } catch (JSONException e) {
-
-        }
-
-
     }
 
     @Test
-    public void getTags() {
-        try {
+    public void getTags() throws JSONException {
+
             String[] expected = {"testTag1", "testTag2" ,"testTag3"};
             String[] actual = testElement.getTags();
 
 
             assertArrayEquals(expected, actual);
-
-        } catch (JSONException e) {
-
-        }
     }
 
 
@@ -91,43 +95,69 @@ public class TestElementTest {
     }
 
     @Test
-    public void getNotes() {
-        try {
+    public void getNotes() throws JSONException {
             String expected = "testNote";
             String actual = testElement.getNotes();
 
             assertEquals(expected, actual);
 
-        } catch (JSONException e) {
-
-        }
-
     }
 
     @Test
-    public void getConfidence() {
-        try {
+    public void getConfidence() throws JSONException {
             float expected = 1;
             float actual = testElement.getConfidence();
 
             assertEquals(expected, actual, 0);
 
-        } catch (JSONException e) {
-
-        }
     }
 
     @Test
-    public void getRecognizedText() {
-        try {
+    public void getRecognizedText() throws JSONException {
             String expected = "testRecogText";
             String actual = testElement.getRecognizedText();
 
             assertEquals(expected, actual);
-
-        } catch (JSONException e) {
-
-        }
     }
 
+    @Test
+    public void getAlterationsNames() {
+        String[] expected = {"alteration10.jpeg", "alteration11.jpeg"};
+        String[] actual = testElement.getAlterationsNames();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void getAlterationRecognizedText() throws JSONException {
+            String expected = "RecognizedText";
+            String actual = testElement.getAlterationRecognizedText("alteration10.jpeg");
+
+            assertEquals(expected, actual);
+
+            actual = testElement.getAlterationRecognizedText("alteration11.jpeg");
+
+            assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getAlterationConfidence() throws JSONException {
+            float expected = 1;
+            float actual = testElement.getAlterationConfidence("alteration10.jpeg");
+
+            assertEquals(expected, actual, 0);
+
+            actual= testElement.getAlterationConfidence("alteration11.jpeg");
+
+            assertEquals(expected, actual, 0);
+
+    }
+
+    @Test
+    public void getAlterationNotes() throws JSONException {
+        String expected = "alterationTestNotes";
+        String actual = testElement.getAlterationNotes("alteration10.jpeg");
+
+        assertEquals(expected,actual);
+    }
 }

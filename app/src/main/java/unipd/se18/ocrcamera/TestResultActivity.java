@@ -101,7 +101,14 @@ public class TestResultActivity extends AppCompatActivity {
                 }
             });
             this.tester = new PhotoTester(environment,dirName);
-            report = tester.testAndReport();
+
+            try {
+                report = tester.testAndReport();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                report = "Elaboration interrupted";
+            }
+
 
             runOnUiThread(new Runnable() {
                 @Override
