@@ -5,7 +5,6 @@ import android.util.Log;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt4;
-import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -39,7 +38,6 @@ public class ImageProcessing {
         //Load this image in grayscale
         Log.d("openCV", "Image path = "+imagePath);
         Mat img = Imgcodecs.imread( imagePath, Imgcodecs.IMREAD_GRAYSCALE );
-        Size size = img.size();
 
         //Invert the colors (because objects are represented as white pixels, and the background is represented by black pixels)
         Core.bitwise_not( img, img );
@@ -85,6 +83,5 @@ public class ImageProcessing {
         double degreesAngle = Math.toDegrees(meanAngle);
         Log.i("openCV", "Mean angle="+degreesAngle);
         return degreesAngle;
-
     }
 }
