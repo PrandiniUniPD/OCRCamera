@@ -25,25 +25,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfInt4;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
-import org.opencv.core.Point;
-import org.opencv.core.RotatedRect;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
-import static org.opencv.core.CvType.CV_8UC1;
-import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -66,9 +47,7 @@ public class ResultActivity extends AppCompatActivity {
         setContentView(R.layout.activity_result);
 
         //Load the openCV library
-        System.loadLibrary("opencv_java3");
-        Log.i("openCV", "Loaded the library");
-
+        ImageProcessing analyzeImage = new ImageProcessing();
 
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
@@ -89,7 +68,7 @@ public class ResultActivity extends AppCompatActivity {
         String pathImage = prefs.getString("imagePath", null);
         String OCRText = prefs.getString("text", null);
 
-        double angle = -computeSkew(pathImage);
+        double angle = -analyzeImage.computeSkew(pathImage);
 
         lastPhoto = rotateBitmap(BitmapFactory.decodeFile(pathImage), (float)angle);
 
@@ -226,53 +205,5 @@ public class ResultActivity extends AppCompatActivity {
         return rotatedBitmap;
     }
 
-
-    public double computeSkew(String inFile) {
-        //Load this image in grayscale
-        Log.d("openCV", "Image path = "+inFile);
-        Mat img = Imgcodecs.imread( inFile, Imgcodecs.IMREAD_GRAYSCALE );
-        Size size = img.size();
-
-        //Invert the colors (because objects are represented as white pixels, and the background is represented by black pixels)
-        Core.bitwise_not( img, img );
-
-        Imgproc.Canny(img, img, 50, 200, 3, false);
-
-        //Create a 4 dimensions vector usign matrix
-        MatOfInt4 lines = new MatOfInt4();
-
-        //Process the image with the Probabilistic Hough Transform
-        Imgproc.HoughLinesP(img, lines,  1, Math.PI/180, 50, 50, 10);
-
-        boolean isEmpty=lines.empty();
-        Log.d("openCV", "Lines empty = "+isEmpty);
-        Mat disp_lines = new Mat(size, CV_8UC1, new Scalar(0, 0, 0));
-        double angle=0;
-        Log.d("openCV", "rows = "+lines.cols()+"\ncols = "+lines.cols());
-
-        for (int i=0; i<lines.rows(); i++)
-        {
-            double[] vec = lines.get(i,0);
-            //Log.d("openCV", "Vec dimensions = "+vec.length);
-            double x1 = vec[0],
-                    y1 = vec[1],
-                    x2 = vec[2],
-                    y2 = vec[3];
-            Point start = new Point(x1, y1);
-            Point end = new Point(x2,y2);
-
-            Imgproc.line(disp_lines, start, end, new Scalar(255,0,0));
-
-            angle += Math.atan2(y2-y1, x2-x1);
-
-            //Log.d("openCV", "angle("+(i)+")="+angle);
-
-        }
-        angle /=lines.rows();
-        double degreesAngle = Math.toDegrees(angle);
-        Log.i("openCV", "Mean angle="+degreesAngle);
-        return degreesAngle;
-
-    }
 }
 
