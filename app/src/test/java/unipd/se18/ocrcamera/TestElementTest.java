@@ -160,4 +160,12 @@ public class TestElementTest {
 
         assertEquals(expected,actual);
     }
+
+    @Test
+    public void getAlterationTags() throws JSONException {
+        String[] expected = {"tagliata"};
+        String[] actual = testElement.getAlterationTags("alteration10.jpeg");
+
+        assertArrayEquals(expected, actual);
+    }
 }

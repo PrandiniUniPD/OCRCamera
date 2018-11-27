@@ -200,6 +200,25 @@ public class TestElement {
         return null;
     }
 
+    /**
+     * @param alterationName alterationName name of an existing alteration inside this test
+     * @return tags array, null  if there isn't any alteration named with the given param
+     * @throws JSONException
+     * @author Luca Moroldo - g3
+     */
+    public String[] getAlterationTags(String alterationName) throws JSONException {
+        JSONObject jsonAlterations = jsonObject.getJSONObject("alterations");
+        if(jsonAlterations != null) {
+            JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
+            if(jsonAlteration != null) {
+                return Utils.getStringArrayFromJSON(jsonAlteration, "tags");
+            } else {
+                Log.i("TestElement", "There is no alteration with name " + alterationName + " inside " + fileName);
+            }
+        }
+        return null;
+    }
+
     public JSONObject getJsonObject() { return jsonObject; }
 
     public void setConfidence(float confidence) throws JSONException { jsonObject.put("confidence", Float.toString(confidence)); }
