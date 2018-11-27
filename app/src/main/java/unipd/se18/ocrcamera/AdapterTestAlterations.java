@@ -38,7 +38,7 @@ public class AdapterTestAlterations extends BaseAdapter {
     private final String TAG = "AdapterTestElement";
 
     /**
-     * Defines an object of AdapterTestElement type
+     * Defines an object of AdapterTestAlterations type
      * @param context The reference to the activity where the adapter will be used
      * @param entry The list of the test elements containing data from photos test
      */
