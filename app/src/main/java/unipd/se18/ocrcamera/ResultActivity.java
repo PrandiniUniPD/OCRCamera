@@ -111,7 +111,7 @@ public class ResultActivity extends AppCompatActivity {
                 mBarcodeView.setText(R.string.barcode_not_found);
             } else {
                 //Show the text of the last image
-                mBarcodeView.setText(barcodeText);
+                mBarcodeView.setText(R.string.barcode_identifier + barcodeText);
             }
         } else{
             BarcodeReader barcodeTask = new BarcodeReader(mBarcodeView,"Processing");
@@ -245,7 +245,7 @@ public class ResultActivity extends AppCompatActivity {
                 rawBarcode = barcodeExtractor.getTextFromImg(lastPhoto);
                 if(rawBarcode.equals(""))
                 {
-                    final String finalTextRecognized = rawBarcode;
+                    final String finalTextRecognized = getString(R.string.barcode_not_found);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -255,7 +255,7 @@ public class ResultActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    final String finalTextRecognized = rawBarcode;
+                    final String finalTextRecognized = getString(R.string.barcode_identifier) + rawBarcode;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
