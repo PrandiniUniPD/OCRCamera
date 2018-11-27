@@ -99,7 +99,7 @@ public class PhotoTester {
 
                     } catch(JSONException e) {
                         e.printStackTrace();
-                        Log.e(TAG, "Error decoding JSON");
+                        Log.e(TAG, "Error parsing JSON");
                     }
                 }
             }
@@ -343,7 +343,6 @@ public class PhotoTester {
         private Semaphore semaphore;
 
         /**
-         *
          * @param jsonReport JSONObject containing tests data
          * @param test element of a test - must contain bitmap and ingredients fields
          * @param countDownLatch used to signal the task completion
@@ -358,7 +357,6 @@ public class PhotoTester {
 
         @Override
         public void run() {
-            try {
 
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
                 long started = java.lang.System.currentTimeMillis();
@@ -386,7 +384,12 @@ public class PhotoTester {
                     }
                 }
 
-                addTestElement(jsonReport, test);
+                try {
+                    addTestElement(jsonReport, test);
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
+                }
+
 
                 //done test process signal
                 countDownLatch.countDown();
@@ -396,10 +399,6 @@ public class PhotoTester {
 
                 //let start another task
                 semaphore.release();
-
-            }catch (JSONException e) {
-                Log.e(TAG, "Error elaborating JSON test element");
-            }
         }
     }
 
@@ -407,6 +406,7 @@ public class PhotoTester {
      * Puts the json object of the TestElement inside the JSONObject jsonReport, multi thread safe
      * @param jsonReport the report containing tests in JSON format
      * @param test element of a test
+     * @modify jsonReport
      * @throws JSONException
      * @author Luca Moroldo (g3)
      */
@@ -418,7 +418,7 @@ public class PhotoTester {
     * Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
     * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
     */
-    public HashMap getTagsStats() throws JSONException {
+    public HashMap getTagsStats() {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
 
@@ -449,7 +449,7 @@ public class PhotoTester {
      * Convert statistics returned by getTagsStats() into a readable text
      * @author Francesco Pham (g3)
      */
-    public String getTagsStatsString() throws JSONException {
+    public String getTagsStatsString() {
         HashMap tagsStats = getTagsStats();
         String report = "Average confidence by tags: \n";
         while(!tagsStats.isEmpty()){

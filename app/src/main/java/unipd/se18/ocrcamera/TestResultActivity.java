@@ -6,18 +6,16 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.json.JSONException;
 
 import java.io.File;
 
@@ -127,11 +125,9 @@ public class TestResultActivity extends AppCompatActivity {
             //add statistics author: Francesco Pham
             TextView statsView = new TextView(TestResultActivity.this);
             String statsText = "";
-            try {
-                statsText = tester.getTagsStatsString();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+
+            statsText = tester.getTagsStatsString();
+
             statsView.setText(statsText);
             listEntriesView.addHeaderView(statsView);
         }

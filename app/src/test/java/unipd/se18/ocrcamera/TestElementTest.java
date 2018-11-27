@@ -31,10 +31,11 @@ public class TestElementTest {
             "\t\"notes\": \"testNote\",\n" +
             "\t\"original_name\": \"testOriginalName.jpg\"\n" +
             "}";
+
     private TestElement testElement;
 
     @Before
-    public void init()  throws JSONException{
+    public void init()  throws JSONException {
 
         JSONObject jsonElement = new JSONObject(testString);
 
@@ -49,13 +50,10 @@ public class TestElementTest {
                 testElement.setAlterationConfidence(alterationName, 1);
             }
 
-
-
-
     }
 
     @Test
-    public void getIngredientsArray() throws JSONException {
+    public void getIngredientsArray() {
             String[] expected = {"testIng1", "testIng2" ,"TestIng3"};
             String[] actual = testElement.getIngredientsArray();
 
@@ -65,7 +63,7 @@ public class TestElementTest {
     }
 
     @Test
-    public void getIngredients() throws JSONException {
+    public void getIngredients() {
             String expected = "testIng1, testIng2 ,TestIng3";
             String actual = testElement.getIngredients();
 
@@ -74,7 +72,7 @@ public class TestElementTest {
     }
 
     @Test
-    public void getTags() throws JSONException {
+    public void getTags() {
 
             String[] expected = {"testTag1", "testTag2" ,"testTag3"};
             String[] actual = testElement.getTags();
@@ -95,7 +93,7 @@ public class TestElementTest {
     }
 
     @Test
-    public void getNotes() throws JSONException {
+    public void getNotes() {
             String expected = "testNote";
             String actual = testElement.getNotes();
 
@@ -104,7 +102,7 @@ public class TestElementTest {
     }
 
     @Test
-    public void getConfidence() throws JSONException {
+    public void getConfidence() {
             float expected = 1;
             float actual = testElement.getConfidence();
 
@@ -113,7 +111,7 @@ public class TestElementTest {
     }
 
     @Test
-    public void getRecognizedText() throws JSONException {
+    public void getRecognizedText() {
             String expected = "testRecogText";
             String actual = testElement.getRecognizedText();
 
@@ -129,7 +127,7 @@ public class TestElementTest {
     }
 
     @Test
-    public void getAlterationRecognizedText() throws JSONException {
+    public void getAlterationRecognizedText() {
             String expected = "RecognizedText";
             String actual = testElement.getAlterationRecognizedText("alteration10.jpeg");
 
@@ -141,7 +139,7 @@ public class TestElementTest {
     }
 
     @Test
-    public void getAlterationConfidence() throws JSONException {
+    public void getAlterationConfidence() {
             float expected = 1;
             float actual = testElement.getAlterationConfidence("alteration10.jpeg");
 
@@ -154,7 +152,7 @@ public class TestElementTest {
     }
 
     @Test
-    public void getAlterationNotes() throws JSONException {
+    public void getAlterationNotes() {
         String expected = "alterationTestNotes";
         String actual = testElement.getAlterationNotes("alteration10.jpeg");
 
@@ -162,7 +160,7 @@ public class TestElementTest {
     }
 
     @Test
-    public void getAlterationTags() throws JSONException {
+    public void getAlterationTags() {
         String[] expected = {"tagliata"};
         String[] actual = testElement.getAlterationTags("alteration10.jpeg");
 

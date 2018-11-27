@@ -17,6 +17,8 @@ import java.util.Iterator;
 
 public class TestElement {
 
+    private static final String TAG = "TestElement";
+
     private Bitmap picture;
     private JSONObject jsonObject;
     private String fileName;
@@ -27,6 +29,7 @@ public class TestElement {
      * @param picture Bitmap associated to the jsonObject
      * @param jsonObject JSONObject containing test data (ingredients, tags, notes, alterations if any)
      * @param fileName name of the test
+     * @author Luca Moroldo - g3
      */
     public TestElement(Bitmap picture, JSONObject jsonObject, String fileName) {
         this.picture = picture;
@@ -45,21 +48,44 @@ public class TestElement {
     /**
      * Array of Strings, each string is an ingredient, ingredients are separated on comma
      * @return Array of strings, each string is an ingredient
-     * @throws JSONException
      */
-    public String[] getIngredientsArray() throws JSONException {
+    public String[] getIngredientsArray() {
         String ingredients = getIngredients();
         String[] ingredientsArr = ingredients.trim().split("\\s*,\\s*"); //split removing whitespaces
         return ingredientsArr;
     }
 
-    public String getIngredients() throws  JSONException {
-        String ingredients = jsonObject.getString("ingredients");
-        return ingredients;
+    /**
+     * @return string with key 'ingredients' if exist, null otherwise
+     * @author Luca Moroldo - g3
+     */
+    public String getIngredients() {
+        try {
+            String ingredients = jsonObject.getString("ingredients");
+            return ingredients;
+        } catch (JSONException e) {
+            Log.i(TAG, "No ingredient found in test " + fileName);
+        }
+        return null;
     }
 
-    public String[] getTags() throws JSONException { return Utils.getStringArrayFromJSON(jsonObject, "tags"); }
+    /**
+     * @return array of strings with key 'tags' if exist, null otherwise
+     * @author Luca Moroldo - g3
+     */
+    public String[] getTags() {
+        try {
+            return Utils.getStringArrayFromJSON(jsonObject, "tags");
+        } catch (JSONException e) {
+            Log.i(TAG, "No tag found in test " + fileName);
+        }
+        return null;
+    }
 
+    /**
+     *
+     * @return Bitmap associated to this test if it has been set, null otherwise
+     */
     public Bitmap getPicture() {
         return picture;
     }
@@ -69,11 +95,17 @@ public class TestElement {
     }
 
     /**
-     *
-     * @return String with notes associated with the test, can be empty
-     * @throws JSONException
+     * @return String with key 'notes' if exist, can be empty
+     * @author Luca Moroldo - g3
      */
-    public String getNotes() throws JSONException { return jsonObject.getString("notes"); }
+    public String getNotes() {
+        try {
+            return jsonObject.getString("notes");
+        } catch (JSONException e) {
+            Log.i(TAG, "No note found in test " + fileName);
+        }
+        return null;
+    }
 
     /**
      * Getter for alterations filenames of a test (e.g. cropped photo) if any
@@ -82,47 +114,50 @@ public class TestElement {
      */
     public String[] getAlterationsNames() {
 
+        JSONObject alterations = null;
         try {
-            JSONObject alterations = jsonObject.getJSONObject("alterations");
-            if(alterations != null) {
-                ArrayList<String> alterationsNames= new ArrayList<String>();
-
-                Iterator<String> keys = alterations.keys();
-
-                while(keys.hasNext()) {
-                    String key = keys.next();
-                    alterationsNames.add(key);
-                }
-
-                return alterationsNames.toArray(new String[0]);
-            }
-
+            alterations = jsonObject.getJSONObject("alterations");
         } catch (JSONException e) {
-            Log.i("TestElement", "No alteration associated to " + fileName);
+            Log.i(TAG, "No alteration found in " + fileName);
+            return null;
         }
-        return null;
+
+        ArrayList<String> alterationsNames= new ArrayList<String>();
+
+        Iterator<String> keys = alterations.keys();
+
+        while(keys.hasNext()) {
+            String key = keys.next();
+            alterationsNames.add(key);
+        }
+
+        return alterationsNames.toArray(new String[0]);
     }
 
     /**
-     * @return confidence if set, -1 otherwise
-     * @throws JSONException
+     * @return Float confidence if set, -1 otherwise
+     * @author Luca Moroldo - g3
      */
-    public float getConfidence() throws JSONException {
-        String confidence = jsonObject.getString("confidence");
-        if(confidence != null)
+    public float getConfidence() {
+        try {
+            String confidence = jsonObject.getString("confidence");
             return Float.parseFloat(confidence);
-        else
-            return -1;
+        } catch (JSONException e) {
+            Log.i(TAG, "No tag found in test " + fileName);
+        }
+        return -1;
     }
 
     /**
-     * @return recognized text if set, null otherwise
-     * @throws JSONException
+     * @return String recognized text if set, null otherwise
+     * @author Luca Moroldo - g3
      */
-    public String getRecognizedText() throws  JSONException {
-        String recognizedText = jsonObject.getString("extracted_text");
-        if(recognizedText != null)
-            return recognizedText;
+    public String getRecognizedText() {
+        try {
+            return jsonObject.getString("extracted_text");
+        } catch (JSONException e) {
+            Log.i(TAG, "No recognized text found in test " + fileName);
+        }
         return null;
     }
 
@@ -130,20 +165,31 @@ public class TestElement {
      * Get an alteration extracted text
      * @param alterationName name of an existing alteration inside this test
      * @return alteration recognized text if it's set, null if recognized text hasn't been set or if there isn't any alteration named with the given param
-     * @throws JSONException
      * @author Luca Moroldo - g3
      */
-    public String getAlterationRecognizedText(String alterationName) throws JSONException {
-        JSONObject jsonAlterations = jsonObject.getJSONObject("alterations");
-        if(jsonAlterations != null) {
+    public String getAlterationRecognizedText(String alterationName) {
+        JSONObject jsonAlterations = null;
+        try {
+            jsonAlterations = jsonObject.getJSONObject("alterations");
+        } catch (JSONException e) {
+            Log.i(TAG, "No alteration found in " + fileName);
+            return null;
+        }
+
+        try {
+
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
 
-            if(jsonAlteration != null) {
+            try {
                 return jsonAlteration.getString("extracted_text");
-            } else {
-                Log.i("TestElement", "There is no alteration with name " + alterationName + " inside " + fileName);
+            } catch (JSONException e) {
+            Log.i(TAG, "There is no confidence set in altaration " + alterationName + " inside test " + fileName);
             }
+
+        } catch (JSONException e) {
+            Log.i(TAG, "There is no alteration with name " + alterationName + " inside test " + fileName);
         }
+
         return null;
     }
 
@@ -151,20 +197,30 @@ public class TestElement {
      * Get an alteration confidence
      * @param alterationName name of an existing alteration inside this test
      * @return confidence if it has been set, -1 if the confidence hasn't been set or if there isn't any alteration named with the given param
-     * @throws JSONException
      * @author Luca Moroldo - g3
      */
-    public float getAlterationConfidence(String alterationName) throws JSONException {
-        JSONObject jsonAlterations = jsonObject.getJSONObject("alterations");
-        if(jsonAlterations != null) {
+    public float getAlterationConfidence(String alterationName) {
+
+        JSONObject jsonAlterations = null;
+        try {
+            jsonAlterations = jsonObject.getJSONObject("alterations");
+        } catch (JSONException e) {
+            Log.i(TAG, "No alteration found in " + fileName);
+            return -1;
+        }
+
+        try {
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
-            if(jsonAlteration != null) {
+
+            try {
                 String confidence = jsonAlteration.getString("confidence");
-                if(confidence != null)
-                    return Float.parseFloat(confidence);
-            } else {
-                Log.i("TestElement", "There is no alteration with name " + alterationName + " inside " + fileName);
+                return Float.parseFloat(confidence);
+            } catch (JSONException e) {
+                Log.i(TAG, "There is no confidence set in altaration " + alterationName + " inside test " + fileName);
             }
+
+        } catch (JSONException e) {
+            Log.i(TAG, "There is no alteration with name " + alterationName + " inside test " + fileName);
         }
         return -1;
     }
@@ -183,52 +239,102 @@ public class TestElement {
 
     /**
      * @param alterationName alterationName name of an existing alteration inside this test
-     * @return notes text set, null if notes text have not been set or if there isn't any alteration named with the given param
-     * @throws JSONException
+     * @return notes text, null if there isn't any alteration named with the given param
      * @author Luca Moroldo - g3
      */
-    public String getAlterationNotes(String alterationName) throws JSONException {
-        JSONObject jsonAlterations = jsonObject.getJSONObject("alterations");
-        if(jsonAlterations != null) {
-            JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
-            if(jsonAlteration != null) {
-                return jsonAlteration.getString("notes");
-            } else {
-                Log.i("TestElement", "There is no alteration with name " + alterationName + " inside " + fileName);
-            }
+    public String getAlterationNotes(String alterationName) {
+        JSONObject jsonAlterations = null;
+        try {
+            jsonAlterations = jsonObject.getJSONObject("alterations");
+        } catch (JSONException e) {
+            Log.i(TAG, "No alteration found in " + fileName);
+            return null;
         }
+
+        try {
+
+            JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
+
+            try {
+                return jsonAlteration.getString("notes");
+            } catch (JSONException e) {
+                Log.i(TAG, "There is no notes set in altaration " + alterationName + " inside test " + fileName);
+            }
+
+        } catch (JSONException e) {
+            Log.i(TAG, "There is no alteration with name " + alterationName + " inside test " + fileName);
+        }
+
         return null;
     }
 
     /**
      * @param alterationName alterationName name of an existing alteration inside this test
      * @return tags array, null  if there isn't any alteration named with the given param
-     * @throws JSONException
      * @author Luca Moroldo - g3
      */
-    public String[] getAlterationTags(String alterationName) throws JSONException {
-        JSONObject jsonAlterations = jsonObject.getJSONObject("alterations");
-        if(jsonAlterations != null) {
-            JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
-            if(jsonAlteration != null) {
-                return Utils.getStringArrayFromJSON(jsonAlteration, "tags");
-            } else {
-                Log.i("TestElement", "There is no alteration with name " + alterationName + " inside " + fileName);
-            }
+    public String[] getAlterationTags(String alterationName) {
+
+        JSONObject jsonAlterations = null;
+        try {
+            jsonAlterations = jsonObject.getJSONObject("alterations");
+        } catch (JSONException e) {
+            Log.i(TAG, "No alteration found in " + fileName);
+            return null;
         }
+
+        try {
+
+            JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
+
+            try {
+                return Utils.getStringArrayFromJSON(jsonAlteration, "tags");
+            } catch (JSONException e) {
+                Log.i(TAG, "There are no tags set in altaration " + alterationName + " inside test " + fileName);
+            }
+
+        } catch (JSONException e) {
+            Log.i(TAG, "There is no alteration with name " + alterationName + " inside test " + fileName);
+        }
+
         return null;
     }
 
+    /**
+     * @return JSONObject associated to this test
+     */
     public JSONObject getJsonObject() { return jsonObject; }
 
-    public void setConfidence(float confidence) throws JSONException { jsonObject.put("confidence", Float.toString(confidence)); }
-
-    public void setRecognizedText(String text) throws JSONException { jsonObject.put("extracted_text", text); }
+    /**
+     * @param confidence Float that will be associated to this test with key 'confidence'
+     * @modify jsonObject of this TestElement
+     */
+    public void setConfidence(float confidence) {
+        try {
+            jsonObject.put("confidence", Float.toString(confidence));
+        } catch (JSONException e) {
+            Log.i(TAG, "Failed to set confidence in test " + fileName);
+        }
+    }
 
     /**
-     * associate a bitmap file to an alteration of a test
+     * @param text String that will be set in this test with key 'extracted_text'
+     * @modify jsonObject of this TestElement
+     * @author Luca Moroldo - g3
+     */
+    public void setRecognizedText(String text) {
+        try {
+            jsonObject.put("extracted_text", text);
+        } catch (JSONException e) {
+            Log.i(TAG, "Failed to set recognized text in test " + fileName);
+        }
+    }
+
+    /**
+     * associate a bitmap file to an alteration of this test
      * @param alterationName name of an existing alteration inside this test
      * @param bitmap image related to the test alteration
+     * @modify jsonObject of this TestElement
      * @return true if bitmap was set correctly, false if alteration name doesn't exist
      * @author Luca Moroldo - g3
      */
@@ -245,36 +351,51 @@ public class TestElement {
      * @param alterationName alterationName name of an existing alteration inside this test
      * @param text recognized text of the alteration that will be set
      * @modify jsonObject of this TestElement
-     * @throws JSONException
      * @author Luca Moroldo - g3
      */
-    public void setAlterationRecognizedText(String alterationName, String text) throws JSONException {
-        JSONObject jsonAlterations = jsonObject.getJSONObject("alterations");
-        if(jsonAlterations != null) {
+    public void setAlterationRecognizedText(String alterationName, String text) {
+
+        JSONObject jsonAlterations = null;
+        try {
+            jsonAlterations = jsonObject.getJSONObject("alterations");
+        } catch (JSONException e) {
+            Log.i(TAG, "No alteration found in " + fileName);
+            return;
+        }
+
+        try {
+
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
-            if(jsonAlteration != null) {
-                jsonAlteration.put("extracted_text", text);
-            } else {
-                Log.i("TestElement", "There is no alteration with name " + alterationName + " inside " + fileName);
-            }
+            jsonAlteration.put("extracted_text", text);
+
+        } catch (JSONException e) {
+            Log.i(TAG, "There is no alteration with name " + alterationName + " inside test " + fileName);
         }
     }
 
     /**
      * @param alterationName alterationName name of an existing alteration inside this test
      * @param alterationConfidence value of the confidence of the alteration that will be set
-     * @throws JSONException
+     * @modify jsonObject of this TestElement
      * @author Luca Moroldo - g3
      */
-    public void setAlterationConfidence(String alterationName, float alterationConfidence) throws JSONException {
-        JSONObject jsonAlterations = jsonObject.getJSONObject("alterations");
-        if(jsonAlterations != null) {
+    public void setAlterationConfidence(String alterationName, float alterationConfidence) {
+
+        JSONObject jsonAlterations = null;
+        try {
+            jsonAlterations = jsonObject.getJSONObject("alterations");
+        } catch (JSONException e) {
+            Log.i(TAG, "No alteration found in " + fileName);
+            return;
+        }
+
+        try {
+
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
-            if(jsonAlteration != null) {
-                jsonAlteration.put("confidence", Float.toString(alterationConfidence));
-            } else {
-                Log.i("TestElement", "There is no alteration with name " + alterationName + " inside " + fileName);
-            }
+            jsonAlteration.put("confidence", Float.toString(alterationConfidence));
+
+        } catch (JSONException e) {
+            Log.i(TAG, "There is no alteration with name " + alterationName + " inside test " + fileName);
         }
     }
 

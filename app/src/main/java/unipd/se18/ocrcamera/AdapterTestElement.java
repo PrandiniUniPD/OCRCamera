@@ -14,8 +14,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.json.JSONException;
-
 import java.text.DecimalFormat;
 
 /**
@@ -70,72 +68,68 @@ public class AdapterTestElement extends BaseAdapter
         }
 
         // Set the correctness value
-        try {
-            TextView correctness = convertView.findViewById(R.id.correctness_view);
-            float confidence = entries[position].getConfidence();
-            String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
+        TextView correctness = convertView.findViewById(R.id.correctness_view);
+        float confidence = entries[position].getConfidence();
+        String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
 
-            // Set the color of the correctness
-            if(confidence < 70) {
-                correctness.setTextColor(Color.RED);
-            } else if (confidence < 85) {
-                correctness.setTextColor(Color.YELLOW);
-            } else {
-                correctness.setTextColor(Color.GREEN);
-            }
-
-            correctness.setText(confidenceText);
-
-            // Set the name of the pic
-            TextView name = convertView.findViewById(R.id.pic_name_view);
-            String picName = entries[position].getFileName();
-            name.setText(picName);
-
-            // Set the pic view
-            ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
-            Bitmap img = entries[position].getPicture();
-
-            // Scaling the pic view
-            int imgWidth = img.getWidth();
-            int imgHeight = img.getHeight();
-            WindowManager mWindowManager = (WindowManager) convertView.getContext()
-                    .getSystemService(Context.WINDOW_SERVICE);
-            DisplayMetrics mDisplayMetrics = new DisplayMetrics();
-            Display mDisplay = mWindowManager.getDefaultDisplay();
-            mDisplay.getMetrics(mDisplayMetrics);
-            int scaledWidth = mDisplayMetrics.widthPixels;
-            int scaledHeight = (scaledWidth*imgHeight)/imgWidth;
-
-            Log.v(TAG,"pic \"" + picName + "\" scaled from " + imgWidth + "x" + imgHeight +
-                    " to " + scaledWidth + "x" + scaledHeight);
-            analyzedPic.setImageBitmap(Bitmap.createScaledBitmap(img, scaledWidth, scaledHeight,false));
-
-            // Set the Tags text
-            TextView tags = convertView.findViewById(R.id.tags_view);
-            StringBuilder assignedTags = new StringBuilder();
-            for(String tag: entries[position].getTags()) {
-                assignedTags.append(tag).append(", ");
-            }
-            tags.setText(assignedTags.toString());
-
-            // Set the ingredients text
-            TextView ingredients = convertView.findViewById(R.id.ingredients_view);
-            StringBuilder realIngredients = new StringBuilder();
-            for(String ingredient: entries[position].getIngredientsArray()) {
-                realIngredients.append(ingredient).append(", ");
-            }
-            ingredients.setText(realIngredients);
-
-            // Set the extracted text
-            TextView extractedText = convertView.findViewById(R.id.extractedText_view);
-            extractedText.setText(entries[position].getRecognizedText());
-
-            // Set the notes text
-            TextView notes = convertView.findViewById(R.id.notes_view);
-            notes.setText(entries[position].getNotes());
-        } catch (JSONException e) {
-            e.printStackTrace();
+        // Set the color of the correctness
+        if(confidence < 70) {
+            correctness.setTextColor(Color.RED);
+        } else if (confidence < 85) {
+            correctness.setTextColor(Color.YELLOW);
+        } else {
+            correctness.setTextColor(Color.GREEN);
         }
+
+        correctness.setText(confidenceText);
+
+        // Set the name of the pic
+        TextView name = convertView.findViewById(R.id.pic_name_view);
+        String picName = entries[position].getFileName();
+        name.setText(picName);
+
+        // Set the pic view
+        ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
+        Bitmap img = entries[position].getPicture();
+
+        // Scaling the pic view
+        int imgWidth = img.getWidth();
+        int imgHeight = img.getHeight();
+        WindowManager mWindowManager = (WindowManager) convertView.getContext()
+                .getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics mDisplayMetrics = new DisplayMetrics();
+        Display mDisplay = mWindowManager.getDefaultDisplay();
+        mDisplay.getMetrics(mDisplayMetrics);
+        int scaledWidth = mDisplayMetrics.widthPixels;
+        int scaledHeight = (scaledWidth*imgHeight)/imgWidth;
+
+        Log.v(TAG,"pic \"" + picName + "\" scaled from " + imgWidth + "x" + imgHeight +
+                " to " + scaledWidth + "x" + scaledHeight);
+        analyzedPic.setImageBitmap(Bitmap.createScaledBitmap(img, scaledWidth, scaledHeight,false));
+
+        // Set the Tags text
+        TextView tags = convertView.findViewById(R.id.tags_view);
+        StringBuilder assignedTags = new StringBuilder();
+        for(String tag: entries[position].getTags()) {
+            assignedTags.append(tag).append(", ");
+        }
+        tags.setText(assignedTags.toString());
+
+        // Set the ingredients text
+        TextView ingredients = convertView.findViewById(R.id.ingredients_view);
+        StringBuilder realIngredients = new StringBuilder();
+        for(String ingredient: entries[position].getIngredientsArray()) {
+            realIngredients.append(ingredient).append(", ");
+        }
+        ingredients.setText(realIngredients);
+
+        // Set the extracted text
+        TextView extractedText = convertView.findViewById(R.id.extractedText_view);
+        extractedText.setText(entries[position].getRecognizedText());
+
+        // Set the notes text
+        TextView notes = convertView.findViewById(R.id.notes_view);
+        notes.setText(entries[position].getNotes());
 
         // return the view of the entry
         return convertView;
