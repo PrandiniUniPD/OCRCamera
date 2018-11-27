@@ -375,7 +375,11 @@ public class PhotoTester {
                 if(alterationsFileNames != null) {
                     for(String alterationFilename : alterationsFileNames) {
 
-                        String alterationExtractedIngredients = executeOcr(test.getAlterationBitmap(alterationFilename));
+                        Bitmap alterationBitmap = test.getAlterationBitmap(alterationFilename);
+                        String alterationExtractedIngredients = "";
+                        if(alterationBitmap != null) {
+                            alterationExtractedIngredients = executeOcr(alterationBitmap);
+                        }
                         float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
 
                         //insert results
