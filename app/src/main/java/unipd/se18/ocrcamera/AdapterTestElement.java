@@ -153,7 +153,7 @@ public class AdapterTestElement extends BaseAdapter
                     @Override
                     public void onClick(View v) {
                         Intent i = new Intent(context,TestAlterationsActivity.class);
-                        //i.putExtra("entry",entries[position]);
+                        TestAlterationsActivity.entry = entries[position];
                         context.startActivity(i);
                     }
                 });
