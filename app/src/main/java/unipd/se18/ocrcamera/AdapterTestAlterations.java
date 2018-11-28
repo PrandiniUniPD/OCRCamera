@@ -68,6 +68,7 @@ public class AdapterTestAlterations extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {if (convertView == null) {
         convertView = LayoutInflater.from(context).inflate(R.layout.test_alteration_element, parent, false);
     }
+        Log.v(TAG, "position == " + position + ", name == " + entry.getAlterationsNames()[position]);
         // Set the correctness value
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entry.getAlterationConfidence(entry.getAlterationsNames()[position]);
