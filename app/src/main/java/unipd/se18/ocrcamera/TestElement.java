@@ -19,6 +19,13 @@ public class TestElement {
 
     private static final String TAG = "TestElement";
 
+    private static final String NOTES_KEY = "notes";
+    private static final String EXTRACTED_TEST_KEY = "extracted_text";
+    private static final String TAGS_KEY = "tags";
+    private static final String INGREDIENTS_KEY = "ingredients";
+    private static final String ALTERATIONS_KEY = "alterations";
+    private static final String CONFIDENCE_KEY = "confidence";
+
     private Bitmap picture;
     private JSONObject jsonObject;
     private String fileName;
@@ -61,7 +68,7 @@ public class TestElement {
      */
     public String getIngredients() {
         try {
-            String ingredients = jsonObject.getString("ingredients");
+            String ingredients = jsonObject.getString(INGREDIENTS_KEY);
             return ingredients;
         } catch (JSONException e) {
             Log.i(TAG, "getIngredients: No ingredient found in test " + fileName);
@@ -75,7 +82,7 @@ public class TestElement {
      */
     public String[] getTags() {
         try {
-            return Utils.getStringArrayFromJSON(jsonObject, "tags");
+            return Utils.getStringArrayFromJSON(jsonObject, TAGS_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "getTags: No tag found in test " + fileName);
         }
@@ -83,7 +90,6 @@ public class TestElement {
     }
 
     /**
-     *
      * @return Bitmap associated to this test if it has been set, null otherwise
      */
     public Bitmap getPicture() {
@@ -100,7 +106,7 @@ public class TestElement {
      */
     public String getNotes() {
         try {
-            return jsonObject.getString("notes");
+            return jsonObject.getString(NOTES_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "getNotes: no note found in test " + fileName);
         }
@@ -116,7 +122,7 @@ public class TestElement {
 
         JSONObject alterations = null;
         try {
-            alterations = jsonObject.getJSONObject("alterations");
+            alterations = jsonObject.getJSONObject(ALTERATIONS_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "getAlterationsNames: no alteration found in " + fileName);
             return null;
@@ -140,7 +146,7 @@ public class TestElement {
      */
     public float getConfidence() {
         try {
-            String confidence = jsonObject.getString("confidence");
+            String confidence = jsonObject.getString(CONFIDENCE_KEY);
             return Float.parseFloat(confidence);
         } catch (JSONException e) {
             Log.i(TAG, "getConfidence: No tag found in test " + fileName);
@@ -154,7 +160,7 @@ public class TestElement {
      */
     public String getRecognizedText() {
         try {
-            return jsonObject.getString("extracted_text");
+            return jsonObject.getString(EXTRACTED_TEST_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "getRecognizedText: No recognized text found in test " + fileName);
         }
@@ -170,7 +176,7 @@ public class TestElement {
     public String getAlterationRecognizedText(String alterationName) {
         JSONObject jsonAlterations = null;
         try {
-            jsonAlterations = jsonObject.getJSONObject("alterations");
+            jsonAlterations = jsonObject.getJSONObject(ALTERATIONS_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "getAlterationRecognizedText: No alteration found in " + fileName + " with name " + alterationName);
             return null;
@@ -181,7 +187,7 @@ public class TestElement {
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
 
             try {
-                return jsonAlteration.getString("extracted_text");
+                return jsonAlteration.getString(EXTRACTED_TEST_KEY);
             } catch (JSONException e) {
             Log.i(TAG, "getAlterationRecognizedText: There is no confidence set in altaration " + alterationName + " inside test " + fileName);
             }
@@ -203,7 +209,7 @@ public class TestElement {
 
         JSONObject jsonAlterations = null;
         try {
-            jsonAlterations = jsonObject.getJSONObject("alterations");
+            jsonAlterations = jsonObject.getJSONObject(ALTERATIONS_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "getAlterationConfidence: No alteration found in " + fileName + " with name " + alterationName);
             return -1;
@@ -213,7 +219,7 @@ public class TestElement {
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
 
             try {
-                String confidence = jsonAlteration.getString("confidence");
+                String confidence = jsonAlteration.getString(CONFIDENCE_KEY);
                 return Float.parseFloat(confidence);
             } catch (JSONException e) {
                 Log.i(TAG, "getAlterationConfidence: There is no confidence set in altaration " + alterationName + " inside test " + fileName);
@@ -247,7 +253,7 @@ public class TestElement {
     public String getAlterationNotes(String alterationName) {
         JSONObject jsonAlterations = null;
         try {
-            jsonAlterations = jsonObject.getJSONObject("alterations");
+            jsonAlterations = jsonObject.getJSONObject(ALTERATIONS_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "getAlterationNotes: No alteration found in " + fileName + " with name " + alterationName);
             return null;
@@ -258,7 +264,7 @@ public class TestElement {
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
 
             try {
-                return jsonAlteration.getString("notes");
+                return jsonAlteration.getString(NOTES_KEY);
             } catch (JSONException e) {
                 Log.i(TAG, "getAlterationNotes: There is no notes set in altaration " + alterationName + " inside test " + fileName);
             }
@@ -279,7 +285,7 @@ public class TestElement {
 
         JSONObject jsonAlterations = null;
         try {
-            jsonAlterations = jsonObject.getJSONObject("alterations");
+            jsonAlterations = jsonObject.getJSONObject(ALTERATIONS_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "getAlterationTags: No alteration found in " + fileName + " with name " + alterationName);
             return null;
@@ -290,7 +296,7 @@ public class TestElement {
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
 
             try {
-                return Utils.getStringArrayFromJSON(jsonAlteration, "tags");
+                return Utils.getStringArrayFromJSON(jsonAlteration, TAGS_KEY);
             } catch (JSONException e) {
                 Log.i(TAG, "getAlterationTags: There are no tags set in altaration " + alterationName + " inside test " + fileName);
             }
@@ -313,7 +319,7 @@ public class TestElement {
      */
     public void setConfidence(float confidence) {
         try {
-            jsonObject.put("confidence", Float.toString(confidence));
+            jsonObject.put(CONFIDENCE_KEY, Float.toString(confidence));
         } catch (JSONException e) {
             Log.i(TAG, "setConfidence: Failed to set confidence in test " + fileName);
         }
@@ -326,7 +332,7 @@ public class TestElement {
      */
     public void setRecognizedText(String text) {
         try {
-            jsonObject.put("extracted_text", text);
+            jsonObject.put(EXTRACTED_TEST_KEY, text);
         } catch (JSONException e) {
             Log.i(TAG, "setRecognizedText: Failed to set recognized text in test " + fileName);
         }
@@ -360,7 +366,7 @@ public class TestElement {
 
         JSONObject jsonAlterations = null;
         try {
-            jsonAlterations = jsonObject.getJSONObject("alterations");
+            jsonAlterations = jsonObject.getJSONObject(ALTERATIONS_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "setAlterationRecognizedText: No alteration found in " + fileName + " with name " + alterationName);
             return;
@@ -369,7 +375,7 @@ public class TestElement {
         try {
 
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
-            jsonAlteration.put("extracted_text", text);
+            jsonAlteration.put(EXTRACTED_TEST_KEY, text);
 
         } catch (JSONException e) {
             Log.i(TAG, "setAlterationRecognizedText: There is no alteration with name " + alterationName + " inside test " + fileName);
@@ -386,7 +392,7 @@ public class TestElement {
 
         JSONObject jsonAlterations = null;
         try {
-            jsonAlterations = jsonObject.getJSONObject("alterations");
+            jsonAlterations = jsonObject.getJSONObject(ALTERATIONS_KEY);
         } catch (JSONException e) {
             Log.i(TAG, "setAlterationConfidence: No alteration found in " + fileName + " with name " + alterationName);
             return;
@@ -395,7 +401,7 @@ public class TestElement {
         try {
 
             JSONObject jsonAlteration = jsonAlterations.getJSONObject(alterationName);
-            jsonAlteration.put("confidence", Float.toString(alterationConfidence));
+            jsonAlteration.put(CONFIDENCE_KEY, Float.toString(alterationConfidence));
 
         } catch (JSONException e) {
             Log.i(TAG, "setAlterationConfidence: There is no alteration with name " + alterationName + " inside test " + fileName);

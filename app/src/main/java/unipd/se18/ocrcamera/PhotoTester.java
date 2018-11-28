@@ -43,6 +43,8 @@ public class PhotoTester {
     //stores the path of the directory containing test files
     private String dirPath;
 
+    private static final String REPORT_FILENAME = "report.txt";
+
 
     /**
      *
@@ -82,7 +84,7 @@ public class PhotoTester {
                         jsonPhotoDescription = new JSONObject(photoDesc);
                     } catch(JSONException e) {
                         e.printStackTrace();
-                        Log.e(TAG, "PhotoTester -> Error decoding JSON");
+                        Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
                     }
                     if(jsonPhotoDescription != null) {
                         TestElement originalTest = new TestElement(photoBitmap, jsonPhotoDescription, fileName);
@@ -128,7 +130,7 @@ public class PhotoTester {
 
 
     /**
-     * Elaborate tests using threads, stores the json report in string format to testReport.txt
+     * Elaborate tests using threads, stores the json report in string format to testReport.txt inside the directory given on construction
      * @return String in JSON format with the test's report, each object is a single test named with the filename and contains:
      * ingredients, tags, notes, original photo name, confidence and alterations (if any), each alteration contains alteration tags and alteration notes
      * @author Luca Moroldo (g3)
@@ -138,44 +140,42 @@ public class PhotoTester {
         Log.i(TAG,"testAndReport started");
         long started = java.lang.System.currentTimeMillis();
 
-        final JSONObject jsonReport = new JSONObject();
-
+        final JSONObject fullJsonReport = new JSONObject();
         int totalTestElements = testElements.size();
-
-        //stores the total number of tests
+        //countDownLatch is used to sync this method with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
         Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
 
+        //Semaphore used to be sure that each core won't run multiple tests in parallel
         Semaphore availableThread = new Semaphore(max_concurrent_tasks);
 
-        for(TestElement test : testElements){
+        for(TestElement singleTest : testElements){
             //wait for available thread
             availableThread.acquire();
 
             //launch thread
-            new Thread(new RunnableTest(jsonReport, test, countDownLatch, availableThread)).start();
-
+            new Thread(new RunnableTest(fullJsonReport, singleTest, countDownLatch, availableThread)).start();
         }
 
-        //wait for all tests to complete
+        //wait until all tests are completed
         countDownLatch.await();
 
         long ended = java.lang.System.currentTimeMillis();
         Log.i(TAG,"testAndReport ended (" + totalTestElements + " pics tested in " + (ended - started) + " ms)");
 
-        String report = jsonReport.toString();
+        String fullReport = fullJsonReport.toString();
 
         //write report to file
         try {
-            writeReportToExternalStorage(report, dirPath, "report.txt");
+            writeReportToExternalStorage(fullReport, dirPath, REPORT_FILENAME);
         } catch (IOException e) {
             Log.e(TAG, "Error writing report to file.");
             e.printStackTrace();
         }
 
-        return report;
+        return fullReport;
     }
 
     public TestElement[] getTestElements() {
@@ -298,7 +298,6 @@ public class PhotoTester {
         File file = new File(dirPath, fileName);
 
         file.createNewFile();
-
         FileOutputStream stream = null;
 
         try {
@@ -309,12 +308,10 @@ public class PhotoTester {
             } finally {
                 stream.close();
             }
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.e(TAG, "File not found");
         }
-
     }
 
 
@@ -382,7 +379,7 @@ public class PhotoTester {
                         }
                         float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
 
-                        //insert results
+                        //insert evaluation
                         test.setAlterationConfidence(alterationFilename, alterationConfidence);
                         test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
                     }
@@ -394,20 +391,18 @@ public class PhotoTester {
                     Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
                 }
 
-
-                //done test process signal
+                //signal the end of this single test
                 countDownLatch.countDown();
+                //release a core and let start another task
+                semaphore.release();
 
                 long ended = java.lang.System.currentTimeMillis();
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
-
-                //let start another task
-                semaphore.release();
         }
     }
 
     /**
-     * Puts the json object of the TestElement inside the JSONObject jsonReport, multi thread safe
+     * Add a single TestElement associated JSONReport inside the JSONObject jsonReport, multi-thread safe
      * @param jsonReport the report containing tests in JSON format
      * @param test element of a test
      * @modify jsonReport
