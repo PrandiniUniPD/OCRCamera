@@ -69,9 +69,6 @@ public class AdapterTestAlterations extends BaseAdapter {
         convertView = LayoutInflater.from(context).inflate(R.layout.test_alteration_element, parent, false);
     }
         // Set the correctness value
-
-        Button viewAlterationsButton = convertView.findViewById(R.id.view_alterations_button);
-        viewAlterationsButton.setEnabled(false);
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entry.getAlterationConfidence(entry.getAlterationsNames()[position]);
         String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
