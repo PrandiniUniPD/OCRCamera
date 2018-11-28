@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
@@ -11,8 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.json.JSONException;
 
 import java.text.DecimalFormat;
 
@@ -62,12 +66,15 @@ public class AdapterTestElement extends BaseAdapter
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
         }
 
         // Set the correctness value
+
+        Button viewAlterationsButton = convertView.findViewById(R.id.view_alterations_button);
+        viewAlterationsButton.setEnabled(false);
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entries[position].getConfidence();
         String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
@@ -130,6 +137,27 @@ public class AdapterTestElement extends BaseAdapter
         // Set the notes text
         TextView notes = convertView.findViewById(R.id.notes_view);
         notes.setText(entries[position].getNotes());
+
+
+        // Set alterations view
+        String[] alterations = entries[position].getAlterationsNames();
+
+        StringBuilder alterationsText = new StringBuilder();
+        for(String alteration: alterations) {
+            alterationsText.append(alteration).append(" - confidence ")
+                    .append(entries[position].getAlterationConfidence(alteration)).append("\n");
+        }
+        if(alterations.length > 0) {
+            viewAlterationsButton.setEnabled(false);
+            viewAlterationsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(context,TestAlterationsActivity.class);
+                    TestAlterationsActivity.entry = entries[position];
+                    context.startActivity(i);
+                }
+            });
+        }
 
         // return the view of the entry
         return convertView;
