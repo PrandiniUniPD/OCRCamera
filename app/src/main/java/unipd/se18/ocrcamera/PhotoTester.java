@@ -45,28 +45,28 @@ public class PhotoTester {
 
 
     /**
+     *
      * Load test elements (images + description)
      * @param environment environment where the function will look for the directory with dirName
      * @param dirName stores the name of the directory containing photos and description
      */
     public PhotoTester(File environment, String dirName) {
         File directory = getStorageDir(environment, dirName);
-
         dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
 
-
-        //create a TestElement for each original photo - then link all the alterations to the relative original TestElement
+        //create a TestElement object for each original photo - then link all the alterations to the relative original TestElement
         for(File file : directory.listFiles()) {
+
             String filePath = file.getPath();
             String fileName = Utils.getFilePrefix(filePath);
 
             //if the file is not an alteration then create a test element for it
             if(fileName.contains(PHOTO_BASE_NAME)) {
 
-                //check if extension is available
                 String fileExtension = Utils.getFileExtension(filePath);
 
+                //check if extension is available
                 if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
 
                     Bitmap photoBitmap = Utils.loadBitmapFromFile(filePath);
@@ -76,33 +76,34 @@ public class PhotoTester {
 
                     //create test element giving filename, description and bitmap
                     //author Luca Moroldo - g3
+
+                    JSONObject jsonPhotoDescription = null;
                     try {
-                        JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
+                        jsonPhotoDescription = new JSONObject(photoDesc);
+                    } catch(JSONException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "PhotoTester -> Error decoding JSON");
+                    }
+                    if(jsonPhotoDescription != null) {
                         TestElement originalTest = new TestElement(photoBitmap, jsonPhotoDescription, fileName);
 
                         //associate the relative bitmap to each alteration of the original test if there is any
                         String[] alterationsFilenames = originalTest.getAlterationsNames();
                         if(alterationsFilenames != null) {
-                            //search for alteration file
-                            for(File alterationCandidate : directory.listFiles()) {
-                                String alterationCandidateFileName = alterationCandidate.getName();
-                                if(Arrays.asList(alterationsFilenames).contains(alterationCandidateFileName)) {
-                                    Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationCandidate.getPath());
-                                    originalTest.setAlterationBitmap(alterationCandidateFileName, alterationBitmap);
-                                    
-                                }
+                            for(String alterationFilename : alterationsFilenames) {
+
+                                String alterationBitmapPath = dirPath + "/" + alterationFilename;
+                                Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationBitmapPath);
+
+                                //Utils.loadBitmapFromFile may return null
+                                if(alterationBitmap != null)
+                                    originalTest.setAlterationBitmap(alterationFilename, alterationBitmap);
                             }
                         }
-
                         testElements.add(originalTest);
-
-                    } catch(JSONException e) {
-                        e.printStackTrace();
-                        Log.e(TAG, "Error parsing JSON");
                     }
                 }
             }
-
         }
     }
 
