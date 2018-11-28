@@ -89,8 +89,7 @@ public class PhotoTester {
                                 if(Arrays.asList(alterationsFilenames).contains(alterationCandidateFileName)) {
                                     Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationCandidate.getPath());
                                     originalTest.setAlterationBitmap(alterationCandidateFileName, alterationBitmap);
-                                    //alteration found, break for loop
-                                    break;
+                                    
                                 }
                             }
                         }

@@ -112,6 +112,7 @@ public class AdapterTestAlterations extends BaseAdapter {
         // Set the Tags text
         TextView tags = convertView.findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
+
         for(String tag: entry.getAlterationTags(entry.getAlterationsNames()[position])) {
             assignedTags.append(tag).append(", ");
         }
