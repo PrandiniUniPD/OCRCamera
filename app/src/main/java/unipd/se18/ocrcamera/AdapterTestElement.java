@@ -138,17 +138,17 @@ public class AdapterTestElement extends BaseAdapter
         TextView notes = convertView.findViewById(R.id.notes_view);
         notes.setText(entries[position].getNotes());
 
-
         // Set alterations view
         String[] alterations = entries[position].getAlterationsNames();
-
         StringBuilder alterationsText = new StringBuilder();
-        for(String alteration: alterations) {
-            alterationsText.append(alteration).append(" - confidence ")
-                    .append(entries[position].getAlterationConfidence(alteration)).append("\n");
-        }
-        if(alterations.length > 0) {
-            viewAlterationsButton.setEnabled(false);
+
+        if(alterations != null) {
+            for(String alteration: alterations) {
+                alterationsText.append(alteration).append(" - confidence ")
+                        .append(entries[position].getAlterationConfidence(alteration)).append("\n");
+            }
+
+            viewAlterationsButton.setEnabled(true);
             viewAlterationsButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -157,7 +157,11 @@ public class AdapterTestElement extends BaseAdapter
                     context.startActivity(i);
                 }
             });
+
+
         }
+
+
 
         // return the view of the entry
         return convertView;

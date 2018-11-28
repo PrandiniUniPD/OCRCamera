@@ -66,7 +66,7 @@ public class AdapterTestAlterations extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {if (convertView == null) {
-        convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
+        convertView = LayoutInflater.from(context).inflate(R.layout.test_alteration_element, parent, false);
     }
         // Set the correctness value
 
