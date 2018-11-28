@@ -74,6 +74,14 @@ public class AdapterTestElement extends BaseAdapter
         // Set the correctness value
 
         Button viewAlterationsButton = convertView.findViewById(R.id.view_alterations_button);
+        viewAlterationsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(context,TestAlterationsActivity.class);
+                TestAlterationsActivity.entry = entries[position];
+                context.startActivity(i);
+            }
+        });
         viewAlterationsButton.setEnabled(false);
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entries[position].getConfidence();
@@ -149,16 +157,6 @@ public class AdapterTestElement extends BaseAdapter
             }
 
             viewAlterationsButton.setEnabled(true);
-            viewAlterationsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent i = new Intent(context,TestAlterationsActivity.class);
-                    TestAlterationsActivity.entry = entries[position];
-                    context.startActivity(i);
-                }
-            });
-
-
         }
 
 
