@@ -69,75 +69,73 @@ public class AdapterTestAlterations extends BaseAdapter {
         convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
     }
         // Set the correctness value
-        try {
-            Button viewAlterationsButton = convertView.findViewById(R.id.view_alterations_button);
-            viewAlterationsButton.setEnabled(false);
-            TextView correctness = convertView.findViewById(R.id.correctness_view);
-            float confidence = entry.getAlterationConfidence(entry.getAlterationsNames()[position]);
-            String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
 
-            // Set the color of the correctness
-            if(confidence < 70) {
-                correctness.setTextColor(Color.RED);
-            } else if (confidence < 85) {
-                correctness.setTextColor(Color.YELLOW);
-            } else {
-                correctness.setTextColor(Color.GREEN);
-            }
+        Button viewAlterationsButton = convertView.findViewById(R.id.view_alterations_button);
+        viewAlterationsButton.setEnabled(false);
+        TextView correctness = convertView.findViewById(R.id.correctness_view);
+        float confidence = entry.getAlterationConfidence(entry.getAlterationsNames()[position]);
+        String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
 
-            correctness.setText(confidenceText);
-
-            // Set the name of the pic
-            TextView name = convertView.findViewById(R.id.pic_name_view);
-            String picName = entry.getAlterationsNames()[position];
-            name.setText(picName);
-
-            // Set the pic view
-            ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
-            Bitmap img = entry.getAlterationBitmap(entry.getAlterationsNames()[position]);
-
-            // Scaling the pic view
-            int imgWidth = img.getWidth();
-            int imgHeight = img.getHeight();
-            WindowManager mWindowManager = (WindowManager) convertView.getContext()
-                    .getSystemService(Context.WINDOW_SERVICE);
-            DisplayMetrics mDisplayMetrics = new DisplayMetrics();
-            Display mDisplay = mWindowManager.getDefaultDisplay();
-            mDisplay.getMetrics(mDisplayMetrics);
-            int scaledWidth = mDisplayMetrics.widthPixels;
-            int scaledHeight = (scaledWidth*imgHeight)/imgWidth;
-
-            Log.v(TAG,"pic \"" + picName + "\" scaled from " + imgWidth + "x" + imgHeight +
-                    " to " + scaledWidth + "x" + scaledHeight);
-            analyzedPic.setImageBitmap(Bitmap.createScaledBitmap(img, scaledWidth, scaledHeight,false));
-
-            // Set the Tags text
-            TextView tags = convertView.findViewById(R.id.tags_view);
-            StringBuilder assignedTags = new StringBuilder();
-            for(String tag: entry.getAlterationTags(entry.getAlterationsNames()[position])) {
-                assignedTags.append(tag).append(", ");
-            }
-            tags.setText(assignedTags.toString());
-
-            // Set the ingredients text
-            TextView ingredients = convertView.findViewById(R.id.ingredients_view);
-            StringBuilder realIngredients = new StringBuilder();
-            for(String ingredient: entry.getIngredientsArray()) {
-                realIngredients.append(ingredient).append(", ");
-            }
-            ingredients.setText(realIngredients);
-
-            // Set the extracted text
-            TextView extractedText = convertView.findViewById(R.id.extractedText_view);
-            extractedText.setText(entry.getAlterationRecognizedText(entry.getAlterationsNames()[position]));
-
-            // Set the notes text
-            TextView notes = convertView.findViewById(R.id.notes_view);
-            notes.setText(entry.getAlterationNotes(entry.getAlterationsNames()[position]));
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+        // Set the color of the correctness
+        if(confidence < 70) {
+            correctness.setTextColor(Color.RED);
+        } else if (confidence < 85) {
+            correctness.setTextColor(Color.YELLOW);
+        } else {
+            correctness.setTextColor(Color.GREEN);
         }
+
+        correctness.setText(confidenceText);
+
+        // Set the name of the pic
+        TextView name = convertView.findViewById(R.id.pic_name_view);
+        String picName = entry.getAlterationsNames()[position];
+        name.setText(picName);
+
+        // Set the pic view
+        ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
+        Bitmap img = entry.getAlterationBitmap(entry.getAlterationsNames()[position]);
+
+        // Scaling the pic view
+        int imgWidth = img.getWidth();
+        int imgHeight = img.getHeight();
+        WindowManager mWindowManager = (WindowManager) convertView.getContext()
+                .getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics mDisplayMetrics = new DisplayMetrics();
+        Display mDisplay = mWindowManager.getDefaultDisplay();
+        mDisplay.getMetrics(mDisplayMetrics);
+        int scaledWidth = mDisplayMetrics.widthPixels;
+        int scaledHeight = (scaledWidth*imgHeight)/imgWidth;
+
+        Log.v(TAG,"pic \"" + picName + "\" scaled from " + imgWidth + "x" + imgHeight +
+                " to " + scaledWidth + "x" + scaledHeight);
+        analyzedPic.setImageBitmap(Bitmap.createScaledBitmap(img, scaledWidth, scaledHeight,false));
+
+        // Set the Tags text
+        TextView tags = convertView.findViewById(R.id.tags_view);
+        StringBuilder assignedTags = new StringBuilder();
+        for(String tag: entry.getAlterationTags(entry.getAlterationsNames()[position])) {
+            assignedTags.append(tag).append(", ");
+        }
+        tags.setText(assignedTags.toString());
+
+        // Set the ingredients text
+        TextView ingredients = convertView.findViewById(R.id.ingredients_view);
+        StringBuilder realIngredients = new StringBuilder();
+        for(String ingredient: entry.getIngredientsArray()) {
+            realIngredients.append(ingredient).append(", ");
+        }
+        ingredients.setText(realIngredients);
+
+        // Set the extracted text
+        TextView extractedText = convertView.findViewById(R.id.extractedText_view);
+        extractedText.setText(entry.getAlterationRecognizedText(entry.getAlterationsNames()[position]));
+
+        // Set the notes text
+        TextView notes = convertView.findViewById(R.id.notes_view);
+        notes.setText(entry.getAlterationNotes(entry.getAlterationsNames()[position]));
+
+
 
         // return the view of the entry
         return convertView;
