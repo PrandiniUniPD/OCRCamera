@@ -24,7 +24,7 @@ import java.io.OutputStream;
  * The Activity useful for making photos
  */
 public class CameraActivity extends AppCompatActivity {
-
+    //THIS IS A FORK TEST
     private CameraKitView cameraKitView;
     private static String orientationResult;
 
