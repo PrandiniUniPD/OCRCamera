@@ -28,6 +28,8 @@ public class CameraActivity extends AppCompatActivity {
     private CameraKitView cameraKitView;
     private static String orientationResult;
 
+    //THIS IS A SECOND COMMIT
+
     /**
      * onCreate method of the Android Activity Lifecycle
      * @param savedInstanceState The Bundle of the last instance state saved
