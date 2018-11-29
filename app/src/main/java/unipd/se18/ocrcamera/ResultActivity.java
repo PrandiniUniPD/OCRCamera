@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,6 +25,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 
 /**
@@ -68,9 +72,13 @@ public class ResultActivity extends AppCompatActivity {
         String pathImage = prefs.getString("imagePath", null);
         String OCRText = prefs.getString("text", null);
 
-        double angle = -analyzeImage.computeSkew(pathImage);
+        //double angle = -analyzeImage.computeSkew(pathImage);
 
-        lastPhoto = rotateBitmap(BitmapFactory.decodeFile(pathImage), (float)angle);
+        //lastPhoto = rotateBitmap(BitmapFactory.decodeFile(pathImage), (float)angle);
+        try{
+            lastPhoto = analyzeImage.findText(pathImage);
+        } catch (FileNotFoundException e) {}
+
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
