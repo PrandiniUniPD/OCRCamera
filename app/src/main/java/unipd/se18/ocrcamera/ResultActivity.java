@@ -241,12 +241,12 @@ public class ResultActivity extends AppCompatActivity {
     public String inciDetector(String text){
         String inci = "";
         try {
-            InputStream is = getResources().openRawResource(R.raw.database);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            String ingredient;
-            while ((ingredient=reader.readLine())!=null){
-                if (text.toUpperCase().contains(ingredient)) {
-                    inci = inci + "<b>" + ingredient + "</b>; ";
+            InputStream is = getResources().openRawResource(R.raw.database);    //InputStream from database.csv
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));    //database reader
+            String ingredient;  //String of inci ingredient
+            while ((ingredient=reader.readLine())!= null){      //defines ingredient as each row of the database
+                if (text.toUpperCase().contains(ingredient)) {      //check if no text found are inci ingredients
+                    inci = inci + "<b>" + ingredient + "</b>; ";    //Create the string with the ingredients in bold
                 }
             }
         }catch (IOException e){
@@ -265,34 +265,37 @@ public class ResultActivity extends AppCompatActivity {
      */
     public String inciDetectorEtichetta(String text){
         String inci = "";
-        List listInci = new ArrayList();
+        List listInci = new ArrayList();        //list where save the ingredients found
+
         try {
-            InputStream is = getResources().openRawResource(R.raw.database);
-            is.mark(0);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            String ingredient;
-            String noSpace = text.replaceAll("\n", " ");
-            String[] tokens = noSpace.split(",");
+            InputStream is = getResources().openRawResource(R.raw.database);    //InputStream from database.csv
+            is.mark(0);     //mark the position to restart the buffer from line 0 of database
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));    //database reader
+            String ingredient;      //String of inci ingredient
+            String noSpace = text.replaceAll("\n", " ");    //remove \n (start a new line) and replace with " ".
+            String[] tokens = noSpace.split(",");   //split the text by "," for find the inci ingredients
             String box="";
-            for(int i=0; i<tokens.length; i++) {
-                while ((ingredient=reader.readLine())!=null){
-                    if (tokens[i].toUpperCase().contains(ingredient)) {
-                        box=ingredient;
+
+            for (int i=0; i<tokens.length; i++) {
+                while ((ingredient=reader.readLine())!=null){       //defines ingredient as each row of the database
+                    if (tokens[i].toUpperCase().contains(ingredient)) {         //Use .toUpperCase because the database's words are uppercase. .contains find if tokens[i] is an ingredient
+                        box=ingredient;     //save the ingredient in a box. after while i use the last ingredient that I found
                     }
                 }
-                is.reset();
-                if(!listInci.contains(box)) {
-                    listInci.add(box);
+                is.reset();     //reset InputStream to the mark 0
+                if (!listInci.contains(box)) {
+                    listInci.add(box);          //check if there are duplicates
                 }
             }
 
-            for(int i=0; i<listInci.size(); i++){
-                inci = inci + "<b>" + listInci.get(i) + "</b>; ";
+            for (int i=0; i<listInci.size(); i++){
+                inci = inci + "<b>" + listInci.get(i) + "</b>; ";           //Create the string with the ingredients in bold
             }
 
         }catch (IOException e){
             e.printStackTrace();
         }
+
         return inci;
     }
 
