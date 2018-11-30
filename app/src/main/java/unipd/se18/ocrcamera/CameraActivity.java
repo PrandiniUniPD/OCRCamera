@@ -12,6 +12,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -30,6 +31,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
     private static String orientationResult;
+    private Handler handler;
 
     /**
      * onCreate method of the Android Activity Lifecycle
@@ -125,6 +127,8 @@ public class CameraActivity extends AppCompatActivity {
                 takePhoto();
             }
         });
+
+        handler = new Handler(getApplicationContext().getMainLooper());
     }
 
     /**
@@ -160,14 +164,16 @@ public class CameraActivity extends AppCompatActivity {
                     edit.putString("imagePath", filePath.trim());
                     edit.apply();
 
-                    //Checking the image brightness
-                    int brightness= IMG_Brightness(bitmapImage);
-                    if (brightness ==1){
-                        Toast.makeText(getApplicationContext(), "The picture might be too bright", Toast.LENGTH_LONG).show();
-                    }
-                    else if (brightness == -1){
-                        Toast.makeText(getApplicationContext(), "The picture might be too dark", Toast.LENGTH_LONG).show();
-                    }
+                    // analyze the brightness
+                    final Bitmap bitmapimage2= bitmapImage;
+                    new Thread(new Runnable() {
+                        public void run() {
+                            Context appContext= getApplicationContext();
+                            BrightnessRecognition bRecog= new BrightnessRecognition(bitmapimage2, appContext, handler);
+                            bRecog.IMG_Brightness();
+                        }
+                    }).start();
+
 
                     //An intent that will launch the activity that will analyse the photo
                     Intent i = new Intent(CameraActivity.this, ResultActivity.class);
@@ -252,47 +258,4 @@ public class CameraActivity extends AppCompatActivity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
-
-    /**
-     * This method calculates the brightness of the image
-     * @param bmp the bitmap of the image to calculate the value of
-     * @return int  1 if the image is too bright, -1 if it is too dark, 0 if it is neither
-     * @author Pietro Balzan
-     */
-    public static int IMG_Brightness (Bitmap bmp){
-        // image size
-        int width = bmp.getWidth();
-        int height = bmp.getHeight();
-        int R, G, B, pixel;
-        int dark_pixels = 0;
-        int bright_pixels = 0;
-        int total_pixels = width*height;
-        for(int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
-                // get pixel color
-                pixel = bmp.getPixel(x, y);
-                R = Color.red(pixel);
-                G = Color.green(pixel);
-                B = Color.blue(pixel);
-                double brightness = (0.2126 * R + 0.7152 * G + 0.0722 * B); //  RGB/Luma conversion formula, dermines luminance of a pixel
-                if (brightness >= 190) {
-                    bright_pixels++;   //pixel is too bright
-                }
-                else if (brightness < 80) {
-                    dark_pixels++;      //pixel is too dark
-                }
-            }
-        }
-        if (bright_pixels>total_pixels*0.5 && (bright_pixels/(dark_pixels+1))>2){
-            Log.d("Capturedimage", "too bright image");
-            return 1;   // image is too bright
-        }
-        else if (dark_pixels>total_pixels*0.5 && (dark_pixels/(bright_pixels+1))>2){
-            Log.d("Capturedimage", "too dark image");
-            return -1;   //image is too dark
-        }
-        Log.d("Capturedimage", "good image");
-        return 0; // image is neither too bright nor too dark
-    }
-
 }
