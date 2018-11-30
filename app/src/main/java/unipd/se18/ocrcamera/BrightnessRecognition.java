@@ -5,15 +5,18 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.Toast;
-
 import android.os.Handler;
-import java.util.logging.LogRecord;
 
 /**
  * This class is used to calculate the brightness of an image in Bitmap format
  * @author Pietro Balzan
  */
 public class BrightnessRecognition {
+    Handler handler;
+    private Context appContext;
+    private final Bitmap image;  // the bitmap containing the image to analyze
+    private static final String TAG = "BrightnessRecognition";
+
 
     /**
      * Constructor of a BrightnessRecognition object containing a Bitmap
@@ -32,7 +35,7 @@ public class BrightnessRecognition {
      * This method calculates the brightness of the image and prompts a Toast to the user
      * @author Pietro Balzan
      */
-    public void IMG_Brightness(){
+    public void imgBrightness(){
         int width = image.getWidth();
         int height = image.getHeight();
         int R, G, B, pixel;
@@ -40,6 +43,7 @@ public class BrightnessRecognition {
         int UpperBound= 190;
         int LowerBound= 80;
         double tot= 0;
+
         for(int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 // get pixel color
@@ -51,11 +55,13 @@ public class BrightnessRecognition {
                 tot+= brightness;
             }
         }
+
         final String toobright = "The picture might be too bright";
         final String toodark = "The picture might be too dark";
         double media= tot/total_pixels;
+
         if (media> UpperBound){
-            Log.d("Capturedimage", "too bright image");
+            Log.d(TAG, "too bright image");
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -65,7 +71,7 @@ public class BrightnessRecognition {
             // image is too bright
         }
         else if (media < LowerBound){
-            Log.d("Capturedimage", "too dark image");
+            Log.d(TAG, "too dark image");
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -74,11 +80,7 @@ public class BrightnessRecognition {
             });
             //image is too dark
         }
-        Log.d("Capturedimage", "good image");
-        // image is neither too bright nor too dark
-    }
+        else Log.d(TAG, "good image"); // image is neither too bright nor too dark
 
-    Handler handler;
-    private Context appContext;
-    private final Bitmap image;  // the bitmap containing the image to analyze
+    }
 }

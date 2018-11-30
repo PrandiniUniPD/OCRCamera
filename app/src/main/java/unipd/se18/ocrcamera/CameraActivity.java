@@ -165,12 +165,12 @@ public class CameraActivity extends AppCompatActivity {
                     edit.apply();
 
                     // analyze the brightness
-                    final Bitmap bitmapimage2= bitmapImage;
+                    final Bitmap bitmapImage2 = bitmapImage;
                     new Thread(new Runnable() {
                         public void run() {
                             Context appContext= getApplicationContext();
-                            BrightnessRecognition bRecog= new BrightnessRecognition(bitmapimage2, appContext, handler);
-                            bRecog.IMG_Brightness();
+                            BrightnessRecognition bRecog = new BrightnessRecognition(bitmapImage2, appContext, handler);
+                            bRecog.imgBrightness();
                         }
                     }).start();
 
