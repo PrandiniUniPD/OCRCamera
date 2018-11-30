@@ -12,14 +12,16 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 /**
  * Class that implements the common OCR interface for retrieving text from a Bitmap image.
  * This class uses ml-kit provided by Firebase.
- * @link https://firebase.google.com/docs/ml-kit/android/recognize-text
- * @link com.google.firebase.ml.vision.text.FirebaseVisionText
+ * More details at: {@link FirebaseVisionText}.
+ * @see <a href="https://firebase.google.com/docs/ml-kit/android/recognize-text">
+ *     ml-kit, recognize text</a>
  * @author Pietro Prandini (g2)
  */
 public class TextExtractor implements OCRInterface {
@@ -36,37 +38,37 @@ public class TextExtractor implements OCRInterface {
 
     /**
      * Index of the point on the top-left position.
-     * @link com.google.firebase.ml.vision.text.FirebaseVisionText
-     * @link FirebaseVisionText.TextBlock getCornerPoint()
-     * @link FirebaseVisionText.Line getCornerPoint()
-     * @link FirebaseVisionText.Element getCornerPoint()
+     * More details at:
+     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
+     * {@link FirebaseVisionText.Line#getCornerPoints()}
+     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
      */
     private final int TOP_LEFT = 0;
 
     /**
      * Index of the point on the top-right position.
-     * @link com.google.firebase.ml.vision.text.FirebaseVisionText
-     * @link FirebaseVisionText.TextBlock getCornerPoint()
-     * @link FirebaseVisionText.Line getCornerPoint()
-     * @link FirebaseVisionText.Element getCornerPoint()
+     * More details at:
+     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
+     * {@link FirebaseVisionText.Line#getCornerPoints()}
+     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
      */
     private final int TOP_RIGHT = 1;
 
     /**
      * Index of the point on the bottom-left position
-     * @link com.google.firebase.ml.vision.text.FirebaseVisionText
-     * @link FirebaseVisionText.TextBlock getCornerPoint()
-     * @link FirebaseVisionText.Line getCornerPoint()
-     * @link FirebaseVisionText.Element getCornerPoint()
+     * More details at:
+     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
+     * {@link FirebaseVisionText.Line#getCornerPoints()}
+     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
      */
     private final int BOTTOM_LEFT = 2;
 
     /**
      * Index of the point on the bottom-right position.
-     * @link com.google.firebase.ml.vision.text.FirebaseVisionText
-     * @link FirebaseVisionText.TextBlock getCornerPoint()
-     * @link FirebaseVisionText.Line getCornerPoint()
-     * @link FirebaseVisionText.Element getCornerPoint()
+     * More details at:
+     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
+     * {@link FirebaseVisionText.Line#getCornerPoints()}
+     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
      */
     private final int BOTTOM_RIGHT = 3;
 
@@ -76,9 +78,9 @@ public class TextExtractor implements OCRInterface {
 
     /**
      * Extracts a text from a given image.
+     * More details at: {@link FirebaseVisionText}.
      * @param img The image in a Bitmap format
      * @return The String of the ingredients recognized, empty String if nothing is recognized
-     * @link com.google.firebase.ml.vision.text.FirebaseVisionText
      * @author Pietro Prandini (g2)
      */
     public String getTextFromImg(Bitmap img) {
@@ -103,10 +105,9 @@ public class TextExtractor implements OCRInterface {
 
     /**
      * Extracts a FirebaseVisionText from a given image.
+     * More details at: {@link FirebaseVisionText}, {@link CountDownLatch}, {@link Task}.
      * @param img The image in a Bitmap format
      * @return The FirebaseVisionText of the text recognized, null if nothing is recognized
-     * @link FirebaseVisionText
-     * @link java.util.concurrent.CountDownLatch
      * @author Pietro Prandini (g2), Luca Moroldo (g3)
      */
     private FirebaseVisionText extractFireBaseVisionText(Bitmap img) {
@@ -123,6 +124,11 @@ public class TextExtractor implements OCRInterface {
         // Settings the "on device" analyzing method
         FirebaseVisionTextRecognizer textRecognizer =
                 FirebaseVision.getInstance().getOnDeviceTextRecognizer();
+
+        /*
+        The standard java Semaphore is not used because it's not work properly
+        with the Task<FirebaseVisionText>.
+         */
 
         // Instantiates the CountDownLatch used for synchronizing the extraction
         final CountDownLatch extraction = new CountDownLatch(1); // Luca Moroldo
@@ -166,6 +172,7 @@ public class TextExtractor implements OCRInterface {
 
     /**
      * Produces a String from a FirebaseVisionText
+     * More details at: {@link FirebaseVisionText.TextBlock#getText()}.
      * @param firebaseVisionTextExtracted The result of the FirebaseVisionText extraction
      * @return String extracted by the FirebaseVisionText result
      */
@@ -192,6 +199,7 @@ public class TextExtractor implements OCRInterface {
 
     /**
      * Sorts the blocks recognized
+     * More details at: {@link FirebaseVisionText.TextBlock#getTextBlocks()}.
      * @param OCRResult FirebaseVisionText object produced by an OCR recognition
      * @return An ArrayList of FirebaseVisionText sorted
      * @author Pietro Prandini (g2)
@@ -205,6 +213,8 @@ public class TextExtractor implements OCRInterface {
 
     /**
      * Sorts the blocks recognized from top to bottom
+     * More details at: {@link FirebaseVisionText.TextBlock#getCornerPoints()}, {@link Comparator},
+     * {@link Collections#sort(List, Comparator)}.
      * @param OCRBlocks ArrayList of FirebaseVisionText.TextBlock recognized by the OCR processing
      * @return An ArrayList of FirebaseVisionText sorted from top to bottom
      * @link java.util.Comparator
@@ -223,7 +233,7 @@ public class TextExtractor implements OCRInterface {
                 return Integer.compare(o1TopLeftY,o2TopLeftY);
             }
         };
-        // Collections
+        // Sorts the blocks
         Collections.sort(OCRBlocks, mYComparator);
         return OCRBlocks;
     }
