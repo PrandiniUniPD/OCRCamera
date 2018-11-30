@@ -152,6 +152,7 @@ so manually move them:
 * javadoc\org\opencv\objdetect\CascadeClassifier.html
 * javadoc\org\opencv\objdetect\HOGDescriptor.html
 * javadoc\org\opencv\objdetect\Objdetect.html
+* javadoc\org\opencv\objdetect\QRCodeDetector.html
 * javadoc\org\opencv\objdetect\package-frame.html
 * javadoc\org\opencv\objdetect\package-summary.html
 * javadoc\org\opencv\objdetect\package-tree.html
@@ -223,11 +224,11 @@ Moved Files:
 Android Gradle projects use a different directory structure than ADT
 Eclipse projects. Here's how the projects were restructured:
 
-* AndroidManifest.xml => openCVLibrary346\src\main\AndroidManifest.xml
-* lint.xml => openCVLibrary346\lint.xml
-* res\ => openCVLibrary346\src\main\res\
-* src\ => openCVLibrary346\src\main\java\
-* src\org\opencv\engine\OpenCVEngineInterface.aidl => openCVLibrary346\src\main\aidl\org\opencv\engine\OpenCVEngineInterface.aidl
+* AndroidManifest.xml => openCVLibrary344\src\main\AndroidManifest.xml
+* lint.xml => openCVLibrary344\lint.xml
+* res\ => openCVLibrary344\src\main\res\
+* src\ => openCVLibrary344\src\main\java\
+* src\org\opencv\engine\OpenCVEngineInterface.aidl => openCVLibrary344\src\main\aidl\org\opencv\engine\OpenCVEngineInterface.aidl
 
 Next Steps:
 -----------
