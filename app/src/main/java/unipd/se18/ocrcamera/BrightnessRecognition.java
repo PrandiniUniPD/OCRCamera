@@ -22,7 +22,7 @@ public class BrightnessRecognition {
      * Constructor of a BrightnessRecognition object containing a Bitmap
      * @param bmp the bitmap of the image to calculate the brightness of
      * @modify image with the new bitmap
-     * @author Pietro Balzan - some changes by Francesco Pham
+     * @author Pietro Balzan
      */
 
     public BrightnessRecognition(Bitmap bmp, Context c, Handler h){
@@ -33,7 +33,7 @@ public class BrightnessRecognition {
 
     /**
      * This method calculates the brightness of the image and prompts a Toast to the user
-     * @author Pietro Balzan
+     * @author Pietro Balzan - some changes by Francesco Pham
      * @param pixelSkip how many pixels to skip each pixel. Higher values result in better performance,
      *                     but a more rough estimate. When pixelSpacing = 1, the method actually
      *                     calculates the real average brightness, not an estimate.
