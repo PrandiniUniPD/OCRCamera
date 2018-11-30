@@ -216,15 +216,21 @@ public class ResultActivity extends AppCompatActivity {
 
     /**
      * Read the barcode in background and post the results on barcodeView.
+     * Documentation of AsyncTask at https://developer.android.com/reference/android/os/AsyncTask
      *
-     * @authon Luca Perali (g4)
+     * @author Luca Perali (g4) (inspired to AsyncLoad class)
      */
     private class BarcodeReader extends AsyncTask<Bitmap, Void, String>{
 
-        protected ProgressDialog progressDialog;
-        protected TextView barcodeTextView;
+        protected ProgressDialog progressDialog; //TODO: progressDialog is deprecated, replace with ProgressBar
+        protected TextView barcodeTextView; //
         protected String progressMessage;
 
+        /**
+         * Costructor initialize:
+         * @param barcodeTextView the View responsable for barcode rapresentation
+         * @param progressMessage message of the progress bar
+         */
         BarcodeReader(TextView barcodeTextView, String progressMessage){
             this.barcodeTextView = barcodeTextView;
             this.progressMessage = progressMessage;
@@ -232,28 +238,28 @@ public class ResultActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(ResultActivity.this,
-                    progressMessage,
-                    "");
+            progressDialog = ProgressDialog.show(ResultActivity.this, progressMessage, "Barcode detection...");
         }
 
         @Override
         protected String doInBackground(Bitmap... bitmaps){
             String rawBarcode = "";
-            BarcodeExtractor barcodeExtractor = new BarcodeExtractor();
+            //BarcodeExtractor barcodeExtractor = ;
+
             if(lastPhoto != null) {
-                rawBarcode = barcodeExtractor.getTextFromImg(lastPhoto);
-                if(rawBarcode.equals(""))
+                rawBarcode = new BarcodeExtractor().getTextFromImg(lastPhoto); //see BarcodeExtractor class
+
+                if(rawBarcode.equals("")) //No barcode found case
                 {
                     final String finalTextRecognized = getString(R.string.barcode_not_found);
-                    runOnUiThread(new Runnable() {
+                    runOnUiThread(new Runnable() { //asynchronous thread to optimize performance
                         @Override
                         public void run() {
                             barcodeTextView.setText(finalTextRecognized);
                         }
                     });
                 }
-                else
+                else // found at least one barcode case
                 {
                     final String finalTextRecognized = getString(R.string.barcode_identifier) + rawBarcode;
                     runOnUiThread(new Runnable() {
@@ -273,10 +279,10 @@ public class ResultActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             progressDialog.dismiss();
             // Saving in the preferences
-            SharedPreferences sharedPref = getApplicationContext()
-                    .getSharedPreferences("prefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = getApplicationContext()
+                    .getSharedPreferences("prefs", Context.MODE_PRIVATE)
+                    .edit();
 
-            SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("barcode", s);
             editor.apply();
         }
