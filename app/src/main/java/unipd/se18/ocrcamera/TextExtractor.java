@@ -217,8 +217,6 @@ public class TextExtractor implements OCRInterface {
      * {@link Collections#sort(List, Comparator)}.
      * @param OCRBlocks ArrayList of FirebaseVisionText.TextBlock recognized by the OCR processing
      * @return An ArrayList of FirebaseVisionText sorted from top to bottom
-     * @link java.util.Comparator
-     * @link java.util.Collections sort(...)
      * @author Pietro Prandini (g2)
      */
     private ArrayList<FirebaseVisionText.TextBlock>
