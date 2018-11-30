@@ -105,7 +105,8 @@ public class TextExtractor implements OCRInterface {
 
     /**
      * Extracts a FirebaseVisionText from a given image.
-     * More details at: {@link FirebaseVisionText}, {@link CountDownLatch}, {@link Task}.
+     * More details at: {@link FirebaseVisionText}, {@link CountDownLatch},
+     * {@link Task#addOnSuccessListener(OnSuccessListener)}, {@link OnSuccessListener}.
      * @param img The image in a Bitmap format
      * @return The FirebaseVisionText of the text recognized, null if nothing is recognized
      * @author Pietro Prandini (g2), Luca Moroldo (g3)
@@ -115,7 +116,7 @@ public class TextExtractor implements OCRInterface {
         final String methodTag = "extractFireBaseVisionText -> ";
         Log.d(TAG, methodTag + "launched");
 
-        // Starts the time counter
+        // Starts the time counter - useful for tests
         long beforeWaiting = java.lang.System.currentTimeMillis();
 
         // Settings the image to analyze
@@ -160,7 +161,7 @@ public class TextExtractor implements OCRInterface {
 
         }
 
-        // Ends the time counter
+        // Ends the time counter - useful for tests
         long afterWaiting = java.lang.System.currentTimeMillis();
 
         Log.i(TAG, methodTag + "text extracted in "
