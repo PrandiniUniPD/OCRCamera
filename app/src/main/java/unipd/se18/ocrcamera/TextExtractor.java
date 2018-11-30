@@ -16,35 +16,56 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Class the implements the common OCR interface to retrieve text from an image
+ * Class that implements the common OCR interface to retrieve text from an image
  * @author Pietro Prandini (g2)
  */
 public class TextExtractor implements OCRInterface {
-
     /**
-     * TAG used for the logs of this class
+     * String used for the logs of this class.
      */
     private final String TAG = "TextExtractor";
 
+    /*
+    The next four int are used for recognize the positioning of the FirebaseVisionText Object.
+    They could be useful for sorting the blocks and for an automatic recognition
+    of the ingredients block.
+     */
+
     /**
      * Index of the point on the top-left position
+     * @link FirebaseVisionText.TextBlock getCornerPoint()
+     * @link FirebaseVisionText.Line getCornerPoint()
+     * @link FirebaseVisionText.Element getCornerPoint()
      */
     private final int TOP_LEFT = 0;
 
     /**
      * Index of the point on the top-right position
+     * @link FirebaseVisionText.TextBlock getCornerPoint()
+     * @link FirebaseVisionText.Line getCornerPoint()
+     * @link FirebaseVisionText.Element getCornerPoint()
      */
     private final int TOP_RIGHT = 1;
 
     /**
      * Index of the point on the bottom-left position
+     * @link FirebaseVisionText.TextBlock getCornerPoint()
+     * @link FirebaseVisionText.Line getCornerPoint()
+     * @link FirebaseVisionText.Element getCornerPoint()
      */
     private final int BOTTOM_LEFT = 2;
 
     /**
      * Index of the point on the bottom-right position
+     * @link FirebaseVisionText.TextBlock getCornerPoint()
+     * @link FirebaseVisionText.Line getCornerPoint()
+     * @link FirebaseVisionText.Element getCornerPoint()
      */
     private final int BOTTOM_RIGHT = 3;
+
+    /*
+    The next method is required by the OCRInterface that avoid a single point of failure.
+     */
 
     /**
      * Extracts a text from a given image.
@@ -53,23 +74,34 @@ public class TextExtractor implements OCRInterface {
      * @author Pietro Prandini (g2)
      */
     public String getTextFromImg(Bitmap img) {
-        Log.d(TAG, "getTextFromImg");
-        FirebaseVisionText textExtracted = extractFireBaseVisionText(img);
-        if (textExtracted != null) {
+        Log.d(TAG, "getTextFromImg launched");
+
+        // Extracting the text from the pic.
+        FirebaseVisionText firebaseVisionTextExtracted = extractFireBaseVisionText(img);
+
+        // Processing the result
+        if (firebaseVisionTextExtracted != null) {
+            // text found in img -> prepare the String of the text found
             StringBuilder text = new StringBuilder();
-            for(FirebaseVisionText.TextBlock block: sortBlocks(textExtracted)) {
+            // ordering the blocks (requested by the issue #18 but not so useful at the moment)
+            ArrayList<FirebaseVisionText.TextBlock> textBlocks =
+                    sortBlocks(firebaseVisionTextExtracted);
+            // Populating the String with the text of the blocks
+            for(FirebaseVisionText.TextBlock block: textBlocks) {
                 text.append(block.getText()).append("\n");
             }
             return text.toString();
         } else {
+            // text not found in img -> return an empty string
             return "";
         }
     }
 
     /**
-     * Extracts a text from a given image.
+     * Extracts a FirebaseVisionText from a given image.
      * @param img The image in a Bitmap format
      * @return The FirebaseVisionText of the text recognized, null if nothing is recognized
+     * @link FirebaseVisionText
      * @author Pietro Prandini (g2), Luca Moroldo (g3)
      */
     private FirebaseVisionText extractFireBaseVisionText(Bitmap img) {
@@ -81,10 +113,11 @@ public class TextExtractor implements OCRInterface {
         FirebaseVisionTextRecognizer textRecognizer =
                 FirebaseVision.getInstance().getOnDeviceTextRecognizer();
 
-        //latch used to wait for extraction to finish
-        final CountDownLatch latch = new CountDownLatch(1);
+        // latch used to wait for extraction to finish
+        final CountDownLatch latch = new CountDownLatch(1); // Luca Moroldo
 
-        Task<FirebaseVisionText> fbText = textRecognizer.processImage(fbImage).addOnSuccessListener(
+        Task<FirebaseVisionText> firebaseVisionTextTask =
+                textRecognizer.processImage(fbImage).addOnSuccessListener(
                 new OnSuccessListener<FirebaseVisionText>() {
                     @Override
                     public void onSuccess(FirebaseVisionText firebaseVisionText) {
@@ -93,14 +126,14 @@ public class TextExtractor implements OCRInterface {
                                 + "\n" + firebaseVisionText.getText() + "\n"
                                 + "----- END OF THE RECOGNIZED TEXT -----");
                         //analogous to signal
-                        latch.countDown();
+                        latch.countDown(); // Luca Moroldo
                     }
                 });
 
-        if (!fbText.isSuccessful()) {
+        if (!firebaseVisionTextTask.isSuccessful()) {
             try {
                 //analogous to wait
-                latch.await();
+                latch.await(); // Luca Moroldo
             } catch (InterruptedException e) {
                 Log.e(TAG, "Nothing recognized");
                 return null;
@@ -111,9 +144,15 @@ public class TextExtractor implements OCRInterface {
         long afterWaiting = java.lang.System.currentTimeMillis();
         Log.i(TAG, "extractText -> text extracted in "
                 + (afterWaiting - beforeWaiting) + " milliseconds");
-        // Return the recognized text
-        return fbText.getResult();
+        // Return the FirebaseVisionText recognized by the task
+        return firebaseVisionTextTask.getResult();
     }
+
+    /*
+    Sorting methods it's not so useful at the moment.
+    There is an issue (#18) that request this method for a possible future use.
+     */
+
     /**
      * Sorts the blocks recognized
      * @param OCRResult FirebaseVisionText object produced by an OCR recognition
@@ -121,7 +160,8 @@ public class TextExtractor implements OCRInterface {
      * @author Pietro Prandini (g2)
      */
     private ArrayList<FirebaseVisionText.TextBlock> sortBlocks(FirebaseVisionText OCRResult) {
-        ArrayList<FirebaseVisionText.TextBlock> OCRBlocks = new ArrayList<>(OCRResult.getTextBlocks());
+        ArrayList<FirebaseVisionText.TextBlock> OCRBlocks =
+                new ArrayList<>(OCRResult.getTextBlocks());
         OCRBlocks = sortBlocksY(OCRBlocks);
         return OCRBlocks;
     }
@@ -132,9 +172,11 @@ public class TextExtractor implements OCRInterface {
      * @return An ArrayList of FirebaseVisionText sorted from top to bottom
      * @author Pietro Prandini (g2)
      */
-    private ArrayList<FirebaseVisionText.TextBlock> sortBlocksY(ArrayList<FirebaseVisionText.TextBlock> OCRBlocks) {
+    private ArrayList<FirebaseVisionText.TextBlock>
+    sortBlocksY(ArrayList<FirebaseVisionText.TextBlock> OCRBlocks) {
         // Comparator for ordering the blocks by the y axis
-        Comparator<FirebaseVisionText.TextBlock> mYComparator = new Comparator<FirebaseVisionText.TextBlock>() {
+        Comparator<FirebaseVisionText.TextBlock> mYComparator =
+                new Comparator<FirebaseVisionText.TextBlock>() {
             @Override
             public int compare(FirebaseVisionText.TextBlock o1, FirebaseVisionText.TextBlock o2) {
                 int o1TopLeftY = Objects.requireNonNull(o1.getCornerPoints())[TOP_LEFT].y;
