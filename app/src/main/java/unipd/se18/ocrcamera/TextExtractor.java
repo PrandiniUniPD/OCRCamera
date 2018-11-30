@@ -132,7 +132,7 @@ public class TextExtractor implements OCRInterface {
          */
 
         // Instantiates the CountDownLatch used for synchronizing the extraction
-        final CountDownLatch extraction = new CountDownLatch(1); // Luca Moroldo
+        final CountDownLatch extraction = new CountDownLatch(1); // Luca Moroldo (g3)
 
         // Settings the extraction task
         Task<FirebaseVisionText> firebaseVisionTextTask =
@@ -145,14 +145,14 @@ public class TextExtractor implements OCRInterface {
                                 + "\n" + firebaseVisionText.getText() + "\n"
                                 + "----- END OF THE RECOGNIZED TEXT -----");
                         // Extraction ended - Analogous to signal
-                        extraction.countDown(); // Luca Moroldo
+                        extraction.countDown(); // Luca Moroldo (g3)
                     }
                 });
         // Waits until the extraction ends
         if (!firebaseVisionTextTask.isSuccessful()) {
             try {
                 // Analogous to wait
-                extraction.await(); // Luca Moroldo
+                extraction.await(); // Luca Moroldo (g3)
             } catch (InterruptedException e) {
                 Log.e(TAG, methodTag + "Synchronizing problem -> "
                         + "return null (nothing recognized)");
