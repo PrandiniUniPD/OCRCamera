@@ -16,7 +16,10 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Class that implements the common OCR interface to retrieve text from an image
+ * Class that implements the common OCR interface for retrieving text from a Bitmap image.
+ * This class uses ml-kit provided by Firebase.
+ * @link https://firebase.google.com/docs/ml-kit/android/recognize-text
+ * @link com.google.firebase.ml.vision.text.FirebaseVisionText
  * @author Pietro Prandini (g2)
  */
 public class TextExtractor implements OCRInterface {
@@ -74,7 +77,7 @@ public class TextExtractor implements OCRInterface {
     /**
      * Extracts a text from a given image.
      * @param img The image in a Bitmap format
-     * @return The String of the ingredients recognized (empty String if nothing is recognized)
+     * @return The String of the ingredients recognized, empty String if nothing is recognized
      * @link com.google.firebase.ml.vision.text.FirebaseVisionText
      * @author Pietro Prandini (g2)
      */
@@ -88,11 +91,11 @@ public class TextExtractor implements OCRInterface {
 
         // Returns the result
         if (firebaseVisionTextExtracted != null) {
-            // Text found in img -> return the String of the text found
+            // Text found in img -> returns the String of the text found
             Log.v(TAG, methodTag + "Text found");
             return extractString(firebaseVisionTextExtracted);
         } else {
-            // text not found in img -> return an empty string
+            // Text not found in img -> returns an empty string
             Log.v(TAG, methodTag + "Text not found");
             return "";
         }
@@ -163,8 +166,8 @@ public class TextExtractor implements OCRInterface {
 
     /**
      * Produces a String from a FirebaseVisionText
-     * @param firebaseVisionTextExtracted result of the FirebaseVisionText extraction
-     * @return String of the FirebaseVisionText result
+     * @param firebaseVisionTextExtracted The result of the FirebaseVisionText extraction
+     * @return String extracted by the FirebaseVisionText result
      */
     private String extractString(FirebaseVisionText firebaseVisionTextExtracted) {
         // Orders the blocks (requested by the issue #18 but not so useful at the moment)
@@ -204,6 +207,8 @@ public class TextExtractor implements OCRInterface {
      * Sorts the blocks recognized from top to bottom
      * @param OCRBlocks ArrayList of FirebaseVisionText.TextBlock recognized by the OCR processing
      * @return An ArrayList of FirebaseVisionText sorted from top to bottom
+     * @link java.util.Comparator
+     * @link java.util.Collections sort(...)
      * @author Pietro Prandini (g2)
      */
     private ArrayList<FirebaseVisionText.TextBlock>
@@ -218,6 +223,7 @@ public class TextExtractor implements OCRInterface {
                 return Integer.compare(o1TopLeftY,o2TopLeftY);
             }
         };
+        // Collections
         Collections.sort(OCRBlocks, mYComparator);
         return OCRBlocks;
     }
