@@ -37,6 +37,13 @@
                 android:layout_weight="2"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal|center"/>
+
+        <TextView
+            android:id="@+id/textViewInci"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="TextView" />
         <!--</ScrollView>-->
     </LinearLayout>
 
