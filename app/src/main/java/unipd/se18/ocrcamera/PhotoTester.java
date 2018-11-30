@@ -15,7 +15,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import info.debatty.java.stringsimilarity.*;
 
@@ -141,25 +144,27 @@ public class PhotoTester {
         long started = java.lang.System.currentTimeMillis();
 
         final JSONObject fullJsonReport = new JSONObject();
+
         int totalTestElements = testElements.size();
-        //countDownLatch is used to sync this method with the end of all the single tests
+
+        //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
         Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
 
-        //Semaphore used to be sure that each core won't run multiple tests in parallel
-        Semaphore availableThread = new Semaphore(max_concurrent_tasks);
+        //Define a thread executor that will run a maximum of 'max_concurrent_tasks' simultaneously
+        ExecutorService executor = Executors.newFixedThreadPool(max_concurrent_tasks);
 
-        for(TestElement singleTest : testElements){
-            //wait for available thread
-            availableThread.acquire();
-
-            //launch thread
-            new Thread(new RunnableTest(fullJsonReport, singleTest, countDownLatch, availableThread)).start();
+        for(TestElement singleTest : testElements) {
+            Runnable runnableTest = new RunnableTest(fullJsonReport, singleTest, countDownLatch);
+            executor.execute(runnableTest);
         }
 
-        //wait until all tests are completed
+        //after shut down the executor will reject any new task
+        executor.shutdown();
+
+        //wait until all tests are completed - i.e. when CoundDownLatch.countDown() is called by each runnableTest
         countDownLatch.await();
 
         long ended = java.lang.System.currentTimeMillis();
@@ -337,7 +342,6 @@ public class PhotoTester {
         private TestElement test;
         private JSONObject jsonReport;
         private CountDownLatch countDownLatch;
-        private Semaphore semaphore;
 
         /**
          * @param jsonReport JSONObject containing tests data
@@ -345,11 +349,10 @@ public class PhotoTester {
          * @param countDownLatch used to signal the task completion
          * @param semaphore semaphore used to signal the end of the task
          */
-        public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch, Semaphore semaphore) {
+        public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
             this.jsonReport = jsonReport;
             this.test = test;
             this.countDownLatch = countDownLatch;
-            this.semaphore = semaphore;
         }
 
         @Override
@@ -393,8 +396,6 @@ public class PhotoTester {
 
                 //signal the end of this single test
                 countDownLatch.countDown();
-                //release a core and let start another task
-                semaphore.release();
 
                 long ended = java.lang.System.currentTimeMillis();
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
