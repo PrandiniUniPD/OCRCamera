@@ -176,6 +176,7 @@ public class TextExtractor implements OCRInterface {
      * More details at: {@link FirebaseVisionText.TextBlock#getText()}.
      * @param firebaseVisionTextExtracted The result of the FirebaseVisionText extraction
      * @return String extracted by the FirebaseVisionText result
+     * @author Pietro Prandini (g2)
      */
     private String extractString(FirebaseVisionText firebaseVisionTextExtracted) {
         // Orders the blocks (requested by the issue #18 but not so useful at the moment)
