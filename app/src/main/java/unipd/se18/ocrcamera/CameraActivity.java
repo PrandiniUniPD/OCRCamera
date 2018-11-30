@@ -169,7 +169,7 @@ public class CameraActivity extends AppCompatActivity {
                double valoreBlur = blurValue(bitmapImage);
                Toast.makeText(getBaseContext(), "Valore Blur " + String.valueOf(valoreBlur), Toast.LENGTH_LONG).show();
                 // -----------------------------------------------------------------------
-                //Image rotation
+                //Image rotation    TOLTO PER PROBLEMI CON EMULATORE
             /**    if(orientationResult != null)
                 {
                     switch (orientationResult)
@@ -192,9 +192,11 @@ public class CameraActivity extends AppCompatActivity {
                     edit.apply();
 
                     //An intent that will launch the activity that will analyse the photo
-     //               Intent i = new Intent(CameraActivity.this, ResultActivity.class);
-     //               startActivity(i);
-
+                    //If it is not blurry [Leonardo Pratesi]
+                    if (blurEvaluation(valoreBlur)) {
+                        Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                        startActivity(i);
+                    }
                 }
          //   }
         });
@@ -282,9 +284,10 @@ public class CameraActivity extends AppCompatActivity {
      * @return Double value of the variance
      * @author Leonardo Pratesi
      */
-    public double blurValue(Bitmap bitmap1)
+    public static double blurValue(Bitmap bitmap1)
     {
         double blur;
+        double threshold= 10;
         Bitmap image = bitmap1;
         Mat matImage = new Mat();
         org.opencv.android.Utils.bitmapToMat(image, matImage);
@@ -299,14 +302,22 @@ public class CameraActivity extends AppCompatActivity {
 
         blur=Math.pow(std.get(0,0)[0],2);
 
-        return blur;
 
+
+        return blur;
     }
 
 
-    public boolean blurEvaluation(int blurValue)
+    public boolean blurEvaluation(double blurValue)
     {
-        return true;
+        double threshold=10;
+
+        if (blurValue< threshold)
+            {
+                return false; //blurry
+            }
+        else
+                return true; //not blurry
     }
 
 
