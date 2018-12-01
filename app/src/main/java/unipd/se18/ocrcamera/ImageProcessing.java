@@ -26,6 +26,7 @@ import java.util.List;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import static org.opencv.imgproc.Imgproc.getRectSubPix;
 import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
+import static org.opencv.imgproc.Imgproc.morphologyEx;
 
 
 /**
@@ -36,12 +37,12 @@ public class ImageProcessing {
     /*
         Documentation of the Imgproc class available at:
         https://docs.opencv.org/java/2.4.2/org/opencv/imgproc/Imgproc.html
-
-        We referenced a previous instance of documentation since
+        
+        We referenced a previous instance of the documentation since
         the newer one is still incomplete
      */
 
-    //Tag used to identify the log
+    //tag used to identify the log
     final String  TAG = "openCV";
 
 
@@ -56,7 +57,7 @@ public class ImageProcessing {
         Log.i(TAG, "Loaded the library");
     }
 
-
+  
     /**
      * Find, crop and rotate the text in an image
      * @param imagePath the path of the image you want to analyze
@@ -65,7 +66,6 @@ public class ImageProcessing {
      * @author Thomas Porro (g1)
      */
     public Bitmap findText(String imagePath) throws FileNotFoundException{
-
         //Converts the image into a matrix
         Mat img = Imgcodecs.imread( imagePath);
 
@@ -117,7 +117,7 @@ public class ImageProcessing {
         //Analizes the text line per line
         for (int i=0; i<lines.rows(); i++)
         {
-            //Gets points from the beginning and the ending of the line of text
+            //Get points from the beginning and the ending of the line of text
             double[] vec = lines.get(i,0);
 
             //First point
@@ -229,7 +229,7 @@ public class ImageProcessing {
             }
         }
 
-        //Creates a rectangle based of "max_contour"
+        //creates a rotated rectangle based on "max_contour"
         RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
         return rect;
     }
@@ -257,16 +257,19 @@ public class ImageProcessing {
      */
     public Mat crop(RotatedRect rectangle, Mat mat){
 
-        //Matrices we'll use
-        Mat rotationMat = new Mat();
-        Mat rotatedImage = new Mat();
-        Mat croppedImage =new Mat();
+        // rect is the RotatedRect (I got it from a contour...)
+        RotatedRect rect;
 
-        //Get angle and size from the rectangle
+        // matrices we'll use
+        Mat rotationMat = new Mat();
+        Mat rotatedImg = new Mat();
+        Mat croppedImg =new Mat();
+
+        // get angle and size from the bounding box
         double angle = rectangle.angle;
         Size rect_size = rectangle.size;
 
-        //Thanks to http://felix.abecassis.me/2011/10/opencv-rotation-deskewing/
+        // thanks to http://felix.abecassis.me/2011/10/opencv-rotation-deskewing/
         if (rectangle.angle < -45.) {
             angle += 90.0;
             double width = rect_size.width;
@@ -284,6 +287,7 @@ public class ImageProcessing {
         //Crop the resulting image
         getRectSubPix(rotatedImage, rect_size, rectangle.center, croppedImage);
         return croppedImage;
+
     }
 
 
@@ -317,5 +321,23 @@ public class ImageProcessing {
         }
     }
 
+  
+    /**
+     * Converts the Bitmap into a matrix
+     * @param imagePath the matrix you want to convert
+     * @return the bitmap corresponding to the matrix
+     * @throws FileNotFoundException if the imagePath doesn't exist
+     * @author Oscar Garrido (g1)
+     */
+    public Mat conversion(String imagePath) throws FileNotFoundException {
+
+        Log.d(TAG, "Image path = "+imagePath);
+        Mat img = Imgcodecs.imread(imagePath);
+
+        //Throw an Exception if "img" is empty
+        if (!img.empty()){
+            Log.e(TAG, "File not found");
+            throw new FileNotFoundException();
+        }
 
 }
