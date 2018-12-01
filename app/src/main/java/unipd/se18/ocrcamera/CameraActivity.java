@@ -42,6 +42,7 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        handler = new Handler(getApplicationContext().getMainLooper());  // handler to use in the BrightnessRecognition thread
 
         cameraKitView = findViewById(R.id.cameraKitView);
 
@@ -127,16 +128,13 @@ public class CameraActivity extends AppCompatActivity {
                 takePhoto();
             }
         });
-
-        handler = new Handler(getApplicationContext().getMainLooper());  // handler to use in the BrightnessRecognition thread
-
     }
 
     /**
      * Takes a photo, saves it inside internal storage and resets the last extracted text
      *
      * @modify SharedPreferences
-     * @author Romanello Stefano - modified by Leonardo Rossi
+     * @author Romanello Stefano - modified by Leonardo Rossi and Balzan Pietro
      */
     private void takePhoto() {
         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
