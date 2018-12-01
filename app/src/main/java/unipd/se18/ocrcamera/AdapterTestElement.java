@@ -149,18 +149,16 @@ public class AdapterTestElement extends BaseAdapter
         // Set alterations view
         String[] alterations = entries[position].getAlterationsNames();
         StringBuilder alterationsText = new StringBuilder();
+        TextView alterationsView = convertView.findViewById(R.id.alterations_view);
 
         if(alterations != null) {
             for(String alteration: alterations) {
                 alterationsText.append(alteration).append(" - confidence ")
                         .append(entries[position].getAlterationConfidence(alteration)).append("\n");
             }
-
+            alterationsView.setText(alterationsText.toString());
             viewAlterationsButton.setEnabled(true);
         }
-
-
-
         // return the view of the entry
         return convertView;
 
