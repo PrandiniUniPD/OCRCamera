@@ -10,9 +10,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.Image;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -54,9 +56,17 @@ public class ResultActivity extends AppCompatActivity {
     private Bitmap lastPhoto;
 
     /**
-     * TextView per gli ingredienti
+     * TextView of the ingredients
      */
     private TextView tViewInci;
+
+    /**
+     * Gallery's request code
+     */
+    private static final int PICK_IMG=100;
+
+    ImageView mImageView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +77,7 @@ public class ResultActivity extends AppCompatActivity {
         ImageProcessing analyzeImage = new ImageProcessing();
 
         // UI components
-        ImageView mImageView = findViewById(R.id.img_captured_view);
+        mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
 
@@ -82,6 +92,13 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
+        FloatingActionButton gal = findViewById(R.id.newGalleryFloat);
+        gal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGallery();
+            }
+        });
 
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
@@ -117,6 +134,7 @@ public class ResultActivity extends AppCompatActivity {
             AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
             ocrTask.execute(lastPhoto);
         }
+        Log.d("gallery", lastPhoto.toString());
     }
 
     /**
@@ -288,8 +306,10 @@ public class ResultActivity extends AppCompatActivity {
                 }
             }
 
-            for (int i=0; i<listInci.size(); i++){
-                inci = inci + "<b>" + listInci.get(i) + "</b>; ";           //Create the string with the ingredients in bold
+            if (listInci.size()>1) {
+                for (int i = 0; i < listInci.size(); i++) {
+                    inci = inci + "<b>" + listInci.get(i) + "</b>; ";           //Create the string with the ingredients in bold
+                }
             }
 
         }catch (IOException e){
@@ -297,6 +317,41 @@ public class ResultActivity extends AppCompatActivity {
         }
 
         return inci;
+    }
+
+
+    /**
+     * @autor Giovanni Fasan(g1)
+     * function that opens a new activity
+     */
+    private void openGallery(){
+        Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);      //open device gallery
+        startActivityForResult(gallery, PICK_IMG);  //start gallery's intent
+    }
+
+    /**
+     * @autor Giovanni Fasan(g1)
+     * @param requestCode integer code
+     * @param resultCode integer code
+     * @param data  Intent variable
+     * onActivityResult start another activity and receive a result back
+     * Save the data in a Uri variable. Convert the Uri variable to bitmap to be able to execute the ocr. Set the imageview and execute the ocr.
+     */
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(resultCode==RESULT_OK && requestCode==PICK_IMG){
+            Uri imageUri;
+            imageUri = data.getData();
+            try {
+                lastPhoto = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                mImageView = findViewById(R.id.img_captured_view);
+                mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
+                AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+                ocrTask.execute(lastPhoto);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
