@@ -12,7 +12,7 @@ import android.os.Handler;
  * @author Pietro Balzan
  */
 public class BrightnessRecognition {
-    Handler handler;
+    Handler handler;             // handler for communication with the ui thread
     private Context appContext;
     private final Bitmap image;  // the bitmap containing the image to analyze
     private static final String TAG = "BrightnessRecognition";
@@ -21,27 +21,30 @@ public class BrightnessRecognition {
     /**
      * Constructor of a BrightnessRecognition object containing a Bitmap
      * @param bmp the bitmap of the image to calculate the brightness of
+     * @param cntxt context of the activity that instances an objeect of this class
+     * @param hndlr handler for communication with ui thread
      * @modify image with the new bitmap
      * @author Pietro Balzan
      */
 
-    public BrightnessRecognition(Bitmap bmp, Context c, Handler h){
-        appContext= c;
+    public BrightnessRecognition(Bitmap bmp, Context cntxt, Handler hndlr){
+        appContext= cntxt;
         image = bmp;
-        handler= h;
+        handler= hndlr;
     }
 
     /**
      * This method calculates the brightness of the image and prompts a Toast to the user
-     * @author Pietro Balzan - some changes by Francesco Pham
-     * @param UpperBound the toast will be launched if brightness exceeds this value.
-     * @param LowerBound the toast will be launched if brightness is lower than this value.
+     * @param upperBound the toast will be launched if brightness exceeds this value.
+     * @param lowerBound the toast will be launched if brightness is lower than this value.
      * @param pixelSkip how many pixels to skip each pixel. Higher values result in better performance,
      *                     but a more rough estimate. When pixelSpacing = 1, the method actually
      *                     calculates the real average brightness, not an estimate.
      *                     Do not use values for pixelSpacing that are smaller than 1.
+     * @author Pietro Balzan - some changes by Francesco Pham
      */
-    public void imgBrightness(int UpperBound, int LowerBound, int pixelSkip){
+
+    public void imgBrightness(int upperBound, int lowerBound, int pixelSkip){
         int width = image.getWidth();
         int height = image.getHeight();
         int R, G, B, pixel;
@@ -67,7 +70,7 @@ public class BrightnessRecognition {
         final String tooDark = "The picture might be too dark";
         double media= totBrightness/totalPixels;
 
-        if (media > UpperBound){
+        if (media > upperBound){
             // image is too bright
             Log.d(TAG, "too bright image");
             handler.post(new Runnable() {
@@ -77,7 +80,7 @@ public class BrightnessRecognition {
                 }
             });
         }
-        else if (media < LowerBound){
+        else if (media < lowerBound){
             //image is too dark
             Log.d(TAG, "too dark image");
             handler.post(new Runnable() {

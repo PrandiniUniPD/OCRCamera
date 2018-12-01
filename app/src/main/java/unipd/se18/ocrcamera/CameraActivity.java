@@ -128,7 +128,8 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
-        handler = new Handler(getApplicationContext().getMainLooper());
+        handler = new Handler(getApplicationContext().getMainLooper());  // handler to use in the BrightnessRecognition thread
+
     }
 
     /**
@@ -164,9 +165,9 @@ public class CameraActivity extends AppCompatActivity {
                     edit.putString("imagePath", filePath.trim());
                     edit.apply();
 
-                    // analyze the brightness
+                    // analyze the brightness   @author Balzan Pietro
                     final Bitmap bitmapImage2 = bitmapImage;
-                    new Thread(new Runnable() {
+                    new Thread(new Runnable() {      // run the brightness recognition on a new thread to improve performance
                         public void run() {
                             Context appContext= getApplicationContext();
                             BrightnessRecognition bRecog = new BrightnessRecognition(bitmapImage2, appContext, handler);
