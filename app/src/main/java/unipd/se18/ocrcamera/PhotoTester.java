@@ -158,9 +158,10 @@ public class PhotoTester {
 
     /**
      * Compare the list of ingredients extracted by OCR and the correct list of ingredients
-     * @param correct correct list of ingredients loaded from file
-     * @param extracted list of ingredients extracted by the OCR
-     * @return confidence percentage based on number of matched words, their similarity and order
+     *
+     * @param correct       Correct list of ingredients loaded from file
+     * @param extracted     List of ingredients extracted by the OCR
+     * @return Confidence percentage based on number of matched words, their similarity and order
      * @author Francesco Pham credit to Stefano Romanello for Levenshtein library suggestion
      */
     private float ingredientsTextComparison(String correct, String extracted){
@@ -432,7 +433,7 @@ public class PhotoTester {
     /**
      * Find and return key corresponding to minimum value
      * @param map
-     * @return key corresponding to minimum value
+     * @return Key corresponding to minimum value
      */
     private String getMinKey(Map<String, Float> map) {
         String minKey = null;
