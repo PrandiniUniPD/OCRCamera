@@ -84,9 +84,10 @@ public class ImageProcessing {
      *
      * @param imagePath path of the image you want to analyze
      * @return the angle between the text and the horizontal
+     * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1)
      */
-    public double computeSkew(String imagePath) {
+    public double computeSkew(String imagePath) throws FileNotFoundException{
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
@@ -149,9 +150,10 @@ public class ImageProcessing {
      *
      * @param imagePath the path of the image you want to analyze
      * @return the rectangle which contains the text
+     * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
-    public RotatedRect detectMaxTextArea(String imagePath) {
+    public RotatedRect detectMaxTextArea(String imagePath) throws FileNotFoundException{
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
@@ -171,66 +173,18 @@ public class ImageProcessing {
 
 
         //Detect the edges in the image
+        /*Mat canny = new Mat();
+        Imgproc.Canny(threshold, canny, 50, 200, 3, false);*/
 
-        /*EXPERIMENTAL:
-            This class wants to simplify the insertion of
-            a long number of parameters required by the
-            Imgproc.Canny methods
-        */
-        public class Canny {
-            private Canny(Builder builder) {
-                //incomplete
-            }
 
-            public static class CannyBuilder {
-                private Mat input;
-                private Mat output;
-                private double threshold1;
-                private double threshold2;
-                private int apertureSize;
-                private boolean gradient;
-
-                public CannyBuilder(Mat input, Mat output, double threshold1, double threshold2, int apertureSize, boolean gradient) {
-                    this.input = input;
-                    this.output = output;
-                    this.threshold1 = threshold1;
-                    this.threshold2 = threshold2;
-                    this.apertureSize = apertureSize;
-                    this.gradient = gradient;
-                }
-
-                public CannyBuilder threshold1(double threshold1) {
-                    this.threshold1 = threshold1;
-                    return this;
-                }
-
-                public CannyBuilder threshold2(double threshold2) {
-                    this.threshold2 = threshold2;
-                    return this;
-                }
-
-                public CannyBuilder apertureSize(int apertureSize1) {
-                    this.apertureSize = apertureSize;
-                    return this;
-                }
-
-                public CannyBuilder gradient(boolean gradient) {
-                    this.gradient = gradient;
-                    return this;
-                }
-
-                public Canny build() {
-                    return new Canny(this);
-                }
-            }
-        }
-
-        }
-
-        //BACKUP if the Builder Class doesn't work
-        //Imgproc.Canny(threshold, canny, threshold1, threshold2, apertureSize, l2gradient);
-        //save(canny, "canny.jpg");
-
+        ProcessingMethods detectEdges = new ProcessingMethods.CannyBuilder(threshold)
+                .withMinThreshold(50)
+                .withMaxThreshold(200)
+                .withApertureSize(3)
+                .withL2gradient(false)
+                .build();
+        Mat canny = detectEdges.doCanny();
+        save(canny, "canny.jpg");
 
         /*
             kernelSize is the dimension of "element" matrix
@@ -319,8 +273,8 @@ public class ImageProcessing {
 
         // matrices we'll use
         Mat rotationMat = new Mat();
-        Mat rotatedImg = new Mat();
-        Mat croppedImg = new Mat();
+        Mat rotatedImage = new Mat();
+        Mat croppedImage = new Mat();
 
         // get angle and size from the bounding box
         double angle = rectangle.angle;
@@ -397,5 +351,96 @@ public class ImageProcessing {
             Log.e(TAG, "File not found");
             throw new FileNotFoundException();
         }
+        return img;
     }
+
+
+    private static class ProcessingMethods{
+
+        public static class CannyBuilder{
+            private Mat source;
+            private double minThreshold;
+            private double maxThreshold;
+            private boolean l2gradient;
+            private int apertureSize;
+
+            public CannyBuilder(Mat src){
+                this.source = src;
+                this.minThreshold = 50;
+                this.maxThreshold = 200;
+                this.l2gradient = false;
+                this.apertureSize = 3;
+            }
+
+
+            public CannyBuilder withMinThreshold(double value){
+                this.minThreshold = value;
+                return this;
+            }
+
+            public CannyBuilder withMaxThreshold(double value){
+                this.maxThreshold = value;
+                return this;
+            }
+
+            public CannyBuilder withL2gradient(boolean value){
+                this.l2gradient = value;
+                return this;
+            }
+
+            public CannyBuilder withApertureSize(int value){
+                this.apertureSize = value;
+                return this;
+            }
+
+            public ProcessingMethods build(){
+                ProcessingMethods method = new ProcessingMethods();
+                method.src = this.source;
+                method.setMinThreshold(this.minThreshold);
+                method.setMaxThreshold(this.maxThreshold);
+                method.setL2gradient(this.l2gradient);
+                method.setApertureSize(this.apertureSize);
+
+                return method;
+            }
+        }
+
+
+        private Mat src;
+        private double minThreshold;
+        private double maxThreshold;
+        private boolean l2gradient;
+        private int apertureSize;
+
+        private ProcessingMethods(){
+        }
+
+        public void setSrc(Mat matrix){
+            this.src = matrix;
+        }
+
+        public void setMinThreshold(double value){
+            this.minThreshold = value;
+        }
+
+        public void setMaxThreshold(double value){
+            this.maxThreshold = value;
+        }
+
+        public void setL2gradient(boolean value){
+            this.l2gradient = value;
+        }
+
+        public void setApertureSize(int value){
+            this.apertureSize = value;
+        }
+
+        public Mat doCanny(){
+            Mat dst = new Mat();
+            Imgproc.Canny(this.src, dst, this.minThreshold, this.maxThreshold, this.apertureSize, this.l2gradient);
+            return dst;
+        }
+    }
+
+
 }
