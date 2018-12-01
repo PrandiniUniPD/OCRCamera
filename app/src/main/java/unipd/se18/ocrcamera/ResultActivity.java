@@ -259,23 +259,24 @@ public class ResultActivity extends AppCompatActivity {
     /**
      * @author Giovanni Fasan(g1), Giovanni Piva(g1)
      * @param text String in which you have to find the ingredients
-     * @return String with ingredients list of the label
+     * @return String with bold ingredients list of the label
      * Put in database csv: https://www.youtube.com/watch?v=i-TqNzUryn8
-     * problem contains
      */
     public String inciDetectorEtichetta(String text){
         String inci = "";
         List listInci = new ArrayList();
         try {
-            InputStream is = getResources().openRawResource(R.raw.database);
+            InputStream is = getResources().openRawResource(R.raw.database); /**location of the inci Data Base*/
             is.mark(0);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             String ingredient;
             String noSpace = text.replaceAll("\n", " ");
-            String[] tokens = noSpace.split(",");
+            String[] tokens = noSpace.split(","); //split word when i find a ","
             String box="";
-            for(int i=0; i<tokens.length; i++) {
+            for(int i=0; i<tokens.length; i++) { /**scan the strings for a pattern match with the inci Data Base*/
                 while ((ingredient=reader.readLine())!=null){
+                    /**problem: if a string contains a subtring with the word that we are searching for,
+                    contains() will give a positive result*/
                     if (tokens[i].toUpperCase().contains(ingredient)) {
                         box=ingredient;
                     }
@@ -287,7 +288,7 @@ public class ResultActivity extends AppCompatActivity {
             }
 
             for(int i=0; i<listInci.size(); i++){
-                inci = inci + "<b>" + listInci.get(i) + "</b>; ";
+                inci = inci + "<b>" + listInci.get(i) + "</b>; "; /**bolding ingredients founded*/
             }
 
         }catch (IOException e){
