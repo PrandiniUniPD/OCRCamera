@@ -299,15 +299,12 @@ public class CameraActivity extends AppCompatActivity {
         }else{
             Log.d("createOCRCDirs", "already exists");
         }
-        //Log.e("createTessDirs", "launching copyTessDataForTextRecognizor()");
-        //copyTessDataForTextRecognizor();
     }
 
     /**
      * Takes a photo.
      */
     private void takePhoto() {
-        Log.d(TAG,"takePicture");
         if(null == mCameraDevice) {
             Log.e(TAG, "cameraDevice is null");
             return;
@@ -319,12 +316,11 @@ public class CameraActivity extends AppCompatActivity {
             if (characteristics != null) {
                 jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
             }
-            int width = 6440;
+            int width = 640;
             int height = 480;
             if (jpegSizes != null && 0 < jpegSizes.length) {
                 width = jpegSizes[0].getWidth();
                 height = jpegSizes[0].getHeight();
-                //devo fare un print delle dimensioni!!!!!!!!!!!!!!
             }
             ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
             List<Surface> outputSurfaces = new ArrayList<Surface>(2);
@@ -348,7 +344,7 @@ public class CameraActivity extends AppCompatActivity {
             } catch(IOException e){
                 e.printStackTrace();
             }
-            final Intent intentOCR= new Intent(this,ResultActivity.class);
+            final Intent intentOCR= new Intent(this, ResultActivity.class);
             intentOCR.putExtra("imgPath", file.getPath());
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
@@ -370,6 +366,12 @@ public class CameraActivity extends AppCompatActivity {
                         }
                     }
                 }
+
+                /**
+                 * saves the vector of bytes using FileOutputStream
+                 * @param bytes the vector of bytes of the bitmap image
+                 * @throws IOException because can occur a IOException
+                 */
                 private void save(byte[] bytes) throws IOException {
                     OutputStream output = null;
                     try {
@@ -390,7 +392,7 @@ public class CameraActivity extends AppCompatActivity {
                     Log.d(TAG, "foto salvata");
                     super.onCaptureCompleted(session, request, result);
                     Toast.makeText(CameraActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
-                    //createCameraPreview();
+                    //here was createCameraPreview() but in order to show the result i start another activity
                     startActivity(intentOCR);
                 }
             };
