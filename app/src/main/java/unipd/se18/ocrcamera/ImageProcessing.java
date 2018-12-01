@@ -26,7 +26,6 @@ import java.util.List;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import static org.opencv.imgproc.Imgproc.getRectSubPix;
 import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
-import static org.opencv.imgproc.Imgproc.morphologyEx;
 
 
 /**
@@ -40,6 +39,12 @@ public class ImageProcessing {
         
         We referenced a previous instance of the documentation since
         the newer one is still incomplete
+
+        We are trying to implement all the Imgproc methods,
+        which require a large number of
+        parameters to be called, with a builder statement,
+        to simplify reading and eventually changing them
+        (at the moment there are a little too many "magic numbers")
      */
 
     //tag used to identify the log
@@ -48,7 +53,6 @@ public class ImageProcessing {
 
     /**
      * Constructor of the class which initialize the openCV library
-     *
      * @author Thomas Porro (g1)
      */
     public ImageProcessing() {
@@ -58,10 +62,8 @@ public class ImageProcessing {
         Log.i(TAG, "Loaded the library");
     }
 
-
     /**
      * Find, crop and rotate the text in an image
-     *
      * @param imagePath the path of the image you want to analyze
      * @return the cropped image
      * @throws FileNotFoundException if imagePath doesn't exist
@@ -81,12 +83,12 @@ public class ImageProcessing {
 
     /**
      * Calculate the angle between the text and the horizontal
-     *
      * @param imagePath path of the image you want to analyze
      * @return the angle between the text and the horizontal
+     * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1)
      */
-    public double computeSkew(String imagePath) {
+    public double computeSkew(String imagePath) throws FileNotFoundException {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
@@ -146,12 +148,12 @@ public class ImageProcessing {
 
     /**
      * Detect in which region of the picture there is some text
-     *
      * @param imagePath the path of the image you want to analyze
      * @return the rectangle which contains the text
+     * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
-    public RotatedRect detectMaxTextArea(String imagePath) {
+    public RotatedRect detectMaxTextArea(String imagePath) throws FileNotFoundException {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
@@ -171,64 +173,12 @@ public class ImageProcessing {
 
 
         //Detect the edges in the image
-
-        /*EXPERIMENTAL:
-            This class wants to simplify the insertion of
-            a long number of parameters required by the
-            Imgproc.Canny methods
-        */
-        public class Canny {
-            private Canny(Builder builder) {
-                //incomplete
-            }
-
-            public static class CannyBuilder {
-                private Mat input;
-                private Mat output;
-                private double threshold1;
-                private double threshold2;
-                private int apertureSize;
-                private boolean gradient;
-
-                public CannyBuilder(Mat input, Mat output, double threshold1, double threshold2, int apertureSize, boolean gradient) {
-                    this.input = input;
-                    this.output = output;
-                    this.threshold1 = threshold1;
-                    this.threshold2 = threshold2;
-                    this.apertureSize = apertureSize;
-                    this.gradient = gradient;
-                }
-
-                public CannyBuilder threshold1(double threshold1) {
-                    this.threshold1 = threshold1;
-                    return this;
-                }
-
-                public CannyBuilder threshold2(double threshold2) {
-                    this.threshold2 = threshold2;
-                    return this;
-                }
-
-                public CannyBuilder apertureSize(int apertureSize1) {
-                    this.apertureSize = apertureSize;
-                    return this;
-                }
-
-                public CannyBuilder gradient(boolean gradient) {
-                    this.gradient = gradient;
-                    return this;
-                }
-
-                public Canny build() {
-                    return new Canny(this);
-                }
-            }
-        }
-
-        }
-
-        //BACKUP if the Builder Class doesn't work
-        //Imgproc.Canny(threshold, canny, threshold1, threshold2, apertureSize, l2gradient);
+        Mat canny = new Mat();
+        double threshold1 = 100;
+        double threshold2 = 200;
+        int apertureSize = 3;
+        boolean l2gradient = false;
+        Imgproc.Canny(threshold, canny, threshold1, threshold2, apertureSize, l2gradient);
         //save(canny, "canny.jpg");
 
 
@@ -292,7 +242,6 @@ public class ImageProcessing {
 
     /**
      * Converts the matrix into a Bitmap
-     *
      * @param matrix the matrix you want to convert
      * @return the bitmap corresponding to the matrix
      * @author Thomas Porro (g1)
@@ -306,7 +255,6 @@ public class ImageProcessing {
 
     /**
      * Crop the matrix with the given rectangle
-     *
      * @param rectangle the part of the image you want to crop
      * @param mat       the matrix you want to crop
      * @return a matrix that contains only the rectangle
@@ -339,18 +287,17 @@ public class ImageProcessing {
         rotationMat = getRotationMatrix2D(rectangle.center, angle, 1.0);
 
         //Perform the affine transformation
-        Imgproc.warpAffine(mat, rotatedImage, rotationMat, mat.size(), INTER_CUBIC);
+        Imgproc.warpAffine(mat, rotatedImg, rotationMat, mat.size(), INTER_CUBIC);
 
         //Crop the resulting image
-        getRectSubPix(rotatedImage, rect_size, rectangle.center, croppedImage);
-        return croppedImage;
+        getRectSubPix(rotatedImg, rect_size, rectangle.center, croppedImg);
+        return croppedImg;
 
     }
 
 
     /**
      * Converts a matrix into a Bitmap and saves it in a local directory
-     *
      * @param matrix    the matrix to be converted
      * @param imageName the name of the file being saved
      * @author Thomas Porro(g1), Oscar Garrido(g1)
@@ -382,7 +329,6 @@ public class ImageProcessing {
 
     /**
      * Converts the Bitmap into a matrix
-     *
      * @param imagePath the matrix you want to convert
      * @return the bitmap corresponding to the matrix
      * @throws FileNotFoundException if the imagePath doesn't exist
@@ -390,6 +336,7 @@ public class ImageProcessing {
      */
     public Mat conversion(String imagePath) throws FileNotFoundException {
 
+        //loads the coloured image in a matrix
         Mat img = Imgcodecs.imread(imagePath);
 
         //Throw an Exception if "img" is empty
@@ -397,5 +344,7 @@ public class ImageProcessing {
             Log.e(TAG, "File not found");
             throw new FileNotFoundException();
         }
+
+        return img;
     }
 }
