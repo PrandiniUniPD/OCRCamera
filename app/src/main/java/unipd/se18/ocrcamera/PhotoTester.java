@@ -165,7 +165,9 @@ public class PhotoTester {
      */
     private float ingredientsTextComparison(String correct, String extracted){
 
-        extracted = extracted.toLowerCase();
+        extracted = extracted.toLowerCase(); //ignoring case
+
+        //split words
         String[] extractedWords = extracted.trim().split("[ ,-:./\\n\\r]+");
         String[] correctWords = correct.trim().split("[ ,-:./\\n\\r]+");
 
@@ -201,24 +203,29 @@ public class PhotoTester {
                     }
                 });
 
+        //for each correct word
         for (String word : correctWords) {
             boolean found = false;
             int index = posLastWordFound;
-            word = word.toLowerCase();
+            word = word.toLowerCase(); //ignoring case
 
-            if (word.length() >= 3) {
+            if (word.length() >= 3) { //ignoring non significant words with 1 or 2 characters
                 maxPoints += word.length();
+
                 for (int i = 0; i < extractedWords.length && !found; i++) {
+                    //for each extracted words starting from posLastWordFound
                     index = (posLastWordFound + i) % extractedWords.length;
 
                     //Calculate similarity and normalize
                     int maxLength = Math.max(word.length(),extractedWords[index].length());
                     double similarity = 1.0 - levenshtein.distance(word,extractedWords[index])/maxLength;
 
+                    //if similarity grater than 0.8 the word is found
                     if (similarity > 0.8) {
                         if (points == 0 || i < consecutiveNotFound + 10) {
                             points += word.length()*similarity; //assign points based on number of characters
                         } else {
+                            //if word found is distant from posLastWordFound the ocr text isn't ordered, less points
                             points += (float) word.length()*similarity/2;
                         }
                         Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
@@ -228,11 +235,12 @@ public class PhotoTester {
                 }
             }
 
+            //taking into consideration words that are not properly separated (e.g. "cetarylalcohol")
             if(!found && word.length() >= 6){
                 maxPoints += word.length();
                 for(int i=0; i<extractedWords.length && !found; i++) {
                     index = (posLastWordFound+i)%extractedWords.length;
-                    if (extractedWords[index].contains(word)) {
+                    if (extractedWords[index].contains(word)) { //the correct word is contained in the extracted word
                         if(points==0 || i<consecutiveNotFound+10) {
                             points += word.length(); //assign points based on number of characters
                         } else {
