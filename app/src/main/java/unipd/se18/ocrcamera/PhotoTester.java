@@ -429,6 +429,11 @@ public class PhotoTester {
         return report;
     }
 
+    /**
+     * Find and return key corresponding to minimum value
+     * @param map
+     * @return key corresponding to minimum value
+     */
     private String getMinKey(Map<String, Float> map) {
         String minKey = null;
         float minValue = Float.MAX_VALUE;
