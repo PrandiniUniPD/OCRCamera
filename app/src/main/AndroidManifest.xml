@@ -31,7 +31,7 @@
         <activity
             android:name=".CameraActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ResultActivity"
             android:configChanges="orientation"
@@ -49,7 +49,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TestResultActivity"></activity>
+        <activity android:name=".TestResultActivity" />
+        <activity android:name=".TestAlterationsActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

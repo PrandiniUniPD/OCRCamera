@@ -20,12 +20,8 @@ import org.json.JSONException;
 
 import java.text.DecimalFormat;
 
-/**
- * Adapter for the view of the processing result of the pics
- * @author Pietro Prandini
- */
-public class AdapterTestElement extends BaseAdapter
-{
+public class AdapterTestAlterations extends BaseAdapter {
+
     /**
      * Context of the app
      */
@@ -34,7 +30,7 @@ public class AdapterTestElement extends BaseAdapter
     /**
      * Elements of test
      */
-    private TestElement[] entries;
+    private TestElement entry;
 
     /**
      * String used for the logs of this class
@@ -42,23 +38,26 @@ public class AdapterTestElement extends BaseAdapter
     private final String TAG = "AdapterTestElement";
 
     /**
-     * Defines an object of AdapterTestElement type
+     * Defines an object of AdapterTestAlterations type
      * @param context The reference to the activity where the adapter will be used
-     * @param entries The list of the test elements containing data from photos test
+     * @param entry The list of the test elements containing data from photos test
      */
-    AdapterTestElement(Context context, TestElement[] entries)
+    AdapterTestAlterations(Context context, TestElement entry)
     {
         this.context = context;
-        this.entries = entries;
+        this.entry = entry;
     }
+
 
     @Override
     public int getCount() {
-        return entries.length;
+        return entry.getAlterationsNames().length;
     }
 
     @Override
-    public Object getItem(int position) { return entries[position]; }
+    public Object getItem(int position) {
+        return position;
+    }
 
     @Override
     public long getItemId(int position) {
@@ -66,25 +65,13 @@ public class AdapterTestElement extends BaseAdapter
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
-        }
-
+    public View getView(int position, View convertView, ViewGroup parent) {if (convertView == null) {
+        convertView = LayoutInflater.from(context).inflate(R.layout.test_alteration_element, parent, false);
+    }
+        Log.v(TAG, "position == " + position + ", name == " + entry.getAlterationsNames()[position]);
         // Set the correctness value
-
-        Button viewAlterationsButton = convertView.findViewById(R.id.view_alterations_button);
-        viewAlterationsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(context,TestAlterationsActivity.class);
-                TestAlterationsActivity.entry = entries[position];
-                context.startActivity(i);
-            }
-        });
-        viewAlterationsButton.setEnabled(false);
         TextView correctness = convertView.findViewById(R.id.correctness_view);
-        float confidence = entries[position].getConfidence();
+        float confidence = entry.getAlterationConfidence(entry.getAlterationsNames()[position]);
         String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
 
         // Set the color of the correctness
@@ -100,12 +87,12 @@ public class AdapterTestElement extends BaseAdapter
 
         // Set the name of the pic
         TextView name = convertView.findViewById(R.id.pic_name_view);
-        String picName = entries[position].getFileName();
+        String picName = entry.getAlterationsNames()[position];
         name.setText(picName);
 
         // Set the pic view
         ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
-        Bitmap img = entries[position].getPicture();
+        Bitmap img = entry.getAlterationBitmap(entry.getAlterationsNames()[position]);
 
         // Scaling the pic view
         int imgWidth = img.getWidth();
@@ -125,7 +112,8 @@ public class AdapterTestElement extends BaseAdapter
         // Set the Tags text
         TextView tags = convertView.findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
-        for(String tag: entries[position].getTags()) {
+
+        for(String tag: entry.getAlterationTags(entry.getAlterationsNames()[position])) {
             assignedTags.append(tag).append(", ");
         }
         tags.setText(assignedTags.toString());
@@ -133,32 +121,21 @@ public class AdapterTestElement extends BaseAdapter
         // Set the ingredients text
         TextView ingredients = convertView.findViewById(R.id.ingredients_view);
         StringBuilder realIngredients = new StringBuilder();
-        for(String ingredient: entries[position].getIngredientsArray()) {
+        for(String ingredient: entry.getIngredientsArray()) {
             realIngredients.append(ingredient).append(", ");
         }
         ingredients.setText(realIngredients);
 
         // Set the extracted text
         TextView extractedText = convertView.findViewById(R.id.extractedText_view);
-        extractedText.setText(entries[position].getRecognizedText());
+        extractedText.setText(entry.getAlterationRecognizedText(entry.getAlterationsNames()[position]));
 
         // Set the notes text
         TextView notes = convertView.findViewById(R.id.notes_view);
-        notes.setText(entries[position].getNotes());
+        notes.setText(entry.getAlterationNotes(entry.getAlterationsNames()[position]));
 
-        // Set alterations view
-        String[] alterations = entries[position].getAlterationsNames();
-        StringBuilder alterationsText = new StringBuilder();
-        TextView alterationsView = convertView.findViewById(R.id.alterations_view);
 
-        if(alterations != null) {
-            for(String alteration: alterations) {
-                alterationsText.append(alteration).append(" - confidence ")
-                        .append(entries[position].getAlterationConfidence(alteration)).append("\n");
-            }
-            alterationsView.setText(alterationsText.toString());
-            viewAlterationsButton.setEnabled(true);
-        }
+
         // return the view of the entry
         return convertView;
 
