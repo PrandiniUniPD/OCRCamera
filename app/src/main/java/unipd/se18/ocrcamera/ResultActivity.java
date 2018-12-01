@@ -279,7 +279,8 @@ public class ResultActivity extends AppCompatActivity {
      * @param text String in which you have to find the ingredients
      * @return String with ingredients list of the label
      * Put in database csv: https://www.youtube.com/watch?v=i-TqNzUryn8
-     * problem contains
+     * problem contains: from the string "black" find the ingredient "LAC"
+     * the problem is solved by a division of the string into characters to which I am still workings
      */
     public String inciDetectorEtichetta(String text){
         String inci = "";
