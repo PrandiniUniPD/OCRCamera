@@ -136,9 +136,9 @@ public class TestResultActivity extends AppCompatActivity {
          * Does the task in background - Does the tests
          * More details at: {@link AsyncTask#doInBackground(Object[])}
          * @param voids objects received during the execution
-         * @modify tester
-         * @modify listEntriesView
-         * @modify report
+         * @modify tester Instance of PhotoTester used for doing the tests
+         * @modify listEntriesView The ListView where showing the results.
+         * @modify report The String where will be stored the report
          * @return the result of the objects processed
          */
         @Override
@@ -182,6 +182,8 @@ public class TestResultActivity extends AppCompatActivity {
          * End of the task
          * More details at: {@link AsyncTask#onPostExecute(Object)}
          * @param v The object returned by the processing
+         * @modify progressDialog The ProgressDialog object used while the AsyncTask is running
+         * @modify listEntriesView The ListView where showing the results.
          */
         @Override
         protected void onPostExecute(Void v) {
@@ -201,7 +203,7 @@ public class TestResultActivity extends AppCompatActivity {
     /**
      * Catches and controls the response of the permissions request
      * More details at: {@link Intent}, {@link Manifest.permission},
-     * {@link AppCompatActivity#onActivityResult(int, int, Intent)}
+     * {@link AppCompatActivity#onRequestPermissionsResult(int, String[], int[])}
      * @param requestCode The code assigned to the request
      * @param permissions The list of the permissions requested
      * @param grantResults The results of the requests
