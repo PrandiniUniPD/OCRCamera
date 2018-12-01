@@ -322,7 +322,8 @@ public class ResultActivity extends AppCompatActivity {
 
     /**
      * @autor Giovanni Fasan(g1)
-     * function that opens a new activity
+     * Function that opens a new activity
+     * https://developer.android.com/reference/android/provider/MediaStore.Images.Media
      */
     private void openGallery(){
         Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);      //open device gallery
@@ -336,6 +337,7 @@ public class ResultActivity extends AppCompatActivity {
      * @param data  Intent variable
      * onActivityResult start another activity and receive a result back
      * Save the data in a Uri variable. Convert the Uri variable to bitmap to be able to execute the ocr. Set the imageview and execute the ocr.
+     * https://developer.android.com/reference/android/provider/MediaStore.Images.Media
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode,resultCode,data);
