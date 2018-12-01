@@ -330,8 +330,7 @@ public class ImageProcessing {
      * @author Oscar Garrido (g1)
      */
     public Mat conversion(String imagePath) throws FileNotFoundException {
-
-        Log.d(TAG, "Image path = "+imagePath);
+        
         Mat img = Imgcodecs.imread(imagePath);
 
         //Throw an Exception if "img" is empty
