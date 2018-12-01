@@ -10,9 +10,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.Image;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -54,9 +56,17 @@ public class ResultActivity extends AppCompatActivity {
     private Bitmap lastPhoto;
 
     /**
-     * TextView per gli ingredienti
+     * TextView of the ingredients
      */
     private TextView tViewInci;
+
+    /**
+     * Gallery's request code
+     */
+    private static final int PICK_IMG=100;
+
+    ImageView mImageView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +77,7 @@ public class ResultActivity extends AppCompatActivity {
         ImageProcessing analyzeImage = new ImageProcessing();
 
         // UI components
-        ImageView mImageView = findViewById(R.id.img_captured_view);
+        mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
 
@@ -82,6 +92,13 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
+        FloatingActionButton gal = findViewById(R.id.newGalleryFloat);
+        gal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGallery();
+            }
+        });
 
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
@@ -117,6 +134,7 @@ public class ResultActivity extends AppCompatActivity {
             AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
             ocrTask.execute(lastPhoto);
         }
+        Log.d("gallery", lastPhoto.toString());
     }
 
     /**
@@ -241,12 +259,12 @@ public class ResultActivity extends AppCompatActivity {
     public String inciDetector(String text){
         String inci = "";
         try {
-            InputStream is = getResources().openRawResource(R.raw.database);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            String ingredient;
-            while ((ingredient=reader.readLine())!= null){
-                if (text.toUpperCase().contains(ingredient)) {
-                    inci = inci + "<b>" + ingredient + "</b>; ";
+            InputStream is = getResources().openRawResource(R.raw.database);    //InputStream from database.csv
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));    //database reader
+            String ingredient;  //String of inci ingredient
+            while ((ingredient=reader.readLine())!= null){      //defines ingredient as each row of the database
+                if (text.toUpperCase().contains(ingredient)) {      //check if no text found are inci ingredients
+                    inci = inci + "<b>" + ingredient + "</b>; ";    //Create the string with the ingredients in bold
                 }
             }
         }catch (IOException e){
@@ -261,35 +279,38 @@ public class ResultActivity extends AppCompatActivity {
      * @param text String in which you have to find the ingredients
      * @return String with ingredients list of the label
      * Put in database csv: https://www.youtube.com/watch?v=i-TqNzUryn8
-     * problem contains
+     * problem contains: from the string "black" find the ingredient "LAC"
+     * the problem is solved by a division of the string into characters to which I am still workings
      */
     public String inciDetectorEtichetta(String text){
         String inci = "";
-        List listInci = new ArrayList();
+        List listInci = new ArrayList();        //list where save the ingredients found
 
         try {
-            InputStream is = getResources().openRawResource(R.raw.database);
-            is.mark(0);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            String ingredient;
-            String noSpace = text.replaceAll("\n", " ");
-            String[] tokens = noSpace.split(",");
+            InputStream is = getResources().openRawResource(R.raw.database);    //InputStream from database.csv
+            is.mark(0);     //mark the position to restart the buffer from line 0 of database
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));    //database reader
+            String ingredient;      //String of inci ingredient
+            String noSpace = text.replaceAll("\n", " ");    //remove \n (start a new line) and replace with " ".
+            String[] tokens = noSpace.split(",");   //split the text by "," for find the inci ingredients
             String box="";
 
             for (int i=0; i<tokens.length; i++) {
-                while ((ingredient=reader.readLine())!=null){
-                    if (tokens[i].toUpperCase().contains(ingredient)) {
-                        box=ingredient;
+                while ((ingredient=reader.readLine())!=null){       //defines ingredient as each row of the database
+                    if (tokens[i].toUpperCase().contains(ingredient)) {         //Use .toUpperCase because the database's words are uppercase. .contains find if tokens[i] is an ingredient
+                        box=ingredient;     //save the ingredient in a box. after while i use the last ingredient that I found
                     }
                 }
-                is.reset();
+                is.reset();     //reset InputStream to the mark 0
                 if (!listInci.contains(box)) {
-                    listInci.add(box);
+                    listInci.add(box);          //check if there are duplicates
                 }
             }
 
-            for (int i=0; i<listInci.size(); i++){
-                inci = inci + "<b>" + listInci.get(i) + "</b>; ";
+            if (listInci.size()>1) {
+                for (int i = 0; i < listInci.size(); i++) {
+                    inci = inci + "<b>" + listInci.get(i) + "</b>; ";           //Create the string with the ingredients in bold
+                }
             }
 
         }catch (IOException e){
@@ -297,6 +318,43 @@ public class ResultActivity extends AppCompatActivity {
         }
 
         return inci;
+    }
+
+
+    /**
+     * @autor Giovanni Fasan(g1)
+     * Function that opens a new activity
+     * https://developer.android.com/reference/android/provider/MediaStore.Images.Media
+     */
+    private void openGallery(){
+        Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);      //open device gallery
+        startActivityForResult(gallery, PICK_IMG);  //start gallery's intent
+    }
+
+    /**
+     * @autor Giovanni Fasan(g1)
+     * @param requestCode integer code
+     * @param resultCode integer code
+     * @param data  Intent variable
+     * onActivityResult start another activity and receive a result back
+     * Save the data in a Uri variable. Convert the Uri variable to bitmap to be able to execute the ocr. Set the imageview and execute the ocr.
+     * https://developer.android.com/reference/android/provider/MediaStore.Images.Media
+     */
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(resultCode==RESULT_OK && requestCode==PICK_IMG){
+            Uri imageUri;
+            imageUri = data.getData();
+            try {
+                lastPhoto = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                mImageView = findViewById(R.id.img_captured_view);
+                mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
+                AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+                ocrTask.execute(lastPhoto);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
