@@ -40,7 +40,7 @@ import static java.lang.String.valueOf;
 public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
-    private static String orientationResult;
+    private static String orientationResult="P";
 
     /**
      * onCreate method of the Android Activity Lifecycle
@@ -158,7 +158,7 @@ public class CameraActivity extends AppCompatActivity {
      * Takes a photo, saves it inside internal storage and resets the last extracted text
      *
      * @modify SharedPreferences
-     * @author Romanello Stefano - modified by Leonardo Rossi
+     * @author Romanello Stefano - modified by Leonardo Rossi - modified by Leonardo Pratesi
      */
     private void takePhoto() {
         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
@@ -167,10 +167,10 @@ public class CameraActivity extends AppCompatActivity {
 
                Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
                double valoreBlur = blurValue(bitmapImage);
-               Toast.makeText(getBaseContext(), "Valore Blur " + String.valueOf(valoreBlur), Toast.LENGTH_LONG).show();
-                // -----------------------------------------------------------------------
-                //Image rotation    TOLTO PER PROBLEMI CON EMULATORE
-            /**    if(orientationResult != null)
+               Toast.makeText(getBaseContext(),
+                       "Valore Blur " + String.valueOf(valoreBlur), Toast.LENGTH_LONG).show(); //Toast che stampa il valore di blur per testing
+
+                if(orientationResult != null)
                 {
                     switch (orientationResult)
                     {
@@ -179,8 +179,6 @@ public class CameraActivity extends AppCompatActivity {
                         case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
                         default: break;
                     }
-                    */
-           //------------------------------------------------------------------------
 
 
                     //Temporary stores the captured photo into a file that will be used from the Camera Result activity
@@ -192,13 +190,16 @@ public class CameraActivity extends AppCompatActivity {
                     edit.apply();
 
                     //An intent that will launch the activity that will analyse the photo
-                    //If it is not blurry [Leonardo Pratesi]
-                    if (blurEvaluation(valoreBlur)) {
+                    //goes to Result activity if the photo is not blurry [Leonardo Pratesi]
+                    if (!blurDetection(valoreBlur)) {
                         Intent i = new Intent(CameraActivity.this, ResultActivity.class);
                         startActivity(i);
                     }
+                    else
+                        Toast.makeText(getBaseContext(),
+                                "immagine sfocata riprova", Toast.LENGTH_LONG).show(); //Toast che stampa il valore di blur per testing
                 }
-         //   }
+            }
         });
 
     }
@@ -279,7 +280,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     /**
-     * Detect the blurriness by appling a Laplacian matrix and evaluating the variance (low variance means an usually blurry image)
+     * Detect the blurriness by appling a Laplacian matrix and evaluating the variance (low variance means an usually blurry image) uses OpenCV
      * @param bitmap1 The captured image
      * @return Double value of the variance
      * @author Leonardo Pratesi
@@ -294,30 +295,38 @@ public class CameraActivity extends AppCompatActivity {
         Mat destination = new Mat();
         Mat matGray=new Mat();
 
-        Imgproc.cvtColor(matImage, matGray, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.Laplacian(matGray, destination, 3);
+        Imgproc.cvtColor(matImage, matGray, Imgproc.COLOR_BGR2GRAY);    //converte immagine in scala di grigi
+        Imgproc.Laplacian(matGray, destination, 3);              //applica prodotto di convoluzione a matGray e lo mette in destination
         MatOfDouble median = new MatOfDouble();
         MatOfDouble std= new MatOfDouble();
-        Core.meanStdDev(destination, median , std);
+        Core.meanStdDev(destination, median , std);                     //calcola deviazione standard
 
-        blur=Math.pow(std.get(0,0)[0],2);
+        blur=Math.pow(std.get(0,0)[0],2);                      //eleva deviazione standard al quadrato per avere varianza
 
 
 
         return blur;
     }
 
-
-    public boolean blurEvaluation(double blurValue)
+    /** Detect the blurriness by appling a Laplacian matrix and evaluating the variance (low variance means an usually blurry image) uses OpenCV
+     * @param blurValue value from blurValue method
+     * @return boolean
+     * @author Leonardo Pratesi
+     */
+    public boolean blurDetection(double blurValue)
     {
+
+        /**
+         * AGGIUNGERE METODO CHE CALCOLA TRESHOLD IN BASE AL SOGGETTO FOTOGRAFATO
+         */
         double threshold=10;
 
         if (blurValue< threshold)
             {
-                return false; //blurry
+                return true; //blurry
             }
         else
-                return true; //not blurry
+                return false; //not blurry
     }
 
 
