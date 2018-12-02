@@ -48,8 +48,6 @@ import java.util.Objects;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import unipd.se18.ocrcamera.R;
-
 /**
  * The Activity useful for making photos
  */

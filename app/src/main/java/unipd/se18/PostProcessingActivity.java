@@ -11,8 +11,6 @@ import android.widget.Button;
 import com.yalantis.ucrop.view.OverlayView;
 import com.yalantis.ucrop.view.UCropView;
 
-import unipd.se18.ocrcamera.R;
-
 /**
  * @author Leonardo Rossi (g2)
  */
