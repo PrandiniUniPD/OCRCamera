@@ -29,7 +29,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
     private static String orientationResult;
-    float OneEightyOverPi = 57.29577957855f;
+    final float OneEightyOverPi = 57.29577957855f;
     /**
      * onCreate method of the Android Activity Lifecycle
      * @param savedInstanceState The Bundle of the last instance state saved
