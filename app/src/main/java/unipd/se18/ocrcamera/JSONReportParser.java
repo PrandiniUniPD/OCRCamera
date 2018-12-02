@@ -9,17 +9,20 @@ import java.util.Iterator;
 import java.util.List;
 import static android.support.constraint.Constraints.TAG;
 
-//All methods are static so no need for an dedicated class, i made it to have a clearer code while im writing it
-//The methods have to be added to the class that calls them
-//The class refers to TestEntry class
-//The class can receive only a particular type of JSONObject to have a idea see the example at this link:
-// https://ingsw18.slack.com/archives/CDFU418Q4/p1541678187026900
-
+/*
+  All methods are static so no need for an dedicated class, i made it to have a clearer code while im writing it
+  I have to delete this class and copy all the methods in the class where those are used
+  The class refers to TestEntry class
+  The class can receive only a particular type of JSONObject to have a idea see the example at this link:
+  https://ingsw18.slack.com/archives/CDFU418Q4/p1541678187026900
+*/
 public class JSONReportParser {
 
 
     /**
-     * Convert a string in JSONObject and call metod JSONReader
+     * Convert a string in TestEntry[] and call method JSONReader
+     * The JSONObject inside the string must have linked other JSONObjects with the fields
+     * "original_name","confidence", "ingredients", "notes" and "tags"
      * @param fileContent a String in JSON format
      * @return TestEntry[] an array of Test Entry with all the JSONObject value inside or null if fileContent is not in JSON format
      * @author Giovanni Furlan (gr2)
@@ -44,6 +47,7 @@ public class JSONReportParser {
     /**
      * Get a JSONObject with keys linked to JSONObjects A that contains the informations.
      * Put informations of a JSONObject A in a TestEntry, do it for all JSONObject and return all the TestEntry in an array
+     * The JSONObject B must have the fields "original_name","confidence", "ingredients", "notes" and "tags"
      * @param json JSONObject file extracted by PhotoTester class
      * @return TestEntry[] an array of Test Entry with all the JSONObject inside
      * @author Giovanni Furlan (gr2) - modified by Leonardo Rossi (g2)
@@ -75,7 +79,7 @@ public class JSONReportParser {
 
     /**
      * Add all the given JSONObject value in a TestEntry
-     * @param json the JSONObject where to find the value
+     * @param json the JSONObject where to find the value, with fields "original_name","confidence", "ingredients", "notes" and "tags"
      * @return TestEntry with all the JSONObject value
      * @author Giovanni Furlan (gr2) - modified by Leonardo Rossi (g2)
      */
