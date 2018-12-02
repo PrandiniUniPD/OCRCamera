@@ -47,7 +47,7 @@ public class ImageProcessing {
         (at the moment there are a little too many "magic numbers")
      */
 
-    //tag used to identify the log
+    //Tag used to identify the log
     final String TAG = "openCV";
 
 
@@ -234,7 +234,7 @@ public class ImageProcessing {
             }
         }
 
-        //creates a rotated rectangle based on "max_contour"
+        //Creates a rotated rectangle based on "max_contour"
         RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
         return rect;
     }
@@ -262,19 +262,18 @@ public class ImageProcessing {
      */
     public Mat crop(RotatedRect rectangle, Mat mat) {
 
-        // rect is the RotatedRect (I got it from a contour...)
         RotatedRect rect;
 
-        // matrices we'll use
+        //Matrices we'll use
         Mat rotationMat = new Mat();
         Mat rotatedImg = new Mat();
         Mat croppedImg = new Mat();
 
-        // get angle and size from the bounding box
+        //Get angle and size from the bounding box
         double angle = rectangle.angle;
         Size rect_size = rectangle.size;
 
-        // thanks to http://felix.abecassis.me/2011/10/opencv-rotation-deskewing/
+        //Thanks to http://felix.abecassis.me/2011/10/opencv-rotation-deskewing/
         if (rectangle.angle < -45.) {
             angle += 90.0;
             double width = rect_size.width;
@@ -336,7 +335,7 @@ public class ImageProcessing {
      */
     public Mat conversion(String imagePath) throws FileNotFoundException {
 
-        //loads the coloured image in a matrix
+        //Loads the coloured image in a matrix
         Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
 
         //Throw an Exception if "img" is empty
