@@ -2,8 +2,15 @@ package unipd.se18.ocrcamera;                  // Reviewed by Balzan Pietro, to 
                                                // both at the start and at the end
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.util.Log;                        //***from the StyleDoc:
-                                                //   If there are both static and non-static imports,
+import android.util.Log;                        
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;                          //***from the StyleDoc:
+import org.opencv.android.Utils;                //   If there are both static and non-static imports,
 import org.opencv.core.Core;                    //   a single blank line separates the two blocks.
 import org.opencv.core.Mat;                     //   There are no other blank lines between import statements.***
 import org.opencv.core.MatOfInt4;
@@ -12,16 +19,7 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.android.Utils;                // ***import statements should be written in ASCII Sort order***
-                                                    
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import org.opencv.imgproc.Imgproc;              // ***import statements should be written in ASCII Sort order***
 
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import static org.opencv.imgproc.Imgproc.getRectSubPix;
@@ -48,7 +46,7 @@ public class ImageProcessing {
      */
 
     //Tag used to identify the log
-    final String TAG = "openCV";                    //*** I usually set Tags as private but this is probably fine as well***
+    final private String TAG = "openCV";                    //*** I usually set Tags as private but this is probably fine as well***
 
 
     /**
@@ -62,6 +60,7 @@ public class ImageProcessing {
         Log.i(TAG, "Loaded the library");
     }
 
+  
     /**
      * Find, crop and rotate the text in an image                           *** I'm not sure of where the rotation happens, is it in
      * @param imagePath the path of the image you want to analyze               the crop method? ***
@@ -76,7 +75,7 @@ public class ImageProcessing {
         //Call of internal methods                          //    as a Bitmap in CameraActivity, so why not use directly the object?
         RotatedRect area = detectMaxTextArea(imagePath);    //    It would be cool to have both the Bitmap and the Matrix as 
         img = crop(area, img);                              //    parameters of an object of this class instead of fetching them
-        Bitmap image = conversion(img);                     //    every time from the storage. Maybe it's not a good idea and you                         
+        Bitmap image = conversionToBitmap(img);             //    every time from the storage. Maybe it's not a good idea and you                         
         return image;                                       //    always need the untouched version from the storage?  ***
     }                                                       
 
@@ -92,8 +91,12 @@ public class ImageProcessing {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
-        Mat img = conversion(imagePath);                                      
-        //save(img, "grayScale.jpg");                                   *** ? ***
+        Mat img = conversionToMatrix(imagePath);
+        /*
+            Method used for debug                      *** ? ***
+            //save(img, "grayScale.jpg");                          
+        */
+                                           
 
         //Invert the colors of "img" onto itself
         Core.bitwise_not(img, img);
@@ -147,9 +150,9 @@ public class ImageProcessing {
 
 
     /**
-     * Detect in which region of the picture there is some text
+     * Detect in which region of the picture there is some text even if it's rotated
      * @param imagePath the path of the image you want to analyze
-     * @return the rectangle which contains the text
+     * @return the rectangle which contains the text (it could be rotated)
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
@@ -157,7 +160,7 @@ public class ImageProcessing {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
-        Mat img = conversion(imagePath);
+        Mat img = conversionToMatrix(imagePath);
         //save(img, "grayScale.jpg");                                   *** ?? ***
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
@@ -171,7 +174,6 @@ public class ImageProcessing {
             save(threshold, "threshold.jpg");                          
         */
 
-
         //Detect the edges in the image
         Mat canny = new Mat();
         double threshold1 = 100;
@@ -181,20 +183,17 @@ public class ImageProcessing {
         Imgproc.Canny(threshold, canny, threshold1, threshold2, apertureSize, l2gradient);
         //save(canny, "canny.jpg");
 
-
         /*
             kernelSize is the dimension of "element" matrix
             element is the matrix used for "morphologyEx" and "dilate" transformations
          */
         Size kernelSize = new Size(20, 20);
         Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, kernelSize);
-
                                                                                           //*** from style doc:
         //Fill the close edges created by "canny"                                         //    Multiple consecutive blank lines 
         Mat morphology = new Mat();                                                       //    are permitted, but never required
         Imgproc.morphologyEx(canny, morphology, Imgproc.MORPH_CLOSE, element);            //    (or encouraged). 
         //save(morphology, "morphology.jpg");                                             //    Just one is good enough in my opinion***
-
 
         //Smoothes the image using the median filter.
         Mat blurredMat = new Mat();
@@ -202,12 +201,10 @@ public class ImageProcessing {
         Imgproc.medianBlur(morphology, blurredMat, ksize);
         //save(blurredMat, "gaussianBlur.jpg");
 
-
         //Dilates the image
         Mat dilatated = new Mat();
         Imgproc.dilate(blurredMat, dilatated, element);
         //save(dilatated, "dilate.jpg");
-
 
         //Saves the contours in a list of MatOfPoint (multidimensional vector)
         List<MatOfPoint> contours = new ArrayList<>();
@@ -215,7 +212,6 @@ public class ImageProcessing {
         int method = 1;
         Imgproc.findContours(dilatated, contours, new Mat(), mode, method);
         //The third parameter contains additional information that is unused
-
 
         /*
             EXPERIMENTAL:
@@ -240,17 +236,7 @@ public class ImageProcessing {
     }
 
 
-    /**
-     * Converts the matrix into a Bitmap                     *** Having two methods with the same exact name that do completely
-     * @param matrix the matrix you want to convert              opposite things is a bit confusing in my opinion, they should
-     * @return the bitmap corresponding to the matrix            at least be written one directly after the other (see style doc at 3.4.2),
-     * @author Thomas Porro (g1)                                 but simply changing the names would make the code easier to read *** 
-     */
-    public Bitmap conversion(Mat matrix) {               
-        Bitmap image = Bitmap.createBitmap(matrix.width(), matrix.height(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(matrix, image);
-        return image;
-    }
+    
 
 
     /**
@@ -285,7 +271,7 @@ public class ImageProcessing {
         //Creates the rotation matrix
         rotationMat = getRotationMatrix2D(rectangle.center, angle, 1.0);
                                                                                          //***blank lines not needed if
-        //Perform the affine transformation                                              //   comments already split the code***
+        //Perform the affine transformation (rotation)                                   //   comments already split the code***
         Imgproc.warpAffine(mat, rotatedImg, rotationMat, mat.size(), INTER_CUBIC);
 
         //Crop the resulting image
@@ -303,7 +289,7 @@ public class ImageProcessing {
      */
     private void save(Mat matrix, String imageName) {
         final String directory = Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/ImageProcessingTest/" + imageName;
-        Bitmap image = conversion(matrix);                 //*** good modulation of the code***
+        Bitmap image = conversionToBitmap(matrix);                 //*** good modulation of the code***
 
         OutputStream outStream = null;
 
@@ -333,7 +319,7 @@ public class ImageProcessing {
      * @throws FileNotFoundException if the imagePath doesn't exist
      * @author Oscar Garrido (g1)
      */
-    public Mat conversion(String imagePath) throws FileNotFoundException {    
+    public Mat conversionToMatrix(String imagePath) throws FileNotFoundException {    
 
         //Loads the grayscale image in a matrix
         Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
@@ -345,5 +331,18 @@ public class ImageProcessing {
         }
 
         return img;
+    }
+  
+  
+    /**
+     * Converts the matrix into a Bitmap                     *** Having two methods with the same exact name that do completely
+     * @param matrix the matrix you want to convert              opposite things is a bit confusing in my opinion, they should
+     * @return the bitmap corresponding to the matrix            at least be written one directly after the other (see style doc at 3.4.2),
+     * @author Thomas Porro (g1)                                 but simply changing the names would make the code easier to read *** 
+     */
+    public Bitmap conversionToBitmap(Mat matrix) {               
+        Bitmap image = Bitmap.createBitmap(matrix.width(), matrix.height(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(matrix, image);
+        return image;
     }
 }
