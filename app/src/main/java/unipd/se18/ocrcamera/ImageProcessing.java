@@ -93,7 +93,7 @@ public class ImageProcessing {
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
         Mat img = conversion(imagePath);
-        Imgproc.cvtColor(img, img, Imgcodecs.IMREAD_GRAYSCALE);
+        //save(img, "grayScale.jpg");
 
         //Invert the colors of "img" onto itself
         Core.bitwise_not(img, img);
@@ -158,7 +158,7 @@ public class ImageProcessing {
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
         Mat img = conversion(imagePath);
-        Imgproc.cvtColor(img, img, Imgcodecs.IMREAD_GRAYSCALE);
+        //save(img, "grayScale.jpg");
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
         Mat threshold = new Mat();
@@ -214,7 +214,7 @@ public class ImageProcessing {
         int mode = 0;
         int method = 1;
         Imgproc.findContours(dilatated, contours, new Mat(), mode, method);
-        //The third parameter contains additional information that is reused
+        //The third parameter contains additional information that is unused
 
 
         /*
@@ -256,7 +256,7 @@ public class ImageProcessing {
     /**
      * Crop the matrix with the given rectangle
      * @param rectangle the part of the image you want to crop
-     * @param mat       the matrix you want to crop
+     * @param mat the matrix you want to crop
      * @return a matrix that contains only the rectangle
      * @author Thomas Porro(g1), Oscar Garrido (g1)
      */
@@ -298,7 +298,7 @@ public class ImageProcessing {
 
     /**
      * Converts a matrix into a Bitmap and saves it in a local directory
-     * @param matrix    the matrix to be converted
+     * @param matrix the matrix to be converted
      * @param imageName the name of the file being saved
      * @author Thomas Porro(g1), Oscar Garrido(g1)
      */
@@ -328,7 +328,7 @@ public class ImageProcessing {
 
 
     /**
-     * Converts the Bitmap into a matrix
+     * Converts the Bitmap into a grayscale matrix
      * @param imagePath the matrix you want to convert
      * @return the bitmap corresponding to the matrix
      * @throws FileNotFoundException if the imagePath doesn't exist
@@ -337,10 +337,10 @@ public class ImageProcessing {
     public Mat conversion(String imagePath) throws FileNotFoundException {
 
         //loads the coloured image in a matrix
-        Mat img = Imgcodecs.imread(imagePath);
+        Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
 
         //Throw an Exception if "img" is empty
-        if (!img.empty()) {
+        if (img.empty()) {
             Log.e(TAG, "File not found");
             throw new FileNotFoundException();
         }
