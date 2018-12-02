@@ -1,5 +1,5 @@
-package com.example.group4.cameraapp;
-
+package com.example.group4.cameraapp;               // Reviewed by Balzan Pietro, to avoid confusion my comments are indicated by ***
+                                                    // both at the start and at the end
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,12 +11,12 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-
+import android.os.Bundle;                            //***from the StyleDoc:
+import android.view.View;                            //   (If there are both static and non-static imports,
+import android.widget.Button;                        //   a single blank line separates the two blocks)
+import android.widget.ImageView;                     //   There are no other blank lines between import statements.
+import android.widget.TextView;                      //   Also import statements should be written in ASCII Sort order
+                                                     //   i'm referring to "import android.os.Bundle;" ***
 import org.w3c.dom.Text;
 
 import java.io.File;
@@ -40,19 +40,19 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private Uri file;
     private TextView outText;
-    private int cameraCode = 100;
+    private int cameraCode = 100;        //***if you can't avoid "magic numbers" comment to explain what they mean***
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        takePictureButton = (Button) findViewById(R.id.button);
+        takePictureButton = (Button) findViewById(R.id.button);  //***it's by no means unreadable but maybe you could add comments***
         imageView = (ImageView) findViewById(R.id.pictureShot);
         outText = (TextView) findViewById(R.id.outText);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             takePictureButton.setEnabled(false);
             ActivityCompat.requestPermissions(this, new String[] {
-                    Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 0);
+                    Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 0);    //*** magic number "0" ***
         }
     }
 
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     @param requestCode int camera enabler code when permissions granted
     @param permissions String[] contains result of checking if permissions are declared in manifest file
     @author Andrea Ton
-     */
+     */                                         // ***param grantResults is missing from specifications, what does it do?***
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 0) {
@@ -85,13 +85,13 @@ public class MainActivity extends AppCompatActivity {
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(intent, cameraCode);
             WrapperMLKit scanner = new WrapperMLKit(getApplicationContext(),file);
-            String ingredients = scanner.getTextFromImg(BitmapFactory.decodeFile(file.getPath()));
-            outText.setText(ingredients);
-        }
+            String ingredients = scanner.getTextFromImg(BitmapFactory.decodeFile(file.getPath()));  //*** this part is a bit confusing
+            outText.setText(ingredients);                                                   //    maybe it is a good idea to initialise 
+        }                                                                  //    the Bitmap outside, before calling getTextFromImg()***
     }
 
-    /**
-    @param requestCode int arbitrary constant used to identify activity requested
+    /**                                                                                //***describe what this method does
+    @param requestCode int arbitrary constant used to identify activity requested      //   as you have done with the others***
     @param resultCode int system code for activity result
     @param data Intent returned from activity called
     @author Andrea Ton
@@ -119,5 +119,5 @@ public class MainActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         return new File(storageDir.getPath() + File.separator + "IMG_"+ timeStamp + ".jpg");
     }
-
+    
 }
