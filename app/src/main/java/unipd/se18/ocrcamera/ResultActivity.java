@@ -223,7 +223,7 @@ public class ResultActivity extends AppCompatActivity {
     private class BarcodeReader extends AsyncTask<Bitmap, Void, String>{
 
         protected ProgressDialog progressDialog; //TODO: progressDialog is deprecated, replace with ProgressBar
-        protected TextView barcodeTextView; //
+        protected TextView barcodeTextView;
         protected String progressMessage;
 
         /**
@@ -238,29 +238,28 @@ public class ResultActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(ResultActivity.this, progressMessage, "Barcode detection...");
+            progressDialog = ProgressDialog.show(ResultActivity.this,
+                    progressMessage,
+                    "Barcode detection...");
         }
 
         @Override
         protected String doInBackground(Bitmap... bitmaps){
             String rawBarcode = "";
-            //BarcodeExtractor barcodeExtractor = ;
 
             if(lastPhoto != null) {
-                rawBarcode = new BarcodeExtractor().getTextFromImg(lastPhoto); //see BarcodeExtractor class
+                //see BarcodeExtractor class
+                rawBarcode = new BarcodeExtractor().getTextFromImg(lastPhoto);
 
-                if(rawBarcode.equals("")) //No barcode found case
-                {
+                if(rawBarcode.equals("")) { //No barcode found case
                     final String finalTextRecognized = getString(R.string.barcode_not_found);
                     runOnUiThread(new Runnable() { //asynchronous thread to optimize performance
-                        @Override
-                        public void run() {
-                            barcodeTextView.setText(finalTextRecognized);
-                        }
+                            @Override
+                            public void run() {
+                                barcodeTextView.setText(finalTextRecognized);
+                            }
                     });
-                }
-                else // found at least one barcode case
-                {
+                } else { // found at least one barcode case
                     final String finalTextRecognized = getString(R.string.barcode_identifier) + rawBarcode;
                     runOnUiThread(new Runnable() {
                         @Override

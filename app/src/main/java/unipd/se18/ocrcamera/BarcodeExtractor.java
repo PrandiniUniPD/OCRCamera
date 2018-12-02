@@ -55,7 +55,8 @@ public class BarcodeExtractor {
         //https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/CountDownLatch.html
         final CountDownLatch latch = new CountDownLatch(1);
 
-        Task<List<FirebaseVisionBarcode>> task = detector.detectInImage(image) // this start an asynchronous thread
+        // this start an asynchronous thread
+        Task<List<FirebaseVisionBarcode>> task = detector.detectInImage(image)
                 .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
                     @Override
                     public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
@@ -78,14 +79,11 @@ public class BarcodeExtractor {
 
         // if barcode is not detected yet
         if(!task.isSuccessful()) {
-            try
-            {
+            try {
                 //wait until barcode is detected
                 latch.await();
             }
-            catch (InterruptedException e)
-            {
-
+            catch (InterruptedException e) {
                 return "Failed to extract text.";
             }
         }
