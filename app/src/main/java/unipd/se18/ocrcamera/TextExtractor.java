@@ -34,43 +34,16 @@ public class TextExtractor implements OCRInterface {
     The next four int are used for recognizing the position of the FirebaseVisionText Objects.
     They could be useful for sorting the blocks or for an automatic recognition
     of the ingredients text block.
+    The indexes are a clockwise order from the top-left corner.
+    More details at:
+    {@link FirebaseVisionText.TextBlock#getCornerPoints()},
+    {@link FirebaseVisionText.Line#getCornerPoints()}
+    or {@link FirebaseVisionText.Element#getCornerPoints()}.
      */
-
-    /**
-     * Index of the point on the top-left position.
-     * More details at:
-     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
-     * {@link FirebaseVisionText.Line#getCornerPoints()}
-     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
-     */
-    private final int TOP_LEFT = 0;
-
-    /**
-     * Index of the point on the top-right position.
-     * More details at:
-     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
-     * {@link FirebaseVisionText.Line#getCornerPoints()}
-     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
-     */
-    private final int TOP_RIGHT = 1;
-
-    /**
-     * Index of the point on the bottom-left position
-     * More details at:
-     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
-     * {@link FirebaseVisionText.Line#getCornerPoints()}
-     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
-     */
-    private final int BOTTOM_LEFT = 2;
-
-    /**
-     * Index of the point on the bottom-right position.
-     * More details at:
-     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
-     * {@link FirebaseVisionText.Line#getCornerPoints()}
-     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
-     */
-    private final int BOTTOM_RIGHT = 3;
+    private final int TOP_LEFT      = 0;
+    private final int TOP_RIGHT     = 1;
+    private final int BOTTOM_LEFT   = 2;
+    private final int BOTTOM_RIGHT  = 3;
 
     /*
     The next method is required by the OCRInterface that avoid a single point of failure.
@@ -147,7 +120,14 @@ public class TextExtractor implements OCRInterface {
                         // Extraction ended - Analogous to signal
                         extraction.countDown(); // Luca Moroldo (g3)
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "Error: " + e);
+                // The result will be null
+                extraction.countDown();
+            }
+        });
         // Waits until the extraction ends
         if (!firebaseVisionTextTask.isSuccessful()) {
             try {
