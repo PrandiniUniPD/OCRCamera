@@ -335,7 +335,7 @@ public class ImageProcessing {
      */
     public Mat conversion(String imagePath) throws FileNotFoundException {
 
-        //Loads the coloured image in a matrix
+        //Loads the grayscale image in a matrix
         Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
 
         //Throw an Exception if "img" is empty
