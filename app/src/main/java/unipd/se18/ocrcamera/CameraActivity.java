@@ -17,8 +17,10 @@ import android.util.Log;
 import android.view.View;
 import com.camerakit.CameraKitView;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.FileAlreadyExistsException;
 
 /**
  * The Activity useful for making photos
@@ -27,10 +29,11 @@ public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
     private static String orientationResult;
-
+    float OneEightyOverPi = 57.29577957855f;
     /**
      * onCreate method of the Android Activity Lifecycle
      * @param savedInstanceState The Bundle of the last instance state saved
+     * @modify shared preferences name=prefs from button event
      * @author Romanello Stefano
      */
     @Override
@@ -44,23 +47,23 @@ public class CameraActivity extends AppCompatActivity {
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(new SensorEventListener() {
             public int mOrientationDeg; //last rotation in degrees
-            private static final int _DATA_X = 0;
-            private static final int _DATA_Y = 1;
-            private static final int _DATA_Z = 2;
+            private static final int _DATA_X = 0;   //Value of postion in the sensor array of the axis X
+            private static final int _DATA_Y = 1;   //Value of postion in the sensor array of the axis Y
+            private static final int _DATA_Z = 2;   //Value of postion in the sensor array of the axis >
             private int ORIENTATION_UNKNOWN = -1;
 
             @Override
             public void onSensorChanged(SensorEvent event)
             {
-                float[] values = event.values;
+                float[] values = event.values; //Extract the values of the sensors from the event
                 int orientation = ORIENTATION_UNKNOWN;
-                float X = -values[_DATA_X];
-                float Y = -values[_DATA_Y];
-                float Z = -values[_DATA_Z];
+                float X = -values[_DATA_X]; //get value of the X axis of the accelerometer
+                float Y = -values[_DATA_Y]; //get value of the Y axis of the accelerometer
+                float Z = -values[_DATA_Z]; //get value of the Z axis of the accelerometer
                 float magnitude = X*X + Y*Y;
                 // Don't trust the angle if the magnitude is small compared to the y value
+                //Calculate the actual angle of the device using the values from the sensor
                 if (magnitude * 4 >= Z*Z) {
-                    float OneEightyOverPi = 57.29577957855f;
                     float angle = (float)Math.atan2(-Y, X) * OneEightyOverPi;
                     orientation = 90 - (int)Math.round(angle);
                     // normalize to 0 - 359 range
@@ -105,6 +108,12 @@ public class CameraActivity extends AppCompatActivity {
                 }
             }
 
+            /**
+             * onAccuracyChanged is obligatory for the SensorEventListener to work.
+             * This is triggered when the accuracy of the sensor is changed
+             * An example is the sensor TYPE_MAGNETIC_FIELD which can trigger diferent accuracy of its current status
+             * @author Romanello Stefano
+             */
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
