@@ -1,11 +1,11 @@
-package unipd.se18.ocrcamera;
-
+package unipd.se18.ocrcamera;                  // Reviewed by Balzan Pietro, to avoid confusion my comments are indicated by ***
+                                               // both at the start and at the end
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.util.Log;
-
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
+import android.util.Log;                        //***from the StyleDoc:
+                                                //   If there are both static and non-static imports,
+import org.opencv.core.Core;                    //   a single blank line separates the two blocks.
+import org.opencv.core.Mat;                     //   There are no other blank lines between import statements.***
 import org.opencv.core.MatOfInt4;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -13,8 +13,8 @@ import org.opencv.core.RotatedRect;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.android.Utils;
-
+import org.opencv.android.Utils;                // ***import statements should be written in ASCII Sort order***
+                                                    
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -48,7 +48,7 @@ public class ImageProcessing {
      */
 
     //Tag used to identify the log
-    final String TAG = "openCV";
+    final String TAG = "openCV";                    //*** I usually set Tags as private but this is probably fine as well***
 
 
     /**
@@ -63,22 +63,22 @@ public class ImageProcessing {
     }
 
     /**
-     * Find, crop and rotate the text in an image
-     * @param imagePath the path of the image you want to analyze
+     * Find, crop and rotate the text in an image                           *** I'm not sure of where the rotation happens, is it in
+     * @param imagePath the path of the image you want to analyze               the crop method? ***
      * @return the cropped image
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1)
      */
     public Bitmap findText(String imagePath) throws FileNotFoundException {
         //Converts the image into a matrix
-        Mat img = Imgcodecs.imread(imagePath);
-
-        //Call of internal methods
-        RotatedRect area = detectMaxTextArea(imagePath);
-        img = crop(area, img);
-        Bitmap image = conversion(img);
-        return image;
-    }
+        Mat img = Imgcodecs.imread(imagePath);              //*** I don't understand why the methods use the imgpath String. 
+                                                            //    Maybe there's something I'm missing but the image is saved 
+        //Call of internal methods                          //    as a Bitmap in CameraActivity, so why not use directly the object?
+        RotatedRect area = detectMaxTextArea(imagePath);    //    It would be cool to have both the Bitmap and the Matrix as 
+        img = crop(area, img);                              //    parameters of an object of this class instead of fetching them
+        Bitmap image = conversion(img);                     //    every time from the storage. Maybe it's not a good idea and you                         
+        return image;                                       //    always need the untouched version from the storage?  ***
+    }                                                       
 
 
     /**
@@ -88,21 +88,21 @@ public class ImageProcessing {
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1)
      */
-    public double computeSkew(String imagePath) throws FileNotFoundException {
+    public double computeSkew(String imagePath) throws FileNotFoundException {  //***I might be dumb but I can't find where this is used***
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
-        Mat img = conversion(imagePath);
-        //save(img, "grayScale.jpg");
+        Mat img = conversion(imagePath);                                      
+        //save(img, "grayScale.jpg");                                   *** ? ***
 
         //Invert the colors of "img" onto itself
         Core.bitwise_not(img, img);
 
         //Detect the edges in the image
         double threshold1 = 50;
-        double threshold2 = 200;
-        int apertureSize = 3;
-        boolean l2gradient = false;
+        double threshold2 = 200;                       //***you already said magic numbers were a problem, but at least
+        int apertureSize = 3;                          //   you didn't just write them straight in the method 
+        boolean l2gradient = false;                    //   and made the variables first, so good job.***
         Imgproc.Canny(img, img, threshold1, threshold2, apertureSize, l2gradient);
 
         //Create a 4 dimensions vector using matrix
@@ -110,9 +110,9 @@ public class ImageProcessing {
 
         //Process the image with the Probabilistic Hough Transform
         double rho = 1;
-        double theta = Math.PI / 180;
-        int threshold = 50;
-        double minLineLenght = 50;
+        double theta = Math.PI / 180;               //*** yeah one would need to read the documentation to  
+        int threshold = 50;                         //    really understand what's going on, but I don't think
+        double minLineLenght = 50;                  //    there's any other way to do it ***
         double maxLineGap = 10;
         Imgproc.HoughLinesP(img, lines, rho, theta, threshold, minLineLenght, maxLineGap);
 
@@ -158,7 +158,7 @@ public class ImageProcessing {
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
         Mat img = conversion(imagePath);
-        //save(img, "grayScale.jpg");
+        //save(img, "grayScale.jpg");                                   *** ?? ***
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
         Mat threshold = new Mat();
@@ -167,8 +167,8 @@ public class ImageProcessing {
         double constant = 8;
         Imgproc.adaptiveThreshold(img, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
         /*
-            Method used for debug
-            save(threshold, "threshold.jpg");
+            Method used for debug                      *** now I got it ***
+            save(threshold, "threshold.jpg");                          
         */
 
 
@@ -189,11 +189,11 @@ public class ImageProcessing {
         Size kernelSize = new Size(20, 20);
         Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, kernelSize);
 
-
-        //Fill the close edges created by "canny"
-        Mat morphology = new Mat();
-        Imgproc.morphologyEx(canny, morphology, Imgproc.MORPH_CLOSE, element);
-        //save(morphology, "morphology.jpg");
+                                                                                          //*** from style doc:
+        //Fill the close edges created by "canny"                                         //    Multiple consecutive blank lines 
+        Mat morphology = new Mat();                                                       //    are permitted, but never required
+        Imgproc.morphologyEx(canny, morphology, Imgproc.MORPH_CLOSE, element);            //    (or encouraged). 
+        //save(morphology, "morphology.jpg");                                             //    Just one is good enough in my opinion***
 
 
         //Smoothes the image using the median filter.
@@ -241,12 +241,12 @@ public class ImageProcessing {
 
 
     /**
-     * Converts the matrix into a Bitmap
-     * @param matrix the matrix you want to convert
-     * @return the bitmap corresponding to the matrix
-     * @author Thomas Porro (g1)
+     * Converts the matrix into a Bitmap                     *** Having two methods with the same exact name that do completely
+     * @param matrix the matrix you want to convert              opposite things is a bit confusing in my opinion, they should
+     * @return the bitmap corresponding to the matrix            at least be written one directly after the other (see style doc at 3.4.2),
+     * @author Thomas Porro (g1)                                 but simply changing the names would make the code easier to read *** 
      */
-    public Bitmap conversion(Mat matrix) {
+    public Bitmap conversion(Mat matrix) {               
         Bitmap image = Bitmap.createBitmap(matrix.width(), matrix.height(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(matrix, image);
         return image;
@@ -254,9 +254,9 @@ public class ImageProcessing {
 
 
     /**
-     * Crop the matrix with the given rectangle
-     * @param rectangle the part of the image you want to crop
-     * @param mat the matrix you want to crop
+     * Crop the matrix with the given rectangle                                   *** is the rectangle already angled so that the 
+     * @param rectangle the part of the image you want to crop                        result of the cropping has horizontal text?
+     * @param mat the matrix you want to crop                                         if not I don't understand where the rotation happens ***
      * @return a matrix that contains only the rectangle
      * @author Thomas Porro(g1), Oscar Garrido (g1)
      */
@@ -284,8 +284,8 @@ public class ImageProcessing {
 
         //Creates the rotation matrix
         rotationMat = getRotationMatrix2D(rectangle.center, angle, 1.0);
-
-        //Perform the affine transformation
+                                                                                         //***blank lines not needed if
+        //Perform the affine transformation                                              //   comments already split the code***
         Imgproc.warpAffine(mat, rotatedImg, rotationMat, mat.size(), INTER_CUBIC);
 
         //Crop the resulting image
@@ -303,7 +303,7 @@ public class ImageProcessing {
      */
     private void save(Mat matrix, String imageName) {
         final String directory = Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/ImageProcessingTest/" + imageName;
-        Bitmap image = conversion(matrix);
+        Bitmap image = conversion(matrix);                 //*** good modulation of the code***
 
         OutputStream outStream = null;
 
@@ -333,7 +333,7 @@ public class ImageProcessing {
      * @throws FileNotFoundException if the imagePath doesn't exist
      * @author Oscar Garrido (g1)
      */
-    public Mat conversion(String imagePath) throws FileNotFoundException {
+    public Mat conversion(String imagePath) throws FileNotFoundException {    
 
         //Loads the grayscale image in a matrix
         Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
