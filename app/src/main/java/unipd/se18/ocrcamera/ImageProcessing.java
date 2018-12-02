@@ -236,9 +236,6 @@ public class ImageProcessing {
     }
 
 
-    
-
-
     /**
      * Crop the matrix with the given rectangle                                   *** is the rectangle already angled so that the 
      * @param rectangle the part of the image you want to crop                        result of the cropping has horizontal text?
