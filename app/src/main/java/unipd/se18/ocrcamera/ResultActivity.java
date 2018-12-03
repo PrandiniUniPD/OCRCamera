@@ -44,6 +44,9 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView mOCRTextView;
 
+    /**
+     * The TextView of the extracted barcode from the captured photo
+     */
     private TextView barcodeTextView;
 
     /**
@@ -111,7 +114,7 @@ public class ResultActivity extends AppCompatActivity {
                 barcodeTextView.setText(R.string.barcode_not_found);
             } else {
                 //Show the text of the last image
-                barcodeTextView.setText(R.string.barcode_identifier + barcodeText);
+                barcodeTextView.setText( getString(R.string.barcode_identifier) + barcodeText);
             }
         } else{
             BarcodeReader barcodeTask = new BarcodeReader(barcodeTextView,"Processing");
@@ -248,7 +251,6 @@ public class ResultActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Bitmap... bitmaps){
             String rawBarcode = "";
-            //BarcodeExtractor barcodeExtractor = ;
 
             if(lastPhoto != null) {
                 //for the documentation look at BarcodeExtractor class

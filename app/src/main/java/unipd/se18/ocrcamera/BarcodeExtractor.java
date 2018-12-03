@@ -1,18 +1,13 @@
 package unipd.se18.ocrcamera;
 
-
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 import android.util.Log;
-
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -22,6 +17,9 @@ import java.util.concurrent.CountDownLatch;
  */
 public class BarcodeExtractor {
 
+    /**
+     * String used in Log message to identify the source of the message
+     */
     private static final String TAG = "BarcodeTextExtractor";
 
     /**
