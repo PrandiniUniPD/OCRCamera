@@ -158,9 +158,10 @@ public class PhotoTester {
 
     /**
      * Compare the list of ingredients extracted by OCR and the correct list of ingredients
-     * @param correct correct list of ingredients loaded from file
-     * @param extracted list of ingredients extracted by the OCR
-     * @return confidence percentage based on number of matched words, their similarity and order
+     *
+     * @param correct       Correct list of ingredients loaded from file
+     * @param extracted     List of ingredients extracted by the OCR
+     * @return Confidence percentage based on number of matched words, their similarity and order
      * @author Francesco Pham credit to Stefano Romanello for Levenshtein library suggestion
      */
     private float ingredientsTextComparison(String correct, String extracted){
@@ -174,11 +175,11 @@ public class PhotoTester {
         Log.i(TAG, "ingredientsTextComparison -> Start of comparing");
         Log.i(TAG, "ingredientsTextComparison -> correctWords.length == " + correctWords.length + ", extractedWords.length == " + extractedWords.length);
 
-        float points = 0;
-        int maxPoints = 0;
-        int posLastWordFound = 0;
-        int consecutiveNotFound = 0;
-
+        float points = 0; //points are added each time a word is found
+        int maxPoints = 0; //maximum points which is the number of characters of all words with more than 3 characters
+        int posLastWordFound = 0; //index of the last word found
+        int consecutiveNotFound = 0; //consecutive words not found since last word found
+        final double similarityThreshold = 0.8; //threshold above which the word we are looking at is considered found
 
         WeightedLevenshtein levenshtein = new WeightedLevenshtein(
                 new CharacterSubstitutionInterface() {
@@ -220,8 +221,8 @@ public class PhotoTester {
                     int maxLength = Math.max(word.length(),extractedWords[index].length());
                     double similarity = 1.0 - levenshtein.distance(word,extractedWords[index])/maxLength;
 
-                    //if similarity grater than 0.8 the word is found
-                    if (similarity > 0.8) {
+                    //if similarity grater than similarityThreshold the word is found
+                    if (similarity > similarityThreshold) {
                         if (points == 0 || i < consecutiveNotFound + 10) {
                             points += word.length()*similarity; //assign points based on number of characters
                         } else {
@@ -237,7 +238,6 @@ public class PhotoTester {
 
             //taking into consideration words that are not properly separated (e.g. "cetarylalcohol")
             if(!found && word.length() >= 6){
-                maxPoints += word.length();
                 for(int i=0; i<extractedWords.length && !found; i++) {
                     index = (posLastWordFound+i)%extractedWords.length;
                     if (extractedWords[index].contains(word)) { //the correct word is contained in the extracted word
