@@ -51,7 +51,8 @@ public class BarcodeExtractor {
 
         //latch used to wait barcode extraction to complete
         //https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/CountDownLatch.html
-        final CountDownLatch latch = new CountDownLatch(1);
+        int initialCount = 1;
+        final CountDownLatch latch = new CountDownLatch(initialCount);
 
         // this start an asynchronous thread
         Task<List<FirebaseVisionBarcode>> task = detector.detectInImage(image)
