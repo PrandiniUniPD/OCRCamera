@@ -34,8 +34,8 @@ public class BarcodeExtractor {
     /**
      * This method try to extract barcode information from an image if can,
      * otherwise return an empty string.
-     * (The method has the same name of OCRInterface methods for eventual future implementation of a common
-     * interface)
+     * (The method has the same name of OCRInterface methods for eventual future implementation of
+     * a common interface)
      *
      * @param img Bitmap image with or without barcode in it
      * @return string with barcode info if barcode is found, empty if no barcode is found
@@ -55,7 +55,8 @@ public class BarcodeExtractor {
         //https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/CountDownLatch.html
         final CountDownLatch latch = new CountDownLatch(1);
 
-        Task<List<FirebaseVisionBarcode>> task = detector.detectInImage(image) // this start an asynchronous thread
+        // this start an asynchronous thread
+        Task<List<FirebaseVisionBarcode>> task = detector.detectInImage(image)
                 .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
                     @Override
                     public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
@@ -68,24 +69,22 @@ public class BarcodeExtractor {
                         latch.countDown();
                     }
                 });
-        /*         .addOnFailureListener(new OnFailureListener() {
+        /*      Commented for future implementation of the failure listener
+                 .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             // Task failed with an exception
                             // ...
                         }
-                    });*/
+                    });
+         */
 
         // if barcode is not detected yet
         if(!task.isSuccessful()) {
-            try
-            {
+            try {
                 //wait until barcode is detected
                 latch.await();
-            }
-            catch (InterruptedException e)
-            {
-
+            } catch (InterruptedException e) {
                 return "Failed to extract text.";
             }
         }
@@ -110,7 +109,7 @@ public class BarcodeExtractor {
         //StringBuilder result = new StringBuilder();
         for (FirebaseVisionBarcode barcode : barcodes) {
             //result.append(barcode.getRawValue() + "\n");
-            return barcode.getRawValue(); //TODO attention: multiple barcode is not managed!
+            return barcode.getRawValue(); //TODO, WARNING: multiple barcode is not managed!
         }
         //return result.toString();
 

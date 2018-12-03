@@ -44,7 +44,7 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView mOCRTextView;
 
-    private TextView mBarcodeView;
+    private TextView barcodeTextView;
 
     /**
      * Bitmap of the lastPhoto saved
@@ -62,8 +62,8 @@ public class ResultActivity extends AppCompatActivity {
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
 
-        mBarcodeView = findViewById(R.id.barcode_view);
-        mBarcodeView.setMovementMethod(new ScrollingMovementMethod());
+        barcodeTextView = findViewById(R.id.barcode_view);
+        barcodeTextView.setMovementMethod(new ScrollingMovementMethod());
 
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -108,13 +108,13 @@ public class ResultActivity extends AppCompatActivity {
         if(barcodeText != null) {
             // Text in preferences
             if(barcodeText.equals("")) {
-                mBarcodeView.setText(R.string.barcode_not_found);
+                barcodeTextView.setText(R.string.barcode_not_found);
             } else {
                 //Show the text of the last image
-                mBarcodeView.setText(R.string.barcode_identifier + barcodeText);
+                barcodeTextView.setText(R.string.barcode_identifier + barcodeText);
             }
         } else{
-            BarcodeReader barcodeTask = new BarcodeReader(mBarcodeView,"Processing");
+            BarcodeReader barcodeTask = new BarcodeReader(barcodeTextView,"Processing");
             barcodeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, lastPhoto);
         }
     }
@@ -222,13 +222,15 @@ public class ResultActivity extends AppCompatActivity {
      */
     private class BarcodeReader extends AsyncTask<Bitmap, Void, String>{
 
-        protected ProgressDialog progressDialog; //TODO: progressDialog is deprecated, replace with ProgressBar
-        protected TextView barcodeTextView; //
+        //TODO: progressDialog is deprecated, replace with ProgressBar
+        protected ProgressDialog progressDialog;
+        protected TextView barcodeTextView;
         protected String progressMessage;
 
         /**
-         * Costructor initialize:
-         * @param barcodeTextView the View responsable for barcode rapresentation
+         * Initialize the BarcodeReader to write the results on the specified TextView, meanwhile
+         * showing the specified string on a progress dialog.
+         * @param barcodeTextView the View responsible for barcode representation
          * @param progressMessage message of the progress bar
          */
         BarcodeReader(TextView barcodeTextView, String progressMessage){
@@ -238,7 +240,9 @@ public class ResultActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(ResultActivity.this, progressMessage, "Barcode detection...");
+            progressDialog = ProgressDialog.show(ResultActivity.this,
+                    progressMessage,
+                    "Barcode detection...");
         }
 
         @Override
@@ -247,10 +251,10 @@ public class ResultActivity extends AppCompatActivity {
             //BarcodeExtractor barcodeExtractor = ;
 
             if(lastPhoto != null) {
-                rawBarcode = new BarcodeExtractor().getTextFromImg(lastPhoto); //see BarcodeExtractor class
+                //for the documentation look at BarcodeExtractor class
+                rawBarcode = new BarcodeExtractor().getTextFromImg(lastPhoto);
 
-                if(rawBarcode.equals("")) //No barcode found case
-                {
+                if(rawBarcode.equals("")) { //No barcode found case
                     final String finalTextRecognized = getString(R.string.barcode_not_found);
                     runOnUiThread(new Runnable() { //asynchronous thread to optimize performance
                         @Override
@@ -258,9 +262,7 @@ public class ResultActivity extends AppCompatActivity {
                             barcodeTextView.setText(finalTextRecognized);
                         }
                     });
-                }
-                else // found at least one barcode case
-                {
+                } else { // found at least one barcode case
                     final String finalTextRecognized = getString(R.string.barcode_identifier) + rawBarcode;
                     runOnUiThread(new Runnable() {
                         @Override
