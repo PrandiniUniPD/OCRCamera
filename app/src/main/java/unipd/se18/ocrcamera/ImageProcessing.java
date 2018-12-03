@@ -76,7 +76,7 @@ public class ImageProcessing {
         //Call of internal methods
         RotatedRect area = detectMaxTextArea(imagePath);
         img = crop(area, img);
-        Bitmap image = conversion(img);
+        Bitmap image = conversionMatToBitmap(img);
         return image;
     }
 
@@ -92,7 +92,7 @@ public class ImageProcessing {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
-        Mat img = conversion(imagePath);
+        Mat img = conversionBitmapToMat(imagePath);
         //save(img, "grayScale.jpg");
 
         //Invert the colors of "img" onto itself
@@ -147,9 +147,9 @@ public class ImageProcessing {
 
 
     /**
-     * Detect in which region of the picture there is some text
+     * Detect in which region of the picture there is some text and finds the largest one
      * @param imagePath the path of the image you want to analyze
-     * @return the rectangle which contains the text
+     * @return the rectangle which contains the text with maximum area
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
@@ -157,7 +157,7 @@ public class ImageProcessing {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
-        Mat img = conversion(imagePath);
+        Mat img = conversionBitmapToMat(imagePath);
         //save(img, "grayScale.jpg");
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
@@ -241,19 +241,6 @@ public class ImageProcessing {
 
 
     /**
-     * Converts the matrix into a Bitmap
-     * @param matrix the matrix you want to convert
-     * @return the bitmap corresponding to the matrix
-     * @author Thomas Porro (g1)
-     */
-    public Bitmap conversion(Mat matrix) {
-        Bitmap image = Bitmap.createBitmap(matrix.width(), matrix.height(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(matrix, image);
-        return image;
-    }
-
-
-    /**
      * Crop the matrix with the given rectangle
      * @param rectangle the part of the image you want to crop
      * @param mat the matrix you want to crop
@@ -296,26 +283,26 @@ public class ImageProcessing {
 
 
     /**
-     * Converts a matrix into a Bitmap and saves it in a local directory
+     * Converts a matrix into a Bitmap and saves it in the default temp-file dir
      * @param matrix the matrix to be converted
      * @param imageName the name of the file being saved
      * @author Thomas Porro(g1), Oscar Garrido(g1)
      */
     private void save(Mat matrix, String imageName) {
-        final String directory = Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/ImageProcessingTest/" + imageName;
-        Bitmap image = conversion(matrix);
+        
+        Bitmap image = conversionMatToBitmap(matrix);
 
         OutputStream outStream = null;
 
-        File file = new File(directory);
-        file.mkdirs();
+        //if not specified, the system-dependent default temporary-file directory will be used
+        File tmpFile = File.createTempFile(tmpPrefix);
 
-        if (file.exists()) {
-            file.delete();
-            file = new File(directory);
+        if (tmpFile.exists()) {
+            tmpFile.delete();
+            tmpFile = File.createTempFile(tmpPrefix);
         }
         try {
-            outStream = new FileOutputStream(file);
+            outStream = new FileOutputStream(tmpFile);
             image.compress(Bitmap.CompressFormat.PNG, 100, outStream);
             outStream.flush();
             outStream.close();
@@ -324,16 +311,28 @@ public class ImageProcessing {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Converts the matrix into a Bitmap
+     * @param matrix the matrix you want to convert
+     * @return the Bitmap corresponding to the matrix
+     * @author Thomas Porro (g1)
+     */
+    private Bitmap conversionMatToBitmap(Mat matrix) {
+        Bitmap image = Bitmap.createBitmap(matrix.width(), matrix.height(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(matrix, image);
+        return image;
+    }
 
 
     /**
      * Converts the Bitmap into a grayscale matrix
-     * @param imagePath the matrix you want to convert
-     * @return the bitmap corresponding to the matrix
+     * @param imagePath the Bitmap you want to convert
+     * @return the matrix corresponding to the Bitmap
      * @throws FileNotFoundException if the imagePath doesn't exist
      * @author Oscar Garrido (g1)
      */
-    public Mat conversion(String imagePath) throws FileNotFoundException {
+    private Mat conversionBitmapToMat(String imagePath) throws FileNotFoundException {
 
         //Loads the grayscale image in a matrix
         Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
