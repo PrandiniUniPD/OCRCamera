@@ -502,8 +502,8 @@ public class PhotoTester {
                 report = report + keymin + " : " + alterationsTagsGainStats.get(keymin) + "%\n";
                 alterationsTagsGainStats.remove(keymin);
             }
-            return report;
         }
+        return report;
 
     }
 
