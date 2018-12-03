@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -17,10 +18,9 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadPoolExecutor;
 
-import info.debatty.java.stringsimilarity.*;
+import info.debatty.java.stringsimilarity.CharacterSubstitutionInterface;
+import info.debatty.java.stringsimilarity.WeightedLevenshtein;
 
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
@@ -139,6 +139,7 @@ public class PhotoTester {
      * @author Luca Moroldo (g3)
      */
     public String testAndReport() throws InterruptedException {
+        
 
         Log.i(TAG,"testAndReport started");
         long started = java.lang.System.currentTimeMillis();
@@ -418,10 +419,9 @@ public class PhotoTester {
     * Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
     * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
     */
-    public HashMap getTagsStats() {
+    private HashMap getTagsStats() {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
-
         HashMap<String, Integer> tagOccurrences = new HashMap<>(); //contains the number of occurrences of each tag
 
         for(TestElement element : testElements) {
@@ -446,6 +446,42 @@ public class PhotoTester {
     }
 
     /**
+     *
+     * @return an HashMap: (Tag, Value)  where value is the average gain result of the alterated photo tagged with that Tag
+     * @author Luca Moroldo - Credits: Nicolò Cerco (the structure of this method is the same of getTagsStats)
+     */
+    private HashMap getAlterationsTagsGainStats() {
+
+        //TODO think about: would it be better to get the stats for each tags collection rather than for each tag?
+        //for example: do we loose information if a photo is both rotated and cropped, and we don't consider that an extraordinary gain could be
+        //a consequence of this particular coupling of tags?
+
+        HashMap<String, Float> alterationTagsGain = new HashMap<>(); //contains the % earning for each alteration tag
+        HashMap<String, Integer> alterationTagsOccurrences = new HashMap<>(); //contains the occurrences of each tag
+
+        for(TestElement element : testElements) {
+            //evaluate alterations if any
+
+
+            String[] alterationsNames = element.getAlterationsNames();
+            if(alterationsNames != null) {
+                for(String alterationName : alterationsNames) {
+                    for(String tag : element.getAlterationTags(alterationName)) {
+                        if(alterationTagsGain.containsKey(tag)) {
+                            float newGain = alterationTagsGain.get(tag) + element.getAlterationConfidence(alterationName);
+                            alterationTagsGain.put(tag, newGain);
+                            alterationTagsOccurrences.put(tag, alterationTagsOccurrences.get(tag) + 1);
+                        }
+
+                    }
+                }
+            }
+        }
+
+        return alterationTagsGain;
+    }
+
+    /**
      * Convert statistics returned by getTagsStats() into a readable text
      * @author Francesco Pham (g3)
      */
@@ -457,7 +493,18 @@ public class PhotoTester {
             report = report + keymin + " : " + tagsStats.get(keymin) + "%\n";
             tagsStats.remove(keymin);
         }
-        return report;
+
+        HashMap alterationsTagsGainStats = getAlterationsTagsGainStats();
+        if(!alterationsTagsGainStats.isEmpty()) {
+            report += "\nAvarage gain by alterations tags: \n";
+            while(!alterationsTagsGainStats.isEmpty()) {
+                String keymin = getMinKey(alterationsTagsGainStats);
+                report = report + keymin + " : " + alterationsTagsGainStats.get(keymin) + "%\n";
+                alterationsTagsGainStats.remove(keymin);
+            }
+            return report;
+        }
+
     }
 
     private String getMinKey(Map<String, Float> map) {
