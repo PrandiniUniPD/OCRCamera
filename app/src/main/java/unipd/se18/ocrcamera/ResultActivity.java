@@ -73,7 +73,7 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
-        //Get image path and text of the last image from preferences
+        //Get image path, text and barcode of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
         String OCRText = prefs.getString("text", null);
