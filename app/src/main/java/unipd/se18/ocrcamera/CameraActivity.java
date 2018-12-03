@@ -30,7 +30,7 @@ import java.io.OutputStream;
 public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
-    private static String orientationResult;
+    private static String orientationResult="P";
     private Handler handler;
 
     /**
@@ -144,40 +144,35 @@ public class CameraActivity extends AppCompatActivity {
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
 
                 //Image rotation
-
-                if(orientationResult != null)
+                switch (orientationResult)
                 {
-                    switch (orientationResult)
-                    {
-                        case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
-                        case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
-                        case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
-                        default: break;
-                    }
-
-                    //Temporary stores the captured photo into a file that will be used from the Camera Result activity
-                    String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
-
-                    SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-                    SharedPreferences.Editor edit = prefs.edit();
-                    edit.putString("imagePath", filePath.trim());
-                    edit.apply();
-
-                    // analyze the brightness   @author Balzan Pietro
-                    final Bitmap bitmapImage2 = bitmapImage;
-                    new Thread(new Runnable() {      // run the brightness recognition on a new thread to improve performance
-                        public void run() {
-                            Context appContext= getApplicationContext();
-                            BrightnessRecognition bRecog = new BrightnessRecognition(bitmapImage2, appContext, handler);
-                            bRecog.imgBrightness(190,80,5);
-                        }
-                    }).start();
-
-
-                    //An intent that will launch the activity that will analyse the photo
-                    Intent i = new Intent(CameraActivity.this, ResultActivity.class);
-                    startActivity(i);
+                    case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
+                    case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
+                    case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
+                    default: break;
                 }
+
+                //Temporary stores the captured photo into a file that will be used from the Camera Result activity
+                String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
+
+                SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+                SharedPreferences.Editor edit = prefs.edit();
+                edit.putString("imagePath", filePath.trim());
+                edit.apply();
+
+                // analyze the brightness   @author Balzan Pietro
+                final Bitmap bitmapImage2 = bitmapImage;
+                new Thread(new Runnable() {      // run the brightness recognition on a new thread to improve performance
+                    public void run() {
+                        Context appContext= getApplicationContext();
+                        BrightnessRecognition bRecog = new BrightnessRecognition(bitmapImage2, appContext, handler);
+                        bRecog.imgBrightness(190,80,5);
+                    }
+                }).start();
+
+                //An intent that will launch the activity that will analyse the photo
+                Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                startActivity(i);
             }
         });
 

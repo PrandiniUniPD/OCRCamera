@@ -15,17 +15,29 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import info.debatty.java.stringsimilarity.*;
 
 /**
- * Class built to test the application's OCR
+ * Class built to test the application's OCR comparing the goal text with the recognized text and
+ * providing a JSON report containing stats and results.
  * @author Luca Moroldo (g3) - Francesco Pham (g3)
  */
 public class PhotoTester {
 
+    /**
+     * Contains the available extensions for the test
+     */
     public static final String[] IMAGE_EXTENSIONS = {"jpeg", "jpg"};
+
+    /**
+     * Contains the base name of a photo used for the test
+     */
+    public static final String PHOTO_BASE_NAME = "foto";
 
     private static final String TAG = "PhotoTester";
 
@@ -34,39 +46,67 @@ public class PhotoTester {
     //stores the path of the directory containing test files
     private String dirPath;
 
+    private static final String REPORT_FILENAME = "report.txt";
+
 
     /**
+     *
      * Load test elements (images + description)
-     * @param environment environment where find the directory with dirName
-     * @param dirName stores the path to the directory containing photos and description
+     * @param environment environment where the function will look for the directory with dirName
+     * @param dirName stores the name of the directory containing photos and description
      */
     public PhotoTester(File environment, String dirName) {
         File directory = getStorageDir(environment, dirName);
-
         dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
 
-        for (File file : directory.listFiles()) {
+        //create a TestElement object for each original photo - then link all the alterations to the relative original TestElement
+        for(File file : directory.listFiles()) {
 
             String filePath = file.getPath();
-
-            String fileExtension = Utils.getFileExtension(filePath);
             String fileName = Utils.getFilePrefix(filePath);
 
+            //if the file is not an alteration then create a test element for it
+            if(fileName.contains(PHOTO_BASE_NAME)) {
 
-            //Each photo has a description.txt with the same filename - so when an image is found we know the description filename
-            if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
-                Bitmap photoBitmap = Utils.loadBitmapFromFile(filePath);
+                String fileExtension = Utils.getFileExtension(filePath);
 
-                String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
+                //check if extension is available
+                if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
 
-                //create test element giving filename, description and bitmap
-                try {
-                    JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
-                    testElements.add(new TestElement(photoBitmap, jsonPhotoDescription, fileName));
-                } catch(JSONException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "Error decoding JSON");
+                    Bitmap photoBitmap = Utils.loadBitmapFromFile(filePath);
+
+                    //Each photo has a description.txt with the same filename - so when an image is found we know the description filename
+                    String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
+
+                    //create test element giving filename, description and bitmap
+                    //author Luca Moroldo - g3
+
+                    JSONObject jsonPhotoDescription = null;
+                    try {
+                        jsonPhotoDescription = new JSONObject(photoDesc);
+                    } catch(JSONException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
+                    }
+                    if(jsonPhotoDescription != null) {
+                        TestElement originalTest = new TestElement(photoBitmap, jsonPhotoDescription, fileName);
+
+                        //associate the relative bitmap to each alteration of the original test if there is any
+                        String[] alterationsFilenames = originalTest.getAlterationsNames();
+                        if(alterationsFilenames != null) {
+                            for(String alterationFilename : alterationsFilenames) {
+
+                                String alterationBitmapPath = dirPath + "/" + alterationFilename;
+                                Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationBitmapPath);
+
+                                //Utils.loadBitmapFromFile may return null
+                                if(alterationBitmap != null)
+                                    originalTest.setAlterationBitmap(alterationFilename, alterationBitmap);
+                            }
+                        }
+                        testElements.add(originalTest);
+                    }
                 }
             }
         }
@@ -93,62 +133,54 @@ public class PhotoTester {
 
 
     /**
-     * Elaborate tests using threads, stores the json report to string in testReport.txt
-     * @return String in JSON format with the test's report, each object is named with the filename and contains:
-     * ingrediens, tags, notes, original photo name, confidence
+     * Elaborate tests using threads, stores the json report in string format to testReport.txt inside the directory given on construction
+     * @return String in JSON format with the test's report, each object is a single test named with the filename and contains:
+     * ingredients, tags, notes, original photo name, confidence and alterations (if any), each alteration contains alteration tags and alteration notes
      * @author Luca Moroldo (g3)
      */
-    public String testAndReport() {
+    public String testAndReport() throws InterruptedException {
 
         Log.i(TAG,"testAndReport started");
         long started = java.lang.System.currentTimeMillis();
 
-        final JSONObject jsonReport = new JSONObject();
+        final JSONObject fullJsonReport = new JSONObject();
 
         int totalTestElements = testElements.size();
 
-        //stores the total number of tests
+        //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
         Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
-        Semaphore availableThread = new Semaphore(max_concurrent_tasks);
 
-        for(TestElement test : testElements){
-            try {
-                //wait for available thread
-                availableThread.acquire();
+        //Define a thread executor that will run a maximum of 'max_concurrent_tasks' simultaneously
+        ExecutorService executor = Executors.newFixedThreadPool(max_concurrent_tasks);
 
-                //launch thread
-                new Thread(new RunnableTest(jsonReport, test, countDownLatch, availableThread)).start();
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
+        for(TestElement singleTest : testElements) {
+            Runnable runnableTest = new RunnableTest(fullJsonReport, singleTest, countDownLatch);
+            executor.execute(runnableTest);
         }
 
-        //wait for all tests to complete
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        //after shut down the executor will reject any new task
+        executor.shutdown();
+
+        //wait until all tests are completed - i.e. when CoundDownLatch.countDown() is called by each runnableTest
+        countDownLatch.await();
 
         long ended = java.lang.System.currentTimeMillis();
         Log.i(TAG,"testAndReport ended (" + totalTestElements + " pics tested in " + (ended - started) + " ms)");
 
-        String report = jsonReport.toString();
+        String fullReport = fullJsonReport.toString();
 
         //write report to file
         try {
-            writeReportToExternalStorage(report, dirPath, "report.txt");
+            writeReportToExternalStorage(fullReport, dirPath, REPORT_FILENAME);
         } catch (IOException e) {
             Log.e(TAG, "Error writing report to file.");
             e.printStackTrace();
         }
 
-        return report;
+        return fullReport;
     }
 
     public TestElement[] getTestElements() {
@@ -271,7 +303,6 @@ public class PhotoTester {
         File file = new File(dirPath, fileName);
 
         file.createNewFile();
-
         FileOutputStream stream = null;
 
         try {
@@ -282,12 +313,10 @@ public class PhotoTester {
             } finally {
                 stream.close();
             }
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.e(TAG, "File not found");
         }
-
     }
 
 
@@ -313,25 +342,21 @@ public class PhotoTester {
         private TestElement test;
         private JSONObject jsonReport;
         private CountDownLatch countDownLatch;
-        private Semaphore semaphore;
 
         /**
-         *
          * @param jsonReport JSONObject containing tests data
          * @param test element of a test - must contain bitmap and ingredients fields
          * @param countDownLatch used to signal the task completion
          * @param semaphore semaphore used to signal the end of the task
          */
-        public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch, Semaphore semaphore) {
+        public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
             this.jsonReport = jsonReport;
             this.test = test;
             this.countDownLatch = countDownLatch;
-            this.semaphore = semaphore;
         }
 
         @Override
         public void run() {
-            try {
 
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
                 long started = java.lang.System.currentTimeMillis();
@@ -341,33 +366,47 @@ public class PhotoTester {
                 String correctIngredients = test.getIngredients();
                 float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
-                //insert test in report
+                //insert results in test
                 test.setConfidence(confidence);
-                //insert extracted test
                 test.setRecognizedText(extractedIngredients);
 
+                //evaluate alterations if any
+                String[] alterationsFileNames = test.getAlterationsNames();
+                if(alterationsFileNames != null) {
+                    for(String alterationFilename : alterationsFileNames) {
 
-                addTestElement(jsonReport, test);
+                        Bitmap alterationBitmap = test.getAlterationBitmap(alterationFilename);
+                        String alterationExtractedIngredients = "";
+                        if(alterationBitmap != null) {
+                            alterationExtractedIngredients = executeOcr(alterationBitmap);
+                        }
+                        float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
 
-                //done test process signal
+                        //insert evaluation
+                        test.setAlterationConfidence(alterationFilename, alterationConfidence);
+                        test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
+                    }
+                }
+
+                try {
+                    addTestElement(jsonReport, test);
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
+                }
+
+                //signal the end of this single test
                 countDownLatch.countDown();
 
                 long ended = java.lang.System.currentTimeMillis();
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
-
-                //let start another task
-                semaphore.release();
-
-            }catch (JSONException e) {
-                Log.e(TAG, "Error elaborating JSON test element");
-            }
         }
     }
 
     /**
-     * Puts the json object of the TestElement inside the JSONObject jsonReport, multi thread safe
+     * Add a single TestElement associated JSONReport inside the JSONObject jsonReport, multi-thread safe
      * @param jsonReport the report containing tests in JSON format
      * @param test element of a test
+     * @modify jsonReport
      * @throws JSONException
      * @author Luca Moroldo (g3)
      */
@@ -379,7 +418,7 @@ public class PhotoTester {
     * Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
     * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
     */
-    public HashMap getTagsStats() throws JSONException {
+    public HashMap getTagsStats() {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
 
@@ -410,7 +449,7 @@ public class PhotoTester {
      * Convert statistics returned by getTagsStats() into a readable text
      * @author Francesco Pham (g3)
      */
-    public String getTagsStatsString() throws JSONException {
+    public String getTagsStatsString() {
         HashMap tagsStats = getTagsStats();
         String report = "Average confidence by tags: \n";
         while(!tagsStats.isEmpty()){
