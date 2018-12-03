@@ -285,21 +285,22 @@ public class ImageProcessing {
     /**
      * Converts a matrix into a Bitmap and saves it in the default temp-file dir
      * @param matrix the matrix to be converted
-     * @param imageName the name of the file being saved
+     * @param tmpPrefix the name of the file being saved
+     * @param tmpSuffix the extension of the file being saved
      * @author Thomas Porro(g1), Oscar Garrido(g1)
      */
-    private void save(Mat matrix, String imageName) {
+    private void save(Mat matrix, String tmpPrefix, String tmpSuffix) {
         
         Bitmap image = conversionMatToBitmap(matrix);
 
         OutputStream outStream = null;
 
         //if not specified, the system-dependent default temporary-file directory will be used
-        File tmpFile = File.createTempFile(tmpPrefix);
+        File tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
 
         if (tmpFile.exists()) {
             tmpFile.delete();
-            tmpFile = File.createTempFile(tmpPrefix);
+            tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
         }
         try {
             outStream = new FileOutputStream(tmpFile);
