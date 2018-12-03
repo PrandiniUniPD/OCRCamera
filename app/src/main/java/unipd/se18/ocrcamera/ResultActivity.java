@@ -228,7 +228,7 @@ public class ResultActivity extends AppCompatActivity {
 
         /**
          * Costructor initialize:
-         * @param barcodeTextView the View responsable for barcode rapresentation
+         * @param barcodeTextView the View responsible for barcode representation
          * @param progressMessage message of the progress bar
          */
         BarcodeReader(TextView barcodeTextView, String progressMessage){
