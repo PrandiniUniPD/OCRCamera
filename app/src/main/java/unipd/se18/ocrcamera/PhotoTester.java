@@ -467,17 +467,24 @@ public class PhotoTester {
             if(alterationsNames != null) {
                 for(String alterationName : alterationsNames) {
                     for(String tag : element.getAlterationTags(alterationName)) {
+                        Log.v(TAG, "AlterationTag " + tag);
                         if(alterationTagsGain.containsKey(tag)) {
-                            float newGain = alterationTagsGain.get(tag) + element.getAlterationConfidence(alterationName);
+                            float newGain = alterationTagsGain.get(tag) + (element.getAlterationConfidence(alterationName) - element.getConfidence());
                             alterationTagsGain.put(tag, newGain);
                             alterationTagsOccurrences.put(tag, alterationTagsOccurrences.get(tag) + 1);
+                        } else{
+                            alterationTagsGain.put(tag, element.getConfidence());
+                            alterationTagsOccurrences.put(tag, 1);
                         }
 
                     }
                 }
             }
         }
-
+        for(String tag : alterationTagsGain.keySet()){
+            alterationTagsGain.put(tag, alterationTagsGain.get(tag)/alterationTagsOccurrences.get(tag)); // average of the scores
+            Log.i(TAG, "-" + tag + " score: " + alterationTagsGain.get(tag));
+        }
         return alterationTagsGain;
     }
 
@@ -495,13 +502,11 @@ public class PhotoTester {
         }
 
         HashMap alterationsTagsGainStats = getAlterationsTagsGainStats();
-        if(!alterationsTagsGainStats.isEmpty()) {
-            report += "\nAvarage gain by alterations tags: \n";
-            while(!alterationsTagsGainStats.isEmpty()) {
-                String keymin = getMinKey(alterationsTagsGainStats);
-                report = report + keymin + " : " + alterationsTagsGainStats.get(keymin) + "%\n";
-                alterationsTagsGainStats.remove(keymin);
-            }
+        report += "\nAvarage gain by alterations tags: \n";
+        while(!alterationsTagsGainStats.isEmpty()) {
+            String keymin = getMinKey(alterationsTagsGainStats);
+            report = report + keymin + " : " + alterationsTagsGainStats.get(keymin) + "%\n";
+            alterationsTagsGainStats.remove(keymin);
         }
         return report;
 
