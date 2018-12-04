@@ -288,10 +288,12 @@ public class ResultActivity extends AppCompatActivity {
             }
 
             for(int i=0; i<listInci.size(); i++){
-                inci = inci + "<b>" + listInci.get(i) + "</b>; "; /**bolding ingredients founded*/
+                inci = inci + "<b>" + listInci.get(i) + "</b>; "; /**bolding ingredients found*/
             }
 
-        }catch (IOException e){
+        }
+	
+	catch (IOException e){
             e.printStackTrace();
         }
         return inci;
