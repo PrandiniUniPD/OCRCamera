@@ -559,9 +559,9 @@ public class CameraActivity extends AppCompatActivity {
                     String filePath= tempFileImage(CameraActivity.this, bmp,"capturedImage");
 
                     //An intent that will launch the activity that will analyse the photo
-                    Intent intentActivity = new Intent(CameraActivity.this, ResultActivity.class);
-                    intentActivity.putExtra("imageDataPath", filePath);
-                    startActivity(intentActivity);
+                    Intent intentCamera = new Intent(CameraActivity.this, ResultActivity.class);
+                    intentCamera.putExtra("imageDataPath", filePath);
+                    startActivity(intentCamera);
                 }
             };
             mImageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
