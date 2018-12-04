@@ -644,6 +644,7 @@ public class CameraActivity extends AppCompatActivity {
             };
 
             mCameraDevice.createCaptureSession(outputSurface, new CameraCaptureSession.StateCallback() {
+                
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
                     try {
@@ -654,10 +655,9 @@ public class CameraActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession)
-                {
-                }
-            },mBackgroundHandler);
+                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {}
+                
+            }, mBackgroundHandler);
         } catch(CameraAccessException e) {
             e.printStackTrace();
         }
