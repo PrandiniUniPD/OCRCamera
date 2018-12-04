@@ -349,7 +349,7 @@ public class ResultActivity extends AppCompatActivity {
                 lastPhoto = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                 mImageView = findViewById(R.id.img_captured_view);
                 mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
-                AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+                AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing)); //Execute a task and post the result on the TextView given on construction
                 ocrTask.execute(lastPhoto);
             } catch (IOException e) {
                 e.printStackTrace();
