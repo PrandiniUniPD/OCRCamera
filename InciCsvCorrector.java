@@ -28,7 +28,7 @@ public class InciCsvCorrector {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(!(invLines.isEmpty())) {   // if there are invalid lines print their number
+        if(!invLines.isEmpty()) {   // if there are invalid lines print their number
             needsCorrection = true;
             System.out.print("invalid lines : ");
             while(!invLines.isEmpty()){
