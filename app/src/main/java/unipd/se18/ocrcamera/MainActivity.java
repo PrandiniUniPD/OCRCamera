@@ -3,7 +3,6 @@ package com.example.group4.cameraapp;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
@@ -16,9 +15,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -59,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
     /**
     This method set the button enabled if the permmissions asked are granted by the user
     @param requestCode int camera enabler code when permissions granted
-    @param permissions String[] contains result of checking if permissions are declared in manifest file
+    @param permissions String[] permissions requested
+    @param grantResults int[] the grant results for the corresponding permissions
     @author Andrea Ton
      */
     @Override
@@ -91,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     When the called activity return the result, set the imageView with the picture taken
     @param requestCode int arbitrary constant used to identify activity requested
     @param resultCode int system code for activity result
     @param data Intent returned from activity called
@@ -106,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     Method that save the picture inside a File, which is created in the Picture folder
     @return File file saved in directory pictures, if dir exist, if not, get created.
     @author Andrea Ton
      */
