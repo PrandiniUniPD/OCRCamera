@@ -281,15 +281,14 @@ public class CameraActivity extends AppCompatActivity {
 
     /**
      * Detect the blurriness by appling a Laplacian matrix and evaluating the variance (low variance means an usually blurry image) uses OpenCV
-     * @param bitmap1 The captured image
+     * @param bitmap The captured image
      * @return Double value of the variance
      * @author Leonardo Pratesi
      */
-    public static double blurValue(Bitmap bitmap1)
+    public static double blurValue(Bitmap bitmap)
     {
         double blur;
-        double threshold= 10;
-        Bitmap image = bitmap1;
+        Bitmap image = bitmap;
         Mat matImage = new Mat();
         org.opencv.android.Utils.bitmapToMat(image, matImage);
         Mat destination = new Mat();
