@@ -3,7 +3,6 @@ package com.example.group4.cameraapp;               // Reviewed by Balzan Pietro
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
@@ -16,9 +15,6 @@ import android.view.View;                            //   (If there are both sta
 import android.widget.Button;                        //   a single blank line separates the two blocks)
 import android.widget.ImageView;                     //   There are no other blank lines between import statements.
 import android.widget.TextView;                      //   Also import statements should be written in ASCII Sort order
-                                                     //   i'm referring to "import android.os.Bundle;" ***
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,12 +36,14 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private Uri file;
     private TextView outText;
+    //code to identify the camera activity (useful to get result from it)
     private int cameraCode = 100;        //***if you can't avoid "magic numbers" comment to explain what they mean***
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //get layout objects using their xml id, set on the layout file
         takePictureButton = (Button) findViewById(R.id.button);  //***it's by no means unreadable but maybe you could add comments***
         imageView = (ImageView) findViewById(R.id.pictureShot);
         outText = (TextView) findViewById(R.id.outText);
@@ -53,17 +51,20 @@ public class MainActivity extends AppCompatActivity {
             takePictureButton.setEnabled(false);
             ActivityCompat.requestPermissions(this, new String[] {
                     Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 0);    //*** magic number "0" ***
+            //requestCode -> application specific request code to match with a result reported to onRequestPermissionsResult(...).
         }
     }
 
     /**
     This method set the button enabled if the permmissions asked are granted by the user
     @param requestCode int camera enabler code when permissions granted
-    @param permissions String[] contains result of checking if permissions are declared in manifest file
+    @param permissions String[] the requested permissions
+    @param grantResults int[] The grant results for the corresponding permissions
     @author Andrea Ton
      */                                         // ***param grantResults is missing from specifications, what does it do?***
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        //requestCode used in the method .requestPermissions(...)
         if (requestCode == 0) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                     && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
@@ -90,8 +91,12 @@ public class MainActivity extends AppCompatActivity {
         }                                                                  //    the Bitmap outside, before calling getTextFromImg()***
     }
 
-    /**                                                                                //***describe what this method does
-    @param requestCode int arbitrary constant used to identify activity requested      //   as you have done with the others***
+    //****describe what this method does
+    //   as you have done with the others***
+
+    /**
+    When picture is taken, the imageView object is the set with that pic.
+    @param requestCode int arbitrary constant used to identify activity requested
     @param resultCode int system code for activity result
     @param data Intent returned from activity called
     @author Andrea Ton
@@ -106,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+    This method save the picture inside a File, in the Picture directory.
     @return File file saved in directory pictures, if dir exist, if not, get created.
     @author Andrea Ton
      */
