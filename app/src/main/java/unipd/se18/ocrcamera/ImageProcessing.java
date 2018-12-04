@@ -1,11 +1,11 @@
 package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
-import android.os.Environment;
 import android.util.Log;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -57,6 +57,7 @@ public class ImageProcessing {
      */
     public ImageProcessing() {
         //TODO verify if the library is correctly loaded
+
         //Load the openCV library
         System.loadLibrary("opencv_java3");
         Log.i(TAG, "Loaded the library");
@@ -71,14 +72,14 @@ public class ImageProcessing {
      * @author Thomas Porro (g1)
      */
     public Bitmap findText(String imagePath) throws FileNotFoundException {
+
         //Converts the image into a matrix
         Mat img = Imgcodecs.imread(imagePath);
 
         //Call of internal methods
         RotatedRect area = detectMaxTextArea(imagePath);
         img = crop(area, img);
-        Bitmap image = conversionMatToBitmap(img);
-        return image;
+        return conversionMatToBitmap(img);
     }
 
 
@@ -96,7 +97,7 @@ public class ImageProcessing {
         Mat img = conversionBitmapToMat(imagePath);
        /*
             Method used for debug
-            save(img, "grayScale.jpg");
+            save(img, "grayScale", ".jpg");
         */
 
         //Invert the colors of "img" onto itself
@@ -162,10 +163,11 @@ public class ImageProcessing {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
-
         Mat img = conversionBitmapToMat(imagePath);
-
-        //save(img, "grayScale.jpg");
+        /*
+            Method used for debug
+            //save(img, "grayScale", ".jpg");
+        */
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
         Mat threshold = new Mat();
@@ -173,11 +175,7 @@ public class ImageProcessing {
         int blockSize = 21;
         double constant = 8;
         Imgproc.adaptiveThreshold(img, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
-        /*
-            Method used for debug
-
-            save(threshold, "threshold.jpg");
-        */
+        //save(threshold, "threshold", ".jpg");
 
         //Detect the edges in the image
         Mat canny = new Mat();
@@ -186,8 +184,7 @@ public class ImageProcessing {
         int apertureSize = 3;
         boolean l2gradient = false;
         Imgproc.Canny(threshold, canny, threshold1, threshold2, apertureSize, l2gradient);
-        //save(canny, "canny.jpg");
-
+        //save(canny, "canny", ".jpg");
 
         /*
             kernelSize is the dimension of "element" matrix
@@ -196,25 +193,21 @@ public class ImageProcessing {
         Size kernelSize = new Size(20, 20);
         Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, kernelSize);
 
-
         //Fill the close edges created by "canny"
         Mat morphology = new Mat();
         Imgproc.morphologyEx(canny, morphology, Imgproc.MORPH_CLOSE, element);
-        //save(morphology, "morphology.jpg");
-
+        //save(morphology, "morphology", "jpg");
 
         //Smoothes the image using the median filter.
         Mat blurredMat = new Mat();
         int ksize = 15;
         Imgproc.medianBlur(morphology, blurredMat, ksize);
-        //save(blurredMat, "gaussianBlur.jpg");
-
+        //save(blurredMat, "gaussianBlur", ".jpg");
 
         //Dilates the image
         Mat dilatated = new Mat();
         Imgproc.dilate(blurredMat, dilatated, element);
-        //save(dilatated, "dilate.jpg");
-
+        //save(dilatated, "dilate", ".jpg");
 
         //Saves the contours in a list of MatOfPoint (multidimensional vector)
         List<MatOfPoint> contours = new ArrayList<>();
@@ -230,9 +223,7 @@ public class ImageProcessing {
          */
         double maxArea = 0;
         MatOfPoint max_contour = new MatOfPoint();
-        Iterator<MatOfPoint> iterator = contours.iterator();
-        while (iterator.hasNext()) {
-            MatOfPoint contour = iterator.next();
+        for (MatOfPoint contour : contours) {
             double area = Imgproc.contourArea(contour);
             if (area > maxArea) {
                 maxArea = area;
@@ -240,9 +231,8 @@ public class ImageProcessing {
             }
         }
 
-        //Creates a rotated rectangle based on "max_contour"
-        RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
-        return rect;
+        //Creates and return a rotated rectangle based on "max_contour"
+        return Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
     }
 
 
@@ -255,37 +245,33 @@ public class ImageProcessing {
      */
     public Mat crop(RotatedRect rectangle, Mat mat) {
 
-        RotatedRect rect;
-
         //Matrices we'll use
-        Mat rotationMat = new Mat();
-        Mat rotatedImg = new Mat();
         Mat croppedImg = new Mat();
+        Mat rotatedImg = new Mat();
+        Mat rotationMat;
 
         //Get angle and size from the bounding box
         double angle = rectangle.angle;
-        Size rect_size = rectangle.size;
+        Size rectSize = rectangle.size;
 
         //Thanks to http://felix.abecassis.me/2011/10/opencv-rotation-deskewing/
         if (rectangle.angle < -45.) {
             angle += 90.0;
-            double width = rect_size.width;
-            double height = rect_size.height;
-            rect_size.width = height;
-            rect_size.height = width;
+            double width = rectSize.width;
+            double height = rectSize.height;
+            rectSize.width = height;
+            rectSize.height = width;
         }
 
         //Creates the rotation matrix
         rotationMat = getRotationMatrix2D(rectangle.center, angle, 1.0);
 
-
         //Perform the affine transformation (rotation)                                   *
         Imgproc.warpAffine(mat, rotatedImg, rotationMat, mat.size(), INTER_CUBIC);
 
         //Crop the resulting image
-        getRectSubPix(rotatedImg, rect_size, rectangle.center, croppedImg);
+        getRectSubPix(rotatedImg, rectSize, rectangle.center, croppedImg);
         return croppedImg;
-
     }
 
 
@@ -299,25 +285,30 @@ public class ImageProcessing {
     private void save(Mat matrix, String tmpPrefix, String tmpSuffix) {
 
         Bitmap image = conversionMatToBitmap(matrix);
+        OutputStream outStream;
 
-        OutputStream outStream = null;
-
-        //if not specified, the system-dependent default temporary-file directory will be used
-        File tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
-
-        if (tmpFile.exists()) {
-            tmpFile.delete();
-            tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
-        }
         try {
-            outStream = new FileOutputStream(tmpFile);
 
-            image.compress(Bitmap.CompressFormat.PNG, 100, outStream);
-            outStream.flush();
-            outStream.close();
-            Log.i(TAG, "outStream closed");
-        } catch (Exception e) {
-            e.printStackTrace();
+            //if not specified, the system-dependent default temporary-file directory will be used
+            File tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
+
+            if (tmpFile.exists()) {
+                tmpFile.delete();
+                tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
+            }
+
+            try {
+                outStream = new FileOutputStream(tmpFile);
+                image.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+                outStream.flush();
+                outStream.close();
+                Log.i(TAG, "outStream closed");
+            } catch (FileNotFoundException fileNotFound) {
+                fileNotFound.printStackTrace();
+            }
+
+        } catch (IOException fileNotCreated){
+            fileNotCreated.printStackTrace();
         }
     }
 
@@ -344,7 +335,6 @@ public class ImageProcessing {
      */
     private Mat conversionBitmapToMat(String imagePath) throws FileNotFoundException {
 
-
         //Loads the grayscale image in a matrix
         Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
 
@@ -353,8 +343,6 @@ public class ImageProcessing {
             Log.e(TAG, "File not found");
             throw new FileNotFoundException();
         }
-
         return img;
     }
-
 }
