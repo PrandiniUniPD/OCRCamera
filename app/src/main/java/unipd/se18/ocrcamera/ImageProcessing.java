@@ -3,7 +3,14 @@ package unipd.se18.ocrcamera;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt4;
@@ -13,15 +20,6 @@ import org.opencv.core.RotatedRect;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.android.Utils;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import static org.opencv.imgproc.Imgproc.getRectSubPix;
@@ -30,13 +28,15 @@ import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
 
 /**
  * Class used to analyze the image
+ * @author Thomas Porro (g1), Oscar Garrido (g1)
+ * Reviewed by Pietro Prandini (g2), Francesco Pham (g3), Pietro Balzan (g3), Vlad Iosif (g4)
  */
 public class ImageProcessing {
 
     /*
         Documentation of the Imgproc class available at:
         https://docs.opencv.org/java/2.4.2/org/opencv/imgproc/Imgproc.html
-        
+
         We referenced a previous instance of the documentation since
         the newer one is still incomplete
 
@@ -48,7 +48,7 @@ public class ImageProcessing {
      */
 
     //Tag used to identify the log
-    final String TAG = "openCV";
+    final private String TAG = "openCV";
 
 
     /**
@@ -61,6 +61,7 @@ public class ImageProcessing {
         System.loadLibrary("opencv_java3");
         Log.i(TAG, "Loaded the library");
     }
+
 
     /**
      * Find, crop and rotate the text in an image
@@ -76,7 +77,7 @@ public class ImageProcessing {
         //Call of internal methods
         RotatedRect area = detectMaxTextArea(imagePath);
         img = crop(area, img);
-        Bitmap image = conversion(img);
+        Bitmap image = conversionMatToBitmap(img);
         return image;
     }
 
@@ -92,8 +93,11 @@ public class ImageProcessing {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
-        Mat img = conversion(imagePath);
-        //save(img, "grayScale.jpg");
+        Mat img = conversionBitmapToMat(imagePath);
+       /*
+            Method used for debug
+            save(img, "grayScale.jpg");
+        */
 
         //Invert the colors of "img" onto itself
         Core.bitwise_not(img, img);
@@ -147,9 +151,10 @@ public class ImageProcessing {
 
 
     /**
-     * Detect in which region of the picture there is some text
+     * Detect in which region of the picture there is some text and finds
+     * the largest one, even if it's rotated
      * @param imagePath the path of the image you want to analyze
-     * @return the rectangle which contains the text
+     * @return the rectangle which contains the text with maximum area (it could be rotated)
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
@@ -157,7 +162,9 @@ public class ImageProcessing {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
-        Mat img = conversion(imagePath);
+
+        Mat img = conversionBitmapToMat(imagePath);
+
         //save(img, "grayScale.jpg");
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
@@ -168,9 +175,9 @@ public class ImageProcessing {
         Imgproc.adaptiveThreshold(img, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
         /*
             Method used for debug
+
             save(threshold, "threshold.jpg");
         */
-
 
         //Detect the edges in the image
         Mat canny = new Mat();
@@ -216,7 +223,6 @@ public class ImageProcessing {
         Imgproc.findContours(dilatated, contours, new Mat(), mode, method);
         //The third parameter contains additional information that is unused
 
-
         /*
             EXPERIMENTAL:
             finds the text rectangle with the largest area
@@ -237,19 +243,6 @@ public class ImageProcessing {
         //Creates a rotated rectangle based on "max_contour"
         RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
         return rect;
-    }
-
-
-    /**
-     * Converts the matrix into a Bitmap
-     * @param matrix the matrix you want to convert
-     * @return the bitmap corresponding to the matrix
-     * @author Thomas Porro (g1)
-     */
-    public Bitmap conversion(Mat matrix) {
-        Bitmap image = Bitmap.createBitmap(matrix.width(), matrix.height(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(matrix, image);
-        return image;
     }
 
 
@@ -285,7 +278,8 @@ public class ImageProcessing {
         //Creates the rotation matrix
         rotationMat = getRotationMatrix2D(rectangle.center, angle, 1.0);
 
-        //Perform the affine transformation
+
+        //Perform the affine transformation (rotation)                                   *
         Imgproc.warpAffine(mat, rotatedImg, rotationMat, mat.size(), INTER_CUBIC);
 
         //Crop the resulting image
@@ -296,26 +290,28 @@ public class ImageProcessing {
 
 
     /**
-     * Converts a matrix into a Bitmap and saves it in a local directory
+     * Converts a matrix into a Bitmap and saves it in the default temp-file dir
      * @param matrix the matrix to be converted
-     * @param imageName the name of the file being saved
+     * @param tmpPrefix the name of the file being saved
+     * @param tmpSuffix the extension of the file being saved
      * @author Thomas Porro(g1), Oscar Garrido(g1)
      */
-    private void save(Mat matrix, String imageName) {
-        final String directory = Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/ImageProcessingTest/" + imageName;
-        Bitmap image = conversion(matrix);
+    private void save(Mat matrix, String tmpPrefix, String tmpSuffix) {
+
+        Bitmap image = conversionMatToBitmap(matrix);
 
         OutputStream outStream = null;
 
-        File file = new File(directory);
-        file.mkdirs();
+        //if not specified, the system-dependent default temporary-file directory will be used
+        File tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
 
-        if (file.exists()) {
-            file.delete();
-            file = new File(directory);
+        if (tmpFile.exists()) {
+            tmpFile.delete();
+            tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
         }
         try {
-            outStream = new FileOutputStream(file);
+            outStream = new FileOutputStream(tmpFile);
+
             image.compress(Bitmap.CompressFormat.PNG, 100, outStream);
             outStream.flush();
             outStream.close();
@@ -327,13 +323,27 @@ public class ImageProcessing {
 
 
     /**
+     * Converts the matrix into a Bitmap
+     * @param matrix the matrix you want to convert
+     * @return the Bitmap corresponding to the matrix
+     * @author Thomas Porro (g1)
+     */
+    private Bitmap conversionMatToBitmap(Mat matrix) {
+        Bitmap image = Bitmap.createBitmap(matrix.width(), matrix.height(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(matrix, image);
+        return image;
+    }
+
+
+    /**
      * Converts the Bitmap into a grayscale matrix
-     * @param imagePath the matrix you want to convert
-     * @return the bitmap corresponding to the matrix
+     * @param imagePath the Bitmap you want to convert
+     * @return the matrix corresponding to the Bitmap
      * @throws FileNotFoundException if the imagePath doesn't exist
      * @author Oscar Garrido (g1)
      */
-    public Mat conversion(String imagePath) throws FileNotFoundException {
+    private Mat conversionBitmapToMat(String imagePath) throws FileNotFoundException {
+
 
         //Loads the grayscale image in a matrix
         Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
@@ -346,4 +356,5 @@ public class ImageProcessing {
 
         return img;
     }
+
 }
