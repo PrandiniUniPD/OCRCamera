@@ -554,7 +554,7 @@ public class CameraActivity extends AppCompatActivity {
                     //Create sharedPref file to save the Bitmap of last taken photo in a String form
                     SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("photoBitmap", photoBitmapToString);
+                    editor.putString(getResources().getString(R.string.bitmap_string:"photoBitmap"), photoBitmapToString);
                     editor.commit();
 
                     //@author Leonardo Rossi
