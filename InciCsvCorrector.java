@@ -85,31 +85,31 @@ public class InciCsvCorrector {
      */
     private static void correctInterruptedLines(File source,File corrected) throws IOException {
 
-        BufferedReader br = new BufferedReader(new FileReader(source));
-        BufferedWriter bw = new BufferedWriter(new FileWriter(corrected));
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(source));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(corrected));
         String line;
         boolean currentLineHasValidStart;
         boolean currentLineHasValidEnd;
         boolean lineCompleted = true;
 
-        while((line = br.readLine())!=null){
+        while((line = bufferedReader.readLine())!=null){
             if(line.length()>MINIMUM_VALID_LENGTH) {
                 currentLineHasValidStart = (isNumeric(line.substring(0, 5)) && (line.charAt(5) == ','));        //valid start of line (12345,)
                 currentLineHasValidEnd = isDate(line.substring(line.length() - DATE_LENGTH));              //valid end of line (dd/mm/yyyy)
                 if (currentLineHasValidStart && currentLineHasValidEnd) {             //line is valid
-                    bw.write(line + "\r\n");          //write and end line
+                    bufferedWriter.write(line + "\r\n");          //write and end line
                 } else if (currentLineHasValidStart) {         //line has a valid start but is incomplete
-                    bw.write(line);                 //write without ending line
+                    bufferedWriter.write(line);                 //write without ending line
                     lineCompleted = false;
                 } else if (isDate(line.substring(line.length() - DATE_LENGTH)) && !lineCompleted) {   //valid end of line and last line is incomplete
-                    bw.write(line + "\r\n");
+                    bufferedWriter.write(line + "\r\n");
                     lineCompleted = true;
                 } else if (!lineCompleted) {          //last line incomplete and no valid end
-                    bw.write(line);
+                    bufferedWriter.write(line);
                 }
             }
         }
-        bw.close();
+        bufferedWriter.close();
     }
 
     /**
@@ -119,12 +119,12 @@ public class InciCsvCorrector {
     private static String[] getFilesPaths(){
 
         String[] paths = new String[2];
-        Scanner sc = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
 
         System.out.print("Source absolute file path (C:\\Users\\...) :");
-        paths[0]= sc.nextLine();
+        paths[0]= scanner.nextLine();
         System.out.print("Result file path :");
-        paths[1]= sc.nextLine();
+        paths[1]= scanner.nextLine();
 
         return paths;
     }
