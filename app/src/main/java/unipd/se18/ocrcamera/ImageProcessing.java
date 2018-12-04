@@ -2,8 +2,15 @@ package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.util.Log;
-
+import android.util.Log;                        
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt4;
@@ -13,15 +20,6 @@ import org.opencv.core.RotatedRect;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.android.Utils;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import static org.opencv.imgproc.Imgproc.getRectSubPix;
@@ -30,6 +28,8 @@ import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
 
 /**
  * Class used to analyze the image
+ * @author Thomas Porro (g1), Oscar Garrido (g1)
+ * Reviewed by Pietro Prandini (g2), Francesco Pham (g3), Pietro Balzan (g3), Vlad Iosif (g4)
  */
 public class ImageProcessing {
 
@@ -48,9 +48,9 @@ public class ImageProcessing {
      */
 
     //Tag used to identify the log
-    final String TAG = "openCV";
+    final private String TAG = "openCV";
 
-
+  
     /**
      * Constructor of the class which initialize the openCV library
      * @author Thomas Porro (g1)
@@ -61,6 +61,7 @@ public class ImageProcessing {
         System.loadLibrary("opencv_java3");
         Log.i(TAG, "Loaded the library");
     }
+
 
     /**
      * Find, crop and rotate the text in an image
@@ -93,9 +94,12 @@ public class ImageProcessing {
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
         Mat img = conversionBitmapToMat(imagePath);
-        //save(img, "grayScale.jpg");
+       /*
+            Method used for debug
+            save(img, "grayScale.jpg");                          
+        */
 
-        //Invert the colors of "img" onto itself
+      //Invert the colors of "img" onto itself
         Core.bitwise_not(img, img);
 
         //Detect the edges in the image
@@ -147,9 +151,10 @@ public class ImageProcessing {
 
 
     /**
-     * Detect in which region of the picture there is some text and finds the largest one
+     * Detect in which region of the picture there is some text and finds
+     * the largest one, even if it's rotated
      * @param imagePath the path of the image you want to analyze
-     * @return the rectangle which contains the text with maximum area
+     * @return the rectangle which contains the text with maximum area (it could be rotated)
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
@@ -157,7 +162,9 @@ public class ImageProcessing {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
+
         Mat img = conversionBitmapToMat(imagePath);
+
         //save(img, "grayScale.jpg");
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
@@ -168,9 +175,9 @@ public class ImageProcessing {
         Imgproc.adaptiveThreshold(img, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
         /*
             Method used for debug
-            save(threshold, "threshold.jpg");
-        */
 
+            save(threshold, "threshold.jpg");                          
+        */
 
         //Detect the edges in the image
         Mat canny = new Mat();
@@ -215,7 +222,6 @@ public class ImageProcessing {
         int method = 1;
         Imgproc.findContours(dilatated, contours, new Mat(), mode, method);
         //The third parameter contains additional information that is unused
-
 
         /*
             EXPERIMENTAL:
@@ -272,7 +278,8 @@ public class ImageProcessing {
         //Creates the rotation matrix
         rotationMat = getRotationMatrix2D(rectangle.center, angle, 1.0);
 
-        //Perform the affine transformation
+
+        //Perform the affine transformation (rotation)                                   *
         Imgproc.warpAffine(mat, rotatedImg, rotationMat, mat.size(), INTER_CUBIC);
 
         //Crop the resulting image
@@ -304,6 +311,7 @@ public class ImageProcessing {
         }
         try {
             outStream = new FileOutputStream(tmpFile);
+
             image.compress(Bitmap.CompressFormat.PNG, 100, outStream);
             outStream.flush();
             outStream.close();
@@ -312,6 +320,7 @@ public class ImageProcessing {
             e.printStackTrace();
         }
     }
+
     
     /**
      * Converts the matrix into a Bitmap
@@ -335,6 +344,7 @@ public class ImageProcessing {
      */
     private Mat conversionBitmapToMat(String imagePath) throws FileNotFoundException {
 
+
         //Loads the grayscale image in a matrix
         Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
 
@@ -346,4 +356,5 @@ public class ImageProcessing {
 
         return img;
     }
+
 }
