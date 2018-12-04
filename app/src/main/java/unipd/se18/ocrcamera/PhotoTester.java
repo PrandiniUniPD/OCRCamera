@@ -64,10 +64,14 @@ public class PhotoTester {
             alteration16.jpg
             alteration22.jpg
 
-         To find out which 'foto' has an alteration (e.g. modified photo) we need to read each .txt file, data is stored in JSON format.
+         A single test has an image and a description written in JSON format that contains tags, ingredients in the image, and notes.
+         A single test can also have some edited images associated to it, in this case the description also contains each edited image
+         data (image file name, notes, tags).
+         To find out which 'foto' has an alteration (e.g. modified photo) we need to read each .txt file.
 
          To automate the elaboration of each test i've modified the class TestElement, that allows to link each photo to its description and alterations (if any),
          and then, at the evaluation phase, set the results like recognition confidence and recognized text.
+         Confidence is a float that describes the correspondence between the recognized text from the OCR and the real one.
          */
 
         //Credits for getStorageDir function: Pietro Prandini (group 2)
