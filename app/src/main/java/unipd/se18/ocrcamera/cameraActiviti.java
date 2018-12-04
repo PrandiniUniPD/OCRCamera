@@ -507,6 +507,10 @@ public class CameraActivity extends AppCompatActivity {
      * <p>Saves the captured photo, previously converted into Base64 String, into the current
      * activity sharedPreferences</p>
      * @modify mCameraDevice
+     * #87
+     * The CameraDevice used to interact with the physical camera.
+     
+    * private CameraDevice mCameraDevice;
      * @author Alberto Valente, Taulant Bullaku
      */
     private void takePhoto() {
