@@ -105,13 +105,9 @@ public class BarcodeExtractor {
      * @author Luca Perali
      */
     private static String getInfoFromBarcode(List<FirebaseVisionBarcode> barcodes) {
-        //StringBuilder result = new StringBuilder();
         for (FirebaseVisionBarcode barcode : barcodes) {
-            //result.append(barcode.getRawValue() + "\n");
             return barcode.getRawValue(); //TODO, WARNING: multiple barcode is not managed!
         }
-        //return result.toString();
-
         return ""; //if no barcode is detected
     }
 }
