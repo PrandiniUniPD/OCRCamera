@@ -2,9 +2,9 @@
  *  The main goal for this project is to test older Camera API (15 to 19) to see if it's
  *  plausible to support these devices and lower the minimum API requirement on CommonDemo
  *  so we can support full range of Android devices (API 15 and higher is 100% demographic)
- *  I used this interface for Camera (1) API to make the program
+ *  I used this library that interfaces with the Camera (1) API to make the program
  *      https://github.com/natario1/CameraView
- *  working with master build of the interface
+ *  working with master build of the library
  *  The documentation starts here
  *      https://github.com/natario1/CameraView#usage
  */
@@ -29,8 +29,12 @@ import com.otaliastudios.cameraview.GestureAction;
  */
 public class CameraActivity extends AppCompatActivity {
 
+    //variable used to interface with the CameraView library
     private CameraView camera;
-    private boolean mCapturingPicture;
+
+    //variable (with default value false) set to true if a picture is captured
+    //only when the picture is sent to the PicturePreviewActivity the variable is set to false again
+    private boolean isPictureCaptured = false;
 
     /**
      * onCreate method of the Android Activity Lifecycle
@@ -55,11 +59,11 @@ public class CameraActivity extends AppCompatActivity {
 
         camera.addCameraListener(new CameraListener() {
             /**
-             * Listining for photo taken by the camera
-             * @param jpeg the taken photo in array form
+             * Listening for photo taken by the camera
+             * @param picture the taken photo in array form (stream of byte)
              * @author Bedin Elia
              */
-            public void onPictureTaken(byte[] jpeg) { onPicture(jpeg); }
+            public void onPictureTaken(byte[] picture) { onCapture(picture); }
         });
 
         ImageButton buttonPhoto = findViewById(R.id.capturePhoto);
@@ -74,7 +78,6 @@ public class CameraActivity extends AppCompatActivity {
                 capturePhoto();
             }
         });
-
     }
 
     /**
@@ -82,27 +85,27 @@ public class CameraActivity extends AppCompatActivity {
      * @author Bedin Elia
      */
     private void capturePhoto() {
-        if (mCapturingPicture) return;
-        mCapturingPicture = true;
+        if (isPictureCaptured) return;
+        isPictureCaptured = true;
         camera.capturePicture();
     }
 
     /**
      * Method for sending the taken photo in array form to the PicturePreviewActivity
-     * @param jpeg the taken photo
+     * @param picture the taken photo in array form (stream of byte)
      * @author Bedin Elia
      */
-    private void onPicture(byte[] jpeg) {
-        mCapturingPicture = false;
+    private void onCapture(byte[] picture) {
+        isPictureCaptured = false;
         //sending the taken photo to PicturePreviewActivity via setImage
-        PicturePreviewActivity.setImage(jpeg);
+        PicturePreviewActivity.setImage(picture);
         //sending information to PicturePreviewActivity through Intent
         Intent intent = new Intent(CameraActivity.this, PicturePreviewActivity.class);
         startActivity(intent);
     }
 
     /**
-     * Permission checker for Android M or higher
+     * Explicit permission checker for Android M or higher
      * @param requestCode permission code
      * @param permissions the requested permissions
      * @param grantResults the grant results for the corresponding permissions
