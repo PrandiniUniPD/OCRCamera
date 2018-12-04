@@ -502,7 +502,7 @@ public class CameraActivity extends AppCompatActivity {
 
     /**
      *@param: communicate with the camera to have a picture
-     *@return: return the photo in a sharedPreferences
+     *@return: modifies shared preferences
      * Takes a photo.
      * <p>Saves the captured photo, previously converted into Base64 String, into the current
      * activity sharedPreferences</p>
@@ -566,7 +566,7 @@ public class CameraActivity extends AppCompatActivity {
             };
             mImageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
 
-            //@author Leonardo Rosi
+            //@author Leonardo Rossi
 
             //Output surfaces
             List<Surface> outputSurface = new ArrayList<>(2);
