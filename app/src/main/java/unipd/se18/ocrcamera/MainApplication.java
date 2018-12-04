@@ -11,7 +11,11 @@ import java.io.OutputStream;
 
 public class MainApplication extends Application {
 
-    public static MainApplication instance = null;
+    private static MainApplication instance = null;
+
+    private String fileName = "ita.traineddata";
+
+    private int dim = 1024;
 
     public void onCreate(){
         super.onCreate();
@@ -55,17 +59,17 @@ public class MainApplication extends Application {
                 OutputStream out = null;
                 try{
                     Log.d("MainApplication", "CopyTessDataForTextRecognizor");
-                    InputStream in = assetManager.open("ita.traineddata");
+                    InputStream in = assetManager.open(fileName);
                     String tesspath = instance.tessDataPath();
                     File tessFolder = new File(tesspath);
                     if(!tessFolder.exists()) {
                         tessFolder.mkdir();
                     }
-                    String tessData = tesspath+"/"+"ita.traineddata";
+                    String tessData = tesspath+"/"+fileName;
                     File tessFile = new File(tessData);
                     if(!tessFile.exists()){
                         out = new FileOutputStream(tessData);
-                        byte[] buffer = new byte[1024];
+                        byte[] buffer = new byte[dim];
                         int read = in.read(buffer);
                         while (read != -1){
                             out.write(buffer, 0, read);
@@ -85,7 +89,7 @@ public class MainApplication extends Application {
                             out.close();
                         }
                     }catch(Exception exx){
-
+                        Log.d("MainApplication", " Error ");
                     }
                 }
             }
