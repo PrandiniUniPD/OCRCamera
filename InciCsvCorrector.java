@@ -1,13 +1,14 @@
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
  * Class for the correction of the csv file containing the INCI ingredients found at
  * "http://ec.europa.eu/growth/tools-databases/cosing/pdf/COSING_Ingredients-Fragrance%20Inventory_v2.csv".
- * There are reoccurring formatting errors in the downloaded file that make it unusable (line endings inside the ingredient description),
- * this class fixes those errors by writing in a new file the fixed text, the paths to the source and end files will be given by the user.
- * The INCI database is updated quite often so this class can be used every time there is an update to get a usable file.
+ * There are reoccurring formatting errors in the downloaded file that make it unusable (line endings inside the
+ * ingredient description), this class fixes those errors by writing in a new file the fixed text, the paths to the
+ * source and end files will be given by the user. The INCI database is updated quite often so this class can be used
+ * every time there is an update to get a usable file.
  * @author Nicolò Cervo (g3)
  */
 public class InciCsvCorrector {
@@ -78,6 +79,7 @@ public class InciCsvCorrector {
 
     /**
      * eliminates line endings that break the ingredient entries writing the results in the corrected file
+     * a line isconsidered valid if it starts with 5 digits and a comma ane ends with a date
      * @param source source file
      * @param corrected result file
      */
@@ -94,16 +96,16 @@ public class InciCsvCorrector {
             if(line.length()>MINIMUM_VALID_LENGTH) {
                 currentLineHasValidStart = (isNumeric(line.substring(0, 5)) && (line.charAt(5) == ','));        //valid start of line (12345,)
                 currentLineHasValidEnd = isDate(line.substring(line.length() - DATE_LENGTH));              //valid end of line (dd/mm/yyyy)
-                if (currentLineHasValidStart && currentLineHasValidEnd) {               //line is complete
-                    bw.write(line + "\r\n");          //write and go to the next
+                if (currentLineHasValidStart && currentLineHasValidEnd) {             //line is valid
+                    bw.write(line + "\r\n");          //write and end line
                 } else if (currentLineHasValidStart) {         //line has a valid start but is incomplete
-                    bw.write(line);                 //write without ending
+                    bw.write(line);                 //write without ending line
                     lineCompleted = false;
                 } else if (isDate(line.substring(line.length() - DATE_LENGTH)) && !lineCompleted) {   //valid end of line and last line is incomplete
-                    bw.write(line + "\r\n");                                                 //write and end line
+                    bw.write(line + "\r\n");
                     lineCompleted = true;
-                } else if (!lineCompleted) {          //last line incomplete
-                    bw.write(line);                 //write without ending line
+                } else if (!lineCompleted) {          //last line incomplete and no valid end
+                    bw.write(line);
                 }
             }
         }
@@ -119,40 +121,38 @@ public class InciCsvCorrector {
         String[] paths = new String[2];
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("Source file path (C:\\Users\\...) :");
+        System.out.print("Source absolute file path (C:\\Users\\...) :");
         paths[0]= sc.nextLine();
-        paths[0]= paths[0].replace("\\","\\\\"); // replace \ with \\ so the path can be used ("\" alone is an escape character)
         System.out.print("Result file path :");
         paths[1]= sc.nextLine();
-        paths[1]= paths[1].replace("\\","\\\\");
 
         return paths;
     }
 
     /**
-     *
+     * Checks if the string is composed of only digits
      * @param str String to be checked
      * @return boolean true if str is a string of only digits, false otherwise
      */
-    private static boolean isNumeric(String str)
-    {
-        for (char c : str.toCharArray())
-        {
-            if (!Character.isDigit(c)) return false;
+    private static boolean isNumeric(String str) {
+        for (char c : str.toCharArray()) {
+            if (!Character.isDigit(c)) {return false;}
         }
         return true;
     }
 
     /**
-     * rudimental check to see if the String date is indeed a date (by checking if it is composed of digits and "/")
+     * rudimental check to see if the String date is indeed a date (by checking if it is composed of digits and "/" in
+     * the right positions)
      * @param date String to be checked
      * @return true if date is a string of digits and "/"
      */
-    private static boolean isDate(String date)   // not very precise but enough for this class
-    {
-        for (char c : date.toCharArray())
-        {
-            if (!(Character.isDigit(c) || c=='/')) return false;
+    private static boolean isDate(String date){   // not very precise but enough for this class
+        for (char c : date.toCharArray()) {
+            if (!(Character.isDigit(c) || c=='/')) {return false;}
+        }
+        if(date.charAt() == '/' && date.charAt() == '/'){
+            return false;
         }
         return true;
     }
