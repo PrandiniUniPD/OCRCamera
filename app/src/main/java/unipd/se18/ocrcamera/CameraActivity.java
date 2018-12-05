@@ -161,12 +161,29 @@ public class CameraActivity extends AppCompatActivity {
                 edit.apply();
 
                 // analyze the brightness   @author Balzan Pietro
-                final Bitmap bitmapImage2 = bitmapImage;
+                final Bitmap bitmapImage2 = bitmapImage;  //creating a final version of te bitmap to be accessed form BrightnessRecognition
                 new Thread(new Runnable() {      // run the brightness recognition on a new thread to improve performance
                     public void run() {
-                        Context appContext= getApplicationContext();
-                        BrightnessRecognition bRecog = new BrightnessRecognition(bitmapImage2, appContext, handler);
-                        bRecog.imgBrightness(190,80,5);
+                        final String tooBright = "The picture might be too bright";
+                        final String tooDark = "The picture might be too dark";
+                        BrightnessRecognition bRecog = new BrightnessRecognition(bitmapImage2);
+                        int brightnessResult= bRecog.imgBrightness(190,80,3);
+                        if (brightnessResult == 1){      //show messages to the user
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), tooBright, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                        else if (brightnessResult== -1){
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), tooDark, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
                     }
                 }).start();
 
