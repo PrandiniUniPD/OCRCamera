@@ -174,16 +174,17 @@ public class ImageProcessing {
         double maxValue = 200;
         int blockSize = 21;
         double constant = 8;
-        Imgproc.adaptiveThreshold(img, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
+        Imgproc.adaptiveThreshold(img, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,
+                Imgproc.THRESH_BINARY, blockSize, constant);
         //save(threshold, "threshold", ".jpg");
 
         //Detect the edges in the image
-        Mat canny = new Mat();
-        double threshold1 = 100;
-        double threshold2 = 200;
-        int apertureSize = 3;
-        boolean l2gradient = false;
-        Imgproc.Canny(threshold, canny, threshold1, threshold2, apertureSize, l2gradient);
+        ProcessingMethods detectEdges = new ProcessingMethods();
+        Mat canny = detectEdges.doCanny(new ProcessingMethods.CannyBuilder(threshold)
+                .withMinThreshold(100)
+                .withMaxThreshold(200)
+                .withApertureSize(3)
+                .withL2gradient(false));
         //save(canny, "canny", ".jpg");
 
         /*
@@ -320,7 +321,8 @@ public class ImageProcessing {
      * @author Thomas Porro (g1)
      */
     private Bitmap conversionMatToBitmap(Mat matrix) {
-        Bitmap image = Bitmap.createBitmap(matrix.width(), matrix.height(), Bitmap.Config.ARGB_8888);
+        Bitmap image = Bitmap.createBitmap(matrix.width(), matrix.height(),
+                Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(matrix, image);
         return image;
     }
@@ -347,16 +349,33 @@ public class ImageProcessing {
     }
 
 
+    /**
+     * Builder used to pass to openCV's methods the parameters
+     * @author Thomas Porro (g1)
+     */
     private static class ProcessingMethods{
 
-        public static class CannyBuilder{
+        /**
+         * Inner class to create an object CannyBuilder that contains
+         * all the variables needed to Imgproc.Canny method
+         * @author Thomas Porro (g1)
+         */
+        private static class CannyBuilder{
+
             private Mat source;
             private double minThreshold;
             private double maxThreshold;
-            private boolean l2gradient;
             private int apertureSize;
+            private boolean l2gradient;
 
-            public CannyBuilder(Mat src){
+
+            /**
+             * Constructor that initialize the variables of the object
+             * with a default value
+             * @param src the source matrix
+             * @author Thomas Porro (g1)
+             */
+            private CannyBuilder(Mat src){
                 this.source = src;
                 this.minThreshold = 50;
                 this.maxThreshold = 200;
@@ -365,73 +384,76 @@ public class ImageProcessing {
             }
 
 
-            public CannyBuilder withMinThreshold(double value){
+            /**
+             * Set minThreshold with the passed value
+             * @param value the value you want it to take minThreshold
+             * @return returns the current object instance
+             * @author Thomas Porro (g1)
+             */
+            private CannyBuilder withMinThreshold(double value){
                 this.minThreshold = value;
                 return this;
             }
 
-            public CannyBuilder withMaxThreshold(double value){
+
+            /**
+             * Set maxThreshold with the passed value
+             * @param value the value you want it to take maxThreshold
+             * @return returns the current object instance
+             * @author Thomas Porro (g1)
+             */
+            private CannyBuilder withMaxThreshold(double value){
                 this.maxThreshold = value;
                 return this;
             }
 
-            public CannyBuilder withL2gradient(boolean value){
-                this.l2gradient = value;
-                return this;
-            }
 
-            public CannyBuilder withApertureSize(int value){
+            /**
+             * Set withApertureSize with the passed value
+             * @param value the value you want it to withApertureSize
+             * @return returns the current object instance
+             * @author Thomas Porro (g1)
+             */
+            private CannyBuilder withApertureSize(int value){
                 this.apertureSize = value;
                 return this;
             }
 
-            public ProcessingMethods build(){
-                ProcessingMethods method = new ProcessingMethods();
-                method.src = this.source;
-                method.setMinThreshold(this.minThreshold);
-                method.setMaxThreshold(this.maxThreshold);
-                method.setL2gradient(this.l2gradient);
-                method.setApertureSize(this.apertureSize);
 
-                return method;
+            /**
+             * Set l2gradient with the passed value
+             * @param value the value you want it to l2gradient
+             * @return returns the current object instance
+             * @author Thomas Porro (g1)
+             */
+            private CannyBuilder withL2gradient(boolean value){
+                this.l2gradient = value;
+                return this;
             }
         }
 
-        private Mat src;
-        private double minThreshold;
-        private double maxThreshold;
-        private boolean l2gradient;
-        private int apertureSize;
 
+        /**
+         * Constructor of ProcessingMethods that do anything
+         * @author Thomas Porro (g1)
+         */
         private ProcessingMethods(){
         }
 
-        public void setSrc(Mat matrix){
-            this.src = matrix;
-        }
 
-        public void setMinThreshold(double value){
-            this.minThreshold = value;
-        }
-
-        public void setMaxThreshold(double value){
-            this.maxThreshold = value;
-        }
-
-        public void setL2gradient(boolean value){
-            this.l2gradient = value;
-        }
-
-        public void setApertureSize(int value){
-            this.apertureSize = value;
-        }
-
-        public Mat doCanny(){
+        /**
+         * Apply the openCV's methods Imageproc.Canny, that detects the edges of an image
+         * @param builder the CannyBuilder that contains the parameters of the
+         *                Imageproc.Canny method
+         * @return the matrix that contains the result of Imageproc.Canny
+         * @author Thomas Porro (g1)
+         */
+        public Mat doCanny(ProcessingMethods.CannyBuilder builder){
             Mat dst = new Mat();
-            Imgproc.Canny(this.src, dst, this.minThreshold, this.maxThreshold, this.apertureSize, this.l2gradient);
+            Imgproc.Canny(builder.source, dst, builder.minThreshold, builder.maxThreshold,
+                    builder.apertureSize, builder.l2gradient);
             return dst;
         }
     }
-
 
 }
