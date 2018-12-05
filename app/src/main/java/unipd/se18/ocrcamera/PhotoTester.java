@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -74,12 +73,13 @@ public class PhotoTester {
                 //check if extension is available
                 if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
 
-                    Bitmap photoBitmap = Utils.loadBitmapFromFile(filePath);
+                    //this file is an image -> get file path
+                    String originalImagePath = file.getAbsolutePath();
 
                     //Each photo has a description.txt with the same filename - so when an image is found we know the description filename
                     String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
 
-                    //create test element giving filename, description and bitmap
+                    //create test element giving filename, description and image path
                     //author Luca Moroldo - g3
 
                     JSONObject jsonPhotoDescription = null;
@@ -90,21 +90,18 @@ public class PhotoTester {
                         Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
                     }
                     if(jsonPhotoDescription != null) {
-                        TestElement originalTest = new TestElement(photoBitmap, jsonPhotoDescription, fileName);
 
-                        //associate the relative bitmap to each alteration of the original test if there is any
+                        TestElement originalTest = new TestElement(originalImagePath, jsonPhotoDescription, fileName);
+
+                        //associate the relative image path to each alteration of the original test if there is any
                         String[] alterationsFilenames = originalTest.getAlterationsNames();
                         if(alterationsFilenames != null) {
                             for(String alterationFilename : alterationsFilenames) {
-
-                                String alterationBitmapPath = dirPath + "/" + alterationFilename;
-                                Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationBitmapPath);
-
-                                //Utils.loadBitmapFromFile may return null
-                                if(alterationBitmap != null)
-                                    originalTest.setAlterationBitmap(alterationFilename, alterationBitmap);
+                                String alterationImagePath = dirPath + "/" + alterationFilename;
+                                originalTest.setAlterationImagePath(alterationFilename, alterationImagePath);
                             }
                         }
+
                         testElements.add(originalTest);
                     }
                 }
@@ -152,6 +149,11 @@ public class PhotoTester {
         CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
+        //leave a processor for the OS
+        if(max_concurrent_tasks > 1) {
+            max_concurrent_tasks--;
+        }
+
         Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
 
         //Define a thread executor that will run a maximum of 'max_concurrent_tasks' simultaneously
@@ -171,6 +173,14 @@ public class PhotoTester {
         long ended = java.lang.System.currentTimeMillis();
         Log.i(TAG,"testAndReport ended (" + totalTestElements + " pics tested in " + (ended - started) + " ms)");
 
+        //insert tags stats to json report
+        String tagsStats = getTagsStatsString();
+        try {
+            fullJsonReport.put("stats", tagsStats);
+        } catch(JSONException e) {
+            Log.e(TAG, "Failed to add tags stats to JSON report");
+        }
+
         String fullReport = fullJsonReport.toString();
 
         //write report to file
@@ -180,6 +190,8 @@ public class PhotoTester {
             Log.e(TAG, "Error writing report to file.");
             e.printStackTrace();
         }
+
+
 
         return fullReport;
     }
@@ -354,7 +366,7 @@ public class PhotoTester {
 
         /**
          * @param jsonReport JSONObject containing tests data
-         * @param test element of a test - must contain bitmap and ingredients fields
+         * @param test element of a test - must contain an image path and ingredients fields
          * @param countDownLatch used to signal the task completion
          * @param semaphore semaphore used to signal the end of the task
          */
@@ -370,8 +382,12 @@ public class PhotoTester {
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
                 long started = java.lang.System.currentTimeMillis();
 
+
                 //evaluate text extraction confidence
-                String extractedIngredients = executeOcr(test.getPicture());
+                String imagePath = test.getImagePath();
+                Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
+                String extractedIngredients = executeOcr(testBitmap);
+
                 String correctIngredients = test.getIngredients();
                 float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
@@ -384,7 +400,9 @@ public class PhotoTester {
                 if(alterationsFileNames != null) {
                     for(String alterationFilename : alterationsFileNames) {
 
-                        Bitmap alterationBitmap = test.getAlterationBitmap(alterationFilename);
+                        String alterationImagePath = test.getAlterationImagePath(alterationFilename);
+                        Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationImagePath);
+
                         String alterationExtractedIngredients = "";
                         if(alterationBitmap != null) {
                             alterationExtractedIngredients = executeOcr(alterationBitmap);
@@ -396,6 +414,7 @@ public class PhotoTester {
                         test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
                     }
                 }
+
 
                 try {
                     addTestElement(jsonReport, test);
@@ -516,6 +535,9 @@ public class PhotoTester {
             report = report + keymin + " : " + alterationsTagsGainStats.get(keymin) + "%\n";
             alterationsTagsGainStats.remove(keymin);
         }
+
+        Log.d(TAG, "Tag stats: \n" + report);
+
         return report;
 
     }

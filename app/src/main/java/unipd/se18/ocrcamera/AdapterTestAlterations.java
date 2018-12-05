@@ -1,7 +1,6 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
@@ -12,11 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import org.json.JSONException;
 
 import java.text.DecimalFormat;
 
@@ -92,7 +88,8 @@ public class AdapterTestAlterations extends BaseAdapter {
 
         // Set the pic view
         ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
-        Bitmap img = entry.getAlterationBitmap(entry.getAlterationsNames()[position]);
+        String alterationImagePath = entry.getAlterationImagePath(entry.getAlterationsNames()[position]);
+        Bitmap img = Utils.loadBitmapFromFile(alterationImagePath);
 
         // Scaling the pic view
         int imgWidth = img.getWidth();

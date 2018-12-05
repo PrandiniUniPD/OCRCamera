@@ -16,8 +16,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.json.JSONException;
-
 import java.text.DecimalFormat;
 
 /**
@@ -105,7 +103,8 @@ public class AdapterTestElement extends BaseAdapter
 
         // Set the pic view
         ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
-        Bitmap img = entries[position].getPicture();
+        String imagePath = entries[position].getImagePath();
+        Bitmap img = Utils.loadBitmapFromFile(imagePath);
 
         // Scaling the pic view
         int imgWidth = img.getWidth();
