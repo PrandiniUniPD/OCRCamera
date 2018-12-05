@@ -77,7 +77,9 @@ public class ResultActivity extends AppCompatActivity {
         //lastPhoto = rotateBitmap(BitmapFactory.decodeFile(pathImage), (float)angle);
         try{
             lastPhoto = analyzeImage.findText(pathImage);
-        } catch (FileNotFoundException e) {}
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
 
         if (lastPhoto != null) {
