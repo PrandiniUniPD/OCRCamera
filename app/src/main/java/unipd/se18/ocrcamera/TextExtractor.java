@@ -34,43 +34,16 @@ public class TextExtractor implements OCRInterface {
     The next four int are used for recognizing the position of the FirebaseVisionText Objects.
     They could be useful for sorting the blocks or for an automatic recognition
     of the ingredients text block.
+    The indexes are a clockwise order from the top-left corner.
+    More details at:
+    {@link FirebaseVisionText.TextBlock#getCornerPoints()},
+    {@link FirebaseVisionText.Line#getCornerPoints()}
+    or {@link FirebaseVisionText.Element#getCornerPoints()}.
      */
-
-    /**
-     * Index of the point on the top-left position.
-     * More details at:
-     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
-     * {@link FirebaseVisionText.Line#getCornerPoints()}
-     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
-     */
-    private final int TOP_LEFT = 0;
-
-    /**
-     * Index of the point on the top-right position.
-     * More details at:
-     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
-     * {@link FirebaseVisionText.Line#getCornerPoints()}
-     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
-     */
-    private final int TOP_RIGHT = 1;
-
-    /**
-     * Index of the point on the bottom-left position
-     * More details at:
-     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
-     * {@link FirebaseVisionText.Line#getCornerPoints()}
-     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
-     */
-    private final int BOTTOM_LEFT = 2;
-
-    /**
-     * Index of the point on the bottom-right position.
-     * More details at:
-     * {@link FirebaseVisionText.TextBlock#getCornerPoints()},
-     * {@link FirebaseVisionText.Line#getCornerPoints()}
-     * or {@link FirebaseVisionText.Element#getCornerPoints()}.
-     */
-    private final int BOTTOM_RIGHT = 3;
+    private final int TOP_LEFT      = 0;
+    private final int TOP_RIGHT     = 1;
+    private final int BOTTOM_LEFT   = 2;
+    private final int BOTTOM_RIGHT  = 3;
 
     /*
     The next method is required by the OCRInterface that avoid a single point of failure.
@@ -131,8 +104,9 @@ public class TextExtractor implements OCRInterface {
         with the Task<FirebaseVisionText>.
          */
 
-        // Instantiates the CountDownLatch used for synchronizing the extraction
-        final CountDownLatch extraction = new CountDownLatch(1); // Luca Moroldo (g3)
+        // Instantiates the CountDownLatch used for synchronizing the extraction - Luca Moroldo (g3)
+        int numberOfCountDowns = 1;
+        final CountDownLatch extraction = new CountDownLatch(numberOfCountDowns);
 
         // Settings the extraction task
         Task<FirebaseVisionText> firebaseVisionTextTask =
@@ -200,7 +174,7 @@ public class TextExtractor implements OCRInterface {
      */
 
     /**
-     * Sorts the blocks recognized
+     * Sorts the blocks recognized in an ArrayList
      * More details at: {@link FirebaseVisionText.TextBlock#getTextBlocks()}.
      * @param OCRResult FirebaseVisionText object produced by an OCR recognition
      * @return An ArrayList of FirebaseVisionText sorted
@@ -209,12 +183,13 @@ public class TextExtractor implements OCRInterface {
     private ArrayList<FirebaseVisionText.TextBlock> sortBlocks(FirebaseVisionText OCRResult) {
         ArrayList<FirebaseVisionText.TextBlock> OCRBlocks =
                 new ArrayList<>(OCRResult.getTextBlocks());
+        // Sorts the ArrayList of the blocks from top to bottom
         OCRBlocks = sortBlocksY(OCRBlocks);
         return OCRBlocks;
     }
 
     /**
-     * Sorts the blocks recognized from top to bottom
+     * Sorts the blocks recognized from top to bottom in an ArrayList
      * More details at: {@link FirebaseVisionText.TextBlock#getCornerPoints()}, {@link Comparator},
      * {@link Collections#sort(List, Comparator)}.
      * @param OCRBlocks ArrayList of FirebaseVisionText.TextBlock recognized by the OCR processing
