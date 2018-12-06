@@ -1,6 +1,7 @@
 /**
  * This is one of first prototype of CommonDemo, in mainActivity it's possible
  * take a photo with MediaStore Camera or write a test and send it to SecondActivity
+ * @author Roberto Vicentini helped by Andrea Ton
  */
 
 
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private EditText text;
     private ImageView photo;
-    private Button button;
+    private Button bSwitchActivity;
     private Button bTakePhoto;
     private int REQUEST_IMAGE_CAPTURE=50;
     private Bitmap imageBitmap;
@@ -39,8 +40,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         text = findViewById(R.id.maintext);
-        button = findViewById(R.id.mainbutton);
-        button.setEnabled(false);
+        bSwitchActivity = findViewById(R.id.mainbutton);
+        bSwitchActivity.setEnabled(false);
 
         photo = findViewById(R.id.photoView);
         bTakePhoto = findViewById(R.id.mainButton2);
@@ -77,11 +78,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //this button change secondActivity
             case (R.id.mainbutton):
 
-                String s = text.getText().toString();
+                String sText = text.getText().toString();
                 Intent intent = new Intent(this, SecondActivity.class);
                 Bundle extras = new Bundle();
                 extras.putParcelable("BitmapImage", imageBitmap);
-                extras.putString("message", s);
+                extras.putString("message", sText);
                 intent.putExtra("bundle", extras);
                 startActivity(intent);
                 break;
@@ -105,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            button.setEnabled(true);
+            bSwitchActivity.setEnabled(true);
             Bundle extras = data.getExtras();
             imageBitmap = (Bitmap) extras.get("data");
             photo.setImageBitmap(imageBitmap);
