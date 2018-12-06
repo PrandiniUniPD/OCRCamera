@@ -121,7 +121,14 @@ public class TextExtractor implements OCRInterface {
                         // Extraction ended - Analogous to signal
                         extraction.countDown(); // Luca Moroldo (g3)
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "Error: " + e);
+                // The result will be null
+                extraction.countDown();
+            }
+        });
         // Waits until the extraction ends
         if (!firebaseVisionTextTask.isSuccessful()) {
             try {
