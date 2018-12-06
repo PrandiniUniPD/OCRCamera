@@ -314,11 +314,27 @@ public class CameraActivity extends AppCompatActivity {
      */
     public boolean blurDetection(double blurValue)
     {
-
+        double threshold=10;
         /**
          * AGGIUNGERE METODO CHE CALCOLA TRESHOLD IN BASE AL SOGGETTO FOTOGRAFATO
+         *
          */
-        double threshold=10;
+
+
+            cameraKitView.captureImage(new CameraKitView.ImageCallback() {
+                double meanblur=0;
+                int photonumber = 10;
+            for (int k = 0; k < photonumber; k++)
+                {
+                @Override
+                public void onImage(CameraKitView cameraKitView, final byte[] photo) {
+
+                    Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
+                    meanblur=meanblur + blurValue(bitmapImage);
+
+                }
+            });
+        }
 
         if (blurValue< threshold)
             {
