@@ -33,6 +33,11 @@ public class DownloadDbActivity extends AppCompatActivity {
     private ScrollView textViewCurrentDownloadScroll;
     private int curentProgress=0;
 
+    /**
+     * Instantiate the UI elements
+     *
+     * @author Stefano Romanello (g3)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +58,11 @@ public class DownloadDbActivity extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * Download the images from the FTP Server
+     *
+     * @author Stefano Romanello (g3)
+     */
     private void downloadFromFTP() {
         new Thread(new Runnable() {
             public void run() {
