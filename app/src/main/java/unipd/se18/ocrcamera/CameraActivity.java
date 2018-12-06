@@ -32,9 +32,8 @@ public class CameraActivity extends AppCompatActivity {
     //variable used to interface with the CameraView library
     private CameraView camera;
 
-    //variable (with default value false) set to true if a picture is captured
-    //only when the picture is sent to the PicturePreviewActivity the variable is set to false again
-    private boolean isPictureCaptured = false;
+    //variable used to connect to the capturePhoto button
+    private ImageButton buttonPhoto;
 
     /**
      * onCreate method of the Android Activity Lifecycle
@@ -47,7 +46,7 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
         camera = findViewById(R.id.viewCamera);
 
-        //interface method for automatic onResume, onPause, onDestroy
+        //library method for automatic onResume, onPause, onDestroy
         camera.setLifecycleOwner(this);
 
         //Pinch to zoom support
@@ -60,13 +59,17 @@ public class CameraActivity extends AppCompatActivity {
         camera.addCameraListener(new CameraListener() {
             /**
              * Listening for photo taken by the camera
-             * @param picture the taken photo in array form (stream of byte)
+             * @param picture the taken photo as an array of byte (a stream of data)
              * @author Bedin Elia
              */
             public void onPictureTaken(byte[] picture) { onCapture(picture); }
         });
 
-        ImageButton buttonPhoto = findViewById(R.id.capturePhoto);
+        //connecting the variable to the button capturePhoto
+        buttonPhoto = findViewById(R.id.capturePhoto);
+        //enabling the button
+        buttonPhoto.setEnabled(true);
+
         buttonPhoto.setOnClickListener(new View.OnClickListener() {
             /**
              * Listening for button click, then call capturePhoto() to take a photo
@@ -85,18 +88,21 @@ public class CameraActivity extends AppCompatActivity {
      * @author Bedin Elia
      */
     private void capturePhoto() {
-        if (isPictureCaptured) return;
-        isPictureCaptured = true;
+        //checking if the app is ready to capture a photo (if the button is enabled)
+        if (!buttonPhoto.isEnabled()) return;
+        //if the button was enabled, set it to disabled and capture a photo
+        buttonPhoto.setEnabled(false);
         camera.capturePicture();
     }
 
     /**
-     * Method for sending the taken photo in array form to the PicturePreviewActivity
-     * @param picture the taken photo in array form (stream of byte)
+     * Method for sending the taken photo as an array of byte to the PicturePreviewActivity
+     * @param picture the taken photo as an array of byte (a stream of data)
      * @author Bedin Elia
      */
     private void onCapture(byte[] picture) {
-        isPictureCaptured = false;
+        //releasing the button, the app is ready to capture a photo again
+        buttonPhoto.setEnabled(true);
         //sending the taken photo to PicturePreviewActivity via setImage
         PicturePreviewActivity.setImage(picture);
         //sending information to PicturePreviewActivity through Intent
