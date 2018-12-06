@@ -194,6 +194,15 @@ public class DownloadDbActivity extends AppCompatActivity {
                         }
                     });
                 } catch (Exception ex) {
+                    final String StringToUI=ex.toString();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textViewProgress.setText("Something went wrong");
+                            textViewCurrentDownload.append(StringToUI);
+                            textViewCurrentDownloadScroll.smoothScrollTo(0,textViewCurrentDownload.getBottom());
+                        }
+                    });
                     ex.printStackTrace();
                 }
             }
