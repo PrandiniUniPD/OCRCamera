@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.util.Log;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
@@ -170,12 +170,12 @@ public class ImageProcessing {
         */
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
-        Mat threshold = new Mat();
-        double maxValue = 200;
-        int blockSize = 21;
-        double constant = 8;
-        Imgproc.adaptiveThreshold(img, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,
-                Imgproc.THRESH_BINARY, blockSize, constant);
+        ProcessingMethods adaptiveThreshold = new ProcessingMethods();
+        Mat threshold = adaptiveThreshold.doAdaptiveThreshold(
+                new ProcessingMethods.AdaptiveThresholdBuilder(img)
+                .withMaxThreshold(200)
+                .withBlockSize(21)
+                .withConstant(8));
         //save(threshold, "threshold", ".jpg");
 
         //Detect the edges in the image
@@ -289,12 +289,18 @@ public class ImageProcessing {
         OutputStream outStream;
 
         try {
-
+            /* momentary method to see the saved pictures on the phone
+            final String directory = Environment.getExternalStorageDirectory()+
+                    "/"+Environment.DIRECTORY_PICTURES+"/ImageProcessingTest/";
+            File tmpFile = new File (directory + tmpPrefix + tmpSuffix);*/
             //if not specified, the system-dependent default temporary-file directory will be used
             File tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
+            Log.d(TAG, "File path = " + tmpFile.getPath());
 
             if (tmpFile.exists()) {
                 tmpFile.delete();
+                //momentary method to see the saved pictures on the phone
+                //tmpFile = new File(directory + tmpPrefix + tmpSuffix);
                 tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
             }
 
@@ -409,7 +415,7 @@ public class ImageProcessing {
 
 
             /**
-             * Set withApertureSize with the passed value
+             * Set ApertureSize with the passed value
              * @param value the value you want it to withApertureSize
              * @return returns the current object instance
              * @author Thomas Porro (g1)
@@ -434,25 +440,105 @@ public class ImageProcessing {
 
 
         /**
+         * Inner class to create an object adaptiveThresholdBuilder that contains
+         * all the variables needed to Imgproc.adaptiveThreshold
+         * @author Thomas Porro (g1)
+         */
+        private static class AdaptiveThresholdBuilder{
+
+            private Mat source;
+            double maxThreshold;
+            int blockSize;
+            double constant;
+
+
+            /**
+             * Constructor that initialize the variables of the object
+             * with a default value
+             * @param src the source matrix
+             * @author Thomas Porro (g1)
+             */
+            private AdaptiveThresholdBuilder(Mat src){
+                this.source = src;
+                this.maxThreshold = 200;
+                this.blockSize = 3;
+                this.constant = 0;
+            }
+
+
+            /**
+             * Set maxThreshold with the passed value
+             * @param value the value you want it to maxThreshold
+             * @return returns the current object instance
+             * @author Thomas Porro (g1)
+             */
+            private AdaptiveThresholdBuilder withMaxThreshold(double value){
+                this.maxThreshold = value;
+                return this;
+            }
+
+
+            /**
+             * Set blockSize with the passed value
+             * @param value the value you want it to blockSize
+             * @return returns the current object instance
+             * @author Thomas Porro (g1)
+             */
+            private AdaptiveThresholdBuilder withBlockSize(int value){
+                this.blockSize = value;
+                return this;
+            }
+
+            /**
+             * Set constant with the passed value
+             * @param value the value you want it to withApertureSize
+             * @return returns the current object instance
+             * @author Thomas Porro (g1)
+             */
+            private AdaptiveThresholdBuilder withConstant(double value){
+                this.constant = value;
+                return this;
+            }
+        }
+
+        /**
          * Constructor of ProcessingMethods that do anything
          * @author Thomas Porro (g1)
          */
         private ProcessingMethods(){
+
         }
 
 
         /**
-         * Apply the openCV's methods Imageproc.Canny, that detects the edges of an image
+         * Applies the openCV's methods Imageproc.Canny, that detects the edges of an image
          * @param builder the CannyBuilder that contains the parameters of the
          *                Imageproc.Canny method
          * @return the matrix that contains the result of Imageproc.Canny
          * @author Thomas Porro (g1)
          */
         public Mat doCanny(ProcessingMethods.CannyBuilder builder){
-            Mat dst = new Mat();
-            Imgproc.Canny(builder.source, dst, builder.minThreshold, builder.maxThreshold,
+            Mat destination = new Mat();
+            Imgproc.Canny(builder.source, destination, builder.minThreshold, builder.maxThreshold,
                     builder.apertureSize, builder.l2gradient);
-            return dst;
+            return destination;
+        }
+
+
+        /**
+         * Applies the openCv's methods Imagproc.adaptiveThreshold, that applies a threshold
+         * to an image
+         * @param builder the AdaptiveThresholdBuilder that contains the parameters of the
+         *                Imageproc.adaptiveThreshold method
+         * @return the matrix that contains the result of Imageproc.adaptiveThreshold
+         * @author Thomas Porro (g1)
+         */
+        public Mat doAdaptiveThreshold(ProcessingMethods.AdaptiveThresholdBuilder builder) {
+            Mat destination = new Mat();
+            Imgproc.adaptiveThreshold(builder.source, destination, builder.maxThreshold,
+                    Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, builder.blockSize,
+                    builder.constant);
+            return destination;
         }
     }
 
