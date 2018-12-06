@@ -21,4 +21,6 @@
     <string name="test">TEST</string>
     <string name="extrected_text">Extracted text:</string>
     <string name="focus_on_ingredients">Where is the ingredients?</string>
+    <string name="alterations">Alterations:</string>
+    <string name="view_alterations">View alterations</string>
 </resources>
