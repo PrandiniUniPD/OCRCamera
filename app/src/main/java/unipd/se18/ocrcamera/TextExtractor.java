@@ -1,7 +1,10 @@
 package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.util.Log;
+
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.ml.vision.FirebaseVision;
@@ -120,6 +123,13 @@ public class TextExtractor implements OCRInterface {
                                 + "----- END OF THE RECOGNIZED TEXT -----");
                         // Extraction ended - Analogous to signal
                         extraction.countDown(); // Luca Moroldo (g3)
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Error: " + e);
+                        // The result will be null
+                        extraction.countDown();
                     }
                 });
         // Waits until the extraction ends
