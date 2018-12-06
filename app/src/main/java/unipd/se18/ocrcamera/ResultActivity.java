@@ -58,6 +58,11 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView tViewInci;
 
+    /**
+     * Load class for db
+     */
+    Inci ingredients = new Inci();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +78,9 @@ public class ResultActivity extends AppCompatActivity {
 
         tViewInci = findViewById(R.id.textViewInci);
         tViewInci.setMovementMethod(new ScrollingMovementMethod());
+
+        InputStream database = getResources().openRawResource(R.raw.database);
+        ingredients.loadDB(database);
 
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -110,7 +118,8 @@ public class ResultActivity extends AppCompatActivity {
             } else {
                 //Show the text of the last image
                 mOCRTextView.setText(OCRText);
-                tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+inciDetectorEtichetta(OCRText)+""));
+                //tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+inciDetectorEtichetta(OCRText)+""));
+                tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.findIngredients(OCRText)+""));
             }
         } else{
             // text from OCR
@@ -177,7 +186,8 @@ public class ResultActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             mOCRTextView.setText(finalTextRecognized);
-                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+inciDetectorEtichetta(finalTextRecognized)+""));
+                            //tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+inciDetectorEtichetta(finalTextRecognized)+""));
+                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.findIngredients(finalTextRecognized)+""));
                         }
                     });
                 }
@@ -188,7 +198,8 @@ public class ResultActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             mOCRTextView.setText(finalTextRecognized);
-                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+inciDetectorEtichetta(finalTextRecognized)+""));
+                            //tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+inciDetectorEtichetta(finalTextRecognized)+""));
+                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.findIngredients(finalTextRecognized)+""));
                         }
                     });
                 }
@@ -238,7 +249,7 @@ public class ResultActivity extends AppCompatActivity {
      * @return String with the list of ingredients found in the text
      * Put in database csv: https://www.youtube.com/watch?v=i-TqNzUryn8
      */
-    public String inciDetector(String text){
+   /*public String inciDetector(String text){
         String inci = "";
         try {
             InputStream is = getResources().openRawResource(R.raw.database);    //InputStream from database.csv
@@ -254,7 +265,7 @@ public class ResultActivity extends AppCompatActivity {
         }
 
         return inci;
-    }
+    }*/
 
     /**
      * @author Giovanni Fasan(g1), Giovanni Piva(g1)
@@ -263,10 +274,9 @@ public class ResultActivity extends AppCompatActivity {
      * Put in database csv: https://www.youtube.com/watch?v=i-TqNzUryn8
      * problem contains
      */
-    public String inciDetectorEtichetta(String text){
+    /*public String inciDetectorEtichetta(String text){
         String inci = "";
         List listInci = new ArrayList();        //list where save the ingredients found
-
         try {
             InputStream is = getResources().openRawResource(R.raw.database);    //InputStream from database.csv
             is.mark(0);     //mark the position to restart the buffer from line 0 of database
@@ -297,7 +307,7 @@ public class ResultActivity extends AppCompatActivity {
         }
 
         return inci;
-    }
+    }*/
 
 }
 
