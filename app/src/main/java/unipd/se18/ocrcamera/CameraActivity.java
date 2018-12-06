@@ -88,9 +88,7 @@ public class CameraActivity extends AppCompatActivity {
      * @author Bedin Elia
      */
     private void capturePhoto() {
-        //checking if the app is ready to capture a photo (if the button is enabled)
-        if (!buttonPhoto.isEnabled()) return;
-        //if the button was enabled, set it to disabled and capture a photo
+        //disabling the button and capturing a photo
         buttonPhoto.setEnabled(false);
         camera.capturePicture();
     }
