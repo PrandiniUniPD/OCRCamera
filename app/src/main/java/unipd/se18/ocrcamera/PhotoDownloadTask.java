@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -21,36 +22,48 @@ import java.util.ArrayList;
 
 
 /**
- * @author Leonardo Rossi (g2)
- * @contributors Stefano Romanello (g3)
+ * @author Leonardo Rossi (g2) and Stefano Romanello (g3)
  */
 public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
 {
 
     private FTPClient ftp;
-    private ArrayList<String> messages;
+    //private ArrayList<String> messages;
     private Context context;
     private ProgressBar progressBar;
     private TextView textViewProgress;
+    private Button button;
     private Integer currentProgress;
+    private ScrollView scrollCurrentDownload;
 
     //Constants
+    // PLEASE DON'T USE THESE FOR PERSONAL USAGE!
+    // FTP CREDENTIALS
+    // USERNAME: epiz_22864730
+    // PASSWORD: 8M0tNtsJCsw
+    // HOSTNAME: ftpupload.net
+    // PLEASE DON'T USE THESE FOR PERSONAL USAGE!
+    // Communicate with Group 3 if you need something from the server.
     private final String USERNAME = "epiz_22864730";
     private final String PASSWORD = "8M0tNtsJCsw";
     private final String HOSTNAME = "ftpupload.net";
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
+    private final String REMOTE_FOLDER = "/htdocs/foto/";
     private final String TAG = "FTP";
-
+    DownloadDbActivity activity;
     PhotoDownloadTask(Context context) { this.context = context; }
 
     @Override
     protected void onPreExecute()
     {
+        activity = (DownloadDbActivity) context;
         ftp = new FTPClient();
         progressBar = ((DownloadDbActivity) context).findViewById(R.id.progressBar);
         textViewProgress = ((DownloadDbActivity) context).findViewById(R.id.textViewProgress);
+        button = ((DownloadDbActivity) context).findViewById(R.id.downloadDbButton);
         currentProgress = 0;
-        messages = new ArrayList();
+        button.setEnabled(false);
+        scrollCurrentDownload = activity.findViewById(R.id.scrollView);
     }
 
     @Override
@@ -67,7 +80,7 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
         }
         catch (Exception e)
         {
-            messages.add(e.toString());
+            sendMessageToUI(e.toString());
         }
 
         return null;
@@ -76,30 +89,17 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     @Override
     protected void onPostExecute(Void params)
     {
-        final DownloadDbActivity activity = (DownloadDbActivity) context;
-
-        activity.runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                TextView txtViewCurrentDownload = activity.findViewById(R.id.textViewCurrentDownload);
-                ScrollView scrollCurrentDownload = activity.findViewById(R.id.scrollView);
-
-                for (String message : messages)
-                {
-                    txtViewCurrentDownload.append(message);
-                    scrollCurrentDownload.smoothScrollTo(0, txtViewCurrentDownload.getBottom());
-                }
-            }
-        });
+        //Get objects ready for next download
+        currentProgress=0;
+        button.setEnabled(true);
     }
 
     @Override
     protected void onProgressUpdate(Integer... values)
     {
+        //Update the progressBar
         progressBar.setProgress(values[0]);
-        textViewProgress.setText("Status: "+values[0]+" of "+progressBar.getMax());
+        textViewProgress.setText("Status: " + values[0]+" of " + progressBar.getMax());
     }
 
     /**
@@ -127,6 +127,14 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
             return false;
         }
 
+        //enter passive mode
+        ftp.enterLocalPassiveMode();
+        //get system name
+        System.out.println("Remote system is " + ftp.getSystemType());
+        //change current directory
+        ftp.changeWorkingDirectory(REMOTE_FOLDER);
+        System.out.println("Current directory is " + ftp.printWorkingDirectory());
+
         return true;
     }
 
@@ -146,12 +154,13 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
             //Looping through files
             for (FTPFile file: ftpFiles)
             {
+                //Send current progress to "onProgressUpdate"
                 publishProgress(++currentProgress);
 
                 if (!file.isFile())
                 {
                     //Send message if object is not a file
-                    messages.add("Skipped: not a file" +System.getProperty("line.separator"));
+                    sendMessageToUI("Skipped: not a file" +System.getProperty("line.separator"));
                 }
                 else
                 {
@@ -170,21 +179,38 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
                         Log.d(TAG, "Downloaded: " + PHOTOS_FOLDER + "/" + file.getName());
 
                         //Send message if the file is not already downloaded
-                        messages.add("Downloaded: " + file.getName() +System.getProperty("line.separator"));
+                        sendMessageToUI("Downloaded: " + file.getName() +System.getProperty("line.separator"));
                     }
                     else
                     {
                         //Send message if the file is already downloaded
-                        messages.add("Skipped: " + file.getName() +System.getProperty("line.separator"));
+                        sendMessageToUI("Skipped: " + file.getName() +System.getProperty("line.separator"));
                     }
                 }
             }
         }
 
+        Log.d(TAG, "Finished");
+        sendMessageToUI("Finished");
         ftp.logout();
         ftp.disconnect();
-        Log.d(TAG, "Finished");
+    }
 
-        messages.add("Finished");
+    /**
+     * Update the textView in the UI
+     */
+    private void sendMessageToUI(String message)
+    {
+        final String messageToSend = message;
+        activity.runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                TextView txtViewCurrentDownload = activity.findViewById(R.id.textViewCurrentDownload);
+                txtViewCurrentDownload.append(messageToSend);
+                scrollCurrentDownload.smoothScrollTo(0, txtViewCurrentDownload.getBottom());
+            }
+        });
     }
 }
