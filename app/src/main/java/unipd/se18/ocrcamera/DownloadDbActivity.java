@@ -60,7 +60,7 @@ public class DownloadDbActivity extends AppCompatActivity {
 
                 PhotoDownloadTask task = new PhotoDownloadTask(DownloadDbActivity.this);
                 task.execute();
-                
+
                 //Reset objects for when I run multiple tests
                 textViewCurrentDownload.setText("");
                 curentProgress=0;

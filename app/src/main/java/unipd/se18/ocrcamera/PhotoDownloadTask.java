@@ -58,9 +58,9 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     {
         activity = (DownloadDbActivity) context;
         ftp = new FTPClient();
-        progressBar = ((DownloadDbActivity) context).findViewById(R.id.progressBar);
+        progressBar = activity.findViewById(R.id.progressBar);
         textViewProgress = ((DownloadDbActivity) context).findViewById(R.id.textViewProgress);
-        button = ((DownloadDbActivity) context).findViewById(R.id.downloadDbButton);
+        button = activity.findViewById(R.id.downloadDbButton);
         currentProgress = 0;
         button.setEnabled(false);
         scrollCurrentDownload = activity.findViewById(R.id.scrollView);
