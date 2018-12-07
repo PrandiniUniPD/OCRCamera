@@ -32,6 +32,7 @@ public class DownloadDbActivity extends AppCompatActivity {
     private TextView textViewCurrentDownload;
     private ScrollView textViewCurrentDownloadScroll;
     private int curentProgress=0;
+    private Button clickButton;
 
     /**
      * Instantiate the UI elements
@@ -48,12 +49,17 @@ public class DownloadDbActivity extends AppCompatActivity {
         textViewProgress = (TextView) findViewById(R.id.textViewProgress);
         textViewCurrentDownload = (TextView) findViewById(R.id.textViewCurrentDownload);
         textViewCurrentDownloadScroll = (ScrollView) findViewById(R.id.scrollView);
-
-        Button clickButton = (Button) findViewById(R.id.downloadDbButton);
+        clickButton = (Button) findViewById(R.id.downloadDbButton);
+        //final Button clickButton = (Button) findViewById(R.id.downloadDbButton);
         clickButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                clickButton.setEnabled(false);
                 downloadFromFTP();
+
+                //Reset objects for when I run multiple tests
+                textViewCurrentDownload.setText("");
+                curentProgress=0;
             }
         });
     }
@@ -131,7 +137,7 @@ public class DownloadDbActivity extends AppCompatActivity {
 
                             if (!file.isFile()) {
                                 //Send message if object is not a file
-                                final String StringToUI="Skipped: not a file" +System.getProperty("line.separator");
+                                final String StringToUI="Skipped: not a file" +System.getProperty("line.separator"); //runUiThread requires final variables
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -159,7 +165,7 @@ public class DownloadDbActivity extends AppCompatActivity {
                                     Log.d("ftp", "Downloaded: " + photosFolder + "/" + file.getName());
 
                                     //Send message if the file is not already downloaded
-                                    final String StringToUI="Downloaded: " + file.getName() +System.getProperty("line.separator");
+                                    final String StringToUI="Downloaded: " + file.getName() +System.getProperty("line.separator"); //runUiThread requires final variables
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -169,7 +175,7 @@ public class DownloadDbActivity extends AppCompatActivity {
                                     });
                                 } else {
                                     //Send message if the file is already downloaded
-                                    final String StringToUI="Skipped: " + file.getName() +System.getProperty("line.separator");
+                                    final String StringToUI="Skipped: " + file.getName() +System.getProperty("line.separator"); //runUiThread requires final variables
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -185,22 +191,23 @@ public class DownloadDbActivity extends AppCompatActivity {
                     ftp.logout();
                     ftp.disconnect();
                     Log.d("ftp", "Finished");
-                    final String StringToUI="Finished";
+                    final String StringToUI="Finished"; //runUiThread requires final variables
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             textViewCurrentDownload.append(StringToUI);
                             textViewCurrentDownloadScroll.smoothScrollTo(0,textViewCurrentDownload.getBottom());
+                            clickButton.setEnabled(true);
                         }
                     });
                 } catch (Exception ex) {
-                    final String StringToUI=ex.toString();
+                    final String StringToUI=ex.toString(); //runUiThread requires final variables
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             textViewProgress.setText("Something went wrong");
                             textViewCurrentDownload.append(StringToUI);
-                            textViewCurrentDownloadScroll.smoothScrollTo(0,textViewCurrentDownload.getBottom());
+                            clickButton.setEnabled(true);
                         }
                     });
                     ex.printStackTrace();

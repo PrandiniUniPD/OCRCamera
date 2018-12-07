@@ -18,7 +18,7 @@
 
     <ProgressBar
         android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
+        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -26,7 +26,9 @@
         android:id="@+id/textViewProgress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Status: " />
+        android:padding="5dp"
+        android:text="Status: "
+        android:textSize="18sp" />
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -34,10 +36,12 @@
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
         android:fillViewport="true">
+
         <TextView
             android:id="@+id/textViewCurrentDownload"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
+            android:padding="5dp"
             android:text="" />
     </ScrollView>
 </LinearLayout>
