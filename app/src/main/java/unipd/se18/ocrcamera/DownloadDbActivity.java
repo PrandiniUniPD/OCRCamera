@@ -54,9 +54,13 @@ public class DownloadDbActivity extends AppCompatActivity {
         clickButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clickButton.setEnabled(false);
-                downloadFromFTP();
 
+                clickButton.setEnabled(false);
+                //downloadFromFTP();
+
+                PhotoDownloadTask task = new PhotoDownloadTask(DownloadDbActivity.this);
+                task.execute();
+                
                 //Reset objects for when I run multiple tests
                 textViewCurrentDownload.setText("");
                 curentProgress=0;
