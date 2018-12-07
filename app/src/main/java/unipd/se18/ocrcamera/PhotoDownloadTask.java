@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 
 
 /**
@@ -35,7 +34,7 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     private Button button;
     private Integer currentProgress;
     private ScrollView scrollCurrentDownload;
-
+    private TextView txtViewCurrentDownload;
     //Constants
     // PLEASE DON'T USE THESE FOR PERSONAL USAGE!
     // FTP CREDENTIALS
@@ -59,11 +58,15 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
         activity = (DownloadDbActivity) context;
         ftp = new FTPClient();
         progressBar = activity.findViewById(R.id.progressBar);
-        textViewProgress = ((DownloadDbActivity) context).findViewById(R.id.textViewProgress);
+        textViewProgress = activity.findViewById(R.id.textViewProgress);
         button = activity.findViewById(R.id.downloadDbButton);
+        scrollCurrentDownload = activity.findViewById(R.id.scrollView);
+        txtViewCurrentDownload = activity.findViewById(R.id.textViewCurrentDownload);
+
+        //Reset download from the prevous downloads + disable button for preventing multiple downloads
         currentProgress = 0;
         button.setEnabled(false);
-        scrollCurrentDownload = activity.findViewById(R.id.scrollView);
+        txtViewCurrentDownload.setText("");
     }
 
     @Override
@@ -89,8 +92,6 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     @Override
     protected void onPostExecute(Void params)
     {
-        //Get objects ready for next download
-        currentProgress=0;
         button.setEnabled(true);
     }
 
@@ -197,7 +198,7 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     }
 
     /**
-     * Update the textView in the UI
+     * Update the scrollable textView in the UI
      */
     private void sendMessageToUI(String message)
     {
@@ -207,7 +208,6 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
             @Override
             public void run()
             {
-                TextView txtViewCurrentDownload = activity.findViewById(R.id.textViewCurrentDownload);
                 txtViewCurrentDownload.append(messageToSend);
                 scrollCurrentDownload.smoothScrollTo(0, txtViewCurrentDownload.getBottom());
             }
