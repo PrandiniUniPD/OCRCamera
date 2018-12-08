@@ -318,7 +318,7 @@ public class CameraActivity extends AppCompatActivity {
         /**
          * AGGIUNGERE METODO CHE CALCOLA TRESHOLD IN BASE AL SOGGETTO FOTOGRAFATO
          *
-         */
+
 
 
             cameraKitView.captureImage(new CameraKitView.ImageCallback() {
@@ -334,7 +334,7 @@ public class CameraActivity extends AppCompatActivity {
 
                 }
             });
-        }
+        } */
 
         if (blurValue< threshold)
             {
