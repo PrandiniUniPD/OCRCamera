@@ -106,34 +106,24 @@ public class Ingredient {
         this.updateDate = updateDate;
     }
 
-    @CsvBindByPosition(position = 0)
     private String cosingRefNo;
 
-    @CsvBindByPosition(position = 1)
     private String inciName;
 
-    @CsvBindByPosition(position = 2)
     private String innName;
 
-    @CsvBindByPosition(position = 3)
     private String phEurName;
 
-    @CsvBindByPosition(position = 4)
     private String casNo;
 
-    @CsvBindByPosition(position = 5)
     private String ecNo;
 
-    @CsvBindByPosition(position = 6)
     private String description;
 
-    @CsvBindByPosition(position = 7)
     private String restriction;
 
-    @CsvBindByPosition(position = 8)
     private String function;
 
-    @CsvBindByPosition(position = 9)
     private String updateDate;
 
 

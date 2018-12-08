@@ -1,10 +1,16 @@
 package unipd.se18.ocrcamera;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.opencsv.CSVReader;
+import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 
@@ -13,13 +19,32 @@ public class Inci {
     private List<Ingredient> listInci;
 
     public Inci(InputStream inputStream){
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        Reader reader = new BufferedReader(new InputStreamReader(inputStream));
+        /*
+        ColumnPositionMappingStrategy strategy = new ColumnPositionMappingStrategy();
+        strategy.setType(Ingredient.class);
+        String[] memberFieldsToBindTo = {"cosingRefNo", "inciName", "innName", "phEurName", "casNo", "ecNo", "description", "restriction", "function", "updateDate"};
+        strategy.setColumnMapping(memberFieldsToBindTo);
+
         CsvToBean<Ingredient> csvToBean = new CsvToBeanBuilder(reader)
-                .withType(Ingredient.class)
+                .withMappingStrategy(strategy)
+                .withSkipLines(1)
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
 
-        listInci = csvToBean.parse();
+        listInci = csvToBean.parse();*/
+
+        listInci = new ArrayList<Ingredient>();
+        CSVReader csvReader = new CSVReader(reader);
+        String[] line;
+        try {
+            while ((line = csvReader.readNext()) != null) {
+                Ingredient element = new Ingredient(line[0],line[1],line[2],line[3],line[4],line[5],line[6],line[7],line[8],line[9]);
+                listInci.add(element);
+            }
+            reader.close();
+            csvReader.close();
+        } catch(Exception e){}
     }
 
     /*
@@ -51,16 +76,16 @@ public class Inci {
 
     private Ingredient findBestMatchingIngredient(String ingredient){
         LevenshteinStringComparator stringComparator = new LevenshteinStringComparator();
-        double maxSimilarity = 0;
-        Ingredient bestMatchingIngredient = null;
-        for(Ingredient ingr : listInci){
-            double similarity = stringComparator.getNormalizedSimilarity(ingr.getInciName(), ingredient);
+        double maxSimilarity = -1;
+        int bestMatchingIngredient = -1;
+        for(int i=0; i<listInci.size(); i++){
+            double similarity = stringComparator.getNormalizedSimilarity(listInci.get(i).getInciName(), ingredient);
             if(similarity>maxSimilarity) {
                 maxSimilarity = similarity;
+                bestMatchingIngredient = i;
             }
-            bestMatchingIngredient = ingr;
         }
-        return bestMatchingIngredient;
+        return listInci.get(bestMatchingIngredient);
     }
 
     public ArrayList<Ingredient> findListIngredients(String text){

@@ -36,7 +36,7 @@ public class AdapterIngredient extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.ingredient_element, parent, false);
         }
 
         // Set the inci name
