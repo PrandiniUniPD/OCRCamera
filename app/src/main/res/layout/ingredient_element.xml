@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- single ingredient element inside IngredientsActivity layout (author Francesco Pham) -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ingredient_view"
     android:orientation="horizontal"

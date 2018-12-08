@@ -45,11 +45,21 @@ public class ResultActivity extends AppCompatActivity {
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
 
-        FloatingActionButton fab = findViewById(R.id.newPictureFab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        // Floating action buttons listeners (Francesco Pham)
+        FloatingActionButton fabNewPic = findViewById(R.id.newPictureFab);
+        fabNewPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
+            }
+        });
+
+        FloatingActionButton fabSearchIngr = findViewById(R.id.searchIngredients);
+        fabSearchIngr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(ResultActivity.this, IngredientsActivity.class);
+                startActivity(i);
             }
         });
 
@@ -104,11 +114,6 @@ public class ResultActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.test: {
                 Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
-                startActivity(i);
-                return true;
-            }
-            case R.id.ingredientsinfo: {
-                Intent i = new Intent(ResultActivity.this, IngredientsActivity.class);
                 startActivity(i);
                 return true;
             }
