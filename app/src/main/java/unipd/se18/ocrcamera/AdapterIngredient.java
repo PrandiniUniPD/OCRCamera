@@ -9,8 +9,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+/**
+ * Adapter for list view of ingredients after processing with incidb
+ * @Author Francesco Pham
+ */
 public class AdapterIngredient extends BaseAdapter {
     ArrayList<Ingredient> ingredients;
+
+    //Context of the app
     private Context context;
 
     AdapterIngredient(Context context, ArrayList<Ingredient> ingredients) {

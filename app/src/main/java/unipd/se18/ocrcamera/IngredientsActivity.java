@@ -8,6 +8,10 @@ import android.widget.ListView;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+/**
+ * Activity that shows informations taken from inci db about the ingredients found in the ocr text
+ * @author Francesco Pham
+ */
 public class IngredientsActivity extends AppCompatActivity {
 
     @Override
@@ -15,11 +19,13 @@ public class IngredientsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ingredients);
 
+        //get ocr text
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String OCRText = prefs.getString("text", null);
 
         if(OCRText != null) {
 
+            //NB: THESE METHODS CAN TAKE A LONG EXECUTION TIME AND SHOULD BE MOVED INTO A SEPARATE THREAD
             //load inci db
             InputStream inputStream = getResources().openRawResource(R.raw.incidb);
             Inci inci = new Inci(inputStream);
@@ -27,6 +33,7 @@ public class IngredientsActivity extends AppCompatActivity {
             //find ingredients in inci db
             final ArrayList<Ingredient> ingredients = inci.findListIngredients(OCRText);
 
+            //show results using adapter
             final ListView listEntriesView = findViewById(R.id.ingredients_list);
             runOnUiThread(new Runnable() {
                 @Override

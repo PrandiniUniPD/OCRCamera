@@ -3,6 +3,7 @@ package unipd.se18.ocrcamera;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -10,14 +11,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.opencsv.CSVReader;
-import com.opencsv.bean.ColumnPositionMappingStrategy;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
 
+/**
+ * Class for compare ingredients taken from OCR text with INCI database.
+ * The database is in CSV format, using openCSV to parse the file.
+ * For more informations about openCSV:
+ * http://opencsv.sourceforge.net/
+ * @author Francesco Pham
+ */
 public class Inci {
 
-    private List<Ingredient> listInci;
+    private List<Ingredient> listIngredients;
+    private static final String TAG = "Inci";
 
+    /**
+     * constructor
+     * @param inputStream inputStream of the inci database file
+     * @author Francesco Pham
+     */
     public Inci(InputStream inputStream){
         Reader reader = new BufferedReader(new InputStreamReader(inputStream));
         /*
@@ -32,24 +43,37 @@ public class Inci {
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
 
-        listInci = csvToBean.parse();*/
+        listIngredients = csvToBean.parse();*/
 
-        listInci = new ArrayList<Ingredient>();
+        listIngredients = new ArrayList<Ingredient>(); //initializing list of ingredients
+
+        //initializing openCSV reader
         CSVReader csvReader = new CSVReader(reader);
         String[] line;
+
+        //for each line in the csv add an Ingredient object to the list
         try {
             while ((line = csvReader.readNext()) != null) {
                 Ingredient element = new Ingredient(line[0],line[1],line[2],line[3],line[4],line[5],line[6],line[7],line[8],line[9]);
-                listInci.add(element);
+                listIngredients.add(element);
             }
+
+        } catch(IOException e){
+            Log.e(TAG, "Error trying to read csv");
+        }
+
+        //closing
+        try {
             reader.close();
             csvReader.close();
-        } catch(Exception e){}
+        } catch(IOException e){
+            Log.e(TAG, "Error closing csv reader");
+        }
     }
 
     /*
     public Inci(InputStream inputStream){
-        listInci = new ArrayList();
+        listIngredients = new ArrayList();
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         try {
             String csvLine;
@@ -57,7 +81,7 @@ public class Inci {
                 String[] row = csvLine.split(",");
                 Ingredient ingredient = new Ingredient(row[0],row[1],row[2],row[3],row[4],row[5],
                                                         row[6],row[7],row[8],row[9]);
-                listInci.add(ingredient);
+                listIngredients.add(ingredient);
             }
         }
         catch (IOException ex) {
@@ -74,26 +98,44 @@ public class Inci {
     }
     */
 
+    /**
+     * Find the best matching ingredient in the database using weighted levenshtein algorithm
+     * @param ingredient The ingredient we are looking for
+     * @return Ingredient object that contains the most similar ingredient to the text taken from ocr
+     * @author Francesco Pham
+     */
     private Ingredient findBestMatchingIngredient(String ingredient){
         LevenshteinStringComparator stringComparator = new LevenshteinStringComparator();
         double maxSimilarity = -1;
         int bestMatchingIngredient = -1;
-        for(int i=0; i<listInci.size(); i++){
-            double similarity = stringComparator.getNormalizedSimilarity(listInci.get(i).getInciName(), ingredient);
+        for(int i = 0; i< listIngredients.size(); i++){
+            double similarity = stringComparator.getNormalizedSimilarity(listIngredients.get(i).getInciName(), ingredient);
             if(similarity>maxSimilarity) {
                 maxSimilarity = similarity;
                 bestMatchingIngredient = i;
             }
         }
-        return listInci.get(bestMatchingIngredient);
+        return listIngredients.get(bestMatchingIngredient);
     }
 
+    /**
+     * this method takes the entire OCR text and split it using commas and calls the findBestMatchingIngredient method
+     * @param text The entire OCR text
+     * @return List of Ingredient objects where are stored ingredient's informations
+     * @author Francesco Pham
+     */
     public ArrayList<Ingredient> findListIngredients(String text){
         String[] splittedText = text.trim().split("\\s*,\\s*"); //split removing whitespaces
-        ArrayList<Ingredient> ingredients = new ArrayList<Ingredient>();
+        ArrayList<Ingredient> ingredients = new ArrayList<Ingredient>(); //initializing the list
+
+        //for every splitted text inside the ocr text search for the most similar in the inci db
         for(String str : splittedText){
             Ingredient bestMatchingIngredient = findBestMatchingIngredient(str);
+
+            //set the original text taken from ocr for later
             bestMatchingIngredient.setFoundText(str);
+
+            //add the ingredient object to the list
             ingredients.add(bestMatchingIngredient);
         }
         return ingredients;

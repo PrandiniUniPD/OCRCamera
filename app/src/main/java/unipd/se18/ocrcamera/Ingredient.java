@@ -1,8 +1,11 @@
 package unipd.se18.ocrcamera;
 
-import com.opencsv.bean.CsvBindByPosition;
-
+/**
+ * Ingredient class that contained the informations of the ingredient taken from inci db
+ */
 public class Ingredient {
+
+    //GETTERS
     public String getCosingRefNo() {
         return cosingRefNo;
     }
@@ -47,6 +50,7 @@ public class Ingredient {
         return foundText;
     }
 
+    //SETTERS
     public void setCosingRefNo(String cosingRefNo) {
         this.cosingRefNo = cosingRefNo;
     }
@@ -91,6 +95,9 @@ public class Ingredient {
         this.foundText = foundText;
     }
 
+    /**
+     * constructor initializer
+     */
     public Ingredient(String cosingRefNo, String inciName, String innName, String phEurName,
                       String casNo, String ecNo, String description, String restriction,
                       String function, String updateDate) {
@@ -106,6 +113,7 @@ public class Ingredient {
         this.updateDate = updateDate;
     }
 
+    //PRIVATE PROPERTIES
     private String cosingRefNo;
 
     private String inciName;

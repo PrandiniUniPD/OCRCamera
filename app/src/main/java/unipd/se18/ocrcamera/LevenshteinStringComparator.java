@@ -2,6 +2,12 @@ package unipd.se18.ocrcamera;
 
 import info.debatty.java.stringsimilarity.*;
 
+/**
+ * This class compares strings using weighted levenshtein algorithm
+ * For more informations about the library we are using:
+ * https://github.com/tdebatty/java-string-similarity
+ * @author Francesco Pham
+ */
 public class LevenshteinStringComparator extends WeightedLevenshtein{
 
     public LevenshteinStringComparator(){
@@ -29,11 +35,25 @@ public class LevenshteinStringComparator extends WeightedLevenshtein{
             });
     }
 
+    /**
+     * Get the distance between two string normalized into a value from 0.0 to 1.0
+     * @param str1 First string
+     * @param str2 Second string
+     * @return Distance between two string normalized into a value from 0.0 to 1.0
+     * @author Francesco Pham
+     */
     public double getNormalizedDistance(String str1, String str2){
         int maxLength = Math.max(str1.length(),str2.length());
         return super.distance(str1, str2)/maxLength;
     }
 
+    /**
+     * Get the similarity between two string normalized into a value from 0.0 to 1.0
+     * @param str1 First string
+     * @param str2 Second string
+     * @return similarity between two string normalized into a value from 0.0 to 1.0
+     * @author Francesco Pham
+     */
     public double getNormalizedSimilarity(String str1, String str2){
         return 1.0 - getNormalizedDistance(str1, str2);
     }
