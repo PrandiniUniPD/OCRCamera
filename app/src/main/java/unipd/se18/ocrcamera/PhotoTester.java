@@ -21,6 +21,8 @@ import java.util.concurrent.Executors;
 import info.debatty.java.stringsimilarity.CharacterSubstitutionInterface;
 import info.debatty.java.stringsimilarity.WeightedLevenshtein;
 
+import static java.lang.Float.NaN;
+
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
  * providing a JSON report containing stats and results.
@@ -136,7 +138,7 @@ public class PhotoTester {
      * @author Luca Moroldo (g3)
      */
     public String testAndReport() throws InterruptedException {
-        
+
 
         Log.i(TAG,"testAndReport started");
         long started = java.lang.System.currentTimeMillis();
@@ -307,6 +309,11 @@ public class PhotoTester {
         }
         float confidence = (points / maxPoints)*100;
         Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
+
+        //I found a test where the function returned NaN (the correct ingredient text was '-') - Luca Moroldo
+        if(confidence == NaN) {
+            confidence = 0;
+        }
         return confidence;
 
     }
@@ -368,7 +375,6 @@ public class PhotoTester {
          * @param jsonReport JSONObject containing tests data
          * @param test element of a test - must contain an image path and ingredients fields
          * @param countDownLatch used to signal the task completion
-         * @param semaphore semaphore used to signal the end of the task
          */
         public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
             this.jsonReport = jsonReport;
@@ -449,6 +455,7 @@ public class PhotoTester {
     private HashMap getTagsStats() {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
+
         HashMap<String, Integer> tagOccurrences = new HashMap<>(); //contains the number of occurrences of each tag
 
         for(TestElement element : testElements) {
