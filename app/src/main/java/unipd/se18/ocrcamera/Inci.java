@@ -31,19 +31,6 @@ public class Inci {
      */
     public Inci(InputStream inputStream){
         Reader reader = new BufferedReader(new InputStreamReader(inputStream));
-        /*
-        ColumnPositionMappingStrategy strategy = new ColumnPositionMappingStrategy();
-        strategy.setType(Ingredient.class);
-        String[] memberFieldsToBindTo = {"cosingRefNo", "inciName", "innName", "phEurName", "casNo", "ecNo", "description", "restriction", "function", "updateDate"};
-        strategy.setColumnMapping(memberFieldsToBindTo);
-
-        CsvToBean<Ingredient> csvToBean = new CsvToBeanBuilder(reader)
-                .withMappingStrategy(strategy)
-                .withSkipLines(1)
-                .withIgnoreLeadingWhiteSpace(true)
-                .build();
-
-        listIngredients = csvToBean.parse();*/
 
         listIngredients = new ArrayList<Ingredient>(); //initializing list of ingredients
 
@@ -82,33 +69,6 @@ public class Inci {
             Log.e(TAG, "Error closing csv reader");
         }
     }
-
-    /*
-    public Inci(InputStream inputStream){
-        listIngredients = new ArrayList();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        try {
-            String csvLine;
-            while ((csvLine = reader.readLine()) != null) {
-                String[] row = csvLine.split(",");
-                Ingredient ingredient = new Ingredient(row[0],row[1],row[2],row[3],row[4],row[5],
-                                                        row[6],row[7],row[8],row[9]);
-                listIngredients.add(ingredient);
-            }
-        }
-        catch (IOException ex) {
-            throw new RuntimeException("Error in reading CSV file: "+ex);
-        }
-        finally {
-            try {
-                inputStream.close();
-            }
-            catch (IOException e) {
-                throw new RuntimeException("Error while closing input stream: "+e);
-            }
-        }
-    }
-    */
 
     /**
      * Find the best matching ingredient in the database using weighted levenshtein algorithm
