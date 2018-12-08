@@ -50,5 +50,8 @@ dependencies {
 
     //for csv parsing
     implementation "com.opencsv:opencsv:4.4"
+
+    //FTP dependencies
+    implementation 'commons-net:commons-net:3.6'
 }
 apply plugin: 'com.google.gms.google-services'
