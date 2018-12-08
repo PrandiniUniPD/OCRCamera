@@ -41,17 +41,7 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     private Integer currentProgress;
     private ScrollView scrollCurrentDownload;
     private TextView txtViewCurrentDownload;
-    //Constants
-    // PLEASE DON'T USE THESE FOR PERSONAL USAGE!
-    // FTP CREDENTIALS
-    // USERNAME: epiz_22864730
-    // PASSWORD: 8M0tNtsJCsw
-    // HOSTNAME: ftpupload.net
-    // PLEASE DON'T USE THESE FOR PERSONAL USAGE!
-    // Communicate with Group 3 if you need something from the server.
-    private final String USERNAME = "epiz_22864730";
-    private final String PASSWORD = "8M0tNtsJCsw";
-    private final String HOSTNAME = "ftpupload.net";
+
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
     private final String LOGINGINFORMATION_FILE = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"/ingsoftwareftp.txt";
     private final String REMOTE_FOLDER = "/htdocs/foto/";
