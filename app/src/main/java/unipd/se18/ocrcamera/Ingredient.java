@@ -43,6 +43,54 @@ public class Ingredient {
         return updateDate;
     }
 
+    public String getFoundText() {
+        return foundText;
+    }
+
+    public void setCosingRefNo(String cosingRefNo) {
+        this.cosingRefNo = cosingRefNo;
+    }
+
+    public void setInciName(String inciName) {
+        this.inciName = inciName;
+    }
+
+    public void setInnName(String innName) {
+        this.innName = innName;
+    }
+
+    public void setPhEurName(String phEurName) {
+        this.phEurName = phEurName;
+    }
+
+    public void setCasNo(String casNo) {
+        this.casNo = casNo;
+    }
+
+    public void setEcNo(String ecNo) {
+        this.ecNo = ecNo;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setRestriction(String restriction) {
+        this.restriction = restriction;
+    }
+
+    public void setFunction(String function) {
+        this.function = function;
+    }
+
+    public void setUpdateDate(String updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    public void setFoundText(String foundText) {
+        this.foundText = foundText;
+    }
+
     public Ingredient(String cosingRefNo, String inciName, String innName, String phEurName,
                       String casNo, String ecNo, String description, String restriction,
                       String function, String updateDate) {
@@ -87,4 +135,7 @@ public class Ingredient {
 
     @CsvBindByPosition(position = 9)
     private String updateDate;
+
+
+    private String foundText;
 }

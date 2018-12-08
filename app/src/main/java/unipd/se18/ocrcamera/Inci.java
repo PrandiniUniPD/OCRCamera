@@ -66,8 +66,9 @@ public class Inci {
     public ArrayList<Ingredient> findListIngredients(String text){
         String[] splittedText = text.trim().split("\\s*,\\s*"); //split removing whitespaces
         ArrayList<Ingredient> ingredients = new ArrayList<Ingredient>();
-        for(String s : splittedText){
-            Ingredient bestMatchingIngredient = findBestMatchingIngredient(s);
+        for(String str : splittedText){
+            Ingredient bestMatchingIngredient = findBestMatchingIngredient(str);
+            bestMatchingIngredient.setFoundText(str);
             ingredients.add(bestMatchingIngredient);
         }
         return ingredients;

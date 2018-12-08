@@ -17,10 +17,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadPoolExecutor;
-
-import info.debatty.java.stringsimilarity.*;
 
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
@@ -209,29 +205,7 @@ public class PhotoTester {
         int posLastWordFound = 0;
         int consecutiveNotFound = 0;
 
-
-        WeightedLevenshtein levenshtein = new WeightedLevenshtein(
-                new CharacterSubstitutionInterface() {
-                    public double cost(char c1, char c2) {
-
-                        // The cost for substituting 't' and 'r' is considered
-                        // smaller as these 2 are located next to each other
-                        // on a keyboard
-                        if (c1 == 't' && c2 == 'r') {
-                            return 0.5;
-                        }
-                        else if (c1 == 'q' && c2 == 'o') {
-                            return 0.5;
-                        }
-                        else if (c1 == 'I' && c2 == 'l') {
-                            return 0.5;
-                        }
-
-                        // For most cases, the cost of substituting 2 characters
-                        // is 1.0
-                        return 1.0;
-                    }
-                });
+        LevenshteinStringComparator stringComparator = new LevenshteinStringComparator();
 
         for (String word : correctWords) {
             boolean found = false;
@@ -243,9 +217,7 @@ public class PhotoTester {
                 for (int i = 0; i < extractedWords.length && !found; i++) {
                     index = (posLastWordFound + i) % extractedWords.length;
 
-                    //Calculate similarity and normalize
-                    int maxLength = Math.max(word.length(),extractedWords[index].length());
-                    double similarity = 1.0 - levenshtein.distance(word,extractedWords[index])/maxLength;
+                    double similarity = stringComparator.getNormalizedSimilarity(word, extractedWords[index]);
 
                     if (similarity > 0.8) {
                         if (points == 0 || i < consecutiveNotFound + 10) {
@@ -347,7 +319,6 @@ public class PhotoTester {
          * @param jsonReport JSONObject containing tests data
          * @param test element of a test - must contain bitmap and ingredients fields
          * @param countDownLatch used to signal the task completion
-         * @param semaphore semaphore used to signal the end of the task
          */
         public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
             this.jsonReport = jsonReport;

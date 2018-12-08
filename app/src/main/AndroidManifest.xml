@@ -50,9 +50,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".TestResultActivity" />
-        <activity android:name=".TestAlterationsActivity"
+        <activity
+            android:name=".TestAlterationsActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+        <activity android:name=".IngredientsActivity"></activity>
     </application>
 
 </manifest>

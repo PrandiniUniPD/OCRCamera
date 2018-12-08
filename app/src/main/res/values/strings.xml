@@ -22,4 +22,6 @@
     <string name="extrected_text">Extracted text:</string>
     <string name="alterations">Alterations:</string>
     <string name="view_alterations">View alterations</string>
+    <string name="inci_name_title">Inci name:</string>
+    <string name="found_text_title">Found text:</string>
 </resources>
