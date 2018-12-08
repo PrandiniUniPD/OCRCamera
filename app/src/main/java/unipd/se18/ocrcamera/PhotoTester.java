@@ -455,7 +455,6 @@ public class PhotoTester {
     private HashMap getTagsStats() {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
-
         HashMap<String, Integer> tagOccurrences = new HashMap<>(); //contains the number of occurrences of each tag
 
         for(TestElement element : testElements) {
