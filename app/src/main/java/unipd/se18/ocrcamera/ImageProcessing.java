@@ -50,7 +50,6 @@ public class ImageProcessing {
     //Tag used to identify the log
     final private String TAG = "openCV";
 
-  
     /**
      * Constructor of the class which initialize the openCV library
      * @author Thomas Porro (g1)
@@ -61,7 +60,6 @@ public class ImageProcessing {
         System.loadLibrary("opencv_java3");
         Log.i(TAG, "Loaded the library");
     }
-
 
     /**
      * Find, crop and rotate the text in an image
@@ -81,7 +79,6 @@ public class ImageProcessing {
         return image;
     }
 
-
     /**
      * Calculate the angle between the text and the horizontal
      * @param imagePath path of the image you want to analyze
@@ -90,7 +87,6 @@ public class ImageProcessing {
      * @author Thomas Porro (g1)
      */
     public double computeSkew(String imagePath) throws FileNotFoundException {
-
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
         Mat img = conversionBitmapToMat(imagePath);
@@ -149,17 +145,14 @@ public class ImageProcessing {
         return degreesAngle;
     }
 
-
     /**
-     * Detect in which region of the picture there is some text and finds
-     * the largest one, even if it's rotated
+     * Applies filters to an image do make it easier to detect rectangle areas
      * @param imagePath the path of the image you want to analyze
-     * @return the rectangle which contains the text with maximum area (it could be rotated)
+     * @return a matrix of the filtered image
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
-    public RotatedRect detectMaxTextArea(String imagePath) throws FileNotFoundException {
-
+	private Mat applyFilters(String imagePath) throws FileNotFoundException {
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
 
@@ -176,7 +169,7 @@ public class ImageProcessing {
         /*
             Method used for debug
 
-            save(threshold, "threshold.jpg");                          
+            save(threshold, "threshold.jpg");
         */
 
         //Detect the edges in the image
@@ -214,13 +207,23 @@ public class ImageProcessing {
         Mat dilatated = new Mat();
         Imgproc.dilate(blurredMat, dilatated, element);
         //save(dilatated, "dilate.jpg");
+		
+		return dilatated;
+		}
 
-
+	/**
+     * Searches the rectangles in the matrix of an image to find the largest one
+     * @param filteredMat the matrix of the image you want to find the rectangles
+     * @return the rectangle which contains the text with maximum area (it could be rotated)
+     * @throws FileNotFoundException if imagePath doesn't exist
+     * @author Thomas Porro (g1), Oscar Garrido (g1)
+     */
+	private RotatedRect findMaxTextArea(Mat filteredMat){
         //Saves the contours in a list of MatOfPoint (multidimensional vector)
         List<MatOfPoint> contours = new ArrayList<>();
         int mode = 0;
         int method = 1;
-        Imgproc.findContours(dilatated, contours, new Mat(), mode, method);
+        Imgproc.findContours(filteredMat, contours, new Mat(), mode, method);
         //The third parameter contains additional information that is unused
 
         /*
@@ -244,7 +247,6 @@ public class ImageProcessing {
         RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
         return rect;
     }
-
 
     /**
      * Crop the matrix with the given rectangle
@@ -288,7 +290,6 @@ public class ImageProcessing {
 
     }
 
-
     /**
      * Converts a matrix into a Bitmap and saves it in the default temp-file dir
      * @param matrix the matrix to be converted
@@ -321,7 +322,6 @@ public class ImageProcessing {
         }
     }
 
-    
     /**
      * Converts the matrix into a Bitmap
      * @param matrix the matrix you want to convert
@@ -333,7 +333,6 @@ public class ImageProcessing {
         Utils.matToBitmap(matrix, image);
         return image;
     }
-
 
     /**
      * Converts the Bitmap into a grayscale matrix
