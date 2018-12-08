@@ -46,5 +46,8 @@ dependencies {
     implementation 'com.camerakit:jpegkit:0.1.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.61'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.24.0'
+
+    //FTP dependencies
+    implementation 'commons-net:commons-net:3.6'
 }
 apply plugin: 'com.google.gms.google-services'
