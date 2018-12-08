@@ -54,7 +54,19 @@ public class Inci {
         //for each line in the csv add an Ingredient object to the list
         try {
             while ((line = csvReader.readNext()) != null) {
-                Ingredient element = new Ingredient(line[0],line[1],line[2],line[3],line[4],line[5],line[6],line[7],line[8],line[9]);
+                Ingredient element = new Ingredient();
+                element.setCosingRefNo(line[0]);
+
+                if(line.length > 1)
+                    element.setInciName(line[1]);
+                else
+                    Log.d(TAG, "inci name not found while parsing "+element.getCosingRefNo());
+
+                if(line.length > 6)
+                    element.setDescription(line[6]);
+                else
+                    Log.d(TAG, "description not found while parsing "+element.getCosingRefNo());
+
                 listIngredients.add(element);
             }
 
@@ -125,7 +137,7 @@ public class Inci {
      * @author Francesco Pham
      */
     public ArrayList<Ingredient> findListIngredients(String text){
-        String[] splittedText = text.trim().split("\\s*,\\s*"); //split removing whitespaces
+        String[] splittedText = text.trim().split("[,.]+"); //split removing whitespaces
         ArrayList<Ingredient> ingredients = new ArrayList<Ingredient>(); //initializing the list
 
         //for every splitted text inside the ocr text search for the most similar in the inci db

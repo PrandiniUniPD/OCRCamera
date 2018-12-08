@@ -113,6 +113,19 @@ public class Ingredient {
         this.updateDate = updateDate;
     }
 
+    public Ingredient() {
+        this.cosingRefNo = "";
+        this.inciName = "";
+        this.innName = "";
+        this.phEurName = "";
+        this.casNo = "";
+        this.ecNo = "";
+        this.description = "";
+        this.restriction = "";
+        this.function = "";
+        this.updateDate = "";
+    }
+
     //PRIVATE PROPERTIES
     private String cosingRefNo;
 

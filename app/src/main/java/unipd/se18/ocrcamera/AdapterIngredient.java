@@ -53,6 +53,10 @@ public class AdapterIngredient extends BaseAdapter {
         TextView foundText = convertView.findViewById(R.id.found_text_view);
         foundText.setText(ingredients.get(position).getFoundText());
 
+        // Set description
+        TextView description = convertView.findViewById(R.id.description_view);
+        description.setText(ingredients.get(position).getDescription());
+
         return convertView;
     }
 }
