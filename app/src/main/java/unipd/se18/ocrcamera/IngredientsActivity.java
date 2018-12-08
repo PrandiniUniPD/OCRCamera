@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,6 +8,8 @@ import android.widget.ListView;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Activity that shows informations taken from inci db about the ingredients found in the ocr text
@@ -24,14 +27,39 @@ public class IngredientsActivity extends AppCompatActivity {
         String OCRText = prefs.getString("text", null);
 
         if(OCRText != null) {
+            InciThread inciThread = new InciThread(OCRText);
+            inciThread.start();
+        }
+    }
 
-            //NB: THESE METHODS CAN TAKE A LONG EXECUTION TIME AND SHOULD BE MOVED INTO A SEPARATE THREAD
+    class InciThread extends Thread{
+        private String ocrText;
+        private ProgressDialog progressDialog;
+
+        public InciThread(String ocrText){
+            this.ocrText = ocrText;
+            progressDialog = ProgressDialog.show(IngredientsActivity.this, getString(R.string.processing), "");
+        }
+
+        public void run(){
+
             //load inci db
             InputStream inputStream = getResources().openRawResource(R.raw.incidb);
             Inci inci = new Inci(inputStream);
 
             //find ingredients in inci db
-            final ArrayList<Ingredient> ingredients = inci.findListIngredients(OCRText);
+            final ArrayList<Ingredient> ingredients = inci.findListIngredients(ocrText);
+
+            //sort list of ingredients by similarity
+            Collections.sort(ingredients, new Comparator<Ingredient>() {
+                public int compare(Ingredient one, Ingredient other) {
+                    if (one.getOcrTextSimilarity() >= other.getOcrTextSimilarity()) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                }
+            });
 
             //show results using adapter
             final ListView listEntriesView = findViewById(R.id.ingredients_list);
@@ -46,6 +74,8 @@ public class IngredientsActivity extends AppCompatActivity {
                     listEntriesView.setAdapter(adapter);
                 }
             });
+
+            progressDialog.dismiss();
         }
     }
 }

@@ -57,6 +57,11 @@ public class AdapterIngredient extends BaseAdapter {
         TextView description = convertView.findViewById(R.id.description_view);
         description.setText(ingredients.get(position).getDescription());
 
+        // Set similarity
+        TextView similarityView = convertView.findViewById(R.id.similarity_view);
+        double similarity = ingredients.get(position).getOcrTextSimilarity()*100;
+        similarityView.setText(String.format("%.1f", similarity));
+
         return convertView;
     }
 }

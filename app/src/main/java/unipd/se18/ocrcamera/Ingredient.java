@@ -50,6 +50,10 @@ public class Ingredient {
         return foundText;
     }
 
+    public double getOcrTextSimilarity() {
+        return ocrTextSimilarity;
+    }
+
     //SETTERS
     public void setCosingRefNo(String cosingRefNo) {
         this.cosingRefNo = cosingRefNo;
@@ -94,6 +98,11 @@ public class Ingredient {
     public void setFoundText(String foundText) {
         this.foundText = foundText;
     }
+
+    public void setOcrTextSimilarity(double ocrTextSimilarity) {
+        this.ocrTextSimilarity = ocrTextSimilarity;
+    }
+
 
     /**
      * constructor initializer
@@ -149,4 +158,6 @@ public class Ingredient {
 
 
     private String foundText;
+
+    private double ocrTextSimilarity;
 }

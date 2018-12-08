@@ -127,6 +127,10 @@ public class Inci {
                 bestMatchingIngredient = i;
             }
         }
+
+        //store similarity in the object for later usage
+        listIngredients.get(bestMatchingIngredient).setOcrTextSimilarity(maxSimilarity);
+
         return listIngredients.get(bestMatchingIngredient);
     }
 
