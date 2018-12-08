@@ -14,10 +14,16 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -47,6 +53,7 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     private final String PASSWORD = "8M0tNtsJCsw";
     private final String HOSTNAME = "ftpupload.net";
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
+    private final String LOGINGINFORMATION_FILE = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"/ingsoftwareftp.txt";
     private final String REMOTE_FOLDER = "/htdocs/foto/";
     private final String TAG = "FTP";
     DownloadDbActivity activity;
@@ -110,14 +117,20 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
      */
     private Boolean connectToServer() throws IOException
     {
+        //0 username
+        //1 password
+        //2 hostname
+
+        String[] credentials = getFTPCredentials();
+
         //Trying to connect to the server
-        ftp.connect(HOSTNAME);
+        ftp.connect(credentials[2]);
 
         //Logging in into the server
-        if (!ftp.login(USERNAME, PASSWORD))
+        if (!ftp.login(credentials[0], credentials[1]))
         {
             ftp.logout();
-            return false;
+            throw new IOException("Bad Credentials");
         }
 
         int reply = ftp.getReplyCode();
@@ -125,7 +138,7 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
         if (!FTPReply.isPositiveCompletion(reply))
         {
             ftp.disconnect();
-            return false;
+            throw new IOException("Bad Credentials");
         }
 
         //enter passive mode
@@ -199,6 +212,7 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
 
     /**
      * Update the scrollable textView in the UI
+     * @author Stefano Romanello
      */
     private void sendMessageToUI(String message)
     {
@@ -212,5 +226,38 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
                 scrollCurrentDownload.smoothScrollTo(0, txtViewCurrentDownload.getBottom());
             }
         });
+    }
+    /**
+     * Update the scrollable textView in the UI
+     * Obtain the credentials from the file
+     * @author Stefano Romanello
+     */
+    private String[] getFTPCredentials()
+    {
+        FileInputStream is;
+        BufferedReader reader;
+        final File file = new File(LOGINGINFORMATION_FILE);
+        
+        ArrayList lines= new ArrayList();
+        if (file.exists()) {
+            try {
+                is = new FileInputStream(file);
+                reader = new BufferedReader(new InputStreamReader(is));
+                String line = reader.readLine();
+                lines.add(line);
+                while(line != null){
+                    line = reader.readLine();
+                    lines.add(line);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Object[] objNames = lines.toArray();
+        String[] outCredentials = Arrays.copyOf(objNames, objNames.length, String[].class);
+        return outCredentials;
     }
 }
