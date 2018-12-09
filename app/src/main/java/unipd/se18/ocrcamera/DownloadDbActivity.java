@@ -26,6 +26,7 @@ public class DownloadDbActivity extends AppCompatActivity {
     private Button clickButtonDownload;
     private Button clickButtonLogin;
     private final String LOGINGINFORMATION_FILE = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"/ingsoftwareftp.txt";
+    private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
     private LinearLayout layoutLogin;
     private LinearLayout layoutDownload;
 
@@ -109,6 +110,14 @@ public class DownloadDbActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        //Check if folder for photos exist
+        File dir = new File(PHOTOS_FOLDER);
+        if(!dir.exists() || !dir.isDirectory())
+        {
+            dir.mkdir();
+        }
+
 
         layoutDownload.setVisibility(View.VISIBLE);
         layoutLogin.setVisibility(View.GONE);
