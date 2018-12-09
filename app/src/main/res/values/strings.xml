@@ -22,4 +22,8 @@
     <string name="extrected_text">Extracted text:</string>
     <string name="alterations">Alterations:</string>
     <string name="view_alterations">View alterations</string>
+    <string name="login">Login to the DB</string>
+    <string name="username">username</string>
+    <string name="password">password</string>
+    <string name="ok">OK</string>
 </resources>
