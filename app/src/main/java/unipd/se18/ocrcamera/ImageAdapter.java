@@ -39,7 +39,7 @@ public class ImageAdapter extends BaseAdapter {
     // returns an ImageView view
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        // create a ImageView programmatically
+        // crea ImageView automaticamente
         ImageView imageView;
         if (convertView == null) {
             imageView = new ImageView(this.context);

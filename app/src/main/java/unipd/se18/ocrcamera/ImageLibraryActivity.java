@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
-/** Classe che implementa una galleria di immagini
+/** Classe che implementa una galleria a griglia di immagini
  * Leonardo Pratesi - gruppo 1
  * usa classe CustomGalleryAdapter
  *
@@ -35,15 +35,32 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.imagegallery);
         this.imageGrid = (GridView) findViewById(R.id.griglia);
         this.bitmapList = new ArrayList<Bitmap>();
 
-        File path = new File(Environment.getExternalStorageDirectory(), "iWallet/Images");
-        if (path.exists()) {
+        File path = new File(Environment.getExternalStorageDirectory(), "/");
+        System.out.println(path);
+        System.out.println(path.list()); //il path non contiene elementi =null RISOLVERE
+
+
+        /**
+         * test griglia disperato
+         */
+
+        Bitmap bitmap1 = BitmapFactory.decodeFile("/sdcard/Download/image1.jpg");
+        this.bitmapList.add(bitmap1);
+        this.imageGrid.setAdapter(new ImageAdapter(this, this.bitmapList));
+
+
+
+
+  /**      if (path.exists()) {
             String[] fileNames = path.list();
+
             try {
-                for (int i = 0; i < fileNames.length; i++) {
+                for (int i = 0; i < 6; i++) {
                     Bitmap bitmap = BitmapFactory.decodeFile(path.getPath() + "/" + fileNames[i]);
                     this.bitmapList.add(bitmap);
                 }
@@ -51,9 +68,10 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                 e.printStackTrace();
             }
         }
-
         this.imageGrid.setAdapter(new ImageAdapter(this, this.bitmapList));
+  */
     }
+
 }
 
 
