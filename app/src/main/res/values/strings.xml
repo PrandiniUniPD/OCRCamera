@@ -26,4 +26,5 @@
     <string name="hostname">Hostname</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
+    <string name="check_internet_connection">Check internet connection.</string>
 </resources>

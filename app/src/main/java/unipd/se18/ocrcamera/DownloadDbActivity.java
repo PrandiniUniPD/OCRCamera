@@ -1,6 +1,8 @@
 package unipd.se18.ocrcamera;
 
 
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -34,6 +37,7 @@ public class DownloadDbActivity extends AppCompatActivity {
     private EditText txtUsrname;
     private EditText txtPassword;
 
+    private TextView txtInternetStatus;
 
     /**
      * Instantiate the UI elements and check if is possible to do the login.
@@ -47,17 +51,29 @@ public class DownloadDbActivity extends AppCompatActivity {
 
         layoutDownload = (LinearLayout)findViewById(R.id.LayoutDownload);
         layoutLogin = (LinearLayout)findViewById(R.id.LayoutLogin);
+        txtHostname = (EditText) findViewById(R.id.txtHostnameDownload);
+        txtPassword = (EditText) findViewById(R.id.txtPasswordDownload);
+        txtUsrname = (EditText) findViewById(R.id.txtUsernameDownload);
+        txtInternetStatus = (TextView) findViewById(R.id.txtInternetStatusDownload);
+        
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        //Verify if the login is already done
+
+        //Verify if the login is already done and if there is internet connection
         final File file = new File(LOGINGINFORMATION_FILE);
-        if (!file.exists()) {
+        if (!file.exists() && cm.getActiveNetworkInfo() != null) {
            //No file, have to do the login
             layoutLogin.setVisibility(View.VISIBLE);
         }
-        else
+        else if(file.exists() && cm.getActiveNetworkInfo() != null)
         {
             //Can do the login
             layoutDownload.setVisibility(View.VISIBLE);
+        }
+        else if(cm.getActiveNetworkInfo() == null)
+        {
+
+            txtInternetStatus.setVisibility(View.VISIBLE);
         }
 
         ///Load other UI elements
@@ -78,9 +94,7 @@ public class DownloadDbActivity extends AppCompatActivity {
             }
         });
 
-        txtHostname = (EditText) findViewById(R.id.txtHostnameDownload);
-        txtPassword = (EditText) findViewById(R.id.txtPasswordDownload);
-        txtUsrname = (EditText) findViewById(R.id.txtUsernameDownload);
+
     }
 
     /**

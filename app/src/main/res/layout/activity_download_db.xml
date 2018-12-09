@@ -8,6 +8,14 @@
     tools:context=".DownloadDbActivity"
     android:padding="5dp">
 
+    <TextView
+        android:id="@+id/txtInternetStatusDownload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/check_internet_connection"
+        android:textSize="18sp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
