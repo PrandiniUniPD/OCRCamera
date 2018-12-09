@@ -85,6 +85,9 @@ public class Inci {
      * @author Francesco Pham
      */
     private Ingredient findBestMatchingIngredient(String ingredient){
+        //ignoring case by converting to upper case like all texts in database
+        ingredient = ingredient.toUpperCase();
+
         LevenshteinStringComparator stringComparator = new LevenshteinStringComparator();
         double maxSimilarity = -1;
         int bestMatchingIngredient = -1;
