@@ -37,6 +37,12 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:value=".CameraActivity" />
+        <!-- Leonardo Pratesi -->
+        <activity
+            android:name=".ImageLibraryActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <!-- Useful for automatic upgrades of the ocr models - author Pietro Prandini (g2) -->
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"

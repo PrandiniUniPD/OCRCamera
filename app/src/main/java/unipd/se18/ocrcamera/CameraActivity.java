@@ -191,13 +191,16 @@ public class CameraActivity extends AppCompatActivity {
 
                     //An intent that will launch the activity that will analyse the photo
                     //goes to Result activity if the photo is not blurry [Leonardo Pratesi]
-                    if (!blurDetection(valoreBlur)) {
-                        Intent i = new Intent(CameraActivity.this, ResultActivity.class);
-                        startActivity(i);
-                    }
-                    else
+                    //fix= simply says if it is blurry then goes to ResultActivity
+                    if (blurDetection(valoreBlur))
+                    {
                         Toast.makeText(getBaseContext(),
-                                "immagine sfocata riprova", Toast.LENGTH_LONG).show(); //Toast che stampa il valore di blur per testing
+                                "immagine sfocata", Toast.LENGTH_LONG).show(); //Toast che stampa il valore di blur per testing
+
+                    }
+                    Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                    startActivity(i);
+
                 }
             }
         });

@@ -108,7 +108,7 @@ public class ResultActivity extends AppCompatActivity {
 
     /**
      * Handling click events on the menu
-     * @author Francesco Pham
+     * @author Francesco Pham - modified Leonardo Pratesi
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -118,6 +118,9 @@ public class ResultActivity extends AppCompatActivity {
                 Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
                 startActivity(i);
                 return true;
+            case R.id.gallery:
+                Intent galleryintent = new Intent(ResultActivity.this,ImageLibraryActivity.class);
+                startActivity(galleryintent);
             default:
                 return super.onOptionsItemSelected(item);
         }
