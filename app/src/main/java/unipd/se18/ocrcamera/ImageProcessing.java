@@ -152,7 +152,7 @@ public class ImageProcessing {
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
-	private Mat applyFilters(String imagePath) throws FileNotFoundException {
+    private Mat applyFilters(String imagePath) throws FileNotFoundException {
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
 
@@ -207,18 +207,19 @@ public class ImageProcessing {
         Mat dilatated = new Mat();
         Imgproc.dilate(blurredMat, dilatated, element);
         //save(dilatated, "dilate.jpg");
-		
-		return dilatated;
-		}
 
-	/**
+        return dilatated;
+    }
+
+    /**
      * Searches the rectangles in the matrix of an image to find the largest one
-     * @param filteredMat the matrix of the image you want to find the rectangles
+     * @param imagePath the path of the image you want to find the rectangles of text
      * @return the rectangle which contains the text with maximum area (it could be rotated)
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
-	private RotatedRect findMaxTextArea(Mat filteredMat){
+    private RotatedRect detectMaxTextArea(String imagePath) throws FileNotFoundException{
+        Mat filteredMat = applyFilters(imagePath);
         //Saves the contours in a list of MatOfPoint (multidimensional vector)
         List<MatOfPoint> contours = new ArrayList<>();
         int mode = 0;
