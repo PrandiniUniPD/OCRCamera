@@ -81,7 +81,6 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
         catch (Exception e)
         {
             sendMessageToUI(e.toString());
-
         }
 
         return null;
@@ -107,43 +106,42 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
      * @return True if connected, false otherwise
      * @author Stafano Romanello
      */
-    private Boolean connectToServer() throws IOException
+    private Boolean connectToServer()
     {
         //0 username
         //1 password
         //2 hostname
 
-        String[] credentials = getFTPCredentials();
-
         //Trying to connect to the server
         try {
-            ftp.connect(credentials[2]);
+            String[] credentials = getFTPCredentials();
+            if(credentials.length>0) {
+                ftp.connect(credentials[2]);
 
-            //Logging in into the server
-            if (!ftp.login(credentials[0], credentials[1]))
-            {
-                ftp.logout();
+                //Logging in into the server
+                if (!ftp.login(credentials[0], credentials[1])) {
+                    ftp.logout();
+                }
+
+                int reply = ftp.getReplyCode();
+                //FTPReply stores a set of constants for FTP reply codes.
+                if (!FTPReply.isPositiveCompletion(reply)) {
+                    ftp.disconnect();
+                }
+
+                //enter passive mode
+                ftp.enterLocalPassiveMode();
+                //get system name
+                System.out.println("Remote system is " + ftp.getSystemType());
+                //change current directory
+                ftp.changeWorkingDirectory(REMOTE_FOLDER);
+                System.out.println("Current directory is " + ftp.printWorkingDirectory());
             }
-
-            int reply = ftp.getReplyCode();
-            //FTPReply stores a set of constants for FTP reply codes.
-            if (!FTPReply.isPositiveCompletion(reply))
-            {
-                ftp.disconnect();
-            }
-
-            //enter passive mode
-            ftp.enterLocalPassiveMode();
-            //get system name
-            System.out.println("Remote system is " + ftp.getSystemType());
-            //change current directory
-            ftp.changeWorkingDirectory(REMOTE_FOLDER);
-            System.out.println("Current directory is " + ftp.printWorkingDirectory());
         } catch (IOException e) {
             //Delete credentials file and ask again on the next reload
             final File file = new File(LOGINGINFORMATION_FILE);
             file.delete();
-            throw new IOException("Bad Credentials or connection. Reload the page for a new login.");
+            sendMessageToUI("Bad Credentials or connection. Reload the page for a new login."+System.getProperty("line.separator"));
         }
         return true;
     }
