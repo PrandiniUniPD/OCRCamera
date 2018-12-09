@@ -21,8 +21,16 @@ import com.opencsv.CSVReader;
  */
 public class Inci {
 
+    //list of recognized ingredients where are stored informations about ingredients
     private List<Ingredient> listIngredients;
+
     private static final String TAG = "Inci";
+
+    /*
+        threshold of similarity between the found text and the ingredient name inside db
+        below this threshold the ingredient is considered not found inside db therefore not pushed into the list
+    */
+    private static final double similarityThreshold = 0.6;
 
     /**
      * constructor
@@ -108,11 +116,14 @@ public class Inci {
         for(String str : splittedText){
             Ingredient bestMatchingIngredient = findBestMatchingIngredient(str);
 
-            //set the original text taken from ocr for later
-            bestMatchingIngredient.setFoundText(str);
+            //discard ingredients that not satisfy similarityThreshold
+            if(bestMatchingIngredient.getOcrTextSimilarity() > similarityThreshold) {
+                //set the original text taken from ocr for later
+                bestMatchingIngredient.setFoundText(str);
 
-            //add the ingredient object to the list
-            ingredients.add(bestMatchingIngredient);
+                //add the ingredient object to the list
+                ingredients.add(bestMatchingIngredient);
+            }
         }
         return ingredients;
     }
