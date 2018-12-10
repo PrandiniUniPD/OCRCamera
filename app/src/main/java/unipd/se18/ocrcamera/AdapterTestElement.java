@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -98,23 +99,9 @@ public class AdapterTestElement extends BaseAdapter
         tags.setText(assignedTags.toString());
 
         // Set alterations view
-        String[] alterations = entries[position].getAlterationsNames();
-        StringBuilder alterationsText = new StringBuilder();
-        TextView alterationsTitle = convertView.findViewById(R.id.alterations_title);
-        alterationsTitle.setVisibility(View.INVISIBLE);
-        TextView alterationsView = convertView.findViewById(R.id.alterations_view);
-
-        if (alterations != null) {
-            alterationsTitle.setVisibility(View.VISIBLE);
-            for (String alteration : alterations) {
-                float confidenceOfAlteration = entries[position].getAlterationConfidence(alteration);
-                alterationsText.append(alteration)
-                        .append(" - confidence ")
-                        .append(TestElementDetails.formatPercentString(confidenceOfAlteration))
-                        .append("\n");
-            }
-            alterationsView.setText(alterationsText.toString());
-        }
+        TestElementDetails.setAlterationsView(context,
+                (RelativeLayout) convertView.findViewById(R.id.result_view), R.id.tags_view,
+                entries[position]);
         return convertView;
     }
 }

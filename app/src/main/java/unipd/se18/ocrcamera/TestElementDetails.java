@@ -1,15 +1,19 @@
 package unipd.se18.ocrcamera;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -74,20 +78,8 @@ public class TestElementDetails extends AppCompatActivity {
         notes.setText(entry.getNotes());
 
         // Set alterations view
-        String[] alterations = entry.getAlterationsNames();
-        StringBuilder alterationsText = new StringBuilder();
-        TextView alterationsTitle = findViewById(R.id.alterations_title);
-        alterationsTitle.setVisibility(View.INVISIBLE);
-        TextView alterationsView = findViewById(R.id.alterations_view);
-
-        if(alterations != null) {
-            alterationsTitle.setVisibility(View.VISIBLE);
-            for(String alteration: alterations) {
-                alterationsText.append(alteration).append(" - confidence ")
-                        .append(entry.getAlterationConfidence(alteration)).append("\n");
-            }
-            alterationsView.setText(alterationsText.toString());
-        }
+        setAlterationsView(TestElementDetails.this,
+                (RelativeLayout) findViewById(R.id.result_view), R.id.notes_view, entry);
     }
 
     /**
@@ -144,5 +136,54 @@ public class TestElementDetails extends AppCompatActivity {
 
         // Returns the Bitmap scaled
         return Bitmap.createScaledBitmap(img, scaledWidth, scaledHeight,false);
+    }
+
+    /**
+     * Set the alterations text to the view of the activity
+     * @param context The context where would be the alterations text
+     * @param relativeLayout The layout to add the text views
+     * @param idBelowOf The id of the view where putting the alterations text below of
+     * @param entry The test element where searching the alterations
+     * @author Pietro Prandini (g2)
+     */
+    protected static void setAlterationsView(Context context, RelativeLayout relativeLayout,
+                                             int idBelowOf, TestElement entry) {
+        String[] alterations = entry.getAlterationsNames();
+        StringBuilder alterationsText = new StringBuilder();
+        if(alterations != null) {
+            // Sets title
+            TextView alterationsTitle = new TextView(context);
+            alterationsTitle.setText(R.string.alterations);
+
+            // Sets the layout params
+            RelativeLayout.LayoutParams paramsTitle = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT);
+            paramsTitle.addRule(RelativeLayout.BELOW, idBelowOf);
+            relativeLayout.addView(alterationsTitle, paramsTitle);
+
+            // Sets an appropriate id
+            alterationsTitle.setId(View.generateViewId());
+            idBelowOf = alterationsTitle.getId();
+
+            // Sets details of alterations
+            for (String alteration : alterations) {
+                float confidenceOfAlteration = entry.getAlterationConfidence(alteration);
+                alterationsText.append(alteration)
+                        .append(" - confidence ")
+                        .append(TestElementDetails.formatPercentString(confidenceOfAlteration))
+                        .append("\n");
+                TextView alterationsView = new TextView(context);
+                alterationsView.setText(alterationsText.toString());
+                RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.WRAP_CONTENT,
+                        RelativeLayout.LayoutParams.WRAP_CONTENT);
+                paramsView.addRule(RelativeLayout.BELOW, idBelowOf);
+                relativeLayout.addView(alterationsView, paramsView);
+                // Sets an appropriate id
+                alterationsView.setId(View.generateViewId());
+                idBelowOf = alterationsView.getId();
+            }
+        }
     }
 }
