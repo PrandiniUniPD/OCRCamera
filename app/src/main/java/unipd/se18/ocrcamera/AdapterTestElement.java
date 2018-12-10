@@ -2,7 +2,6 @@ package unipd.se18.ocrcamera;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +10,9 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
-
 /**
  * Adapter for the view of the processing result of the pics
- * @author Pietro Prandini
+ * @author Pietro Prandini (g2)
  */
 public class AdapterTestElement extends BaseAdapter
 {
