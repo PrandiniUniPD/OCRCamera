@@ -53,11 +53,10 @@ public class PhotoTester {
     /**
      *
      * Load test elements (images + description)
-     * @param environment environment where the function will look for the directory with dirName
-     * @param dirName stores the name of the directory containing photos and description
+     * @param dirPath The path where the photos and descriptions are.
      */
-    public PhotoTester(File environment, String dirName) {
-        File directory = getStorageDir(environment, dirName);
+    public PhotoTester(String dirPath) {
+        File directory = getStorageDir(dirPath);
         dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
 
@@ -113,15 +112,14 @@ public class PhotoTester {
 
 
     /**
-     * Get a File directory from an environment
-     * @param environment parent environment
-     * @param dirName name of the directory
+     * Get a File directory from a path String
+     * @param dirPath The path of the directory
      * @return the file relative to the environment and the dirName
      * @author Pietro Prandini (g2)
      */
-    private File getStorageDir(File environment, String dirName) {
+    private File getStorageDir(String dirPath) {
         // Get the directory for the user's public pictures directory.
-        File file = new File(environment, dirName);
+        File file = new File(dirPath);
         if(!file.isDirectory()) {
             Log.e(TAG, file.getAbsolutePath() + "It's not a directory");
         } else {

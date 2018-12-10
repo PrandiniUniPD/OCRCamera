@@ -21,5 +21,5 @@
     <string name="test">TEST</string>
     <string name="extrected_text">Extracted text:</string>
     <string name="alterations">Alterations:</string>
-    <string name="view_alterations">View alterations</string>
+    <string name="view_details">Details</string>
 </resources>

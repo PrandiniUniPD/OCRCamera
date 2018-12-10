@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -46,10 +45,11 @@ public class TestResultActivity extends AppCompatActivity {
         setContentView(R.layout.activity_test_result);
 
         // Checks the permissions
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
-            ActivityCompat.requestPermissions(this, permissions, MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, permissions,
+                    MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
             return;
         }
 
@@ -57,10 +57,7 @@ public class TestResultActivity extends AppCompatActivity {
         ListView listEntriesView = findViewById(R.id.test_entries_list);
 
         // Sets the elements of the list as AsyncTask
-        AsyncReport report = new AsyncReport(listEntriesView,
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "OCRCameraDB",
-                getString(R.string.processing));
+        AsyncReport report = new AsyncReport(listEntriesView);
         report.execute();
     }
 
@@ -76,14 +73,9 @@ public class TestResultActivity extends AppCompatActivity {
         private ListView listEntriesView;
 
         /**
-         * File object that represents where find the directory of the test pics.
+         * The String of the test pics directory path.
          */
-        private File environment;
-
-        /**
-         * The String of the test pics directory name.
-         */
-        private String dirName;
+        private String dirPath;
 
         /**
          * The String of the message to show when the task is in progress
@@ -108,16 +100,11 @@ public class TestResultActivity extends AppCompatActivity {
         /**
          * Constructor of the class
          * @param listEntriesView The ListView used for showing the results as list
-         * @param environment File object that represents where find the directory of the test pics
-         * @param dirName The String of the test pics directory name
-         * @param progressMessage The String of the message to show when the task is in progress
          */
-        AsyncReport(ListView listEntriesView,File environment,
-                    String dirName, String progressMessage) {
+        AsyncReport(ListView listEntriesView) {
             this.listEntriesView = listEntriesView;
-            this.environment = environment;
-            this.dirName = dirName;
-            this.progressMessage = progressMessage;
+            this.dirPath = PhotoDownloadTask.PHOTOS_FOLDER;
+            this.progressMessage = getString(R.string.processing);
         }
 
         /**
@@ -143,18 +130,7 @@ public class TestResultActivity extends AppCompatActivity {
          */
         @Override
         protected Void doInBackground(Void... voids) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    String path = environment + "/" + dirName;
-                    Toast.makeText(
-                            TestResultActivity.this,
-                            "Directory where the photo should be stored:\n"
-                                    + path,Toast.LENGTH_LONG
-                    ).show();
-                }
-            });
-            this.tester = new PhotoTester(environment,dirName);
+            this.tester = new PhotoTester(dirPath);
 
             try {
                 report = tester.testAndReport();
