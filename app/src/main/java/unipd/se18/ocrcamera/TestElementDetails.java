@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Layout;
@@ -185,6 +186,16 @@ public class TestElementDetails extends AppCompatActivity {
                 alterationsView.setText(alterationsText.toString());
                 alterationsView.setTextColor(
                         chooseColorOfValue(confidenceOfAlteration, entry.getConfidence()));
+                // Sets shadow (supports the coloured view)
+                float radius = 1;
+                float dx = 0;
+                float dy = 0;
+                alterationsView.setShadowLayer(radius,dx,dy,Color.BLACK);
+
+                // Sets bold (supports the coloured view)
+                alterationsView.setTypeface(null, Typeface.BOLD);
+
+                // Padding
                 int padding = 10;
                 alterationsView.setPadding(padding, padding, padding, padding);
 
@@ -193,6 +204,7 @@ public class TestElementDetails extends AppCompatActivity {
                         RelativeLayout.LayoutParams.WRAP_CONTENT,
                         RelativeLayout.LayoutParams.WRAP_CONTENT);
                 paramsView.addRule(RelativeLayout.BELOW, idBelowOf);
+                paramsView.addRule(RelativeLayout.CENTER_HORIZONTAL);
 
                 relativeLayout.addView(alterationsView, paramsView);
 
