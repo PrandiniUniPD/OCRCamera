@@ -2,18 +2,23 @@ package unipd.se18.ocrcamera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Activity for showing the result of the tests
@@ -61,10 +66,10 @@ public class TestResultActivity extends AppCompatActivity {
 
     /**
      * Execute the ocr task for every test pic in the storage
-     * Pietro Prandini (g2)
+     * TraPietro Prandini (g2)
      */
     @SuppressLint("StaticFieldLeak")
-    private class AsyncReport extends AsyncTask<Void, Void, Void> {
+    private class AsyncReport extends AsyncTask<Void, Integer, Void> {
         /**
          * The ListView where showing the results.
          */
@@ -81,11 +86,6 @@ public class TestResultActivity extends AppCompatActivity {
         private String progressMessage;
 
         /**
-         * The ProgressDialog object used while the AsyncTask is running
-         */
-        private ProgressDialog progressDialog;
-
-        /**
          * Instance of PhotoTester used for doing the tests
          */
         private PhotoTester tester;
@@ -96,13 +96,22 @@ public class TestResultActivity extends AppCompatActivity {
         private String report;
 
         /**
+         * The progress bar used for indicating the progress of the tests
+         */
+        private ProgressBar progressBar;
+
+        /**
+         * The text used for indicating the progress of the tests
+         */
+        private TextView progressText;
+
+        /**
          * Constructor of the class
          * @param listEntriesView The ListView used for showing the results as list
          */
         AsyncReport(ListView listEntriesView) {
             this.listEntriesView = listEntriesView;
             this.dirPath = PhotoDownloadTask.PHOTOS_FOLDER;
-            this.progressMessage = getString(R.string.processing);
         }
 
         /**
@@ -111,10 +120,8 @@ public class TestResultActivity extends AppCompatActivity {
          */
         @Override
         protected void onPreExecute() {
-            // Shows the dialog to the user
-            progressDialog = ProgressDialog.show(TestResultActivity.this,
-                    progressMessage,
-                    "");
+            progressBar = findViewById(R.id.tests_progress_bar);
+            progressText = findViewById(R.id.progress_testing_text);
         }
 
         /**
@@ -129,6 +136,8 @@ public class TestResultActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             this.tester = new PhotoTester(dirPath);
+            progressBar.setMax(PhotoTester.totalTestElements);
+
 
             try {
                 report = tester.testAndReport();
@@ -136,7 +145,6 @@ public class TestResultActivity extends AppCompatActivity {
                 e.printStackTrace();
                 report = "Elaboration interrupted";
             }
-
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -149,7 +157,23 @@ public class TestResultActivity extends AppCompatActivity {
                     listEntriesView.setAdapter(adapter);
                 }
             });
+
+            android.arch.lifecycle.Observer<Integer> observerForProgress = new android.arch.lifecycle.Observer<Integer>() {
+                @Override
+                public void onChanged(@Nullable Integer integer) {
+                    publishProgress(PhotoTester.testElementsTested.getValue());
+                }
+            };
+            PhotoTester.testElementsTested.observe(TestResultActivity.this, observerForProgress);
             return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            progressBar.setProgress(PhotoTester.testElementsTested.getValue());
+            String progress = "Tested: " + values[0] +
+                    " of " + PhotoTester.totalTestElements;
+            progressText.setText(progress);
         }
 
         /**
@@ -161,8 +185,6 @@ public class TestResultActivity extends AppCompatActivity {
          */
         @Override
         protected void onPostExecute(Void v) {
-            progressDialog.dismiss();
-
             //add statistics author: Francesco Pham
             TextView statsView = new TextView(TestResultActivity.this);
             String statsText = "";

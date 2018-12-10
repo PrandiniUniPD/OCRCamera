@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -49,6 +50,12 @@ public class PhotoTester {
 
     private static final String REPORT_FILENAME = "report.txt";
 
+    /*
+    Useful for indicating the progress of the tests
+     */
+    protected static int totalTestElements;
+    protected static MutableLiveData<Integer> testElementsTested;
+
 
     /**
      *
@@ -59,6 +66,10 @@ public class PhotoTester {
         File directory = getStorageDir(dirPath);
         dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
+
+        testElementsTested = new MutableLiveData<>();
+        int initialValue = 0;
+        testElementsTested.postValue(initialValue);
 
         //create a TestElement object for each original photo - then link all the alterations to the relative original TestElement
         for(File file : directory.listFiles()) {
@@ -143,7 +154,9 @@ public class PhotoTester {
 
         final JSONObject fullJsonReport = new JSONObject();
 
-        int totalTestElements = testElements.size();
+        totalTestElements = testElements.size();
+        int initialValue = 0;
+        testElementsTested.postValue(initialValue);
 
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
@@ -428,10 +441,15 @@ public class PhotoTester {
 
                 //signal the end of this single test
                 countDownLatch.countDown();
-
+                updateTestedNumber();
                 long ended = java.lang.System.currentTimeMillis();
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
         }
+    }
+
+    private synchronized void updateTestedNumber() {
+        int increment = 1;
+        testElementsTested.postValue(testElementsTested.getValue() + increment);
     }
 
     /**
