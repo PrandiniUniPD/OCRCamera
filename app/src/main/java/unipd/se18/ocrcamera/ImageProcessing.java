@@ -25,7 +25,6 @@ import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import static org.opencv.imgproc.Imgproc.getRectSubPix;
 import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
 
-
 /**
  * Class used to analyze the image
  * @author Thomas Porro (g1), Oscar Garrido (g1)
@@ -50,7 +49,6 @@ public class ImageProcessing {
     //Tag used to identify the log
     final private String TAG = "openCV";
 
-
     /**
      * Constructor of the class which initialize the openCV library
      * @author Thomas Porro (g1)
@@ -62,7 +60,6 @@ public class ImageProcessing {
         System.loadLibrary("opencv_java3");
         Log.i(TAG, "Loaded the library");
     }
-
 
     /**
      * Find, crop and rotate the text in an image
@@ -81,7 +78,6 @@ public class ImageProcessing {
         img = crop(area, img);
         return conversionMatToBitmap(img);
     }
-
 
     /**
      * Calculate the angle between the text and the horizontal
@@ -150,24 +146,23 @@ public class ImageProcessing {
         return degreesAngle;
     }
 
-
     /**
-     * Detect in which region of the picture there is some text and finds
-     * the largest one, even if it's rotated
+     * Applies filters to an image do make it easier to detect rectangle areas
      * @param imagePath the path of the image you want to analyze
-     * @return the rectangle which contains the text with maximum area (it could be rotated)
+     * @return a matrix of the filtered image
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
-    public RotatedRect detectMaxTextArea(String imagePath) throws FileNotFoundException {
+    private Mat applyFilters(String imagePath) throws FileNotFoundException {
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
         Mat img = conversionBitmapToMat(imagePath);
         /*
             Method used for debug
-            //save(img, "grayScale", ".jpg");
+            save(img, "grayScale", ".jpg");
         */
+
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
         ProcessingMethods adaptiveThreshold = new ProcessingMethods();
@@ -210,12 +205,23 @@ public class ImageProcessing {
         Imgproc.dilate(blurredMat, dilatated, element);
         //save(dilatated, "dilate", ".jpg");
 
+        return dilatated;
+    }
+
+    /**
+     * Searches the rectangles in the matrix of an image to find the largest one
+     * @param imagePath the path of the image you want to find the rectangles of text
+     * @return the rectangle which contains the text with maximum area (it could be rotated)
+     * @throws FileNotFoundException if imagePath doesn't exist
+     * @author Thomas Porro (g1), Oscar Garrido (g1)
+     */
+    private RotatedRect detectMaxTextArea(String imagePath) throws FileNotFoundException {
+        Mat filteredMat = applyFilters(imagePath);
         //Saves the contours in a list of MatOfPoint (multidimensional vector)
-        List<MatOfPoint> contours = new ArrayList<>();
-        int mode = 0;
-        int method = 1;
-        Imgproc.findContours(dilatated, contours, new Mat(), mode, method);
-        //The third parameter contains additional information that is unused
+        ProcessingMethods findContours = new ProcessingMethods();
+        List<MatOfPoint> contours = findContours.doFindContours(new ProcessingMethods.FindContoursBuilder(filteredMat)
+                .withMode(0)
+                .withMethod(1));
 
         /*
             EXPERIMENTAL:
@@ -234,8 +240,7 @@ public class ImageProcessing {
 
         //Creates and return a rotated rectangle based on "max_contour"
         return Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
-    }
-
+        }
 
     /**
      * Crop the matrix with the given rectangle
@@ -275,7 +280,6 @@ public class ImageProcessing {
         return croppedImg;
     }
 
-
     /**
      * Converts a matrix into a Bitmap and saves it in the default temp-file dir
      * @param matrix the matrix to be converted
@@ -289,19 +293,22 @@ public class ImageProcessing {
         OutputStream outStream;
 
         try {
-            /* momentary method to see the saved pictures on the phone
+            //momentary method to see the saved pictures on the phone
             final String directory = Environment.getExternalStorageDirectory()+
                     "/"+Environment.DIRECTORY_PICTURES+"/ImageProcessingTest/";
-            File tmpFile = new File (directory + tmpPrefix + tmpSuffix);*/
+            File tmpFile = new File (directory + tmpPrefix + tmpSuffix);
+
+            /* Actual method that saves in the cache, will see in the future how to implement
             //if not specified, the system-dependent default temporary-file directory will be used
             File tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
             Log.d(TAG, "File path = " + tmpFile.getPath());
+            */
 
             if (tmpFile.exists()) {
                 tmpFile.delete();
                 //momentary method to see the saved pictures on the phone
-                //tmpFile = new File(directory + tmpPrefix + tmpSuffix);
-                tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
+                tmpFile = new File(directory + tmpPrefix + tmpSuffix);
+                //tmpFile = File.createTempFile(tmpPrefix, tmpSuffix);
             }
 
             try {
@@ -319,7 +326,6 @@ public class ImageProcessing {
         }
     }
 
-
     /**
      * Converts the matrix into a Bitmap
      * @param matrix the matrix you want to convert
@@ -332,7 +338,6 @@ public class ImageProcessing {
         Utils.matToBitmap(matrix, image);
         return image;
     }
-
 
     /**
      * Converts the Bitmap into a grayscale matrix
@@ -354,7 +359,6 @@ public class ImageProcessing {
         return img;
     }
 
-
     /**
      * Builder used to pass to openCV's methods the parameters
      * @author Thomas Porro (g1)
@@ -374,7 +378,6 @@ public class ImageProcessing {
             private int apertureSize;
             private boolean l2gradient;
 
-
             /**
              * Constructor that initialize the variables of the object
              * with a default value
@@ -385,10 +388,9 @@ public class ImageProcessing {
                 this.source = src;
                 this.minThreshold = 50;
                 this.maxThreshold = 200;
-                this.l2gradient = false;
                 this.apertureSize = 3;
+                this.l2gradient = false;
             }
-
 
             /**
              * Set minThreshold with the passed value
@@ -401,7 +403,6 @@ public class ImageProcessing {
                 return this;
             }
 
-
             /**
              * Set maxThreshold with the passed value
              * @param value the value you want it to take maxThreshold
@@ -413,7 +414,6 @@ public class ImageProcessing {
                 return this;
             }
 
-
             /**
              * Set ApertureSize with the passed value
              * @param value the value you want it to withApertureSize
@@ -424,7 +424,6 @@ public class ImageProcessing {
                 this.apertureSize = value;
                 return this;
             }
-
 
             /**
              * Set l2gradient with the passed value
@@ -438,19 +437,16 @@ public class ImageProcessing {
             }
         }
 
-
         /**
          * Inner class to create an object adaptiveThresholdBuilder that contains
          * all the variables needed to Imgproc.adaptiveThreshold
          * @author Thomas Porro (g1)
          */
         private static class AdaptiveThresholdBuilder{
-
             private Mat source;
-            double maxThreshold;
-            int blockSize;
-            double constant;
-
+            private double maxThreshold;
+            private int blockSize;
+            private double constant;
 
             /**
              * Constructor that initialize the variables of the object
@@ -465,7 +461,6 @@ public class ImageProcessing {
                 this.constant = 0;
             }
 
-
             /**
              * Set maxThreshold with the passed value
              * @param value the value you want it to maxThreshold
@@ -476,7 +471,6 @@ public class ImageProcessing {
                 this.maxThreshold = value;
                 return this;
             }
-
 
             /**
              * Set blockSize with the passed value
@@ -502,16 +496,52 @@ public class ImageProcessing {
         }
 
         /**
-         * Constructor of ProcessingMethods that do anything
-         * @author Thomas Porro (g1)
+         * Inner class to create an object FindContoursBuilder that contains
+         * all the variables needed to Imgproc.findContours
+         * @author Oscar Garrido (g1)
          */
-        private ProcessingMethods(){
+        private static class FindContoursBuilder{
+            private Mat source;
+            private int mode;
+            private int method;
 
+            /**
+             * Constructor that initialize the variables of the object
+             * with a default value
+             * @param src the source matrix
+             * @author Oscar Garrido (g1)
+             */
+            private FindContoursBuilder(Mat src){
+                this.source = src;
+                this.mode = 0;
+                this.method = 1;
+            }
+
+            /**
+             * Set mode with the passed value
+             * @param value the value you want it to take mode
+             * @return returns the current object instance
+             * @author Oscar Garrido (g1)
+             */
+            private FindContoursBuilder withMode(int value){
+                this.mode = value;
+                return this;
+            }
+
+            /**
+             * Set method with the passed value
+             * @param value the value you want it to take method
+             * @return returns the current object instance
+             * @author Oscar Garrido (g1)
+             */
+            private FindContoursBuilder withMethod(int value){
+                this.mode = value;
+                return this;
+            }
         }
 
-
         /**
-         * Applies the openCV's methods Imageproc.Canny, that detects the edges of an image
+         * Applies the openCV's method Imageproc.Canny, that detects the edges of an image
          * @param builder the CannyBuilder that contains the parameters of the
          *                Imageproc.Canny method
          * @return the matrix that contains the result of Imageproc.Canny
@@ -524,9 +554,8 @@ public class ImageProcessing {
             return destination;
         }
 
-
         /**
-         * Applies the openCv's methods Imagproc.adaptiveThreshold, that applies a threshold
+         * Applies the openCv's method Imagproc.adaptiveThreshold, that applies a threshold
          * to an image
          * @param builder the AdaptiveThresholdBuilder that contains the parameters of the
          *                Imageproc.adaptiveThreshold method
@@ -540,6 +569,20 @@ public class ImageProcessing {
                     builder.constant);
             return destination;
         }
-    }
 
+        /**
+         * Applies the openCv's method Imagproc.findContours, that applies a threshold
+         * to an image
+         * @param builder the AdaptiveThresholdBuilder that contains the parameters of the
+         *                Imageproc.adaptiveThreshold method
+         * @return the matrix that contains the result of Imageproc.adaptiveThreshold
+         * @author Oscar Garrido (g1)
+         */
+        public List<MatOfPoint> doFindContours(ProcessingMethods.FindContoursBuilder builder) {
+            List<MatOfPoint> contours = new ArrayList<>();
+            Imgproc.findContours(builder.source, contours, new Mat(), builder.mode, builder.method);
+            //The third parameter contains additional information that is unused
+            return contours;
+        }
+    }
 }
