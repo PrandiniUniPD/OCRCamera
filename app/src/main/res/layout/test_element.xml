@@ -31,6 +31,15 @@
             android:textStyle="italic"
             android:padding="5sp"/>
 
+        <!-- Button for viewing details -->
+        <Button
+            android:id="@+id/view_details_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignEnd="@id/pic_name_view"
+            android:text="@string/view_details"/>
+
         <!-- Tags -->
         <TextView
             android:id="@+id/tags_title"
@@ -52,34 +61,13 @@
             android:paddingStart="10sp"
             android:paddingEnd="10sp"/>
 
-        <!-- Notes -->
-        <TextView
-            android:id="@+id/notes_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/notes"
-            android:layout_below="@id/tags_view"
-            android:layout_alignParentStart="true"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:padding="5sp"/>
-        <TextView
-            android:id="@+id/notes_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/notes_title"
-            android:layout_alignParentStart="true"
-            android:textSize="15sp"
-            android:paddingStart="10sp"
-            android:paddingEnd="10sp"/>
-
         <!-- Alterations -->
         <TextView
             android:id="@+id/alterations_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/alterations"
-            android:layout_below="@id/notes_view"
+            android:layout_below="@id/tags_view"
             android:layout_alignParentStart="true"
             android:textSize="15sp"
             android:textStyle="bold"
@@ -93,13 +81,6 @@
             android:textSize="15sp"
             android:paddingStart="10sp"
             android:paddingEnd="10sp" />
-        <Button
-            android:id="@+id/view_details_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/alterations_view"
-            android:text="@string/view_details"/>
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

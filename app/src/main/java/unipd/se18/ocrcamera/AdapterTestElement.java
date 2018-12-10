@@ -76,18 +76,13 @@ public class AdapterTestElement extends BaseAdapter
         // Set the correctness value
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entries[position].getConfidence();
-        String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
+        correctness.setText(TestElementDetails.formatPercentString(confidence));
 
-        // Set the color of the correctness
-        if (confidence < 70) {
-            correctness.setTextColor(Color.RED);
-        } else if (confidence < 85) {
-            correctness.setTextColor(Color.YELLOW);
-        } else {
-            correctness.setTextColor(Color.GREEN);
-        }
-
-        correctness.setText(confidenceText);
+        // Set the color of the correctness text value
+        TestElementDetails.redUntil = 70;
+        TestElementDetails.yellowUntil = 85;
+        correctness.setTextColor(TestElementDetails.chooseColorOfValue(confidence,
+                TestElementDetails.redUntil,TestElementDetails.yellowUntil));
 
         // Set the name of the pic
         TextView name = convertView.findViewById(R.id.pic_name_view);
@@ -102,10 +97,6 @@ public class AdapterTestElement extends BaseAdapter
         }
         tags.setText(assignedTags.toString());
 
-        // Set the notes text
-        TextView notes = convertView.findViewById(R.id.notes_view);
-        notes.setText(entries[position].getNotes());
-
         // Set alterations view
         String[] alterations = entries[position].getAlterationsNames();
         StringBuilder alterationsText = new StringBuilder();
@@ -116,8 +107,11 @@ public class AdapterTestElement extends BaseAdapter
         if (alterations != null) {
             alterationsTitle.setVisibility(View.VISIBLE);
             for (String alteration : alterations) {
-                alterationsText.append(alteration).append(" - confidence ")
-                        .append(entries[position].getAlterationConfidence(alteration)).append("\n");
+                float confidenceOfAlteration = entries[position].getAlterationConfidence(alteration);
+                alterationsText.append(alteration)
+                        .append(" - confidence ")
+                        .append(TestElementDetails.formatPercentString(confidenceOfAlteration))
+                        .append("\n");
             }
             alterationsView.setText(alterationsText.toString());
         }
