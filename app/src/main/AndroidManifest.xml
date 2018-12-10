@@ -50,6 +50,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".TestAlterationsActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".TestResultActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
@@ -57,6 +61,7 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".DownloadDbActivity"></activity>
     </application>
 
 </manifest>
