@@ -15,11 +15,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-
 /**
  * Activity for showing the result of the tests
- * Luca Moroldo (g2) - Pietro Prandini (g3)
+ * Pietro Prandini (g2)
  */
 public class TestResultActivity extends AppCompatActivity {
     /**
@@ -63,7 +61,7 @@ public class TestResultActivity extends AppCompatActivity {
 
     /**
      * Execute the ocr task for every test pic in the storage
-     * Luca Moroldo (g3) - Pietro Prandini (g2)
+     * Pietro Prandini (g2)
      */
     @SuppressLint("StaticFieldLeak")
     private class AsyncReport extends AsyncTask<Void, Void, Void> {
