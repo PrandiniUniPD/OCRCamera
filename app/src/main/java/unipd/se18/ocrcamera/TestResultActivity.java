@@ -2,7 +2,6 @@ package unipd.se18.ocrcamera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,9 +15,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Activity for showing the result of the tests
@@ -138,7 +134,6 @@ public class TestResultActivity extends AppCompatActivity {
             this.tester = new PhotoTester(dirPath);
             progressBar.setMax(PhotoTester.totalTestElements);
 
-
             try {
                 report = tester.testAndReport();
             } catch (InterruptedException e) {
@@ -158,7 +153,8 @@ public class TestResultActivity extends AppCompatActivity {
                 }
             });
 
-            android.arch.lifecycle.Observer<Integer> observerForProgress = new android.arch.lifecycle.Observer<Integer>() {
+            android.arch.lifecycle.Observer<Integer> observerForProgress =
+                    new android.arch.lifecycle.Observer<Integer>() {
                 @Override
                 public void onChanged(@Nullable Integer integer) {
                     publishProgress(PhotoTester.testElementsTested.getValue());
