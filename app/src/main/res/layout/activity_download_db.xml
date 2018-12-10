@@ -15,6 +15,13 @@
         android:visibility="gone"
         android:text="@string/check_internet_connection"
         android:textSize="18sp"/>
+    <TextView
+        android:id="@+id/txtPermissionStatusDownload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/no_permission_to_internal_storage"
+        android:textSize="18sp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
