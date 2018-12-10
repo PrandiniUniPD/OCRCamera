@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 public class LevenshteinTest {
     @Test
     public void stringSimilarityTest(){
-        LevenshteinStringComparator lsc = new LevenshteinStringComparator();
+        LevenshteinStringDistance lsc = new LevenshteinStringDistance();
 
         double similarity = lsc.getNormalizedSimilarity("cavallo", "cavallo");
         assertTrue(0.99 < similarity && similarity < 1.01);

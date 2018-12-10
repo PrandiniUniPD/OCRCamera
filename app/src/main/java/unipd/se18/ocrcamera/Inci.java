@@ -88,7 +88,7 @@ public class Inci {
         //ignoring case by converting to upper case like all texts in database
         ingredient = ingredient.toUpperCase();
 
-        LevenshteinStringComparator stringComparator = new LevenshteinStringComparator();
+        StringDistance stringComparator = new LevenshteinStringDistance();
         double maxSimilarity = -1;
         int bestMatchingIngredient = -1;
         for(int i = 0; i< listIngredients.size(); i++){

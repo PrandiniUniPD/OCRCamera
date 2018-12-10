@@ -205,7 +205,7 @@ public class PhotoTester {
         int posLastWordFound = 0;
         int consecutiveNotFound = 0;
 
-        LevenshteinStringComparator stringComparator = new LevenshteinStringComparator();
+        LevenshteinStringDistance stringComparator = new LevenshteinStringDistance();
 
         for (String word : correctWords) {
             boolean found = false;
