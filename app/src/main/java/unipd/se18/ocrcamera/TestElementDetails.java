@@ -78,8 +78,11 @@ public class TestElementDetails extends AppCompatActivity {
         notes.setText(entry.getNotes());
 
         // Set alterations view
-        setAlterationsView(TestElementDetails.this,
-                (RelativeLayout) findViewById(R.id.result_view), R.id.notes_view, entry);
+        setAlterationsView(
+                TestElementDetails.this,
+                (RelativeLayout) findViewById(R.id.result_view),
+                R.id.notes_view,
+                entry);
     }
 
     /**
@@ -151,7 +154,7 @@ public class TestElementDetails extends AppCompatActivity {
         String[] alterations = entry.getAlterationsNames();
         StringBuilder alterationsText = new StringBuilder();
         if(alterations != null) {
-            // Sets title
+            /*// Sets title
             TextView alterationsTitle = new TextView(context);
             alterationsTitle.setText(R.string.alterations);
 
@@ -160,25 +163,36 @@ public class TestElementDetails extends AppCompatActivity {
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT);
             paramsTitle.addRule(RelativeLayout.BELOW, idBelowOf);
+            alterationsTitle.setTextSize(titleTextSize);
             relativeLayout.addView(alterationsTitle, paramsTitle);
 
             // Sets an appropriate id
             alterationsTitle.setId(View.generateViewId());
-            idBelowOf = alterationsTitle.getId();
+            idBelowOf = alterationsTitle.getId();*/
 
             // Sets details of alterations
             for (String alteration : alterations) {
+                // Prepares the alterations String
                 float confidenceOfAlteration = entry.getAlterationConfidence(alteration);
                 alterationsText.append(alteration)
                         .append(" - confidence ")
                         .append(TestElementDetails.formatPercentString(confidenceOfAlteration))
                         .append("\n");
+
+                // Prepares the alterations TextView
                 TextView alterationsView = new TextView(context);
                 alterationsView.setText(alterationsText.toString());
+                alterationsView.setTextColor(
+                        chooseColorOfValue(confidenceOfAlteration, redUntil, yellowUntil));
+                int padding = 10;
+                alterationsView.setPadding(padding, padding, padding, padding);
+
+                // Sets layout params
                 RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
                         RelativeLayout.LayoutParams.WRAP_CONTENT,
                         RelativeLayout.LayoutParams.WRAP_CONTENT);
                 paramsView.addRule(RelativeLayout.BELOW, idBelowOf);
+
                 relativeLayout.addView(alterationsView, paramsView);
                 // Sets an appropriate id
                 alterationsView.setId(View.generateViewId());

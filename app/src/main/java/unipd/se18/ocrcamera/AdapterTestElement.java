@@ -99,9 +99,12 @@ public class AdapterTestElement extends BaseAdapter
         tags.setText(assignedTags.toString());
 
         // Set alterations view
-        TestElementDetails.setAlterationsView(context,
-                (RelativeLayout) convertView.findViewById(R.id.result_view), R.id.tags_view,
-                entries[position]);
+        TestElementDetails.setAlterationsView(
+                context,
+                (RelativeLayout) convertView.findViewById(R.id.result_view),
+                R.id.tags_view,
+                entries[position]
+        );
         return convertView;
     }
 }
