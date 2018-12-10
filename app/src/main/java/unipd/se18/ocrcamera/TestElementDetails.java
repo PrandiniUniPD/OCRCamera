@@ -115,6 +115,22 @@ public class TestElementDetails extends AppCompatActivity {
     }
 
     /**
+     * Return the appropriate color of a value.
+     * The color is picket between red (not better than redUntil) and green (better than redUntil).
+     * @param value The value to be colored
+     * @param redUntil Under this value would be red and upper this yellow.
+     * @return The relative color.
+     * @author Pietro Prandini (g2)
+     */
+    protected static int chooseColorOfValue(float value, float redUntil) {
+        if(value < redUntil) {
+            return Color.RED;
+        } else {
+            return Color.GREEN;
+        }
+    }
+
+    /**
      * Scales a Bitmap pic relatively to the width of the screen
      * @param context The context of the activity
      * @param img The Bitmap to be scaled
@@ -154,21 +170,6 @@ public class TestElementDetails extends AppCompatActivity {
         String[] alterations = entry.getAlterationsNames();
         StringBuilder alterationsText = new StringBuilder();
         if(alterations != null) {
-            /*// Sets title
-            TextView alterationsTitle = new TextView(context);
-            alterationsTitle.setText(R.string.alterations);
-
-            // Sets the layout params
-            RelativeLayout.LayoutParams paramsTitle = new RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.WRAP_CONTENT,
-                    RelativeLayout.LayoutParams.WRAP_CONTENT);
-            paramsTitle.addRule(RelativeLayout.BELOW, idBelowOf);
-            alterationsTitle.setTextSize(titleTextSize);
-            relativeLayout.addView(alterationsTitle, paramsTitle);
-
-            // Sets an appropriate id
-            alterationsTitle.setId(View.generateViewId());
-            idBelowOf = alterationsTitle.getId();*/
 
             // Sets details of alterations
             for (String alteration : alterations) {
@@ -183,7 +184,7 @@ public class TestElementDetails extends AppCompatActivity {
                 TextView alterationsView = new TextView(context);
                 alterationsView.setText(alterationsText.toString());
                 alterationsView.setTextColor(
-                        chooseColorOfValue(confidenceOfAlteration, redUntil, yellowUntil));
+                        chooseColorOfValue(confidenceOfAlteration, entry.getConfidence()));
                 int padding = 10;
                 alterationsView.setPadding(padding, padding, padding, padding);
 
@@ -194,6 +195,7 @@ public class TestElementDetails extends AppCompatActivity {
                 paramsView.addRule(RelativeLayout.BELOW, idBelowOf);
 
                 relativeLayout.addView(alterationsView, paramsView);
+
                 // Sets an appropriate id
                 alterationsView.setId(View.generateViewId());
                 idBelowOf = alterationsView.getId();
