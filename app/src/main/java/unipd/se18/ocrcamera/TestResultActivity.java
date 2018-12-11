@@ -134,6 +134,16 @@ public class TestResultActivity extends AppCompatActivity {
             this.tester = new PhotoTester(dirPath);
             progressBar.setMax(PhotoTester.totalTestElements);
 
+            android.arch.lifecycle.Observer<Integer> observerForProgress =
+                    new android.arch.lifecycle.Observer<Integer>() {
+                        @Override
+                        public void onChanged(@Nullable Integer integer) {
+                            publishProgress(PhotoTester.testElementsTested.getValue());
+                        }
+                    };
+            PhotoTester.testElementsTested.observe(TestResultActivity.this, observerForProgress);
+
+
             try {
                 report = tester.testAndReport();
             } catch (InterruptedException e) {
@@ -153,14 +163,6 @@ public class TestResultActivity extends AppCompatActivity {
                 }
             });
 
-            android.arch.lifecycle.Observer<Integer> observerForProgress =
-                    new android.arch.lifecycle.Observer<Integer>() {
-                @Override
-                public void onChanged(@Nullable Integer integer) {
-                    publishProgress(PhotoTester.testElementsTested.getValue());
-                }
-            };
-            PhotoTester.testElementsTested.observe(TestResultActivity.this, observerForProgress);
             return null;
         }
 
