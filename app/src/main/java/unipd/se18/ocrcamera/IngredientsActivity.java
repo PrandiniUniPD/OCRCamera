@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.TimingLogger;
 import android.widget.ListView;
 
 import java.io.InputStream;
@@ -16,6 +17,7 @@ import java.util.Comparator;
  * @author Francesco Pham
  */
 public class IngredientsActivity extends AppCompatActivity {
+    private final String TAG = "IngredientsActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +44,18 @@ public class IngredientsActivity extends AppCompatActivity {
         }
 
         public void run(){
+            TimingLogger timings = new TimingLogger(TAG, "inci execution");
 
             //load inci db
             InputStream inputStream = getResources().openRawResource(R.raw.incidb);
             Inci inci = new Inci(inputStream);
 
+            timings.addSplit("load db");
+
             //find ingredients in inci db
             final ArrayList<Ingredient> ingredients = inci.findListIngredients(ocrText);
+
+            timings.addSplit("search in db");
 
             //sort list of ingredients by similarity
             Collections.sort(ingredients, new Comparator<Ingredient>() {
@@ -75,6 +82,7 @@ public class IngredientsActivity extends AppCompatActivity {
                 }
             });
 
+            timings.dumpToLog();
             progressDialog.dismiss();
         }
     }

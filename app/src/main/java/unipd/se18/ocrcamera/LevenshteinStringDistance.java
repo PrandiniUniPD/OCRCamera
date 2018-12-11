@@ -15,9 +15,7 @@ public class LevenshteinStringDistance extends WeightedLevenshtein implements St
             new CharacterSubstitutionInterface() {
                 public double cost(char c1, char c2) {
 
-                    // The cost for substituting 't' and 'r' is considered
-                    // smaller as these 2 are located next to each other
-                    // on a keyboard
+                    // The cost for substituting 't' and 'r' is considered smaller
                     if (c1 == 't' && c2 == 'r') {
                         return 0.5;
                     }

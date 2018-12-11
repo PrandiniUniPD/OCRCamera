@@ -49,20 +49,14 @@ public class Inci {
         //for each line in the csv add an Ingredient object to the list
         try {
             while ((line = csvReader.readNext()) != null) {
-                Ingredient element = new Ingredient();
-                element.setCosingRefNo(line[0]);
-
-                if(line.length > 1)
+                if(line.length > 6) {
+                    Ingredient element = new Ingredient();
+                    element.setCosingRefNo(line[0]);
                     element.setInciName(line[1]);
-                else
-                    Log.d(TAG, "inci name not found while parsing "+element.getCosingRefNo());
-
-                if(line.length > 6)
                     element.setDescription(line[6]);
-                else
-                    Log.d(TAG, "description not found while parsing "+element.getCosingRefNo());
-
-                listIngredients.add(element);
+                    listIngredients.add(element);
+                }
+                else System.out.println("There is an empty line in the database file, line "+csvReader.getLinesRead());
             }
 
         } catch(IOException e){
