@@ -160,15 +160,17 @@ public class CameraActivity extends AppCompatActivity {
                 edit.putString("imagePath", filePath.trim());
                 edit.apply();
 
-                // analyze the brightness   @author Balzan Pietro
-                final Bitmap bitmapImage2 = bitmapImage;  //creating a final version of te bitmap to be accessed form BrightnessRecognition
+                // analyze the brightness of the taken photo  @author Balzan Pietro
+                //creating a final version of te bitmap to be accessed form BrightnessRecognition
+                final Bitmap bitmapImage2 = bitmapImage;
+                //star a new thread to improve user experience
                 new Thread(new Runnable() {      // run the brightness recognition on a new thread to improve performance
                     public void run() {
                         final String tooBright = "The picture might be too bright";
                         final String tooDark = "The picture might be too dark";
-                        BrightnessRecognition bRecog = new BrightnessRecognition(bitmapImage2);
-                        int brightnessResult= bRecog.imgBrightness(190,80,3);
-                        if (brightnessResult == 1){      //show messages to the user
+                        int brightnessResult= BrightnessRecognition.imgBrightness(bitmapImage2,190,80,3);
+                        //show messages to the user via Toasts
+                        if (brightnessResult == 1){
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
