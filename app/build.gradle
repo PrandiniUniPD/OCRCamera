@@ -51,6 +51,9 @@ dependencies {
     //for csv parsing
     implementation "com.opencsv:opencsv:4.4"
 
+    //for automatic text correction
+    compile 'com.github.universal-automata:liblevenshtein:3.0.0'
+
     //FTP dependencies
     implementation 'commons-net:commons-net:3.6'
 }
