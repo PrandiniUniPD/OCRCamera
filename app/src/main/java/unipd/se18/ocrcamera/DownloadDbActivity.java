@@ -35,16 +35,20 @@ public class DownloadDbActivity extends AppCompatActivity {
     private final String LOGINGINFORMATION_FILE = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"/ingsoftwareftp.txt";
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
     private final int REQUEST_PERMISSION_CODE = 500;
-    private LinearLayout layoutLogin;
-    private LinearLayout layoutDownload;
 
+    //Layout containing the login parts
+    private LinearLayout layoutLogin;
     private EditText txtHostname;
-    private EditText txtUsrname;
+    private EditText txtUsername;
     private EditText txtPassword;
 
+    //Layout containing the download part
+    private LinearLayout layoutDownload;
 
+    //Error messages
     private TextView txtInternetStatus;
     private TextView txtPermissionStatus;
+    private TextView txtLoginStatus;
 
     /**
      * Instantiate the UI elements and check if is possible to do the login.
@@ -60,38 +64,10 @@ public class DownloadDbActivity extends AppCompatActivity {
         layoutLogin = (LinearLayout)findViewById(R.id.LayoutLogin);
         txtHostname = (EditText) findViewById(R.id.txtHostnameDownload);
         txtPassword = (EditText) findViewById(R.id.txtPasswordDownload);
-        txtUsrname = (EditText) findViewById(R.id.txtUsernameDownload);
+        txtUsername = (EditText) findViewById(R.id.txtUsernameDownload);
         txtInternetStatus = (TextView) findViewById(R.id.txtInternetStatusDownload);
         txtPermissionStatus = (TextView) findViewById(R.id.txtPermissionStatusDownload);
-        
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        //Check and in case Ask for permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_PERMISSION_CODE);
-        }
-
-        //Verify if the login is already done and if there is internet connection
-        final File file = new File(LOGINGINFORMATION_FILE);
-
-        if(cm.getActiveNetworkInfo() == null) //No internet
-        {
-            txtInternetStatus.setVisibility(View.VISIBLE);
-        }
-        else if (!file.exists() && cm.getActiveNetworkInfo() != null) //No file, have to do the login
-        {
-
-            layoutLogin.setVisibility(View.VISIBLE);
-        }
-        else if(file.exists() && cm.getActiveNetworkInfo() != null) //Can do the login
-        {
-            layoutDownload.setVisibility(View.VISIBLE);
-        }
-
-
-
+        txtLoginStatus = (TextView) findViewById(R.id.txtLoginStatusDownload);
 
         ///Load other UI elements
         clickButtonDownload = (Button) findViewById(R.id.downloadDbButton);
@@ -111,6 +87,7 @@ public class DownloadDbActivity extends AppCompatActivity {
             }
         });
 
+        verifyDoLogin();
 
     }
 
@@ -133,7 +110,7 @@ public class DownloadDbActivity extends AppCompatActivity {
 
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fOut));
 
-            bw.write(txtUsrname.getText().toString());
+            bw.write(txtUsername.getText().toString());
             bw.newLine();
             bw.write(txtPassword.getText().toString());
             bw.newLine();
@@ -142,10 +119,10 @@ public class DownloadDbActivity extends AppCompatActivity {
             bw.close();
 
             fOut.close();
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            layoutLogin.setVisibility(View.GONE);
+            txtLoginStatus.setVisibility(View.VISIBLE);
         }
 
         //Check if folder for photos exist
@@ -155,9 +132,9 @@ public class DownloadDbActivity extends AppCompatActivity {
             dirPhotos.mkdir();
         }
 
-
         layoutDownload.setVisibility(View.VISIBLE);
         layoutLogin.setVisibility(View.GONE);
+        txtLoginStatus.setVisibility(View.GONE);
 
     }
     /**
@@ -166,8 +143,7 @@ public class DownloadDbActivity extends AppCompatActivity {
      * @author Stefano Romanello (g3)
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case REQUEST_PERMISSION_CODE: {
                 // If request is cancelled, the result arrays are empty.
@@ -181,8 +157,41 @@ public class DownloadDbActivity extends AppCompatActivity {
                     layoutLogin.setVisibility(View.GONE);
                     layoutDownload.setVisibility(View.GONE);
                 }
-                return;
+                break;
             }
+        }
+    }
+
+    /**
+     * Verify if the user can do the login
+     *
+     * @author Stefano Romanello (g3)
+     */
+    private void verifyDoLogin()
+    {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        //Check and in case Ask for permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_PERMISSION_CODE);
+        }
+
+        //Verify if the login is already done and if there is internet connection
+        final File file = new File(LOGINGINFORMATION_FILE);
+
+        if(cm.getActiveNetworkInfo() == null) //No internet
+        {
+            txtInternetStatus.setVisibility(View.VISIBLE);
+        }
+        else if (!file.exists() && cm.getActiveNetworkInfo() != null) //No file, have to do the login
+        {
+
+            layoutLogin.setVisibility(View.VISIBLE);
+        }
+        else if(file.exists() && cm.getActiveNetworkInfo() != null) //Can do the login
+        {
+            layoutDownload.setVisibility(View.VISIBLE);
         }
     }
 
