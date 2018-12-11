@@ -121,9 +121,15 @@ public class DownloadDbActivity extends AppCompatActivity {
      */
     private void doLogin()
     {
-        FileOutputStream fOut = null;
+
         try {
-            fOut = new FileOutputStream(LOGINGINFORMATION_FILE);
+            File dirDocuments = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"");
+            if(!dirDocuments.exists() || !dirDocuments.isDirectory())
+            {
+                dirDocuments.mkdir();
+            }
+
+            FileOutputStream fOut = new FileOutputStream(LOGINGINFORMATION_FILE);
 
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fOut));
 
@@ -143,10 +149,10 @@ public class DownloadDbActivity extends AppCompatActivity {
         }
 
         //Check if folder for photos exist
-        File dir = new File(PHOTOS_FOLDER);
-        if(!dir.exists() || !dir.isDirectory())
+        File dirPhotos = new File(PHOTOS_FOLDER);
+        if(!dirPhotos.exists() || !dirPhotos.isDirectory())
         {
-            dir.mkdir();
+            dirPhotos.mkdir();
         }
 
 

@@ -149,6 +149,7 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     /**
      * Retrieves files from the server
      * @throws IOException if an error occurs while retrieving files from server
+     * @author Stefano Romanello
      */
     private void retrieveFiles() throws IOException
     {
