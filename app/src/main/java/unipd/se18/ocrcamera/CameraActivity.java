@@ -122,6 +122,15 @@ public class CameraActivity extends AppCompatActivity {
                 takePhoto();
             }
         });
+
+        //Initiate a listener that detects if the user swipes on the screen
+        cameraKitView.setOnTouchListener(new OnSwipeTouchListener(CameraActivity.this) {
+            @Override
+            public void onSwipeRight() {
+                finish();
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);   //added slide animation
+            }
+        });
     }
 
     /**
@@ -157,12 +166,17 @@ public class CameraActivity extends AppCompatActivity {
                 //An intent that will launch the activity that will analyse the photo
                 Intent i = new Intent(CameraActivity.this, ResultActivity.class);
                 startActivity(i);
+                finish();
             }
         });
-
     }
 
-
+    // animation happens if user presses back arrow as well
+    @Override
+    public void finish(){
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
 
     @Override
     protected void onStart() {
@@ -194,7 +208,6 @@ public class CameraActivity extends AppCompatActivity {
         cameraKitView.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-
     /**
      * Stores the captured image into a temporary file useful to pass large data between activities
      * and returns the file's path.
@@ -206,7 +219,6 @@ public class CameraActivity extends AppCompatActivity {
      */
     private String tempFileImage(Context context, Bitmap bitmap, String name)
     {
-
         File outputDir = context.getCacheDir();
         File imageFile = new File(outputDir, name + ".jpg");
 
@@ -223,7 +235,6 @@ public class CameraActivity extends AppCompatActivity {
         return imageFile.getAbsolutePath();
     }
 
-
     /**
      * Rotate the bitmap image of the angle
      * @param source the image
@@ -236,12 +247,4 @@ public class CameraActivity extends AppCompatActivity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
-
-
-
-
-
-
 }
-
-

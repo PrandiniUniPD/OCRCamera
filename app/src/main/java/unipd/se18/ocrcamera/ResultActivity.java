@@ -52,10 +52,31 @@ public class ResultActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(ResultActivity.this, CameraActivity.class));
+                Intent i = new Intent(ResultActivity.this, CameraActivity.class);
+                startActivity(i);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);   //added slide animation
             }
         });
 
+        //there are 2 OnTouchListener because the two Views were separated and I couldn't find a way to unify them into only one
+        //Initiate a listener that detects if the user swipes on the screen
+        mImageView.setOnTouchListener(new OnSwipeTouchListener(ResultActivity.this) {
+            @Override
+            public void onSwipeLeft() {
+                Intent i = new Intent(ResultActivity.this, CameraActivity.class); // start CameraActivity when user swipes left
+                startActivity(i);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);   //added slide animation
+            }
+        });
+
+        mOCRTextView.setOnTouchListener(new OnSwipeTouchListener(ResultActivity.this) {
+            @Override
+            public void onSwipeLeft() {
+                Intent i = new Intent(ResultActivity.this, CameraActivity.class); // start CameraActivity when user swipes left
+                startActivity(i);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);   //added slide animation
+            }
+        });
 
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
@@ -179,6 +200,13 @@ public class ResultActivity extends AppCompatActivity {
                     progressMessage,
                     "");
         }
+    }
+
+    // animation happens if user presses back arrow as well
+    @Override
+    public void finish(){
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 }
 
