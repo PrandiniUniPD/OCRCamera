@@ -31,6 +31,8 @@ import static java.lang.Float.NaN;
  */
 public class PhotoTester {
 
+    private static final String TAG = "PhotoTester";
+
     /**
      * Contains the available extensions for the test
      */
@@ -41,14 +43,18 @@ public class PhotoTester {
      */
     public static final String PHOTO_BASE_NAME = "foto";
 
-    private static final String TAG = "PhotoTester";
+    /**
+     * String used as file name for the report
+     */
+    private static final String REPORT_FILENAME = "report.txt";
 
-    private ArrayList<TestElement> testElements = new ArrayList<TestElement>();
+    private ArrayList<TestElement> testElements = new ArrayList<>();
 
     //stores the path of the directory containing test files
     private String dirPath;
 
-    private static final String REPORT_FILENAME = "report.txt";
+    private String report;
+
 
     /*
     Useful for indicating the progress of the tests
@@ -64,12 +70,13 @@ public class PhotoTester {
      */
     public PhotoTester(String dirPath) {
         File directory = getStorageDir(dirPath);
-        dirPath = directory.getPath();
+        this.dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
 
         testElementsTested = new MutableLiveData<>();
         int initialValue = 0;
         testElementsTested.postValue(initialValue);
+
 
         //create a TestElement object for each original photo - then link all the alterations to the relative original TestElement
         for(File file : directory.listFiles()) {
@@ -204,9 +211,32 @@ public class PhotoTester {
             e.printStackTrace();
         }
 
-
+        //save current report
+        this.report = fullReport;
 
         return fullReport;
+    }
+
+    /**
+     * Save report to file
+     *
+     * @return true if report was correctly saved, false in case of error or if report is null
+     */
+    public boolean saveReportToFile() {
+
+        //check if report is not null
+        if(report == null)
+            return false;
+
+        try {
+            writeReportToExternalStorage(report, dirPath, REPORT_FILENAME);
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "Error writing report to file.");
+            e.printStackTrace();
+        }
+        //error occurred
+        return false;
     }
 
     public TestElement[] getTestElements() {
@@ -368,8 +398,6 @@ public class PhotoTester {
 
         TextExtractor textExtractor = new TextExtractor();
         return textExtractor.getTextFromImg(bitmap);
-
-
     }
 
 
@@ -448,8 +476,7 @@ public class PhotoTester {
     }
 
     private synchronized void updateTestedNumber() {
-        int increment = 1;
-        testElementsTested.postValue(testElementsTested.getValue() + increment);
+        testElementsTested.postValue(testElementsTested.getValue() + 1);
     }
 
     /**
