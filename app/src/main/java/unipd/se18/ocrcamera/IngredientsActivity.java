@@ -48,12 +48,12 @@ public class IngredientsActivity extends AppCompatActivity {
 
             //load inci db
             InputStream inputStream = getResources().openRawResource(R.raw.incidb);
-            Inci inci = new Inci(inputStream);
+            Inci inci = new Inci(getApplicationContext(), inputStream);
 
             timings.addSplit("load db");
 
             //find ingredients in inci db
-            final ArrayList<Ingredient> ingredients = inci.findListIngredients(ocrText);
+            final ArrayList<Ingredient> ingredients = inci.findListIngredients(ocrText, Inci.Algorithm.TEXT_PRECORRECTION);
 
             timings.addSplit("search in db");
 

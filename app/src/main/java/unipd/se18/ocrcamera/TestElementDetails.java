@@ -77,7 +77,7 @@ public class TestElementDetails extends AppCompatActivity {
 
         // Set the corrected text
         TextView corrected = findViewById(R.id.correctedText_view);
-        notes.setText(entry.getCorrectedText());
+        corrected.setText(entry.getCorrectedText());
 
         // Set alterations view
         setAlterationsView(

@@ -96,7 +96,7 @@ public class TextAutoCorrection {
         //initializing transducer
         transducer = new TransducerBuilder()
                 .dictionary(dictionary)
-                .algorithm(Algorithm.MERGE_AND_SPLIT) //Using MERGE_AND_SPLIT because it's better for OCR
+                .algorithm(Algorithm.STANDARD) //Using MERGE_AND_SPLIT because it's better for OCR
                 .defaultMaxDistance(defMaxDist)
                 .includeDistance(true)
                 .build();
@@ -132,12 +132,12 @@ public class TextAutoCorrection {
                         }
                     }
 
-                    Log.d(TAG,"word = "+word+" ; found word = "+term);
-
                     double normalizedDistance = minDistance/word.length();
                     if(normalizedDistance < distanceThreshold && !term.equals("") && !term.equals(word)){
 
-                        //substitute
+                        Log.d(TAG,"word = "+word+" ; found word = "+term);
+
+                        //substitute with the word found
                         text = text.substring(0, previousNonAlphanumIndex+1) + term + text.substring(i);
 
                         //take into account the difference of length between the words

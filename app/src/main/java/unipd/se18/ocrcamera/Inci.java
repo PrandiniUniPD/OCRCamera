@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -32,12 +33,24 @@ public class Inci {
     */
     private static final double similarityThreshold = 0.6;
 
+    /*
+        Set of algorithms available for findListIngredients.
+        LEVENSHTEIN_DISTANCE: splits the ocr text and for each block of text search
+                            inside INCI DB for the ingredient with minimum distance using Levenshtein.
+        TEXT_PRECORRECTION: try to correct the text using a wordlist then for each ingredient inside
+                            INCI DB search if it is contained inside the corrected text
+     */
+    public enum Algorithm {TEXT_PRECORRECTION, LEVENSHTEIN_DISTANCE}
+
+    private Context context;
+
     /**
      * constructor
      * @param inputStream inputStream of the inci database file
      * @author Francesco Pham
      */
-    public Inci(InputStream inputStream){
+    public Inci(Context context, InputStream inputStream){
+        this.context = context;
         Reader reader = new BufferedReader(new InputStreamReader(inputStream));
 
         listIngredients = new ArrayList<Ingredient>(); //initializing list of ingredients
@@ -105,23 +118,41 @@ public class Inci {
      * @return List of Ingredient objects where are stored ingredient's informations
      * @author Francesco Pham
      */
-    public ArrayList<Ingredient> findListIngredients(String text){
-        String[] splittedText = text.trim().split("[,.]+"); //split removing whitespaces
-        ArrayList<Ingredient> ingredients = new ArrayList<Ingredient>(); //initializing the list
+    public ArrayList<Ingredient> findListIngredients(String text, Algorithm algorithm){
 
-        //for every splitted text inside the ocr text search for the most similar in the inci db
-        for(String str : splittedText){
-            Ingredient bestMatchingIngredient = findBestMatchingIngredient(str);
+        //initializing the list
+        ArrayList<Ingredient> ingredients = new ArrayList<Ingredient>();
 
-            //discard ingredients that not satisfy similarityThreshold
-            if(bestMatchingIngredient.getOcrTextSimilarity() > similarityThreshold) {
-                //set the original text taken from ocr for later
-                bestMatchingIngredient.setFoundText(str);
+        switch (algorithm) {
+            case LEVENSHTEIN_DISTANCE: {
+                String[] splittedText = text.trim().split("[,.]+"); //split removing whitespaces
 
-                //add the ingredient object to the list
-                ingredients.add(bestMatchingIngredient);
+                //for every splitted text inside the ocr text search for the most similar in the inci db
+                for (String str : splittedText) {
+                    Ingredient bestMatchingIngredient = findBestMatchingIngredient(str);
+
+                    //discard ingredients that not satisfy similarityThreshold
+                    if (bestMatchingIngredient.getOcrTextSimilarity() > similarityThreshold) {
+                        //set the original text taken from ocr for later
+                        bestMatchingIngredient.setFoundText(str);
+
+                        //add the ingredient object to the list
+                        ingredients.add(bestMatchingIngredient);
+                    }
+                }
+            }
+
+            case TEXT_PRECORRECTION: {
+                TextAutoCorrection corrector = new TextAutoCorrection(context);
+                text = corrector.correctText(text);
+                for(Ingredient ingredient : listIngredients){
+                    if(text.contains(ingredient.getInciName())){
+                        ingredients.add(ingredient);
+                    }
+                }
             }
         }
+
         return ingredients;
     }
 }
