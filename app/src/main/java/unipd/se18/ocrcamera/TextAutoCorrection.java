@@ -1,24 +1,17 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.os.Environment;
 import android.util.Log;
 
-import com.github.liblevenshtein.collection.dictionary.SortedDawg;
-import com.github.liblevenshtein.serialization.PlainTextSerializer;
-import com.github.liblevenshtein.serialization.ProtobufSerializer;
-import com.github.liblevenshtein.serialization.Serializer;
-import com.github.liblevenshtein.transducer.Algorithm;
-import com.github.liblevenshtein.transducer.Candidate;
-import com.github.liblevenshtein.transducer.ITransducer;
-import com.github.liblevenshtein.transducer.factory.TransducerBuilder;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStreamReader;
+import java.util.Set;
+
+import edu.gatech.gtri.bktree.BkTreeSearcher;
+import edu.gatech.gtri.bktree.Metric;
+import edu.gatech.gtri.bktree.MutableBkTree;
 
 /**
  * This class corrects automatically the ocr text using a
@@ -35,17 +28,16 @@ import java.io.OutputStream;
  */
 public class TextAutoCorrection {
 
-    private final String TAG = "TextAutoCorrection";
-    private ITransducer<Candidate> transducer;
-
-    //Default maximum number of errors tolerated between each spelling candidate and the query term.
-    final int defMaxDist = 4;
-
     //Do not correct words with less than minChars characters
-    final int minChars = 3;
+    private final int minChars = 3;
 
     //Threshold of minimum normalized distance below which we substitute the word with the term found in dictionary
-    final double distanceThreshold = 0.2;
+    private final double distanceThreshold = 0.2;
+
+    private final String TAG = "TextAutoCorrection";
+    private LevenshteinStringDistance levenshtein;
+    BkTreeSearcher<String> searcher;
+
 
     /**
      * Constructor
@@ -53,55 +45,29 @@ public class TextAutoCorrection {
      * @author Francesco Pham
      */
     public TextAutoCorrection(Context context){
+        levenshtein = new LevenshteinStringDistance();
+        InputStream stream = context.getResources().openRawResource(R.raw.inciwordlist);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        MutableBkTree<String> bkTree = new MutableBkTree<>(levenshteinDistance);
+        String line;
 
-        SortedDawg dictionary = null;
-
-        //deserialize dictionary if exists
         try {
-            File file = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOCUMENTS), "serialized_dictionary.bytes");
-            InputStream dictionaryStream = new FileInputStream(file);
-            final Serializer serializer = new ProtobufSerializer();
-            dictionary = serializer.deserialize(SortedDawg.class, dictionaryStream);
-        }
-        catch (Exception e) {
-            Log.d(TAG,"couldn't deserialize dictionary");
+            while ((line = reader.readLine()) != null) {
+                bkTree.add(line);
+            }
+        }catch(IOException e){
+            Log.e(TAG,"Error reading word list");
         }
 
-        //if couldn't deserialize dictionary, load it from wordlist
-        if(dictionary == null){
-            try {
-                InputStream dictionaryStream = context.getResources().openRawResource(R.raw.inciwordlist);
-                final Serializer serializer = new PlainTextSerializer(false);
-                dictionary = serializer.deserialize(SortedDawg.class, dictionaryStream);
-            }
-            catch (Exception e) {
-                Log.d(TAG,"couldn't load dictionary from wordlist");
-                return;
-            }
-
-            //serialize dictionary to a format that's faster to read later
-            File outputFile = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOCUMENTS), "serialized_dictionary.bytes");
-            try (final OutputStream stream = new FileOutputStream(outputFile)) {
-                final Serializer serializer = new ProtobufSerializer();
-                serializer.serialize(dictionary, stream);
-            } catch (Exception e) {
-                Log.d(TAG,"couldn't serialize dictionary");
-            }
-        }
-
-
-
-        //initializing transducer
-        transducer = new TransducerBuilder()
-                .dictionary(dictionary)
-                .algorithm(Algorithm.STANDARD) //Using MERGE_AND_SPLIT because it's better for OCR
-                .defaultMaxDistance(defMaxDist)
-                .includeDistance(true)
-                .build();
-
+        searcher = new BkTreeSearcher<>(bkTree);
     }
+
+    private Metric<String> levenshteinDistance = new Metric<String>() {
+        @Override
+        public int distance(String x, String y) {
+            return (int) levenshtein.distance(x,y);
+        }
+    };
 
     /**
      * Each word of the text is searched for a best match in the dictionary and
@@ -125,17 +91,19 @@ public class TextAutoCorrection {
                     //find the word with minimum distance
                     int minDistance = Integer.MAX_VALUE;
                     String term = "";
-                    for (final Candidate candidate : transducer.transduce(word)) {
-                        if(candidate.distance() < minDistance) {
-                            minDistance = candidate.distance();
-                            term = candidate.term();
+
+                    Set<BkTreeSearcher.Match<? extends String>> matches =
+                            searcher.search(word, (int) (word.length()*distanceThreshold));
+                    for (BkTreeSearcher.Match<? extends String> match : matches){
+                        if(match.getDistance() < minDistance) {
+                            minDistance = match.getDistance();
+                            term = match.getMatch();
                         }
                     }
 
-                    float normalizedDistance = (float) minDistance/word.length();
-                    if(normalizedDistance < distanceThreshold && !term.equals("") && !term.equals(word)){
+                    if(!term.equals("") && !term.equals(word)){
 
-                        Log.d(TAG,"word = "+word+" ; found word = "+term);
+                        Log.d(TAG,"word = "+word+" ; found word = "+term+" ; distance = "+minDistance);
 
                         //substitute with the word found
                         text = text.substring(0, previousNonAlphanumIndex+1) + term + text.substring(i);

@@ -58,9 +58,7 @@ dependencies {
     implementation "com.opencsv:opencsv:4.4"
 
     //for automatic text correction
-    implementation ('com.github.universal-automata:liblevenshtein:3.0.0'){
-        exclude group:'com.google.code.findbugs' //excluding this because of a conflict
-    }
+    implementation 'edu.gatech.gtri.bk-tree:bk-tree:1.0'
 
     //FTP dependencies
     implementation 'commons-net:commons-net:3.6'

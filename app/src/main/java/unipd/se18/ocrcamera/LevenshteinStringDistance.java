@@ -8,7 +8,7 @@ import info.debatty.java.stringsimilarity.*;
  * https://github.com/tdebatty/java-string-similarity
  * @author Francesco Pham
  */
-public class LevenshteinStringDistance extends WeightedLevenshtein implements StringDistance {
+public class LevenshteinStringDistance extends WeightedLevenshtein  {
 
     public LevenshteinStringDistance(){
         super(
