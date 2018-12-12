@@ -177,7 +177,7 @@ public class PhotoTester {
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
 
-        int max_concurrent_tasks = 1;
+        int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
         //leave a processor for the OS
         if(max_concurrent_tasks > 1) {
             max_concurrent_tasks--;

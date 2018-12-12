@@ -39,7 +39,7 @@ public class TextAutoCorrection {
     private ITransducer<Candidate> transducer;
 
     //Default maximum number of errors tolerated between each spelling candidate and the query term.
-    final int defMaxDist = 5;
+    final int defMaxDist = 4;
 
     //Do not correct words with less than minChars characters
     final int minChars = 3;
@@ -123,7 +123,7 @@ public class TextAutoCorrection {
                     String word = text.substring(previousNonAlphanumIndex+1,i);
 
                     //find the word with minimum distance
-                    double minDistance = Double.MAX_VALUE;
+                    int minDistance = Integer.MAX_VALUE;
                     String term = "";
                     for (final Candidate candidate : transducer.transduce(word)) {
                         if(candidate.distance() < minDistance) {
@@ -132,7 +132,7 @@ public class TextAutoCorrection {
                         }
                     }
 
-                    double normalizedDistance = minDistance/word.length();
+                    float normalizedDistance = (float) minDistance/word.length();
                     if(normalizedDistance < distanceThreshold && !term.equals("") && !term.equals(word)){
 
                         Log.d(TAG,"word = "+word+" ; found word = "+term);

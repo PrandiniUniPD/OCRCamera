@@ -58,6 +58,7 @@ public class IngredientsActivity extends AppCompatActivity {
             timings.addSplit("search in db");
 
             //sort list of ingredients by similarity
+            /*
             Collections.sort(ingredients, new Comparator<Ingredient>() {
                 public int compare(Ingredient one, Ingredient other) {
                     if (one.getOcrTextSimilarity() >= other.getOcrTextSimilarity()) {
@@ -67,6 +68,7 @@ public class IngredientsActivity extends AppCompatActivity {
                     }
                 }
             });
+            */
 
             //show results using adapter
             final ListView listEntriesView = findViewById(R.id.ingredients_list);
