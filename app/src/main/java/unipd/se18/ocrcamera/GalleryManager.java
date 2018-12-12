@@ -60,7 +60,7 @@ public class GalleryManager
         ArrayList<PhotoStructure> imagesStructures = new ArrayList<>();
 
         //Images directory reference set up
-        setupImageDirectoryInfo(context);
+        setupImageDirectoryInfo();
 
         //Obtaining the reference to the directory
         File imageDirectory = new File(PATH);
@@ -86,12 +86,13 @@ public class GalleryManager
      * @param context The reference to the activity where the gallery is displayed
      * @param toStore The image with the corresponding ingredients that has to be stored
      * @param ingredients The ingredients that has to be stored with the image
+     * @param reliability The OCR reliability on the photo
      * @throws IOException if an error occurs during image saving or metadata writing
      */
-    public static void storeImage(Context context, Bitmap toStore, ArrayList<String> ingredients) throws IOException
+    public static void storeImage(Context context, Bitmap toStore, ArrayList<String> ingredients, String reliability) throws IOException
     {
         //Images directory reference set up
-        setupImageDirectoryInfo(context);
+        setupImageDirectoryInfo();
 
         //New image's name
         SimpleDateFormat formatter = new SimpleDateFormat(CONVERSION_FORMAT);
@@ -101,7 +102,7 @@ public class GalleryManager
         //Storing the given image into a file
         String filePath = saveToFile(toStore, imageName);
         //Metadata writing
-        writeMetadata(filePath, ingredients);
+        writeMetadata(filePath, ingredients, reliability);
     }
 
     /**
@@ -112,12 +113,10 @@ public class GalleryManager
 
     /**
      * Initializes the variables with which it is possible to get the data directory of the app
-     * @param context The reference to the activity where the gallery is displayed
      * @author Leonardo Rossi - modified Romanello Stefano
      */
-    private static void setupImageDirectoryInfo(Context context)
+    private static void setupImageDirectoryInfo()
     {
-        //DATA_DIRECTORY_PATH = context.getApplicationInfo().dataDir;
         DATA_DIRECTORY_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"";
         PATH = DATA_DIRECTORY_PATH + File.separator + IMAGES_DIRECTORY_NAME;
     }
@@ -134,10 +133,12 @@ public class GalleryManager
             //Ingredients are read from image metadata
             ExifInterface metadataReader = new ExifInterface(image.getAbsolutePath());
             String ingredients = metadataReader.getAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION);
+            String reliability = metadataReader.getAttribute(ExifInterface.TAG_USER_COMMENT);
             //A PhotoStructure object is built so that it can contain all image's information
             PhotoStructure structure = new PhotoStructure();
             structure.ingredients.add(ingredients);
             structure.photo = BitmapFactory.decodeFile(image.getAbsolutePath());
+            structure.reliability = reliability;
 
             return structure;
         }
@@ -173,13 +174,18 @@ public class GalleryManager
     /**
      * Writes the specified metadata to the image
      * @param path The path of the image to which the metadata have to be written
-     * @param metadata The information that has to be stored with the image
+     * @param ingredients The information that has to be stored with the image
+     * @param  reliability The OCR reliability on the photo
      * @throws IOException if it's impossible to reach the file at the specified path
      */
-    private static void writeMetadata(String path, ArrayList<String> metadata) throws IOException
+    private static void writeMetadata(String path, ArrayList<String> ingredients, String reliability) throws IOException
     {
         ExifInterface metadataWriter = new ExifInterface(path);
-        for (String data : metadata) { metadataWriter.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, data); }
+        for (String data : ingredients)
+        {
+            metadataWriter.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, data);
+            metadataWriter.setAttribute(ExifInterface.TAG_USER_COMMENT, reliability);
+        }
     }
 
     /**
