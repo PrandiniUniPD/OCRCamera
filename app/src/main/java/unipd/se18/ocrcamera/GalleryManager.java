@@ -1,7 +1,20 @@
 package unipd.se18.ocrcamera;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.SyncStateContract;
+import android.support.annotation.RequiresApi;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.ImageView;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.util.Log;
@@ -14,6 +27,8 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Provides methods to retrieve and store image with ingredients to populate a gallery view
@@ -30,7 +45,7 @@ public class GalleryManager
     //The path of the directory where all the images are stored
     private static String DATA_DIRECTORY_PATH = "";
     //The name of the directory where all the images are stored
-    private static String IMAGES_DIRECTORY_NAME = "ImagesFolder";
+    private static String IMAGES_DIRECTORY_NAME = "OCRGallery";
     //The complete path to reach images folder
     private static String PATH = "";
 
@@ -50,7 +65,9 @@ public class GalleryManager
         //Obtaining the reference to the directory
         File imageDirectory = new File(PATH);
         //If the directory doesn't exist it will be created
-        if (!imageDirectory.exists()){ imageDirectory.mkdir(); }
+        if (!imageDirectory.exists()){
+            imageDirectory.mkdir();
+        }
 
         //Obtaining the files into the specified directory
         File[] images = imageDirectory.listFiles();
@@ -96,10 +113,12 @@ public class GalleryManager
     /**
      * Initializes the variables with which it is possible to get the data directory of the app
      * @param context The reference to the activity where the gallery is displayed
+     * @author Leonardo Rossi - modified Romanello Stefano
      */
     private static void setupImageDirectoryInfo(Context context)
     {
-        DATA_DIRECTORY_PATH = context.getApplicationInfo().dataDir;
+        //DATA_DIRECTORY_PATH = context.getApplicationInfo().dataDir;
+        DATA_DIRECTORY_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"";
         PATH = DATA_DIRECTORY_PATH + File.separator + IMAGES_DIRECTORY_NAME;
     }
 
@@ -169,6 +188,89 @@ public class GalleryManager
     public static class PhotoStructure
     {
         private Bitmap photo;
-        private ArrayList<String> ingredients;
+        private ArrayList<String> ingredients = new ArrayList<String>();
     }
+
+
+    /**
+     * Adapter for the cardView in the UI
+     * @author Romanello Stefano
+     * @request need the activity context and ArrayList<PhotoStructure> of photos to load.
+     */
+    public static class RecycleCardsAdapter extends RecyclerView.Adapter<RecycleCardsAdapter.CardViewHolder> {
+
+        Context mainActivity;
+        ArrayList<PhotoStructure> photosList = new ArrayList<PhotoStructure>();
+        public RecycleCardsAdapter(Context context, ArrayList<PhotoStructure> _photos)
+        {
+            photosList=_photos;
+            mainActivity = context;
+        }
+
+        /**
+         * Holder tells how the card is made. It contains all the elements inside a card
+         */
+        public class CardViewHolder extends RecyclerView.ViewHolder{
+            ImageView imageView;
+            TextView txtTitle;
+            public CardViewHolder(View itemView) {
+                super(itemView);
+                this.imageView = (ImageView) itemView.findViewById(R.id.image_holder);
+                this.txtTitle = (TextView) itemView.findViewById(R.id.text_title);
+            }
+        }
+
+        /**
+         * Create a new card with the inflated the layout. At this point I just create an object containing the layout of the card.
+         * @param parent the main ViewGroup where the card will be inflated
+         * @param viewType identifier of the view that I want to implement using default views
+         */
+        @Override
+        public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()) .inflate(R.layout.cardlayoutgallery, parent, false);
+            CardViewHolder cardViewHolder = new CardViewHolder(view);
+            return cardViewHolder;
+        }
+
+        /**
+         * Update the CardViewHolder contents with the item at the given position
+         * @param holder Holder of the card containing all its elements
+         * @param listPosition auto-increment value starting from 0 that tells me which position is working
+         */
+        @Override
+        public void onBindViewHolder(final CardViewHolder holder, final int listPosition) {
+
+            //Obtain the current working photo
+            PhotoStructure currentPhoto = photosList.get(listPosition);
+            //Load the bitmap from the PhotoStructure
+            Bitmap lastPhoto = currentPhoto.photo;
+
+            //Set imageView properties
+            holder.imageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
+            holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+            //Load ingredients as String
+            String finalIngredientsString="";
+            for(int i=0; i<currentPhoto.ingredients.size(); i++)
+            {
+                finalIngredientsString+=currentPhoto.ingredients.get(i)+ ", ";
+            }
+
+            //Set txtView properties, remove the last comma+space
+            finalIngredientsString = finalIngredientsString.substring(0, finalIngredientsString.length() - 2);
+            holder.txtTitle.setText(finalIngredientsString);
+        }
+
+        /**
+         * Used for set the number of pictures
+         * @return integer number of the pictures
+         */
+        @Override
+        public int getItemCount() {
+            return photosList.size();
+        }
+
+
+    }
+
 }
