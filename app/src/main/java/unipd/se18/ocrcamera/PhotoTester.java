@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.arch.lifecycle.MutableLiveData;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -50,17 +49,15 @@ public class PhotoTester {
 
     private ArrayList<TestElement> testElements = new ArrayList<>();
 
+    private TestListener testListener;
+
     //stores the path of the directory containing test files
     private String dirPath;
 
     private String report;
 
 
-    /*
-    Useful for indicating the progress of the tests
-     */
-    protected static int totalTestElements;
-    protected static MutableLiveData<Integer> testElementsTested;
+
 
 
     /**
@@ -72,11 +69,6 @@ public class PhotoTester {
         File directory = getStorageDir(dirPath);
         this.dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
-
-        testElementsTested = new MutableLiveData<>();
-        int initialValue = 0;
-        testElementsTested.postValue(initialValue);
-
 
         //create a TestElement object for each original photo - then link all the alterations to the relative original TestElement
         for(File file : directory.listFiles()) {
@@ -161,12 +153,8 @@ public class PhotoTester {
 
         final JSONObject fullJsonReport = new JSONObject();
 
-        totalTestElements = testElements.size();
-        int initialValue = 0;
-        testElementsTested.postValue(initialValue);
-
         //countDownLatch allows to sync this thread with the end of all the single tests
-        CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
+        CountDownLatch countDownLatch = new CountDownLatch(testElements.size());
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
         //leave a processor for the OS
@@ -191,7 +179,7 @@ public class PhotoTester {
         countDownLatch.await();
 
         long ended = java.lang.System.currentTimeMillis();
-        Log.i(TAG,"testAndReport ended (" + totalTestElements + " pics tested in " + (ended - started) + " ms)");
+        Log.i(TAG,"testAndReport ended (" + testElements.size() + " pics tested in " + (ended - started) + " ms)");
 
         //insert tags stats to json report
         String tagsStats = getTagsStatsString();
@@ -242,7 +230,7 @@ public class PhotoTester {
     public TestElement[] getTestElements() {
         return testElements.toArray(new TestElement[0]);
     }
-
+    public int getTestSize() { return testElements.size(); }
 
     /**
      * Compare the list of ingredients extracted by OCR and the correct list of ingredients
@@ -467,16 +455,27 @@ public class PhotoTester {
                     Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
                 }
 
+                //if the listener has been set then call onTestFinished function
+                if(testListener != null) {
+                    synchronized (testListener) {
+                        testListener.onTestFinished();
+                    }
+
+                }
+
                 //signal the end of this single test
                 countDownLatch.countDown();
-                updateTestedNumber();
                 long ended = java.lang.System.currentTimeMillis();
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
         }
     }
 
-    private synchronized void updateTestedNumber() {
-        testElementsTested.postValue(testElementsTested.getValue() + 1);
+    /**
+     * Set a listener whose function will be called at the end of each test
+     * @param testListener
+     */
+    public void setTestListener(TestListener testListener) {
+        this.testListener = testListener;
     }
 
     /**
