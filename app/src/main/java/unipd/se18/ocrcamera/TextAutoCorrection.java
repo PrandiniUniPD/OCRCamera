@@ -34,6 +34,12 @@ public class TextAutoCorrection {
     //Default maximum number of errors tolerated between each spelling candidate and the query term.
     final int defMaxDist = 8;
 
+    //Do not correct words with less than minChars characters
+    final int minChars = 3;
+
+    //Threshold of minimum normalized distance below which we substitute the word with the term found in dictionary
+    final double distanceThreshold = 0.2;
+
     /**
      * Constructor
      * @param dictionaryStream Input stream from serialized dictionary.
@@ -63,11 +69,40 @@ public class TextAutoCorrection {
 
     /**
      * Each word of the text is searched for a best match in the dictionary and
-     * if there is a good match the word it is corrected
+     * if there is a good match the word is corrected
      * @param text The text (probably taken from ocr) which has to be corrected
      * @return Corrected text
      */
     public String correctText(String text){
+
+        text = text.toUpperCase();
+
+        int previousNonAlphanumIndex = -1;
+        for(int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if(!Character.isLetter(c) && !Character.isDigit(c)){
+                if(i > previousNonAlphanumIndex+minChars){
+                    String word = text.substring(previousNonAlphanumIndex+1,i);
+
+                    //find the word with minimum distance
+                    double minDistance = Double.MAX_VALUE;
+                    String term = "";
+                    for (final Candidate candidate : transducer.transduce(word)) {
+                        if(candidate.distance() < minDistance) {
+                            minDistance = candidate.distance();
+                            term = candidate.term();
+                        }
+                    }
+
+                    //substitute
+                    double normalizedDistance = minDistance/word.length();
+                    if(normalizedDistance < distanceThreshold && !term.equals("")){
+                        text = text.substring(0, previousNonAlphanumIndex+1) + term + text.substring(i);
+                    }
+                }
+                previousNonAlphanumIndex = i;
+            }
+        }
 
         return text;
     }
