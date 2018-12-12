@@ -69,8 +69,9 @@ public class GalleryManager
      * @param context The reference to the activity where the gallery is displayed
      * @param toStore The image with the corresponding ingredients that has to be stored
      * @param ingredients The ingredients that has to be stored with the image
+     * @throws IOException if an error occurs during image saving or metadata writing
      */
-    public static void storeImage(Context context, Bitmap toStore, ArrayList<String> ingredients)
+    public static void storeImage(Context context, Bitmap toStore, ArrayList<String> ingredients) throws IOException
     {
         //Images directory reference set up
         setupImageDirectoryInfo(context);
@@ -135,25 +136,17 @@ public class GalleryManager
      * @param toStore The image that has to be stored
      * @param name The name with which the image has to be saved
      * @return The path of the file that is created
+     * @throws IOException if it's impossible to find the file at the specified path or if it's impossible to write to the same file
      */
-    private static String saveToFile(Bitmap toStore, String name)
+    private static String saveToFile(Bitmap toStore, String name) throws IOException
     {
         File image = new File(PATH, name);
-        try
-        {
-            OutputStream outStream = new FileOutputStream(image);
-            toStore.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-            outStream.flush();
-            outStream.close();
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+
+        OutputStream outStream = new FileOutputStream(image);
+        toStore.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+        outStream.flush();
+        outStream.close();
+
 
         return image.getAbsolutePath();
     }
@@ -162,19 +155,12 @@ public class GalleryManager
      * Writes the specified metadata to the image
      * @param path The path of the image to which the metadata have to be written
      * @param metadata The information that has to be stored with the image
+     * @throws IOException if it's impossible to reach the file at the specified path
      */
-    private static void writeMetadata(String path, ArrayList<String> metadata)
+    private static void writeMetadata(String path, ArrayList<String> metadata) throws IOException
     {
-        try
-        {
-            ExifInterface metadataWriter = new ExifInterface(path);
-            for (String data : metadata) { metadataWriter.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, data); }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
+        ExifInterface metadataWriter = new ExifInterface(path);
+        for (String data : metadata) { metadataWriter.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, data); }
     }
 
     /**
