@@ -9,6 +9,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.SyncStateContract;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -166,8 +168,7 @@ public class GalleryManager
         toStore.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
         outStream.flush();
         outStream.close();
-
-
+        
         return image.getAbsolutePath();
     }
 
@@ -240,7 +241,23 @@ public class GalleryManager
         public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
         {
             View view = LayoutInflater.from(parent.getContext()) .inflate(R.layout.cardlayoutgallery, parent, false);
-            CardViewHolder cardViewHolder = new CardViewHolder(view);
+            final CardViewHolder cardViewHolder = new CardViewHolder(view);
+
+            //Load the fragment of the deailed photo
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = cardViewHolder.getAdapterPosition();
+                    // Begin the transaction
+                    FragmentTransaction ft = ((GalleryActivity)mainActivity).getSupportFragmentManager().beginTransaction();
+                    // Replace the contents of the container with the new fragment
+                    ft.replace(R.id.fragmentPlaceHolder, new GalleryActivity.DetailFragment());
+                    // or ft.add(R.id.your_placeholder, new FooFragment());
+                    // Complete the changes added above
+                    ft.addToBackStack("details");
+                    ft.commit();
+                }
+            });
             return cardViewHolder;
         }
 
@@ -261,16 +278,8 @@ public class GalleryManager
             holder.imageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            //Load ingredients as String
-            String finalIngredientsString="";
-            for(int i=0; i<currentPhoto.ingredients.size(); i++)
-            {
-                finalIngredientsString+=currentPhoto.ingredients.get(i)+ ", ";
-            }
-
-            //Set txtView properties, remove the last comma+space
-            finalIngredientsString = finalIngredientsString.substring(0, finalIngredientsString.length() - 2);
-            holder.txtTitle.setText(finalIngredientsString);
+            //Set txtView properties with reliability
+            holder.txtTitle.setText("Reliability: "+currentPhoto.reliability);
         }
 
         /**
