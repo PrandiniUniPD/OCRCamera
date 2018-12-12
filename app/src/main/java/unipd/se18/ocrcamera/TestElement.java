@@ -25,6 +25,7 @@ public class TestElement {
     private static final String INGREDIENTS_KEY = "ingredients";
     private static final String ALTERATIONS_KEY = "alterations";
     private static final String CONFIDENCE_KEY = "confidence";
+    private static final String CORRECTED_TEXT = "corrected_text";
 
     private String imagePath;
     private JSONObject jsonObject;
@@ -367,5 +368,31 @@ public class TestElement {
             Log.i(TAG, "There is no alteration with name " + alterationName + " inside test " + fileName);
             return null;
         }
+    }
+
+    /**
+     * @param text String of corrected text
+     * @modify jsonObject of this TestElement
+     * @author Francesco Pham - g3
+     */
+    public void setCorrectedText(String text) {
+        try {
+            jsonObject.put(CORRECTED_TEXT, text);
+        } catch (JSONException e) {
+            Log.i(TAG, "Failed to set corrected text in test " + fileName);
+        }
+    }
+
+    /**
+     * @return String of corrected text if present, null otherwise
+     * @author Francesco Pham - g3
+     */
+    public String getCorrectedText() {
+        try {
+            return jsonObject.getString(CORRECTED_TEXT);
+        } catch (JSONException e) {
+            Log.i(TAG, "Failed to get corrected text in test: " + fileName);
+        }
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.arch.lifecycle.MutableLiveData;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,6 +29,8 @@ import static java.lang.Float.NaN;
  * @author Luca Moroldo (g3) - Francesco Pham (g3)
  */
 public class PhotoTester {
+
+    private Context context;
 
     private static final String TAG = "PhotoTester";
 
@@ -60,12 +64,17 @@ public class PhotoTester {
     protected static MutableLiveData<Integer> testElementsTested;
 
 
+    private TextAutoCorrection textCorrector;
+
+
     /**
      *
      * Load test elements (images + description)
      * @param dirPath The path where the photos and descriptions are.
      */
-    public PhotoTester(String dirPath) {
+    public PhotoTester(Context context, String dirPath) {
+        this.context = context;
+
         File directory = getStorageDir(dirPath);
         this.dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
@@ -162,16 +171,20 @@ public class PhotoTester {
         int initialValue = 0;
         testElementsTested.postValue(initialValue);
 
+        //initialize text corrector
+        textCorrector = new TextAutoCorrection(context);
+
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
 
-        int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
+        int max_concurrent_tasks = 1;
         //leave a processor for the OS
         if(max_concurrent_tasks > 1) {
             max_concurrent_tasks--;
         }
 
         Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
+
 
         //Define a thread executor that will run a maximum of 'max_concurrent_tasks' simultaneously
         ExecutorService executor = Executors.newFixedThreadPool(max_concurrent_tasks);
@@ -291,7 +304,7 @@ public class PhotoTester {
                             //if word found is distant from posLastWordFound the ocr text isn't ordered, less points
                             points += (float) word.length()*similarity/2;
                         }
-                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
+                        //Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
                         extractedWords[index] = ""; //remove found word
                         found = true;
                     }
@@ -308,7 +321,7 @@ public class PhotoTester {
                         } else {
                             points += (float)word.length()/2;
                         }
-                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[index] + "\"");
+                        //Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[index] + "\"");
                         extractedWords[index] = extractedWords[index].replace(word, ""); //remove found word
                         found = true;
                     }
@@ -410,9 +423,14 @@ public class PhotoTester {
                 String correctIngredients = test.getIngredients();
                 float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
+                //auto-correct extraced text
+                String correctedText = textCorrector.correctText(extractedIngredients);
+                Log.d(TAG, "corrected text: "+correctedText);
+
                 //insert results in test
                 test.setConfidence(confidence);
                 test.setRecognizedText(extractedIngredients);
+                test.setCorrectedText(correctedText);
 
                 //evaluate alterations if any
                 String[] alterationsFileNames = test.getAlterationsNames();

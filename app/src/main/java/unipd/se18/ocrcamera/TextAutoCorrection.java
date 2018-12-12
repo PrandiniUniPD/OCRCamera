@@ -1,8 +1,12 @@
 package unipd.se18.ocrcamera;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.Environment;
 import android.util.Log;
 
 import com.github.liblevenshtein.collection.dictionary.SortedDawg;
+import com.github.liblevenshtein.serialization.PlainTextSerializer;
 import com.github.liblevenshtein.serialization.ProtobufSerializer;
 import com.github.liblevenshtein.serialization.Serializer;
 import com.github.liblevenshtein.transducer.Algorithm;
@@ -10,7 +14,11 @@ import com.github.liblevenshtein.transducer.Candidate;
 import com.github.liblevenshtein.transducer.ITransducer;
 import com.github.liblevenshtein.transducer.factory.TransducerBuilder;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * This class corrects automatically the ocr text using a
@@ -28,7 +36,6 @@ import java.io.InputStream;
 public class TextAutoCorrection {
 
     private final String TAG = "TextAutoCorrection";
-    private SortedDawg dictionary = null;
     private ITransducer<Candidate> transducer;
 
     //Default maximum number of errors tolerated between each spelling candidate and the query term.
@@ -42,21 +49,49 @@ public class TextAutoCorrection {
 
     /**
      * Constructor
-     * @param dictionaryStream Input stream from serialized dictionary.
+     * @param context app context
      * @author Francesco Pham
      */
-    public TextAutoCorrection(InputStream dictionaryStream){
-        final Serializer serializer = new ProtobufSerializer();
+    public TextAutoCorrection(Context context){
 
         SortedDawg dictionary = null;
 
-        //load dictionary
+        //deserialize dictionary if exists
         try {
+            File file = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS), "serialized_dictionary.bytes");
+            InputStream dictionaryStream = new FileInputStream(file);
+            final Serializer serializer = new ProtobufSerializer();
             dictionary = serializer.deserialize(SortedDawg.class, dictionaryStream);
-        } catch (Exception e) {
-            Log.d(TAG,"couldn't deserialize dictionary");
-            return;
         }
+        catch (Exception e) {
+            Log.d(TAG,"couldn't deserialize dictionary");
+        }
+
+        //if couldn't deserialize dictionary, load it from wordlist
+        if(dictionary == null){
+            try {
+                InputStream dictionaryStream = context.getResources().openRawResource(R.raw.inciwordlist);
+                final Serializer serializer = new PlainTextSerializer(false);
+                dictionary = serializer.deserialize(SortedDawg.class, dictionaryStream);
+            }
+            catch (Exception e) {
+                Log.d(TAG,"couldn't load dictionary from wordlist");
+                return;
+            }
+
+            //serialize dictionary to a format that's faster to read later
+            File outputFile = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS), "serialized_dictionary.bytes");
+            try (final OutputStream stream = new FileOutputStream(outputFile)) {
+                final Serializer serializer = new ProtobufSerializer();
+                serializer.serialize(dictionary, stream);
+            } catch (Exception e) {
+                Log.d(TAG,"couldn't serialize dictionary");
+            }
+        }
+
+
 
         //initializing transducer
         transducer = new TransducerBuilder()
@@ -65,6 +100,7 @@ public class TextAutoCorrection {
                 .defaultMaxDistance(defMaxDist)
                 .includeDistance(true)
                 .build();
+
     }
 
     /**
@@ -95,6 +131,8 @@ public class TextAutoCorrection {
                             term = candidate.term();
                         }
                     }
+
+                    Log.d(TAG,"word = "+word+" ; found word = "+term);
 
                     double normalizedDistance = minDistance/word.length();
                     if(normalizedDistance < distanceThreshold && !term.equals("") && !term.equals(word)){

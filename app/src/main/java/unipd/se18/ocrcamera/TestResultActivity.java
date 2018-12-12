@@ -131,7 +131,7 @@ public class TestResultActivity extends AppCompatActivity {
          */
         @Override
         protected Void doInBackground(Void... voids) {
-            this.tester = new PhotoTester(dirPath);
+            this.tester = new PhotoTester(getApplicationContext(), dirPath);
             progressBar.setMax(PhotoTester.totalTestElements);
 
             android.arch.lifecycle.Observer<Integer> observerForProgress =
