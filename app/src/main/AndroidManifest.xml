@@ -57,6 +57,7 @@
             android:screenOrientation="portrait" />
         <activity android:name=".IngredientsActivity"></activity>
         <activity android:name=".DownloadDbActivity"></activity>
+        <activity android:name=".TestElementDetails"></activity>
     </application>
 
 </manifest>

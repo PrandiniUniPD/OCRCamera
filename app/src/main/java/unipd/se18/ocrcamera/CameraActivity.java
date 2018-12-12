@@ -28,6 +28,9 @@ public class CameraActivity extends AppCompatActivity {
     private CameraKitView cameraKitView;
     private static String orientationResult="P";
 
+    public String getDir() {
+        return getExternalFilesDir(null).getAbsolutePath();
+    }
     /**
      * onCreate method of the Android Activity Lifecycle
      * @param savedInstanceState The Bundle of the last instance state saved

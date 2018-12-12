@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -11,7 +10,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * Class that contains a single test element, used in PhotoTester to build a single test and on AdapterTestElement to show data in a listview
+ * Class that contains a single test element, used in PhotoTester to build a single test and on
+ * AdapterTestElement to show data in a listview.
  * @author Luca Moroldo, Francesco Pham
  */
 
@@ -26,28 +26,28 @@ public class TestElement {
     private static final String ALTERATIONS_KEY = "alterations";
     private static final String CONFIDENCE_KEY = "confidence";
 
-    private Bitmap picture;
+    private String imagePath;
     private JSONObject jsonObject;
     private String fileName;
-    private HashMap<String, Bitmap> alterationsBitmaps;
+    private HashMap<String, String> alterationsImagesPath;
 
     /**
      *
-     * @param picture Bitmap associated to the jsonObject
+     * @param imagePath String containing the path to the image associated with the jsonObject
      * @param jsonObject JSONObject containing test data (ingredients, tags, notes, alterations if any)
      * @param fileName name of the test
      * @author Luca Moroldo - g3
      */
-    public TestElement(Bitmap picture, JSONObject jsonObject, String fileName) {
-        this.picture = picture;
+    public TestElement(String imagePath, JSONObject jsonObject, String fileName) {
+        this.imagePath = imagePath;
         this.jsonObject = jsonObject;
         this.fileName = fileName;
-        //prepare alterations bitmap if there is any
+        //prepare alterations images if there is any
         String[] alterationsNames = getAlterationsNames();
         if(alterationsNames != null) {
-            alterationsBitmaps = new HashMap<String, Bitmap>();
+            alterationsImagesPath = new HashMap<>();
             for(String alterationName : alterationsNames) {
-                alterationsBitmaps.put(alterationName, null);
+                alterationsImagesPath.put(alterationName, null);
             }
         }
     }
@@ -89,10 +89,11 @@ public class TestElement {
     }
 
     /**
-     * @return Bitmap associated to this test if it has been set, null otherwise
+     * @return String with the path to the image associated with this test, can be null if it hasn't
+     * been set
      */
-    public Bitmap getPicture() {
-        return picture;
+    public String getImagePath() {
+        return imagePath;
     }
 
     /**
@@ -208,16 +209,17 @@ public class TestElement {
     }
 
     /**
-     * Get an alteration associated bitmap
+     * Get an alteration associated image
      * @param alterationName name of an existing alteration inside this test
-     * @return bitmap associated with the test if it has been set, null if the bitmap hasn't been set or if there isn't any alteration named with the given param
+     * @return String with the path to the image associated with the test if it has been set,
+     * null if the image hasn't been set or if there isn't any alteration named with the given param
      * @author Luca Moroldo - g3
      */
-    public Bitmap getAlterationBitmap(String alterationName) {
-        if(alterationsBitmaps.containsKey(alterationName))
-            return alterationsBitmaps.get(alterationName);
+    public String getAlterationImagePath(String alterationName) {
+        if(alterationsImagesPath.containsKey(alterationName))
+            return alterationsImagesPath.get(alterationName);
         else
-            Log.i(TAG, "No bitmap set for alteration " + alterationName + " in test " + fileName);
+            Log.i(TAG, "No image path set for alteration " + alterationName + " in test " + fileName);
         return null;
     }
 
@@ -287,19 +289,19 @@ public class TestElement {
     }
 
     /**
-     * associate a bitmap file to an alteration of this test
+     * associate a image path to an alteration of this test
      * @param alterationName name of an existing alteration inside this test
-     * @param bitmap image related to the test alteration
+     * @param imagePath String with the path to the image related to the alteration test
      * @modify jsonObject of this TestElement
-     * @return true if bitmap was set correctly, false if alteration name doesn't exist
+     * @return true if image was set correctly, false if alteration name doesn't exist
      * @author Luca Moroldo - g3
      */
-    public boolean setAlterationBitmap(String alterationName, Bitmap bitmap) {
-        if(alterationsBitmaps.containsKey(alterationName)) {
-            alterationsBitmaps.put(alterationName, bitmap);
+    public boolean setAlterationImagePath(String alterationName, String imagePath) {
+        if(alterationsImagesPath.containsKey(alterationName)) {
+            alterationsImagesPath.put(alterationName, imagePath);
             return true;
         }
-        Log.i(TAG, "setAlterationBitmap: No alteration found in " + fileName + " with name " + alterationName);
+        Log.i(TAG, "No alteration found in " + fileName + " with name " + alterationName);
         return false;
     }
 

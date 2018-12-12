@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -18,12 +19,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static java.lang.Float.NaN;
+
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
  * providing a JSON report containing stats and results.
  * @author Luca Moroldo (g3) - Francesco Pham (g3)
  */
 public class PhotoTester {
+
+    private static final String TAG = "PhotoTester";
 
     /**
      * Contains the available extensions for the test
@@ -35,26 +40,40 @@ public class PhotoTester {
      */
     public static final String PHOTO_BASE_NAME = "foto";
 
-    private static final String TAG = "PhotoTester";
+    /**
+     * String used as file name for the report
+     */
+    private static final String REPORT_FILENAME = "report.txt";
 
-    private ArrayList<TestElement> testElements = new ArrayList<TestElement>();
+    private ArrayList<TestElement> testElements = new ArrayList<>();
 
     //stores the path of the directory containing test files
     private String dirPath;
 
-    private static final String REPORT_FILENAME = "report.txt";
+    private String report;
+
+
+    /*
+    Useful for indicating the progress of the tests
+     */
+    protected static int totalTestElements;
+    protected static MutableLiveData<Integer> testElementsTested;
 
 
     /**
      *
      * Load test elements (images + description)
-     * @param environment environment where the function will look for the directory with dirName
-     * @param dirName stores the name of the directory containing photos and description
+     * @param dirPath The path where the photos and descriptions are.
      */
-    public PhotoTester(File environment, String dirName) {
-        File directory = getStorageDir(environment, dirName);
-        dirPath = directory.getPath();
+    public PhotoTester(String dirPath) {
+        File directory = getStorageDir(dirPath);
+        this.dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
+
+        testElementsTested = new MutableLiveData<>();
+        int initialValue = 0;
+        testElementsTested.postValue(initialValue);
+
 
         //create a TestElement object for each original photo - then link all the alterations to the relative original TestElement
         for(File file : directory.listFiles()) {
@@ -70,12 +89,13 @@ public class PhotoTester {
                 //check if extension is available
                 if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
 
-                    Bitmap photoBitmap = Utils.loadBitmapFromFile(filePath);
+                    //this file is an image -> get file path
+                    String originalImagePath = file.getAbsolutePath();
 
                     //Each photo has a description.txt with the same filename - so when an image is found we know the description filename
                     String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
 
-                    //create test element giving filename, description and bitmap
+                    //create test element giving filename, description and image path
                     //author Luca Moroldo - g3
 
                     JSONObject jsonPhotoDescription = null;
@@ -86,21 +106,18 @@ public class PhotoTester {
                         Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
                     }
                     if(jsonPhotoDescription != null) {
-                        TestElement originalTest = new TestElement(photoBitmap, jsonPhotoDescription, fileName);
 
-                        //associate the relative bitmap to each alteration of the original test if there is any
+                        TestElement originalTest = new TestElement(originalImagePath, jsonPhotoDescription, fileName);
+
+                        //associate the relative image path to each alteration of the original test if there is any
                         String[] alterationsFilenames = originalTest.getAlterationsNames();
                         if(alterationsFilenames != null) {
                             for(String alterationFilename : alterationsFilenames) {
-
-                                String alterationBitmapPath = dirPath + "/" + alterationFilename;
-                                Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationBitmapPath);
-
-                                //Utils.loadBitmapFromFile may return null
-                                if(alterationBitmap != null)
-                                    originalTest.setAlterationBitmap(alterationFilename, alterationBitmap);
+                                String alterationImagePath = dirPath + "/" + alterationFilename;
+                                originalTest.setAlterationImagePath(alterationFilename, alterationImagePath);
                             }
                         }
+
                         testElements.add(originalTest);
                     }
                 }
@@ -110,15 +127,14 @@ public class PhotoTester {
 
 
     /**
-     * Get a File directory from an environment
-     * @param environment parent environment
-     * @param dirName name of the directory
+     * Get a File directory from a path String
+     * @param dirPath The path of the directory
      * @return the file relative to the environment and the dirName
      * @author Pietro Prandini (g2)
      */
-    private File getStorageDir(File environment, String dirName) {
+    private File getStorageDir(String dirPath) {
         // Get the directory for the user's public pictures directory.
-        File file = new File(environment, dirName);
+        File file = new File(dirPath);
         if(!file.isDirectory()) {
             Log.e(TAG, file.getAbsolutePath() + "It's not a directory");
         } else {
@@ -136,17 +152,25 @@ public class PhotoTester {
      */
     public String testAndReport() throws InterruptedException {
 
+
         Log.i(TAG,"testAndReport started");
         long started = java.lang.System.currentTimeMillis();
 
         final JSONObject fullJsonReport = new JSONObject();
 
-        int totalTestElements = testElements.size();
+        totalTestElements = testElements.size();
+        int initialValue = 0;
+        testElementsTested.postValue(initialValue);
 
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(totalTestElements);
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
+        //leave a processor for the OS
+        if(max_concurrent_tasks > 1) {
+            max_concurrent_tasks--;
+        }
+
         Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
 
         //Define a thread executor that will run a maximum of 'max_concurrent_tasks' simultaneously
@@ -166,6 +190,14 @@ public class PhotoTester {
         long ended = java.lang.System.currentTimeMillis();
         Log.i(TAG,"testAndReport ended (" + totalTestElements + " pics tested in " + (ended - started) + " ms)");
 
+        //insert tags stats to json report
+        String tagsStats = getTagsStatsString();
+        try {
+            fullJsonReport.put("stats", tagsStats);
+        } catch(JSONException e) {
+            Log.e(TAG, "Failed to add tags stats to JSON report");
+        }
+
         String fullReport = fullJsonReport.toString();
 
         //write report to file
@@ -176,7 +208,32 @@ public class PhotoTester {
             e.printStackTrace();
         }
 
+        //save current report
+        this.report = fullReport;
+
         return fullReport;
+    }
+
+    /**
+     * Save report to file
+     *
+     * @return true if report was correctly saved, false in case of error or if report is null
+     */
+    public boolean saveReportToFile() {
+
+        //check if report is not null
+        if(report == null)
+            return false;
+
+        try {
+            writeReportToExternalStorage(report, dirPath, REPORT_FILENAME);
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "Error writing report to file.");
+            e.printStackTrace();
+        }
+        //error occurred
+        return false;
     }
 
     public TestElement[] getTestElements() {
@@ -186,43 +243,52 @@ public class PhotoTester {
 
     /**
      * Compare the list of ingredients extracted by OCR and the correct list of ingredients
-     * @param correct correct list of ingredients loaded from file
-     * @param extracted list of ingredients extracted by the OCR
-     * @return confidence percentage based on number of matched words, their similarity and order
+     *
+     * @param correct       Correct list of ingredients loaded from file
+     * @param extracted     List of ingredients extracted by the OCR
+     * @return Confidence percentage based on number of matched words, their similarity and order
      * @author Francesco Pham credit to Stefano Romanello for Levenshtein library suggestion
      */
     private float ingredientsTextComparison(String correct, String extracted){
 
-        extracted = extracted.toLowerCase();
+        extracted = extracted.toLowerCase(); //ignoring case
+
+        //split words
         String[] extractedWords = extracted.trim().split("[ ,-:./\\n\\r]+");
         String[] correctWords = correct.trim().split("[ ,-:./\\n\\r]+");
 
         Log.i(TAG, "ingredientsTextComparison -> Start of comparing");
         Log.i(TAG, "ingredientsTextComparison -> correctWords.length == " + correctWords.length + ", extractedWords.length == " + extractedWords.length);
 
-        float points = 0;
-        int maxPoints = 0;
-        int posLastWordFound = 0;
-        int consecutiveNotFound = 0;
+        float points = 0; //points are added each time a word is found
+        int maxPoints = 0; //maximum points which is the number of characters of all words with more than 3 characters
+        int posLastWordFound = 0; //index of the last word found
+        int consecutiveNotFound = 0; //consecutive words not found since last word found
+        final double similarityThreshold = 0.8; //threshold above which the word we are looking at is considered found
 
         LevenshteinStringDistance stringComparator = new LevenshteinStringDistance();
 
+        //for each correct word
         for (String word : correctWords) {
             boolean found = false;
             int index = posLastWordFound;
-            word = word.toLowerCase();
+            word = word.toLowerCase(); //ignoring case
 
-            if (word.length() >= 3) {
+            if (word.length() >= 3) { //ignoring non significant words with 1 or 2 characters
                 maxPoints += word.length();
+
                 for (int i = 0; i < extractedWords.length && !found; i++) {
+                    //for each extracted words starting from posLastWordFound
                     index = (posLastWordFound + i) % extractedWords.length;
 
                     double similarity = stringComparator.getNormalizedSimilarity(word, extractedWords[index]);
 
-                    if (similarity > 0.8) {
+                    //if similarity grater than similarityThreshold the word is found
+                    if (similarity > similarityThreshold) {
                         if (points == 0 || i < consecutiveNotFound + 10) {
                             points += word.length()*similarity; //assign points based on number of characters
                         } else {
+                            //if word found is distant from posLastWordFound the ocr text isn't ordered, less points
                             points += (float) word.length()*similarity/2;
                         }
                         Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
@@ -232,11 +298,11 @@ public class PhotoTester {
                 }
             }
 
+            //taking into consideration words that are not properly separated (e.g. "cetarylalcohol")
             if(!found && word.length() >= 6){
-                maxPoints += word.length();
                 for(int i=0; i<extractedWords.length && !found; i++) {
                     index = (posLastWordFound+i)%extractedWords.length;
-                    if (extractedWords[index].contains(word)) {
+                    if (extractedWords[index].contains(word)) { //the correct word is contained in the extracted word
                         if(points==0 || i<consecutiveNotFound+10) {
                             points += word.length(); //assign points based on number of characters
                         } else {
@@ -258,6 +324,11 @@ public class PhotoTester {
         }
         float confidence = (points / maxPoints)*100;
         Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
+
+        //I found a test where the function returned NaN (the correct ingredient text was '-') - Luca Moroldo
+        if(confidence == NaN) {
+            confidence = 0;
+        }
         return confidence;
 
     }
@@ -301,8 +372,6 @@ public class PhotoTester {
 
         TextExtractor textExtractor = new TextExtractor();
         return textExtractor.getTextFromImg(bitmap);
-
-
     }
 
 
@@ -317,7 +386,7 @@ public class PhotoTester {
 
         /**
          * @param jsonReport JSONObject containing tests data
-         * @param test element of a test - must contain bitmap and ingredients fields
+         * @param test element of a test - must contain an image path and ingredients fields
          * @param countDownLatch used to signal the task completion
          */
         public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
@@ -332,8 +401,12 @@ public class PhotoTester {
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
                 long started = java.lang.System.currentTimeMillis();
 
+
                 //evaluate text extraction confidence
-                String extractedIngredients = executeOcr(test.getPicture());
+                String imagePath = test.getImagePath();
+                Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
+                String extractedIngredients = executeOcr(testBitmap);
+
                 String correctIngredients = test.getIngredients();
                 float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
@@ -346,7 +419,9 @@ public class PhotoTester {
                 if(alterationsFileNames != null) {
                     for(String alterationFilename : alterationsFileNames) {
 
-                        Bitmap alterationBitmap = test.getAlterationBitmap(alterationFilename);
+                        String alterationImagePath = test.getAlterationImagePath(alterationFilename);
+                        Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationImagePath);
+
                         String alterationExtractedIngredients = "";
                         if(alterationBitmap != null) {
                             alterationExtractedIngredients = executeOcr(alterationBitmap);
@@ -359,6 +434,7 @@ public class PhotoTester {
                     }
                 }
 
+
                 try {
                     addTestElement(jsonReport, test);
                 } catch (JSONException e) {
@@ -367,10 +443,14 @@ public class PhotoTester {
 
                 //signal the end of this single test
                 countDownLatch.countDown();
-
+                updateTestedNumber();
                 long ended = java.lang.System.currentTimeMillis();
                 Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
         }
+    }
+
+    private synchronized void updateTestedNumber() {
+        testElementsTested.postValue(testElementsTested.getValue() + 1);
     }
 
     /**
@@ -389,10 +469,9 @@ public class PhotoTester {
     * Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
     * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
     */
-    public HashMap getTagsStats() {
+    private HashMap getTagsStats() {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
-
         HashMap<String, Integer> tagOccurrences = new HashMap<>(); //contains the number of occurrences of each tag
 
         for(TestElement element : testElements) {
@@ -417,6 +496,49 @@ public class PhotoTester {
     }
 
     /**
+     *
+     * @return an HashMap: (Tag, Value)  where value is the average gain result of the alterated photo tagged with that Tag
+     * @author Luca Moroldo - Credits: Nicolò Cerco (the structure of this method is the same of getTagsStats)
+     */
+    private HashMap getAlterationsTagsGainStats() {
+
+        //TODO think about: would it be better to get the stats for each tags collection rather than for each tag?
+        //for example: do we loose information if a photo is both rotated and cropped, and we don't consider that an extraordinary gain could be
+        //a consequence of this particular coupling of tags?
+
+        HashMap<String, Float> alterationTagsGain = new HashMap<>(); //contains the % earning for each alteration tag
+        HashMap<String, Integer> alterationTagsOccurrences = new HashMap<>(); //contains the occurrences of each tag
+
+        for(TestElement element : testElements) {
+            //evaluate alterations if any
+
+
+            String[] alterationsNames = element.getAlterationsNames();
+            if(alterationsNames != null) {
+                for(String alterationName : alterationsNames) {
+                    for(String tag : element.getAlterationTags(alterationName)) {
+                        Log.v(TAG, "AlterationTag " + tag);
+                        if(alterationTagsGain.containsKey(tag)) {
+                            float newGain = alterationTagsGain.get(tag) + (element.getAlterationConfidence(alterationName) - element.getConfidence());
+                            alterationTagsGain.put(tag, newGain);
+                            alterationTagsOccurrences.put(tag, alterationTagsOccurrences.get(tag) + 1);
+                        } else{
+                            alterationTagsGain.put(tag, element.getConfidence());
+                            alterationTagsOccurrences.put(tag, 1);
+                        }
+
+                    }
+                }
+            }
+        }
+        for(String tag : alterationTagsGain.keySet()){
+            alterationTagsGain.put(tag, alterationTagsGain.get(tag)/alterationTagsOccurrences.get(tag)); // average of the scores
+            Log.i(TAG, "-" + tag + " score: " + alterationTagsGain.get(tag));
+        }
+        return alterationTagsGain;
+    }
+
+    /**
      * Convert statistics returned by getTagsStats() into a readable text
      * @author Francesco Pham (g3)
      */
@@ -428,9 +550,26 @@ public class PhotoTester {
             report = report + keymin + " : " + tagsStats.get(keymin) + "%\n";
             tagsStats.remove(keymin);
         }
+
+        HashMap alterationsTagsGainStats = getAlterationsTagsGainStats();
+        report += "\nAvarage gain by alterations tags: \n";
+        while(!alterationsTagsGainStats.isEmpty()) {
+            String keymin = getMinKey(alterationsTagsGainStats);
+            report = report + keymin + " : " + alterationsTagsGainStats.get(keymin) + "%\n";
+            alterationsTagsGainStats.remove(keymin);
+        }
+
+        Log.d(TAG, "Tag stats: \n" + report);
+
         return report;
+
     }
 
+    /**
+     * Find and return key corresponding to minimum value
+     * @param map
+     * @return Key corresponding to minimum value
+     */
     private String getMinKey(Map<String, Float> map) {
         String minKey = null;
         float minValue = Float.MAX_VALUE;
