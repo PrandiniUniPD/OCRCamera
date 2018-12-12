@@ -7,8 +7,13 @@ import android.media.ExifInterface;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Provides methods to retrieve and store image with ingredients to populate a gallery view
@@ -17,6 +22,10 @@ import java.util.ArrayList;
 public class GalleryManager
 {
     final private static String TAG = "@@GalleryManager";
+    //The prefix that is added to a new image's name
+    final private static String NEW_IMAGE_PREFIX = "OCRApp_";
+    //The format to which the current date and time are converted
+    final private static String CONVERSION_FORMAT = "yyyMMdd_HHmmss";
 
     //The path of the directory where all the images are stored
     private static String DATA_DIRECTORY_PATH = "";
@@ -57,12 +66,24 @@ public class GalleryManager
 
     /**
      * Stores image and metadata
+     * @param context The reference to the activity where the gallery is displayed
      * @param toStore The image with the corresponding ingredients that has to be stored
      * @param ingredients The ingredients that has to be stored with the image
      */
-    public static void storeImage(Bitmap toStore, String ingredients)
+    public static void storeImage(Context context, Bitmap toStore, ArrayList<String> ingredients)
     {
+        //Images directory reference set up
+        setupImageDirectoryInfo(context);
 
+        //New image's name
+        SimpleDateFormat formatter = new SimpleDateFormat(CONVERSION_FORMAT);
+        String currentDateAndTime = formatter.format(new Date());
+        String imageName = NEW_IMAGE_PREFIX + currentDateAndTime;
+
+        //Storing the given image into a file
+        String filePath = saveToFile(toStore, imageName);
+        //Metadata writing
+        writeMetadata(filePath, ingredients);
     }
 
     /**
@@ -107,6 +128,53 @@ public class GalleryManager
             //Returning null so that this image will not be added to the list of the retrieved files
             return null;
         }
+    }
+
+    /**
+     * Saves the specified image to the data directory
+     * @param toStore The image that has to be stored
+     * @param name The name with which the image has to be saved
+     * @return The path of the file that is created
+     */
+    private static String saveToFile(Bitmap toStore, String name)
+    {
+        File image = new File(PATH, name);
+        try
+        {
+            OutputStream outStream = new FileOutputStream(image);
+            toStore.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+            outStream.flush();
+            outStream.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return image.getAbsolutePath();
+    }
+
+    /**
+     * Writes the specified metadata to the image
+     * @param path The path of the image to which the metadata have to be written
+     * @param metadata The information that has to be stored with the image
+     */
+    private static void writeMetadata(String path, ArrayList<String> metadata)
+    {
+        try
+        {
+            ExifInterface metadataWriter = new ExifInterface(path);
+            for (String data : metadata) { metadataWriter.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, data); }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
     /**
