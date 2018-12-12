@@ -32,7 +32,7 @@ public class TextAutoCorrection {
     private ITransducer<Candidate> transducer;
 
     //Default maximum number of errors tolerated between each spelling candidate and the query term.
-    final int defMaxDist = 8;
+    final int defMaxDist = 5;
 
     //Do not correct words with less than minChars characters
     final int minChars = 3;
@@ -54,7 +54,7 @@ public class TextAutoCorrection {
         try {
             dictionary = serializer.deserialize(SortedDawg.class, dictionaryStream);
         } catch (Exception e) {
-            Log.e(TAG, "couldn't deserialize dictionary");
+            Log.d(TAG,"couldn't deserialize dictionary");
             return;
         }
 
@@ -76,11 +76,13 @@ public class TextAutoCorrection {
     public String correctText(String text){
 
         text = text.toUpperCase();
+        text = text.trim().replaceAll(" +", " ");
 
         int previousNonAlphanumIndex = -1;
         for(int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if(!Character.isLetter(c) && !Character.isDigit(c)){
+
                 if(i > previousNonAlphanumIndex+minChars){
                     String word = text.substring(previousNonAlphanumIndex+1,i);
 
@@ -94,12 +96,17 @@ public class TextAutoCorrection {
                         }
                     }
 
-                    //substitute
                     double normalizedDistance = minDistance/word.length();
-                    if(normalizedDistance < distanceThreshold && !term.equals("")){
+                    if(normalizedDistance < distanceThreshold && !term.equals("") && !term.equals(word)){
+
+                        //substitute
                         text = text.substring(0, previousNonAlphanumIndex+1) + term + text.substring(i);
+
+                        //take into account the difference of length between the words
+                        i += term.length()-word.length();
                     }
                 }
+
                 previousNonAlphanumIndex = i;
             }
         }

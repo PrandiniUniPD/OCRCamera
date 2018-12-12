@@ -52,7 +52,9 @@ dependencies {
     implementation "com.opencsv:opencsv:4.4"
 
     //for automatic text correction
-    compile 'com.github.universal-automata:liblevenshtein:3.0.0'
+    implementation ('com.github.universal-automata:liblevenshtein:3.0.0'){
+        exclude group:'com.google.code.findbugs' //excluding this because of a conflict
+    }
 
     //FTP dependencies
     implementation 'commons-net:commons-net:3.6'
