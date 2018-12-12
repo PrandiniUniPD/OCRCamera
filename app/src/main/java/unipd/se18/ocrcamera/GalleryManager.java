@@ -188,6 +188,7 @@ public class GalleryManager
     public static class PhotoStructure
     {
         private Bitmap photo;
+        private String reliability;
         private ArrayList<String> ingredients = new ArrayList<String>();
     }
 
