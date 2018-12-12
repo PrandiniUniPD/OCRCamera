@@ -200,7 +200,8 @@ public class GalleryManager
     public static class RecycleCardsAdapter extends RecyclerView.Adapter<RecycleCardsAdapter.CardViewHolder> {
 
         Context mainActivity;
-        ArrayList<PhotoStructure> photosList = new ArrayList<PhotoStructure>();
+        ArrayList<PhotoStructure> photosList;
+
         public RecycleCardsAdapter(Context context, ArrayList<PhotoStructure> _photos)
         {
             photosList=_photos;
@@ -210,23 +211,27 @@ public class GalleryManager
         /**
          * Holder tells how the card is made. It contains all the elements inside a card
          */
-        public class CardViewHolder extends RecyclerView.ViewHolder{
+        public class CardViewHolder extends RecyclerView.ViewHolder
+        {
             ImageView imageView;
             TextView txtTitle;
-            public CardViewHolder(View itemView) {
+
+            public CardViewHolder(View itemView)
+            {
                 super(itemView);
-                this.imageView = (ImageView) itemView.findViewById(R.id.image_holder);
-                this.txtTitle = (TextView) itemView.findViewById(R.id.text_title);
+                this.imageView = itemView.findViewById(R.id.image_holder);
+                this.txtTitle = itemView.findViewById(R.id.text_title);
             }
         }
 
         /**
-         * Create a new card with the inflated the layout. At this point I just create an object containing the layout of the card.
+         * Create a new card with the inflated layout. At this point I just create an object containing the layout of the card.
          * @param parent the main ViewGroup where the card will be inflated
          * @param viewType identifier of the view that I want to implement using default views
          */
         @Override
-        public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+        {
             View view = LayoutInflater.from(parent.getContext()) .inflate(R.layout.cardlayoutgallery, parent, false);
             CardViewHolder cardViewHolder = new CardViewHolder(view);
             return cardViewHolder;

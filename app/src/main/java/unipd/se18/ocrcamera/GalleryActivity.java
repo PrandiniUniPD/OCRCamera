@@ -16,7 +16,7 @@ public class GalleryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_gallery);
 
         //Create the container for all my cards
-        RecyclerView picturesRecycleView = (RecyclerView) findViewById(R.id.recycle_view);
+        RecyclerView picturesRecycleView = findViewById(R.id.recycle_view);
         picturesRecycleView.setHasFixedSize(true);
 
         //Set a grid (2 columns) from my recycleView
