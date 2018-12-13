@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
@@ -102,6 +101,10 @@ public class TestResultActivity extends AppCompatActivity {
         private TextView progressText;
 
         /**
+         * The number of tested elements so far
+         */
+        private int testedElements = 0;
+        /**
          * Constructor of the class
          * @param listEntriesView The ListView used for showing the results as list
          */
@@ -132,18 +135,16 @@ public class TestResultActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             this.tester = new PhotoTester(getApplicationContext(), dirPath);
-            progressBar.setMax(PhotoTester.totalTestElements);
+            progressBar.setMax(tester.getTestSize());
 
-            android.arch.lifecycle.Observer<Integer> observerForProgress =
-                    new android.arch.lifecycle.Observer<Integer>() {
-                        @Override
-                        public void onChanged(@Nullable Integer integer) {
-                            publishProgress(PhotoTester.testElementsTested.getValue());
-                        }
-                    };
-            PhotoTester.testElementsTested.observe(TestResultActivity.this, observerForProgress);
-
-
+            TestListener testListener = new TestListener() {
+                @Override
+                public void onTestFinished() {
+                    publishProgress(++testedElements);
+                }
+            };
+            tester.setTestListener(testListener);
+            //publish progress
             try {
                 report = tester.testAndReport();
             } catch (InterruptedException e) {
@@ -168,9 +169,9 @@ public class TestResultActivity extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(Integer... values) {
-            progressBar.setProgress(PhotoTester.testElementsTested.getValue());
+            progressBar.setProgress(testedElements);
             String progress = "Tested: " + values[0] +
-                    " of " + PhotoTester.totalTestElements;
+                    " of " + tester.getTestSize();
             progressText.setText(progress);
         }
 
