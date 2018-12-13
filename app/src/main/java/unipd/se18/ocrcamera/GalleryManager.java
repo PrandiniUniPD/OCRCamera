@@ -55,6 +55,7 @@ public class GalleryManager
      * Loads images and metadata
      * @param context The reference to the activity where the gallery is displayed
      * @return A list of the photos with the corresponding metadata
+     * @author Leonardo Rossi
      */
     public static ArrayList<PhotoStructure> getImages(Context context)
     {
@@ -90,6 +91,7 @@ public class GalleryManager
      * @param ingredients The ingredients that has to be stored with the image
      * @param reliability The OCR reliability on the photo
      * @throws IOException if an error occurs during image saving or metadata writing
+     * @author Leonardo Rossi
      */
     public static void storeImage(Context context, Bitmap toStore, ArrayList<String> ingredients, String reliability) throws IOException
     {
@@ -127,6 +129,7 @@ public class GalleryManager
      * Reads the metadata from the given image
      * @param image The image from which the metadata have to be read
      * @return An object that contains the image with its metadata. Null if the given image can't be opened
+     * @author Leonardo Rossi
      */
     private static PhotoStructure buildStructure(File image)
     {
@@ -159,6 +162,7 @@ public class GalleryManager
      * @param name The name with which the image has to be saved
      * @return The path of the file that is created
      * @throws IOException if it's impossible to find the file at the specified path or if it's impossible to write to the same file
+     * @author Leonardo Rossi
      */
     private static String saveToFile(Bitmap toStore, String name) throws IOException
     {
@@ -178,6 +182,7 @@ public class GalleryManager
      * @param ingredients The information that has to be stored with the image
      * @param  reliability The OCR reliability on the photo
      * @throws IOException if it's impossible to reach the file at the specified path
+     * @author Leonardo Rossi
      */
     private static void writeMetadata(String path, ArrayList<String> ingredients, String reliability) throws IOException
     {
