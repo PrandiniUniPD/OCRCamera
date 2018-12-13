@@ -5,5 +5,5 @@
     <item android:id="@+id/download_photos"
         android:title="Download Photos"/>
     <item android:id="@+id/gallery"
-        android:title="Galery"/>
+        android:title="Gallery"/>
 </menu>

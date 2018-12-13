@@ -63,6 +63,16 @@ public class GalleryActivity extends AppCompatActivity {
         ft.commit();
     }
 
+    @Override
+    public void onBackPressed() {
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        if (backStackEntryCount == 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     /**
      * Fragment of the gallery layout
      * @author Romanello Stefano
@@ -79,7 +89,6 @@ public class GalleryActivity extends AppCompatActivity {
         public void onActivityCreated(Bundle savedInstanceState)
         {
             super.onActivityCreated(savedInstanceState);
-
             ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
             actionBar.setTitle("Gallery");
             actionBar.setDisplayHomeAsUpEnabled(false);
@@ -138,6 +147,12 @@ public class GalleryActivity extends AppCompatActivity {
                     cardAdapter.photosList.remove(cardPosition);
                     cardAdapter.notifyItemRemoved(cardPosition);
                 }
+
+                //Restore the actionBar
+                ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
+                actionBar.setTitle("Gallery");
+                actionBar.setDisplayHomeAsUpEnabled(false);
+                actionBar.setHomeButtonEnabled(false);
             }
 
         }
@@ -186,7 +201,9 @@ public class GalleryActivity extends AppCompatActivity {
             return view;
         }
 
-
+        /**
+         * Add the delete button to the actionBar
+         */
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             // Inflate the menu items for use in the action bar
@@ -213,6 +230,7 @@ public class GalleryActivity extends AppCompatActivity {
             }
             return super.onOptionsItemSelected(item);
         }
+
 
 
         /**
@@ -256,7 +274,7 @@ public class GalleryActivity extends AppCompatActivity {
                 GalleryManager.deleteImage(photoInfos);
 
                 //Close current fragment
-                closeDetailFragment();
+                getFragmentManager().popBackStack();
 
             } catch (IOException e) {
                 //Manage the exaption with a dialog
@@ -274,18 +292,6 @@ public class GalleryActivity extends AppCompatActivity {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             }
-        }
-
-        /**
-         * Method for closing the current fragment
-         */
-        private void closeDetailFragment()
-        {
-            getFragmentManager().popBackStack();
-            ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
-            actionBar.setTitle("Gallery");
-            actionBar.setDisplayHomeAsUpEnabled(false);
-            actionBar.setHomeButtonEnabled(false);
         }
     }
 
