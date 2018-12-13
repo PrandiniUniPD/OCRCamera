@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -191,7 +192,8 @@ public class ResultActivity extends AppCompatActivity {
 
             //I cant understand the ingredients yet, for now I put everything as one ingredient
             ArrayList<String> txt = new ArrayList<>();
-            txt.add(s);
+            String testoFormattato=String.valueOf(Html.fromHtml(s));
+            txt.add(testoFormattato);
             try {
                 GalleryManager.storeImage(getBaseContext(),workingImage,txt,"0%");
             } catch (IOException e) {
