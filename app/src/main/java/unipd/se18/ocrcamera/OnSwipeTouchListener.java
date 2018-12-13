@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 
 public class OnSwipeTouchListener implements OnTouchListener {
-    private final String tag= "OnSwipeTouvhListener";
+    private static final String TAG = "OnSwipeTouvhListener";
     private final GestureDetector gestureDetector;
 
     public OnSwipeTouchListener(Context ctx){
@@ -53,26 +53,32 @@ public class OnSwipeTouchListener implements OnTouchListener {
             try {
                 float distanceY = e2.getY() - e1.getY();
                 float distanceX = e2.getX() - e1.getX();
+                //user swipes horizontally
                 if (Math.abs(distanceX) > Math.abs(distanceY)) {
                     if (Math.abs(distanceX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (distanceX > 0) {
+                            Log.i(TAG, "right swipe detected");
                             onSwipeRight();
                         } else {
+                            Log.i(TAG, "left swipe detected");
                             onSwipeLeft();
                         }
                         result = true;
                     }
                 }
+                //user swipes vertically
                 else if (Math.abs(distanceY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                     if (distanceY > 0) {
+                        Log.i(TAG, "bottom swipe detected");
                         onSwipeBottom();
                     } else {
+                        Log.i(TAG, "top swipe detected");
                         onSwipeTop();
                     }
                     result = true;
                 }
             } catch (Exception exception) {
-                Log.e(tag, "error");
+                Log.e(TAG, "error");
                 exception.printStackTrace();
             }
             return result;
