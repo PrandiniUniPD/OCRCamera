@@ -6,10 +6,12 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.SyncStateContract;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -191,12 +194,13 @@ public class GalleryManager
 
     /**
      * Represents gallery's data model
+     * @implements Serializable for be able to pass this structure to the Bundle of the fragment
      */
-    public static class PhotoStructure
+    public static class PhotoStructure implements Serializable
     {
-        private Bitmap photo;
-        private String reliability;
-        private ArrayList<String> ingredients = new ArrayList<String>();
+        public Bitmap photo;
+        public String reliability;
+        public ArrayList<String> ingredients = new ArrayList<String>();
     }
 
 
@@ -248,13 +252,22 @@ public class GalleryManager
                 @Override
                 public void onClick(View v) {
                     int position = cardViewHolder.getAdapterPosition();
-                    // Begin the transaction
-                    FragmentTransaction ft = ((GalleryActivity)mainActivity).getSupportFragmentManager().beginTransaction();
-                    // Replace the contents of the container with the new fragment
-                    ft.replace(R.id.fragmentPlaceHolder, new GalleryActivity.DetailFragment());
-                    // or ft.add(R.id.your_placeholder, new FooFragment());
-                    // Complete the changes added above
+
+                    FragmentManager fm = ((GalleryActivity)mainActivity).getSupportFragmentManager();
+                    FragmentTransaction ft = fm.beginTransaction();
+
+                    //Create fragment and pass the parameters as bundle
+                    GalleryActivity.DetailFragment detailedFragment = new GalleryActivity.DetailFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("photoObject",photosList.get(position));
+                    detailedFragment.setArguments(bundle);
+
+                    //Use hide insead of replace so I don't have to rebuild the gallery every time
+                    ft.hide(fm.findFragmentByTag("home"));
+                    ft.add(R.id.fragmentPlaceHolder, detailedFragment, "details");
                     ft.addToBackStack("details");
+
+                    //Execute
                     ft.commit();
                 }
             });

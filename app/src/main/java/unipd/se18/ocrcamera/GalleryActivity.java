@@ -1,53 +1,79 @@
 package unipd.se18.ocrcamera;
 
-import android.app.FragmentManager;
+
+
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.google.android.gms.common.util.DataUtils;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class GalleryActivity extends AppCompatActivity {
 
+/**
+ * Gallery activity
+ * @author Stefano Romanello - Fragment suggestion Leonardo Rossi
+ */
+public class GalleryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
-        //Load the gallery layout
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.fragmentPlaceHolder, new GalleryActivity.MainFragment());
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.add(R.id.fragmentPlaceHolder, new MainFragment(),"home");
         ft.commit();
     }
 
-    //Fragment of the gallery layout
+    /**
+     * Fragment of the gallery layout
+     */
     public static class MainFragment extends Fragment {
-        // The onCreateView method is called when Fragment should create its View object hierarchy,
-        // either dynamically or via XML layout inflation.
+
+        /**
+         * Event triggered once everything in the activity have finished loading
+         */
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+        public void onActivityCreated(Bundle savedInstanceState)
+        {
+            super.onActivityCreated(savedInstanceState);
+
+            ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
+            actionBar.setTitle("Gallery");
+            actionBar.setDisplayHomeAsUpEnabled(false);
+            actionBar.setHomeButtonEnabled(false);
+        }
+
+        /**
+         * Event triggered when I create the view
+         */
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState)
+        {
             // Defines the xml file for the fragment
             return inflater.inflate(R.layout.activity_gallery_content, parent, false);
         }
 
-        // This event is triggered soon after onCreateView().
-        // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
+        /**
+         * This event is triggered soon after onCreateView().
+         * Any view setup should occur here.
+         */
         @Override
-        public void onViewCreated(View view, Bundle savedInstanceState) {
+        public void onViewCreated(View view, Bundle savedInstanceState)
+        {
 
             //Create the container for all my cards
             RecyclerView picturesRecycleView = view.findViewById(R.id.recycle_view);
@@ -65,23 +91,87 @@ public class GalleryActivity extends AppCompatActivity {
         }
     }
 
-    //Fragment of the detailed photo layout
-    public static class DetailFragment extends Fragment {
-        // The onCreateView method is called when Fragment should create its View object hierarchy,
-        // either dynamically or via XML layout inflation.
+    /**
+     * Fragment of the detailed photo layout
+     */
+    public static class DetailFragment extends Fragment
+    {
+        private GalleryManager.PhotoStructure photoInfos;
+
+        /**
+         * Event triggered once everything in the activity have finished loading
+         */
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-            // Defines the xml file for the fragment
-            return inflater.inflate(R.layout.activitygallerydetails, parent, false);
+        public void onActivityCreated(Bundle savedInstanceState)
+        {
+            super.onActivityCreated(savedInstanceState);
+
+            ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
+            actionBar.setTitle("Details");
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
         }
 
-        // This event is triggered soon after onCreateView().
-        // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
+        /**
+         * Event triggered when I create the view
+         */
         @Override
-        public void onViewCreated(View view, Bundle savedInstanceState) {
-            // Setup any handles to view objects here
-            // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
-            ((GalleryActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState)
+        {
+            // Defines the xml file for the fragment
+            View view = inflater.inflate(R.layout.activitygallerydetails, parent, false);
+            setHasOptionsMenu(true);
+            return view;
+        }
+
+        /**
+         * Listner for the back button action that will close the deailed Fragment
+         * @param item value of the item clicked
+         */
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item)
+        {
+            switch (item.getItemId()) {
+                case android.R.id.home:
+                    //Go back with fragment and restore the actionBar for the main gallery
+                    getFragmentManager().popBackStack();
+                    ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
+                    actionBar.setTitle("Gallery");
+                    actionBar.setDisplayHomeAsUpEnabled(false);
+                    actionBar.setHomeButtonEnabled(false);
+                    break;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+
+
+        //
+
+        /**
+         * This event is triggered soon after onCreateView()
+         */
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState)
+        {
+
+            //Load the information from the bundle
+            Bundle bundle = getArguments();
+            if (bundle != null) {
+                photoInfos = (GalleryManager.PhotoStructure)bundle.getSerializable("photoObject");
+            }
+
+            TextView txtIngredients = ((GalleryActivity) getActivity()).findViewById(R.id.textViewGalleryDetailIngredients);
+            TextView txtPercentage = ((GalleryActivity) getActivity()).findViewById(R.id.textViewGalleryDetailPercentage);
+            ImageView imageView = ((GalleryActivity) getActivity()).findViewById(R.id.imageViewGalleryDetailPhoto);
+
+            //Fill the detailed page with informations
+            String formattedIngredients = photoInfos.ingredients.toString()
+                    .replace("[", "")  //remove the right bracket
+                    .replace("]", "")  //remove the left bracket
+                    .trim();
+            txtIngredients.setText("Ingredients: " + formattedIngredients);
+            txtPercentage.setText("Reliability: " +photoInfos.reliability);
+            imageView.setImageBitmap(photoInfos.photo);
         }
     }
 }

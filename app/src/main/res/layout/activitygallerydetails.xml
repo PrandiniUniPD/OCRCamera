@@ -1,17 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/galleryDetailsLayout">
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical"
+android:id="@+id/galleryDetailsLayout"
+android:weightSum="1"
+android:padding="5dp">
 
+<ImageView
+    android:id="@+id/imageViewGalleryDetailPhoto"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="0.7"
+    tools:srcCompat="@tools:sample/backgrounds/scenic"
+    />
+
+<TextView
+    android:id="@+id/textViewGalleryDetailPercentage"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:text="Percentuale"
+    />
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+        android:id="@+id/textViewGalleryDetailIngredients"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="110dp"
-        tools:layout_editor_absoluteY="70dp"
-        tools:ignore="MissingConstraints" />
+        android:text="Ingredienti"
+        android:layout_margin="10dp"
+        />
+
+</ScrollView>
+
+
+
+
 </LinearLayout>
