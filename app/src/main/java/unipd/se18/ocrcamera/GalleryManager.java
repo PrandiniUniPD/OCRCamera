@@ -102,6 +102,13 @@ public class GalleryManager
         //Images directory reference set up
         setupImageDirectoryInfo();
 
+        //Obtaining the reference to the directory
+        File imageDirectory = new File(PATH);
+        //If the directory doesn't exist it will be created
+        if (!imageDirectory.exists()){
+            imageDirectory.mkdir();
+        }
+
         //New image's name
         SimpleDateFormat formatter = new SimpleDateFormat(CONVERSION_FORMAT);
         String currentDateAndTime = formatter.format(new Date());
@@ -205,11 +212,17 @@ public class GalleryManager
     private static void writeMetadata(String path, ArrayList<String> ingredients, String reliability) throws IOException
     {
         ExifInterface metadataWriter = new ExifInterface(path);
-        for (String data : ingredients)
-        {
-            metadataWriter.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, data);
-            metadataWriter.setAttribute(ExifInterface.TAG_USER_COMMENT, reliability);
-        }
+
+        String ingredientsString = ingredients.toString()
+                .replace("[", "")  //remove the right bracket
+                .replace("]", "")  //remove the left bracket
+                .trim();
+
+        metadataWriter.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, ingredientsString);
+        metadataWriter.setAttribute(ExifInterface.TAG_USER_COMMENT, reliability);
+
+        //Saves metadata to the image
+        metadataWriter.saveAttributes();
     }
 
     /**
@@ -221,7 +234,7 @@ public class GalleryManager
         public Bitmap photo;
         public String reliability;
         public String fileImagePath;
-        public ArrayList<String> ingredients = new ArrayList<String>();
+        public ArrayList<String> ingredients = new ArrayList();
     }
 
 
