@@ -8,7 +8,7 @@ import org.opencv.core.RotatedRect;
  * Class that contains all the regions with a text in an image
  * @autor Thomas Porro (g1)
  */
-private package class TextAreas implements TextRegions{
+class TextAreas implements TextRegions{
     private List<RotatedRect> detectedText;
 
     /**
