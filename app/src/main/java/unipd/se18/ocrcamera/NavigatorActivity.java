@@ -39,7 +39,7 @@ public class NavigatorActivity extends AppCompatActivity {
             If already exists a photo, launch result activity to show it
             with text attached - Author Luca Moroldo modified by Francesco Pham
         **/
-        /*if(pathImage != null) {
+        if(pathImage != null) {
             //load last extracted text
             prefs = getSharedPreferences("prefs", MODE_PRIVATE);
             String OCRText = prefs.getString("text", null);
@@ -57,8 +57,8 @@ public class NavigatorActivity extends AppCompatActivity {
         }
         else {
             intent = new Intent(NavigatorActivity.this, CameraActivity.class);
-        }*/
-        intent = new Intent(NavigatorActivity.this, GalleryActivity.class);
+        }
+        //intent = new Intent(NavigatorActivity.this, GalleryActivity.class);
 
         startActivity(intent);
         finish();

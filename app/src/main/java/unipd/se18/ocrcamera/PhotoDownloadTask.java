@@ -1,11 +1,14 @@
 package unipd.se18.ocrcamera;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -33,7 +36,6 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
 {
 
     private FTPClient ftp;
-    //private ArrayList<String> messages;
     private Context context;
     private ProgressBar progressBar;
     private TextView textViewProgress;
@@ -41,6 +43,9 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     private Integer currentProgress;
     private ScrollView scrollCurrentDownload;
     private TextView txtViewCurrentDownload;
+    private TextView txtLoginStatus;
+    private LinearLayout layoutDownload;
+    private LinearLayout layoutLogin;
 
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
     private final String LOGINGINFORMATION_FILE = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"/ingsoftwareftp.txt";
@@ -59,6 +64,9 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
         button = activity.findViewById(R.id.downloadDbButton);
         scrollCurrentDownload = activity.findViewById(R.id.scrollView);
         txtViewCurrentDownload = activity.findViewById(R.id.textViewCurrentDownload);
+        txtLoginStatus = (TextView) activity.findViewById(R.id.txtLoginStatusDownload);
+        layoutDownload = (LinearLayout) activity.findViewById(R.id.LayoutDownload);
+        layoutLogin = (LinearLayout) activity.findViewById(R.id.LayoutLogin);
 
         //Reset download from the prevous downloads + disable button for preventing multiple downloads
         currentProgress = 0;
@@ -69,19 +77,12 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     @Override
     protected Void doInBackground(Void... voids)
     {
-        try
-        {
-            Boolean isConnected = connectToServer();
+         Boolean isConnected = connectToServer();
 
-            if (isConnected)
-            {
-                retrieveFiles();
-            }
-        }
-        catch (Exception e)
-        {
-            sendMessageToUI(e.toString());
-        }
+         if (isConnected)
+         {
+             retrieveFiles();
+         }
 
         return null;
     }
@@ -104,100 +105,113 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
      * Tries to connect the FTPclient to the server
      * @throws IOException if an error occurs during the connection to the server
      * @return True if connected, false otherwise
+     * @author Stafano Romanello
      */
-    private Boolean connectToServer() throws IOException
+    private Boolean connectToServer()
     {
+        //Line position in the credential file
         //0 username
         //1 password
         //2 hostname
 
-        String[] credentials = getFTPCredentials();
-
         //Trying to connect to the server
-        ftp.connect(credentials[2]);
+        try {
+            String[] credentials = getFTPCredentials();
+            if(credentials.length>0) {
+                ftp.connect(credentials[2]);
 
-        //Logging in into the server
-        if (!ftp.login(credentials[0], credentials[1]))
-        {
-            ftp.logout();
-            throw new IOException("Bad Credentials");
+                //Logging in into the server
+                if (!ftp.login(credentials[0], credentials[1])) {
+                    ftp.logout();
+                }
+
+                int reply = ftp.getReplyCode();
+                //FTPReply stores a set of constants for FTP reply codes.
+                if (!FTPReply.isPositiveCompletion(reply)) {
+                    ftp.disconnect();
+                }
+
+                //enter passive mode
+                ftp.enterLocalPassiveMode();
+                //get system name
+                System.out.println("Remote system is " + ftp.getSystemType());
+                //change current directory
+                ftp.changeWorkingDirectory(REMOTE_FOLDER);
+                System.out.println("Current directory is " + ftp.printWorkingDirectory());
+            }
+        } catch (IOException e) {
+            //Delete credentials file and ask again on the next reload
+            final File file = new File(LOGINGINFORMATION_FILE);
+            file.delete();
+            showLoginError();
         }
-
-        int reply = ftp.getReplyCode();
-        //FTPReply stores a set of constants for FTP reply codes.
-        if (!FTPReply.isPositiveCompletion(reply))
-        {
-            ftp.disconnect();
-            throw new IOException("Bad Credentials");
-        }
-
-        //enter passive mode
-        ftp.enterLocalPassiveMode();
-        //get system name
-        System.out.println("Remote system is " + ftp.getSystemType());
-        //change current directory
-        ftp.changeWorkingDirectory(REMOTE_FOLDER);
-        System.out.println("Current directory is " + ftp.printWorkingDirectory());
-
         return true;
     }
 
     /**
      * Retrieves files from the server
      * @throws IOException if an error occurs while retrieving files from server
+     * @author Stefano Romanello
      */
-    private void retrieveFiles() throws IOException
+    private void retrieveFiles()
     {
-        //get list of filenames
-        FTPFile[] ftpFiles = ftp.listFiles();
-        Log.d(TAG,"num file " + ftpFiles.length);
+        try {
+            //get list of filenames
+            FTPFile[] ftpFiles = ftp.listFiles();
+            Log.d(TAG,"num file " + ftpFiles.length);
 
-        if (ftpFiles != null && ftpFiles.length > 0)
-        {
-            progressBar.setMax(ftpFiles.length);
-            //Looping through files
-            for (FTPFile file: ftpFiles)
+            if (ftpFiles != null && ftpFiles.length > 0)
             {
-                //Send current progress to "onProgressUpdate"
-                publishProgress(++currentProgress);
-
-                if (!file.isFile())
+                progressBar.setMax(ftpFiles.length);
+                //Looping through files
+                for (FTPFile file: ftpFiles)
                 {
-                    //Send message if object is not a file
-                    sendMessageToUI("Skipped: not a file" +System.getProperty("line.separator"));
-                }
-                else
-                {
-                    //Creation of the destination file for the image downloaded from the server
-                    File destinationFile = new File(PHOTOS_FOLDER + "/" + file.getName());
+                    //Send current progress to "onProgressUpdate"
+                    publishProgress(++currentProgress);
 
-                    //Don't download already downloaded files
-                    if (!destinationFile.exists())
+                    if (!file.isFile())
                     {
-                        OutputStream output;
-                        output = new FileOutputStream(PHOTOS_FOLDER + "/" + file.getName());
-                        //get the file from the remote system
-                        ftp.retrieveFile(file.getName(), output);
-                        //close output stream
-                        output.close();
-                        Log.d(TAG, "Downloaded: " + PHOTOS_FOLDER + "/" + file.getName());
-
-                        //Send message if the file is not already downloaded
-                        sendMessageToUI("Downloaded: " + file.getName() +System.getProperty("line.separator"));
+                        //Send message if object is not a file
+                        sendMessageToUI("Skipped: not a file" +System.getProperty("line.separator"));
                     }
                     else
                     {
-                        //Send message if the file is already downloaded
-                        sendMessageToUI("Skipped: " + file.getName() +System.getProperty("line.separator"));
+                        //Creation of the destination file for the image downloaded from the server
+                        File destinationFile = new File(PHOTOS_FOLDER + "/" + file.getName());
+
+                        //Don't download already downloaded files
+                        if (!destinationFile.exists())
+                        {
+                            OutputStream output;
+                            output = new FileOutputStream(PHOTOS_FOLDER + "/" + file.getName());
+                            //get the file from the remote system
+                            ftp.retrieveFile(file.getName(), output);
+                            //close output stream
+                            output.close();
+                            Log.d(TAG, "Downloaded: " + PHOTOS_FOLDER + "/" + file.getName());
+
+                            //Send message if the file is not already downloaded
+                            sendMessageToUI("Downloaded: " + file.getName() +System.getProperty("line.separator"));
+                        }
+                        else
+                        {
+                            //Send message if the file is already downloaded
+                            sendMessageToUI("Skipped: " + file.getName() +System.getProperty("line.separator"));
+                        }
                     }
                 }
             }
-        }
 
-        Log.d(TAG, "Finished");
-        sendMessageToUI("Finished");
-        ftp.logout();
-        ftp.disconnect();
+            Log.d(TAG, "Finished");
+            sendMessageToUI("Finished");
+            ftp.logout();
+            ftp.disconnect();
+
+        }
+        catch (Exception e)
+        {
+            sendMessageToUI("Error retriving files. Retry." + System.getProperty("line.separator") + e.toString());
+        }
     }
 
     /**
@@ -214,6 +228,19 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
             {
                 txtViewCurrentDownload.append(messageToSend);
                 scrollCurrentDownload.smoothScrollTo(0, txtViewCurrentDownload.getBottom());
+            }
+        });
+    }
+    private void showLoginError()
+    {
+        activity.runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                layoutDownload.setVisibility(View.GONE);
+                txtLoginStatus.setVisibility(View.VISIBLE);
+                layoutLogin.setVisibility(View.VISIBLE);
             }
         });
     }

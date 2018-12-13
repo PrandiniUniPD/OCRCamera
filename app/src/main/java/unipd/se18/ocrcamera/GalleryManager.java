@@ -6,10 +6,13 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.provider.SyncStateContract;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -109,6 +113,20 @@ public class GalleryManager
         writeMetadata(filePath, ingredients, reliability);
     }
 
+
+    /**
+     * Stores image and metadata
+     * @param photoToDelete photo that I want to delete
+     * @throws IOException if an error occurs during deletaion
+     * @author Romanello Stefano
+     */
+    public static void deleteImage(PhotoStructure photoToDelete) throws IOException
+    {
+        File photoFile = new File(photoToDelete.fileImagePath);
+        /*if(!photoFile.delete())
+            throw new IOException();*/
+    }
+
     /**
      * |||||||||||||||||||||||
      * ||   PRIVATE METHODS ||
@@ -144,7 +162,7 @@ public class GalleryManager
             structure.ingredients.add(ingredients);
             structure.photo = BitmapFactory.decodeFile(image.getAbsolutePath());
             structure.reliability = reliability;
-
+            structure.fileImagePath = image.getPath();
             return structure;
         }
         catch (IOException e)
@@ -196,17 +214,19 @@ public class GalleryManager
 
     /**
      * Represents gallery's data model
+     * @implements Serializable for be able to pass this structure to the Bundle of the fragment
      */
-    public static class PhotoStructure
+    public static class PhotoStructure implements Serializable
     {
-        private Bitmap photo;
-        private String reliability;
-        private ArrayList<String> ingredients = new ArrayList<String>();
+        public Bitmap photo;
+        public String reliability;
+        public String fileImagePath;
+        public ArrayList<String> ingredients = new ArrayList<String>();
     }
 
 
     /**
-     * Adapter for the cardView in the UI
+     * Adapter for the cardView in the UI. Load the cards with images and reliability inside the recycler view
      * @author Romanello Stefano
      * @request need the activity context and ArrayList<PhotoStructure> of photos to load.
      */
@@ -253,13 +273,22 @@ public class GalleryManager
                 @Override
                 public void onClick(View v) {
                     int position = cardViewHolder.getAdapterPosition();
-                    // Begin the transaction
-                    FragmentTransaction ft = ((GalleryActivity)mainActivity).getSupportFragmentManager().beginTransaction();
-                    // Replace the contents of the container with the new fragment
-                    ft.replace(R.id.fragmentPlaceHolder, new GalleryActivity.DetailFragment());
-                    // or ft.add(R.id.your_placeholder, new FooFragment());
-                    // Complete the changes added above
-                    ft.addToBackStack("details");
+
+                    FragmentManager fm = ((GalleryActivity)mainActivity).getSupportFragmentManager();
+                    FragmentTransaction ft = fm.beginTransaction();
+
+                    //Create fragment and pass the parameters as bundle
+                    GalleryActivity.DetailFragment detailedFragment = new GalleryActivity.DetailFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("photoObject",photosList.get(position));
+                    detailedFragment.setArguments(bundle);
+
+                    //Use hide insead of replace so I don't have to rebuild the gallery every time
+                    ft.hide(fm.findFragmentByTag(mainActivity.getString(R.string.homeFragmentTag)));
+                    ft.add(R.id.fragmentPlaceHolder, detailedFragment, mainActivity.getString(R.string.detailFragmentTag));
+                    ft.addToBackStack(mainActivity.getString(R.string.detailFragmentTag));
+
+                    //Execute
                     ft.commit();
                 }
             });
@@ -294,6 +323,11 @@ public class GalleryManager
         @Override
         public int getItemCount() {
             return photosList.size();
+        }
+
+        public int getPhotoPosition(PhotoStructure photoToRemove)
+        {
+            return photosList.indexOf(photoToRemove);
         }
 
 
