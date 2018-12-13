@@ -158,7 +158,7 @@ public class PhotoTester {
 
         final JSONObject fullJsonReport = new JSONObject();
 
-        //initialize text corrector
+        //initialize text corrector (Francesco Pham)
         textCorrector = new TextAutoCorrection(context);
 
         //countDownLatch allows to sync this thread with the end of all the single tests
@@ -410,13 +410,13 @@ public class PhotoTester {
                 String correctIngredients = test.getIngredients();
                 float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
-                //auto-correct extraced text
-                String correctedText = textCorrector.correctText(extractedIngredients);
-                Log.d(TAG, "corrected text: "+correctedText);
-
                 //insert results in test
                 test.setConfidence(confidence);
                 test.setRecognizedText(extractedIngredients);
+
+                //auto-correct extracted text
+                String correctedText = textCorrector.correctText(extractedIngredients);
+                Log.d(TAG, "corrected text: "+correctedText);
                 test.setCorrectedText(correctedText);
 
                 //evaluate alterations if any

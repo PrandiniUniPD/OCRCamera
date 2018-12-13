@@ -3,7 +3,46 @@ package unipd.se18.ocrcamera;
 /**
  * Ingredient class that contained the informations of the ingredient taken from inci db
  */
-public class Ingredient {
+public class Ingredient implements Comparable<String> {
+
+    //PRIVATE PROPERTIES
+    private String cosingRefNo;
+
+    private String inciName;
+
+    private String innName;
+
+    private String phEurName;
+
+    private String casNo;
+
+    private String ecNo;
+
+    private String description;
+
+    private String restriction;
+
+    private String function;
+
+    private String updateDate;
+
+    private String foundText;
+
+    private double ocrTextSimilarity;
+
+
+    public Ingredient() {
+        this.cosingRefNo = "";
+        this.inciName = "";
+        this.innName = "";
+        this.phEurName = "";
+        this.casNo = "";
+        this.ecNo = "";
+        this.description = "";
+        this.restriction = "";
+        this.function = "";
+        this.updateDate = "";
+    }
 
     //GETTERS
     public String getCosingRefNo() {
@@ -103,61 +142,8 @@ public class Ingredient {
         this.ocrTextSimilarity = ocrTextSimilarity;
     }
 
-
-    /**
-     * constructor initializer
-     */
-    public Ingredient(String cosingRefNo, String inciName, String innName, String phEurName,
-                      String casNo, String ecNo, String description, String restriction,
-                      String function, String updateDate) {
-        this.cosingRefNo = cosingRefNo;
-        this.inciName = inciName;
-        this.innName = innName;
-        this.phEurName = phEurName;
-        this.casNo = casNo;
-        this.ecNo = ecNo;
-        this.description = description;
-        this.restriction = restriction;
-        this.function = function;
-        this.updateDate = updateDate;
+    @Override
+    public int compareTo(String o) {
+        return getInciName().compareToIgnoreCase(o);
     }
-
-    public Ingredient() {
-        this.cosingRefNo = "";
-        this.inciName = "";
-        this.innName = "";
-        this.phEurName = "";
-        this.casNo = "";
-        this.ecNo = "";
-        this.description = "";
-        this.restriction = "";
-        this.function = "";
-        this.updateDate = "";
-    }
-
-    //PRIVATE PROPERTIES
-    private String cosingRefNo;
-
-    private String inciName;
-
-    private String innName;
-
-    private String phEurName;
-
-    private String casNo;
-
-    private String ecNo;
-
-    private String description;
-
-    private String restriction;
-
-    private String function;
-
-    private String updateDate;
-
-
-    private String foundText;
-
-    private double ocrTextSimilarity;
 }

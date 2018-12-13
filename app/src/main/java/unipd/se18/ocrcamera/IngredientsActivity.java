@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Activity that shows informations taken from inci db about the ingredients found in the ocr text
@@ -47,13 +48,12 @@ public class IngredientsActivity extends AppCompatActivity {
             TimingLogger timings = new TimingLogger(TAG, "inci execution");
 
             //load inci db
-            InputStream inputStream = getResources().openRawResource(R.raw.incidb);
-            Inci inci = new Inci(getApplicationContext(), inputStream);
+            Inci inci = new Inci(getApplicationContext(), true);
 
             timings.addSplit("load db");
 
             //find ingredients in inci db
-            final ArrayList<Ingredient> ingredients = inci.findListIngredients(ocrText, Inci.Algorithm.TEXT_PRECORRECTION);
+            final List<Ingredient> ingredients = inci.findListIngredients(ocrText, Inci.SearchMethod.TEXT_SPLIT);
 
             timings.addSplit("search in db");
 

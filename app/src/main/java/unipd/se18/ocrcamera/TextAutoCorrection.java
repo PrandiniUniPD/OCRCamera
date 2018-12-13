@@ -25,27 +25,11 @@ import edu.gatech.gtri.bktree.MutableBkTree;
  *
  * @author Francesco Pham
  */
-public class TextAutoCorrection {
-
-    //Do not correct words with less than minChars characters
-    private final int minChars = 3;
-
-    //Threshold of minimum normalized distance below which we substitute the word with the term found in dictionary
-    private final double distanceThreshold = 0.2;
+class TextAutoCorrection {
 
     private final String TAG = "TextAutoCorrection";
 
-    //declaring metric used for string distance
-    private LevenshteinStringDistance levenshtein;
-    private Metric<String> levenshteinDistance = new Metric<String>() {
-        @Override
-        public int distance(String x, String y) {
-            return (int) levenshtein.distance(x,y);
-        }
-    };
-
-
-    BkTreeSearcher<String> searcher;
+    private BkTreeSearcher<String> searcher;
 
 
     /**
@@ -53,11 +37,19 @@ public class TextAutoCorrection {
      * @param context app context
      * @author Francesco Pham
      */
-    public TextAutoCorrection(Context context){
+    TextAutoCorrection(Context context){
         //open word list
-        levenshtein = new LevenshteinStringDistance();
         InputStream stream = context.getResources().openRawResource(R.raw.inciwordlist);
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+
+        //declaring metric used for string distance
+        final LevenshteinStringDistance levenshtein = new LevenshteinStringDistance();
+        final Metric<String> levenshteinDistance = new Metric<String>() {
+            @Override
+            public int distance(String x, String y) {
+                return (int) levenshtein.distance(x,y);
+            }
+        };
 
         //inizialize bk-tree
         MutableBkTree<String> bkTree = new MutableBkTree<>(levenshteinDistance);
@@ -76,16 +68,6 @@ public class TextAutoCorrection {
         searcher = new BkTreeSearcher<>(bkTree);
     }
 
-    /**
-     * format the text in order to increase the probability to match ingredients in the INCI DB
-     * @param text
-     * @return Text formatted
-     */
-    private String formatText(String text){
-        text = text.toUpperCase();
-        text = text.trim().replaceAll(" +", " ");
-        return text;
-    }
 
     /**
      * Each word of the text is searched for a best match in the dictionary and
@@ -94,6 +76,12 @@ public class TextAutoCorrection {
      * @return Corrected text
      */
     public String correctText(String text){
+
+        //Do not correct words with less than minChars characters
+        final int minChars = 3;
+
+        //Threshold of minimum normalized distance below which we substitute the word with the term found in dictionary
+        final double maxDistance = 0.2;
 
         text = formatText(text);
 
@@ -106,9 +94,9 @@ public class TextAutoCorrection {
 
                     String word = text.substring(lastNonAlphanumIndex+1,i);
 
-                    //Searches the tree for elements whose distance satisfy distanceThreshold
+                    //Searches the tree for elements whose distance satisfy maxDistance
                     Set<BkTreeSearcher.Match<? extends String>> matches =
-                            searcher.search(word, (int) (word.length()*distanceThreshold));
+                            searcher.search(word, (int) (word.length()*maxDistance));
 
                     //find the word with minimum distance
                     int minDistance = Integer.MAX_VALUE;
@@ -138,4 +126,18 @@ public class TextAutoCorrection {
 
         return text;
     }
+
+
+    /**
+     * format the text in order to increase the probability to match ingredients in the INCI DB
+     * @param text
+     * @return Text formatted
+     */
+    private String formatText(String text){
+        text = text.toUpperCase();
+        text = text.trim().replaceAll(" +", " ");
+        return text;
+    }
+
+
 }

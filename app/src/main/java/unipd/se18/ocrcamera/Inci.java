@@ -9,9 +9,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import com.opencsv.CSVReader;
+
+import edu.gatech.gtri.bktree.BkTreeSearcher;
+import edu.gatech.gtri.bktree.Metric;
+import edu.gatech.gtri.bktree.MutableBkTree;
 
 /**
  * Class for compare ingredients taken from OCR text with INCI database.
@@ -27,30 +34,17 @@ public class Inci {
 
     private static final String TAG = "Inci";
 
-    /*
-        threshold of similarity between the found text and the ingredient name inside db
-        below this threshold the ingredient is considered not found inside db therefore not pushed into the list
-    */
-    private static final double similarityThreshold = 0.6;
+    private TextAutoCorrection corrector;
 
-    /*
-        Set of algorithms available for findListIngredients.
-        LEVENSHTEIN_DISTANCE: splits the ocr text and for each block of text search
-                            inside INCI DB for the ingredient with minimum distance using Levenshtein.
-        TEXT_PRECORRECTION: try to correct the text using a wordlist then for each ingredient inside
-                            INCI DB search if it is contained inside the corrected text
-     */
-    public enum Algorithm {TEXT_PRECORRECTION, LEVENSHTEIN_DISTANCE}
-
-    private Context context;
+    private BkTreeSearcher<String> inciNameSearcher;
 
     /**
-     * constructor
-     * @param inputStream inputStream of the inci database file
+     * Constructor loads inci database
+     * @param context The application context
      * @author Francesco Pham
      */
-    public Inci(Context context, InputStream inputStream){
-        this.context = context;
+    public Inci(Context context){
+        InputStream inputStream = context.getResources().openRawResource(R.raw.incidb);
         Reader reader = new BufferedReader(new InputStreamReader(inputStream));
 
         listIngredients = new ArrayList<Ingredient>(); //initializing list of ingredients
@@ -83,76 +77,129 @@ public class Inci {
         } catch(IOException e){
             Log.e(TAG, "Error closing csv reader");
         }
+
+        //sort by inci name
+        Collections.sort(listIngredients, new Comparator<Ingredient>() {
+            @Override
+            public int compare(Ingredient o1, Ingredient o2) {
+                return o1.compareTo(o2.getInciName());
+            }
+        });
+
+        corrector = new TextAutoCorrection(context);
     }
 
+
     /**
-     * Find the best matching ingredient in the database using weighted levenshtein algorithm
-     * @param ingredient The ingredient we are looking for
-     * @return Ingredient object that contains the most similar ingredient to the text taken from ocr
+     * Constructor loads inci database.
+     * @param context The application context
+     * @param usingTextSplitSearch Set this to true if TEXT_SPLIT search method is used.
      * @author Francesco Pham
      */
-    private Ingredient findBestMatchingIngredient(String ingredient){
-        //ignoring case by converting to upper case like all texts in database
-        ingredient = ingredient.toUpperCase();
+    public Inci(Context context, boolean usingTextSplitSearch){
+        this(context);
 
-        LevenshteinStringDistance stringComparator = new LevenshteinStringDistance();
-        double maxSimilarity = -1;
-        int bestMatchingIngredient = -1;
-        for(int i = 0; i< listIngredients.size(); i++){
-            double similarity = stringComparator.getNormalizedSimilarity(listIngredients.get(i).getInciName(), ingredient);
-            if(similarity>maxSimilarity) {
-                maxSimilarity = similarity;
-                bestMatchingIngredient = i;
+        if(usingTextSplitSearch){
+            //declaring metric used for string distance
+            final LevenshteinStringDistance levenshtein = new LevenshteinStringDistance();
+            final Metric<String> levenshteinDistance = new Metric<String>() {
+                @Override
+                public int distance(String x, String y) {
+                    return (int) levenshtein.distance(x,y);
+                }
+            };
+
+            //inizialize bk-tree
+            MutableBkTree<String> bkTree = new MutableBkTree<>(levenshteinDistance);
+
+            //add each element to the tree
+            for(Ingredient ingredient : listIngredients){
+                bkTree.add(ingredient.getInciName());
             }
+
+            //initialize searcher
+            inciNameSearcher = new BkTreeSearcher<>(bkTree);
         }
-
-        //store similarity in the object for later usage
-        listIngredients.get(bestMatchingIngredient).setOcrTextSimilarity(maxSimilarity);
-
-        return listIngredients.get(bestMatchingIngredient);
     }
 
+
+
+    /*
+        Set of algorithms available for findListIngredients.
+        LEVENSHTEIN_DISTANCE: splits the ocr text and for each block of text search
+                            inside INCI DB for the ingredient with minimum distance using Levenshtein.
+        TEXT_PRECORRECTION: try to correct the text using a wordlist then for each ingredient inside
+                            INCI DB search if it is contained inside the corrected text
+    */
+    public enum SearchMethod {TEXT_PRECORRECTION, TEXT_SPLIT}
+
+
     /**
-     * this method takes the entire OCR text and split it using commas and calls the findBestMatchingIngredient method
+     * This method extract ingredients from the ocr text and returns the list of ingredients.
      * @param text The entire OCR text
      * @return List of Ingredient objects where are stored ingredient's informations
      * @author Francesco Pham
      */
-    public ArrayList<Ingredient> findListIngredients(String text, Algorithm algorithm){
+    public ArrayList<Ingredient> findListIngredients(String text, SearchMethod method){
 
         //initializing the list
-        ArrayList<Ingredient> ingredients = new ArrayList<Ingredient>();
+        ArrayList<Ingredient> foundIngredients = new ArrayList<Ingredient>();
 
-        switch (algorithm) {
-            case LEVENSHTEIN_DISTANCE: {
-                String[] splittedText = text.trim().split("[,.]+"); //split removing whitespaces
+        switch (method) {
+            case TEXT_SPLIT: {
+
+                //maximum accepted distance between block of text and inci name
+                final double maxDistance = 0.2;
+
+                if(inciNameSearcher == null) {
+                    Log.e(TAG, "inciNameSearcher is null, try set usingTextSplitSearch on constructor");
+                    return foundIngredients;
+                }
+
+                String[] splittedText = text.trim().split("[,.]+");
 
                 //for every splitted text inside the ocr text search for the most similar in the inci db
                 for (String str : splittedText) {
-                    Ingredient bestMatchingIngredient = findBestMatchingIngredient(str);
 
-                    //discard ingredients that not satisfy similarityThreshold
-                    if (bestMatchingIngredient.getOcrTextSimilarity() > similarityThreshold) {
-                        //set the original text taken from ocr for later
-                        bestMatchingIngredient.setFoundText(str);
+                    //Searches the tree for elements whose distance satisfy maxDistance
+                    Set<BkTreeSearcher.Match<? extends String>> matches =
+                            inciNameSearcher.search(str, (int) (str.length()*maxDistance));
 
-                        //add the ingredient object to the list
-                        ingredients.add(bestMatchingIngredient);
+                    //find the ingredient name with minimum distance
+                    int minDistance = Integer.MAX_VALUE;
+                    String ingredientName = null;
+                    boolean found = false;
+                    for (BkTreeSearcher.Match<? extends String> match : matches){
+                        if(match.getDistance() < minDistance) {
+                            minDistance = match.getDistance();
+                            ingredientName = match.getMatch();
+                            found = true;
+                        }
+                    }
+
+                    //add the ingredient object to list
+                    if(found) {
+                        Log.d(TAG, "found "+ingredientName+" in "+str+". Distance="+minDistance);
+                        int indexBestIngredient = Collections.binarySearch(listIngredients, ingredientName);
+                        if(indexBestIngredient >= 0)
+                            foundIngredients.add(listIngredients.get(indexBestIngredient));
+                        else
+                            Log.e(TAG, "Couldn't find ingredient, this is strange.");
                     }
                 }
             }
 
             case TEXT_PRECORRECTION: {
-                TextAutoCorrection corrector = new TextAutoCorrection(context);
                 text = corrector.correctText(text);
                 for(Ingredient ingredient : listIngredients){
                     if(text.contains(ingredient.getInciName())){
-                        ingredients.add(ingredient);
+                        foundIngredients.add(ingredient);
                     }
                 }
             }
         }
 
-        return ingredients;
+        return foundIngredients;
     }
+
 }
