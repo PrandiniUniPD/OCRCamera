@@ -75,9 +75,9 @@ public class TestElementDetails extends AppCompatActivity {
         TextView notes = findViewById(R.id.notes_view);
         notes.setText(entry.getNotes());
 
-        // Set the corrected text
-        TextView corrected = findViewById(R.id.correctedText_view);
-        corrected.setText(entry.getCorrectedText());
+        // Set the ingredients extraction report
+        TextView extractedIngredientsView = findViewById(R.id.extracted_ingredients_view);
+        extractedIngredientsView.setText(entry.getIngredientsExtraction());
 
         // Set alterations view
         setAlterationsView(

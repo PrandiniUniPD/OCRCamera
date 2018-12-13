@@ -25,7 +25,7 @@ public class TestElement {
     private static final String INGREDIENTS_KEY = "ingredients";
     private static final String ALTERATIONS_KEY = "alterations";
     private static final String CONFIDENCE_KEY = "confidence";
-    private static final String CORRECTED_TEXT = "corrected_text";
+    private static final String INGREDIENTS_EXTRACTION = "ingredients_extraction";
 
     private String imagePath;
     private JSONObject jsonObject;
@@ -371,27 +371,27 @@ public class TestElement {
     }
 
     /**
-     * @param text String of corrected text
+     * @param report Report of ingredients extraction
      * @modify jsonObject of this TestElement
      * @author Francesco Pham - g3
      */
-    public void setCorrectedText(String text) {
+    public void setIngredientsExtraction(String report) {
         try {
-            jsonObject.put(CORRECTED_TEXT, text);
+            jsonObject.put(INGREDIENTS_EXTRACTION, report);
         } catch (JSONException e) {
-            Log.i(TAG, "Failed to set corrected text in test " + fileName);
+            Log.i(TAG, "Failed to set ingredients extraction");
         }
     }
 
     /**
-     * @return String of corrected text if present, null otherwise
+     * @return Report of ingredients extraction, null otherwise
      * @author Francesco Pham - g3
      */
-    public String getCorrectedText() {
+    public String getIngredientsExtraction() {
         try {
-            return jsonObject.getString(CORRECTED_TEXT);
+            return jsonObject.getString(INGREDIENTS_EXTRACTION);
         } catch (JSONException e) {
-            Log.i(TAG, "Failed to get corrected text in test: " + fileName);
+            Log.i(TAG, "Failed to get ingredients extraction");
         }
         return null;
     }

@@ -7,10 +7,6 @@ import android.os.Bundle;
 import android.util.TimingLogger;
 import android.widget.ListView;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -47,28 +43,17 @@ public class IngredientsActivity extends AppCompatActivity {
         public void run(){
             TimingLogger timings = new TimingLogger(TAG, "inci execution");
 
-            //load inci db
-            Inci inci = new Inci(getApplicationContext(), true);
+            //load inci db and initialize ingredient extractor
+            List<Ingredient> listInciIngredients = Inci.getListIngredients(getApplicationContext());
+            TextAutoCorrection textCorrector = new TextAutoCorrection(getApplicationContext());
+            IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
 
             timings.addSplit("load db");
 
             //find ingredients in inci db
-            final List<Ingredient> ingredients = inci.findListIngredients(ocrText, Inci.SearchMethod.TEXT_SPLIT);
+            final List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(ocrText);
 
             timings.addSplit("search in db");
-
-            //sort list of ingredients by similarity
-            /*
-            Collections.sort(ingredients, new Comparator<Ingredient>() {
-                public int compare(Ingredient one, Ingredient other) {
-                    if (one.getOcrTextSimilarity() >= other.getOcrTextSimilarity()) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                }
-            });
-            */
 
             //show results using adapter
             final ListView listEntriesView = findViewById(R.id.ingredients_list);

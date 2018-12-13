@@ -11,10 +11,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -57,10 +58,10 @@ public class PhotoTester {
 
     private String report;
 
+    //ingredients extractors (Francesco Pham)
+    private PrecorrectionIngredientsExtractor ocrIngredientsExtractor;
+    private TextSplitIngredientsExtractor correctIngredientsExtractor;
 
-
-
-    private TextAutoCorrection textCorrector;
 
 
     /**
@@ -158,8 +159,12 @@ public class PhotoTester {
 
         final JSONObject fullJsonReport = new JSONObject();
 
-        //initialize text corrector (Francesco Pham)
-        textCorrector = new TextAutoCorrection(context);
+        //load inci db and initialize ingredient extractor (Francesco Pham)
+        List<Ingredient> listInciIngredients = Inci.getListIngredients(context);
+        TextAutoCorrection textCorrector = new TextAutoCorrection(context);
+        ocrIngredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+        correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
+
 
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(testElements.size());
@@ -405,19 +410,45 @@ public class PhotoTester {
                 //evaluate text extraction confidence
                 String imagePath = test.getImagePath();
                 Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
-                String extractedIngredients = executeOcr(testBitmap);
+                String ocrText = executeOcr(testBitmap);
 
-                String correctIngredients = test.getIngredients();
-                float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+                String correctIngredientsText = test.getIngredients();
+                float confidence = ingredientsTextComparison(correctIngredientsText, ocrText);
 
                 //insert results in test
                 test.setConfidence(confidence);
-                test.setRecognizedText(extractedIngredients);
+                test.setRecognizedText(ocrText);
 
-                //auto-correct extracted text
-                String correctedText = textCorrector.correctText(extractedIngredients);
-                Log.d(TAG, "corrected text: "+correctedText);
-                test.setCorrectedText(correctedText);
+                //extract ingredients from ocr text and from correctIngredientsText (Francesco Pham)
+                List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
+                List<Ingredient> correctIngredients = ocrIngredientsExtractor.findListIngredients(correctIngredientsText);
+
+                //make ingredients extraction report
+                String ingredientsExtractionReport = "";
+                for(Ingredient extracted : extractedIngredients){
+                    ingredientsExtractionReport = ingredientsExtractionReport + extracted.getInciName() + "\n";
+                }
+
+                //compare extracted ingredients with correct ingredients (Francesco Pham)
+                int nCorrectExtractedIngreds = 0;
+                for(Ingredient correct : correctIngredients){
+                    Iterator<Ingredient> iterator = extractedIngredients.iterator();
+                    while(iterator.hasNext()){
+                        if(iterator.next().getCosingRefNo().equalsIgnoreCase(correct.getCosingRefNo())) {
+                            nCorrectExtractedIngreds++;
+                            iterator.remove();
+                        }
+                    }
+                }
+                int nWrongExtractedIngreds = extractedIngredients.size();
+                String percentCorrectIngreds = String.format("%.2f",(float)100* nCorrectExtractedIngreds / correctIngredients.size());
+                ingredientsExtractionReport = ingredientsExtractionReport
+                        + "% correct ingredients extracted: "
+                        + percentCorrectIngreds+"% \n"
+                        + "# wrong ingredients extracted: "+nWrongExtractedIngreds;
+
+                test.setIngredientsExtraction(ingredientsExtractionReport);
+
 
                 //evaluate alterations if any
                 String[] alterationsFileNames = test.getAlterationsNames();
@@ -431,7 +462,7 @@ public class PhotoTester {
                         if(alterationBitmap != null) {
                             alterationExtractedIngredients = executeOcr(alterationBitmap);
                         }
-                        float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
+                        float alterationConfidence = ingredientsTextComparison(correctIngredientsText, alterationExtractedIngredients);
 
                         //insert evaluation
                         test.setAlterationConfidence(alterationFilename, alterationConfidence);
