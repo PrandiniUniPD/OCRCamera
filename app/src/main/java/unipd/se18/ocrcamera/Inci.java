@@ -15,11 +15,18 @@ public class Inci extends AppCompatActivity {
 
     private ArrayList<String> listInci;//list where save the ingredients found
     private ArrayList<String> listInciDescription;
+    private ArrayList<String> listIngredientFound;
 
-
-    public Inci() {
+    /**
+     * Constructor
+     * @param inputStream of the R.raw.database
+     * with loadDB it load Inci ingredients to arraylist
+     */
+    public Inci(InputStream inputStream) {
         listInci = new ArrayList<String>();
         listInciDescription = new ArrayList<String>();
+        listIngredientFound = new ArrayList<String>();
+        loadDB(inputStream);
     }
 
     public ArrayList<String> getListInci(){
@@ -30,6 +37,10 @@ public class Inci extends AppCompatActivity {
         return this.listInciDescription;
     }
 
+    public ArrayList<String> getListIngredientFound(){
+        return this.listIngredientFound;
+    }
+
 
     /**
      * @author Giovanni Fasan(g1)
@@ -37,12 +48,11 @@ public class Inci extends AppCompatActivity {
      * @return void
      * Load every Inci ingredients to arrayList
      */
-    public void loadDB(InputStream inputStream){
+    private void loadDB(InputStream inputStream){
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
         String ingredient;
         try {
-            while ((ingredient = reader.readLine()) != null) {//defines ingredient as each row of the database
-                //String[] inci=ingredient.replaceAll("\"", "").split(";");
+            while ((ingredient = reader.readLine()) != null) {
                 String[] inci=ingredient.split(";");
                 listInci.add(inci[0].trim());
                 //listInciDescription.add(inci[1].trim());
@@ -81,19 +91,19 @@ public class Inci extends AppCompatActivity {
      * @return List of ingredients list of the label with description
      */
     public ArrayList<String> findIngredientsList(String text) {
-        ArrayList<String> inci = new ArrayList<String>();
+        //ArrayList<String> inci = new ArrayList<String>();
 
         String noSpace = text.replaceAll("\n", " ");
         String [] word = noSpace.split(",");
         for (int i = 0; i < word.length; i++) {
             for (int j=0; j<this.listInci.size(); j++){       //defines ingredient as each row of the database
                 if (word[i].trim().toUpperCase().equals(listInci.get(j))) {
-                    inci.add(listInci.get(j));
+                    listIngredientFound.add(listInci.get(j));
                 }
             }
         }
 
-        return inci;
+        return getListIngredientFound();
     }
 
 }

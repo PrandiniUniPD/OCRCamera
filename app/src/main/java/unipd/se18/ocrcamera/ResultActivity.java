@@ -61,7 +61,7 @@ public class ResultActivity extends AppCompatActivity {
     /**
      * Load class for db
      */
-    Inci ingredients = new Inci();
+    Inci ingredients;
 
     String OCRText;
 
@@ -83,7 +83,7 @@ public class ResultActivity extends AppCompatActivity {
 
 
         InputStream database = getResources().openRawResource(R.raw.database);
-        ingredients.loadDB(database);
+        ingredients = new Inci(database);
 
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {

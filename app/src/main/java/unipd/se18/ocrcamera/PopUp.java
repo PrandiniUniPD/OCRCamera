@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 public class PopUp extends Activity {
 
+    //little popup for read inci ingredient and description
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
