@@ -5,16 +5,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import com.camerakit.CameraKitView;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,6 +31,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
     private static String orientationResult="P";
+    private Handler handler;
 
     /**
      * onCreate method of the Android Activity Lifecycle
@@ -37,6 +42,7 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        handler = new Handler(getApplicationContext().getMainLooper());  // handler to use in the BrightnessRecognition thread
 
         cameraKitView = findViewById(R.id.cameraKitView);
 
@@ -128,7 +134,7 @@ public class CameraActivity extends AppCompatActivity {
      * Takes a photo, saves it inside internal storage and resets the last extracted text
      *
      * @modify SharedPreferences
-     * @author Romanello Stefano - modified by Leonardo Rossi
+     * @author Romanello Stefano - modified by Leonardo Rossi and Balzan Pietro
      */
     private void takePhoto() {
         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
@@ -153,6 +159,35 @@ public class CameraActivity extends AppCompatActivity {
                 SharedPreferences.Editor edit = prefs.edit();
                 edit.putString("imagePath", filePath.trim());
                 edit.apply();
+
+                // analyze the brightness of the taken photo  @author Balzan Pietro
+                //creating a final version of te bitmap to be accessed form BrightnessRecognition
+                final Bitmap bitmapImage2 = bitmapImage;
+                //star a new thread to improve user experience
+                new Thread(new Runnable() {      // run the brightness recognition on a new thread to improve performance
+                    public void run() {
+                        final String tooBright = "The picture might be too bright";
+                        final String tooDark = "The picture might be too dark";
+                        int brightnessResult= BrightnessRecognition.imgBrightness(bitmapImage2,190,80,3);
+                        //show messages to the user via Toasts
+                        if (brightnessResult == 1){
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), tooBright, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                        else if (brightnessResult== -1){
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), tooDark, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    }
+                }).start();
 
                 //An intent that will launch the activity that will analyse the photo
                 Intent i = new Intent(CameraActivity.this, ResultActivity.class);
@@ -236,12 +271,4 @@ public class CameraActivity extends AppCompatActivity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
-
-
-
-
-
-
 }
-
-
