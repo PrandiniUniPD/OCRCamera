@@ -130,8 +130,8 @@ public class GalleryManager
     public static void deleteImage(PhotoStructure photoToDelete) throws IOException
     {
         File photoFile = new File(photoToDelete.fileImagePath);
-        /*if(!photoFile.delete())
-            throw new IOException();*/
+        if(!photoFile.delete())
+            throw new IOException();
     }
 
     /**
