@@ -113,6 +113,10 @@ public class ResultActivity extends AppCompatActivity {
                 Intent download_intent = new Intent(ResultActivity.this, DownloadDbActivity.class);
                 startActivity(download_intent);
                 return true;
+            case R.id.gallery:
+                Intent gallery_intent = new Intent(ResultActivity.this, GalleryActivity.class);
+                startActivity(gallery_intent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

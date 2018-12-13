@@ -29,4 +29,6 @@
     <string name="check_internet_connection">Check internet connection.</string>
     <string name="no_permission_to_internal_storage">No permission to internal storage.</string>
     <string name="bad_credentials_or_connection_reload_the_page_for_a_new_login">Bad Credentials or connection. Try again.</string>
+    <string name="homeFragmentTag">homefgm</string>
+    <string name="detailFragmentTag">detailfgm</string>
 </resources>

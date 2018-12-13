@@ -123,8 +123,8 @@ public class GalleryManager
     public static void deleteImage(PhotoStructure photoToDelete) throws IOException
     {
         File photoFile = new File(photoToDelete.fileImagePath);
-        if(!photoFile.delete())
-            throw new IOException();
+        /*if(!photoFile.delete())
+            throw new IOException();*/
     }
 
     /**
@@ -284,9 +284,9 @@ public class GalleryManager
                     detailedFragment.setArguments(bundle);
 
                     //Use hide insead of replace so I don't have to rebuild the gallery every time
-                    ft.hide(fm.findFragmentByTag("home"));
-                    ft.add(R.id.fragmentPlaceHolder, detailedFragment, "details");
-                    ft.addToBackStack("details");
+                    ft.hide(fm.findFragmentByTag(mainActivity.getString(R.string.homeFragmentTag)));
+                    ft.add(R.id.fragmentPlaceHolder, detailedFragment, mainActivity.getString(R.string.detailFragmentTag));
+                    ft.addToBackStack(mainActivity.getString(R.string.detailFragmentTag));
 
                     //Execute
                     ft.commit();

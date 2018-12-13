@@ -41,7 +41,8 @@ public class GalleryActivity extends AppCompatActivity {
     private final int REQUEST_PERMISSION_CODE = 500;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
@@ -49,8 +50,6 @@ public class GalleryActivity extends AppCompatActivity {
         {
             loadHomeFragment();
         }
-
-
     }
 
     /**
@@ -60,12 +59,13 @@ public class GalleryActivity extends AppCompatActivity {
     {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.add(R.id.fragmentPlaceHolder, new MainFragment(),"home");
+        ft.add(R.id.fragmentPlaceHolder, new MainFragment(),getString(R.string.homeFragmentTag));
         ft.commit();
     }
 
     /**
      * Fragment of the gallery layout
+     * @author Romanello Stefano
      */
     public static class MainFragment extends Fragment {
 
@@ -145,6 +145,7 @@ public class GalleryActivity extends AppCompatActivity {
 
     /**
      * Fragment of the detailed photo layout
+     * @author Romanello Stefano
      */
     public static class DetailFragment extends Fragment
     {
@@ -199,16 +200,16 @@ public class GalleryActivity extends AppCompatActivity {
          */
         @Override
         public boolean onOptionsItemSelected(MenuItem item)
-        {
-            switch (item.getItemId()) {
-                //I've clicked the back buton on the actionBar
-                case android.R.id.home:
-                    //Go back with fragment and restore the actionBar for the main gallery
-                    closeDetailFragment();
-                    break;
-                case R.id.galleryDelete:
-                    deleteCurrentPhoto();
-                    break;
+                {
+                    switch (item.getItemId()) {
+                        //I've clicked the back buton on the actionBar
+                        case android.R.id.home:
+                            //Go back with fragment and restore the actionBar for the main gallery
+                            closeDetailFragment();
+                            break;
+                        case R.id.galleryDelete:
+                            deleteCurrentPhoto();
+                            break;
             }
             return super.onOptionsItemSelected(item);
         }
