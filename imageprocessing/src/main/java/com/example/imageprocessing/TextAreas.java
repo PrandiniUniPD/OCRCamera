@@ -6,38 +6,42 @@ import org.opencv.core.RotatedRect;
 
 /**
  * Class that contains all the regions with a text in an image
- * @autor Thomas Porro (g1)
+ * @author Thomas Porro (g1)
  */
 class TextAreas implements TextRegions{
     private List<RotatedRect> detectedText;
+    private int counter;
+
 
     /**
      * Constructor that initialize the arraylist
      */
     public TextAreas(){
-        detectedText = new ArrayList<RotatedRect>();
+        detectedText = new ArrayList<>();
+        counter = 0;
     }
+
 
     /**
      * Add a text's region to the list
      * @param region The region we want to add
      */
-    private void addRegion(RotatedRect region){
+    public void addRegion(RotatedRect region){
         detectedText.add(region);
-    };
-
-    @Override
-    public Object next() {
-        return null;
     }
 
     @Override
-    public boolean hasNext() {
-        return false;
+    public Object next(){
+        return detectedText.get(counter++);
+    }
+
+    @Override
+    public boolean hasNext(){
+        return counter<detectedText.size();
     }
 
     @Override
     public List<RotatedRect> getRegions() {
-        return null;
+        return detectedText;
     }
 }

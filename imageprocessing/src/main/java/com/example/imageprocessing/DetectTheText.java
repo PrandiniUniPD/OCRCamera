@@ -16,6 +16,7 @@ public interface DetectTheText {
      */
     TextAreas detectTextRegions(Bitmap image);
 
+
     /**
      * Extract all the area where the text is detected
      * @param image The image that contains the text. Not null.
