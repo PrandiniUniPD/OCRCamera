@@ -274,7 +274,7 @@ public class GalleryActivity extends AppCompatActivity {
                 GalleryManager.deleteImage(photoInfos);
 
                 //Close current fragment
-                getFragmentManager().popBackStack();
+                closeDetailFragment();
 
             } catch (IOException e) {
                 //Manage the exaption with a dialog
@@ -292,6 +292,14 @@ public class GalleryActivity extends AppCompatActivity {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             }
+        }
+
+        /**
+         * Method for closing the current fragment
+         */
+        private void closeDetailFragment()
+        {
+            getFragmentManager().popBackStack();
         }
     }
 
