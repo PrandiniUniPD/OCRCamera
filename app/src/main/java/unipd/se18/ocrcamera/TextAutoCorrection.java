@@ -77,7 +77,7 @@ class TextAutoCorrection {
      */
     public String correctText(String text){
 
-        //Do not correct words with less than minChars characters
+        //not correcting words with less than minChars characters
         final int minChars = 3;
 
         //Threshold of minimum normalized distance below which we substitute the word with the term found in dictionary

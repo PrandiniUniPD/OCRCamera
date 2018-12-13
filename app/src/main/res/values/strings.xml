@@ -25,6 +25,6 @@
     <string name="found_text_title">Found text:</string>
     <string name="description_title">Description:</string>
     <string name="similarity_title">Similarity:</string>
-    <string name="corrected_text_title">Corrected text:</string>
+    <string name="extracted_ingredients_title">Extracted ingredients:</string>
     <string name="view_details">Details</string>
 </resources>

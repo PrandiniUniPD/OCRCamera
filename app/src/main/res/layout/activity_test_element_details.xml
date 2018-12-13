@@ -132,22 +132,22 @@
                 android:paddingStart="10sp"
                 android:paddingEnd="10sp"/>
 
-            <!-- Corrected text -->
+            <!-- Extracted ingredients -->
             <TextView
-                android:id="@+id/correctedText_title"
+                android:id="@+id/extracted_ingredients_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/corrected_text_title"
+                android:text="@string/extracted_ingredients_title"
                 android:layout_below="@id/notes_view"
                 android:layout_alignParentStart="true"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:padding="5sp"/>
             <TextView
-                android:id="@+id/correctedText_view"
+                android:id="@+id/extracted_ingredients_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/correctedText_title"
+                android:layout_below="@id/extracted_ingredients_title"
                 android:layout_alignParentStart="true"
                 android:textSize="15sp"
                 android:paddingStart="10sp"
