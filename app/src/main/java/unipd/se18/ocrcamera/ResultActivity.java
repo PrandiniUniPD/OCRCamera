@@ -23,6 +23,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 /**
  * Class used for showing the result of the OCR processing
  */
@@ -132,6 +135,7 @@ public class ResultActivity extends AppCompatActivity {
         private ProgressDialog progressDialog;
         private TextView resultTextView;
         private String progressMessage;
+        private Bitmap workingImage;
 
         AsyncLoad(TextView view, String progressMessage) {
             this.resultTextView = view;
@@ -142,8 +146,13 @@ public class ResultActivity extends AppCompatActivity {
         protected String doInBackground(Bitmap... bitmaps) {
             TextExtractor ocr = new TextExtractor();
             String textRecognized = "";
+
+            //Im passing only one image to the async and is the image that i want to work with. No need for a dedicate variable
+            workingImage=bitmaps[0];
+
             if(lastPhoto != null) {
                 textRecognized = ocr.getTextFromImg(lastPhoto);
+
                 if(textRecognized.equals(""))
                 {
                     textRecognized = getString(R.string.no_text_found);
@@ -179,6 +188,15 @@ public class ResultActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("text", s);
             editor.apply();
+
+            //I cant understand the ingredients yet, for now I put everything as one ingredient
+            ArrayList<String> txt = new ArrayList<>();
+            txt.add(s);
+            try {
+                GalleryManager.storeImage(getBaseContext(),workingImage,txt,"0%");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override

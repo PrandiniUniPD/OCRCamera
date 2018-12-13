@@ -157,16 +157,6 @@ public class CameraActivity extends AppCompatActivity {
                 edit.putString("imagePath", filePath.trim());
                 edit.apply();
 
-                ArrayList<String> test = new ArrayList<String>();
-                test.add("hdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj k");
-
-
-                try {
-                    GalleryManager.storeImage(CameraActivity.this,bitmapImage,test,"99%");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
                 //An intent that will launch the activity that will analyse the photo
                 Intent i = new Intent(CameraActivity.this, ResultActivity.class);
                 startActivity(i);

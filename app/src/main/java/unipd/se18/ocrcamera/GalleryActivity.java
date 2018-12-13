@@ -244,7 +244,7 @@ public class GalleryActivity extends AppCompatActivity {
             //Load the information from the bundle
             Bundle bundle = getArguments();
             if (bundle != null) {
-                photoInfos = (GalleryManager.PhotoStructure)bundle.getSerializable("photoObject");
+                photoInfos = (GalleryManager.PhotoStructure)bundle.getSerializable(getString(R.string.serializableObjectName));
             }
 
             TextView txtIngredients = ((GalleryActivity) getActivity()).findViewById(R.id.textViewGalleryDetailIngredients);

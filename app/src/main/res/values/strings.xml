@@ -31,4 +31,5 @@
     <string name="bad_credentials_or_connection_reload_the_page_for_a_new_login">Bad Credentials or connection. Try again.</string>
     <string name="homeFragmentTag">homefgm</string>
     <string name="detailFragmentTag">detailfgm</string>
+    <string name="serializableObjectName">PhotoStructureObject</string>
 </resources>

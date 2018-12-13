@@ -55,6 +55,10 @@ public class GalleryManager
     //The complete path to reach images folder
     private static String PATH = "";
 
+    //Sizes of the images inside the cardView
+    private static final int widthSizeCard= 400;
+    private static final int heightSizeCard = 400;
+
     /**
      * Loads images and metadata
      * @param context The reference to the activity where the gallery is displayed
@@ -293,7 +297,7 @@ public class GalleryManager
                     //Create fragment and pass the parameters as bundle
                     GalleryActivity.DetailFragment detailedFragment = new GalleryActivity.DetailFragment();
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable("photoObject",photosList.get(position));
+                    bundle.putSerializable(mainActivity.getString(R.string.serializableObjectName),photosList.get(position));
                     detailedFragment.setArguments(bundle);
 
                     //Use hide insead of replace so I don't have to rebuild the gallery every time
@@ -326,7 +330,7 @@ public class GalleryManager
             //Set imageView properties
 
             //holder.imageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 200, 200, false));
-            holder.imageView.setImageBitmap(resize(lastPhoto,400,400));
+            holder.imageView.setImageBitmap(resize(lastPhoto,widthSizeCard,heightSizeCard));
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             //Set txtView properties with reliability
