@@ -324,7 +324,9 @@ public class GalleryManager
             Bitmap lastPhoto = currentPhoto.photo;
 
             //Set imageView properties
-            holder.imageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
+
+            //holder.imageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 200, 200, false));
+            holder.imageView.setImageBitmap(resize(lastPhoto,400,400));
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             //Set txtView properties with reliability
@@ -345,6 +347,50 @@ public class GalleryManager
             return photosList.indexOf(photoToRemove);
         }
 
+        /**
+         * Simple class to resize an image but keeping the same ratio
+         * @param image the image that I want to resize
+         * @param maxWidth maximum width of the result image
+         * @param maxHeight maximum height of the result image
+         * @return the resized image
+         * @author Romanello Stefano
+         */
+        private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
+            if (maxHeight > 0 && maxWidth > 0) {
+                int width = image.getWidth();
+                int height = image.getHeight();
+
+                //Calculate actual rateo of the real image
+                float ratioBitmap = (float) width / (float) height;
+
+                //Calculate the ration of the maxium size that I want
+                float ratioMax = (float) maxWidth / (float) maxHeight;
+
+                int finalWidth = maxWidth;
+                int finalHeight = maxHeight;
+
+                if (ratioMax > ratioBitmap) {
+                    // The image that I want is more large.
+                    // Ratio is width/height so higher ratio means that the image needs to be more wide
+                    finalWidth = (int) ((float)maxHeight * ratioBitmap);
+                } else {
+                    // The image that I want is more narrow.
+                    // Ratio is width/height so lower ratio means that the image needs to be less higher
+
+                    // Example: my image has ratio 16:9=1.7 (wide: 1920, height: 1080), the image that I want is 1:1 (wide: 200, height: 200)
+                    // because the image that I wat has lower ratio, for keep the same ratio I need to lower the height
+                    // I need to find that value that give me 200:x=1.7
+                    // Im keeping the width fixed because if I want to keep the same ratio I need to overflow the maxWidth
+
+                    finalHeight = (int) ((float)maxWidth / ratioBitmap);
+                }
+
+                image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+                return image;
+            } else {
+                return image;
+            }
+        }
 
     }
 
