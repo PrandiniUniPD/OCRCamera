@@ -55,12 +55,23 @@ public class GalleryActivity extends AppCompatActivity {
     /**
      * Function for load the home fragment from onActivityCreated and onRequestPermissionsResult in case I don't have the storage permission
      */
+    FragmentManager fm;
     private void loadHomeFragment()
     {
-        FragmentManager fm = getSupportFragmentManager();
+        fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.fragmentPlaceHolder, new MainFragment(),getString(R.string.homeFragmentTag));
         ft.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        if (backStackEntryCount != 0) {
+            fm.popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     /**
@@ -79,7 +90,6 @@ public class GalleryActivity extends AppCompatActivity {
         public void onActivityCreated(Bundle savedInstanceState)
         {
             super.onActivityCreated(savedInstanceState);
-
             ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
             actionBar.setTitle("Gallery");
             actionBar.setDisplayHomeAsUpEnabled(false);
@@ -138,6 +148,12 @@ public class GalleryActivity extends AppCompatActivity {
                     cardAdapter.photosList.remove(cardPosition);
                     cardAdapter.notifyItemRemoved(cardPosition);
                 }
+
+                //Restore the actionBar
+                ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
+                actionBar.setTitle("Gallery");
+                actionBar.setDisplayHomeAsUpEnabled(false);
+                actionBar.setHomeButtonEnabled(false);
             }
 
         }
@@ -186,7 +202,9 @@ public class GalleryActivity extends AppCompatActivity {
             return view;
         }
 
-
+        /**
+         * Add the delete button to the actionBar
+         */
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             // Inflate the menu items for use in the action bar
@@ -213,6 +231,7 @@ public class GalleryActivity extends AppCompatActivity {
             }
             return super.onOptionsItemSelected(item);
         }
+
 
 
         /**
@@ -282,10 +301,6 @@ public class GalleryActivity extends AppCompatActivity {
         private void closeDetailFragment()
         {
             getFragmentManager().popBackStack();
-            ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
-            actionBar.setTitle("Gallery");
-            actionBar.setDisplayHomeAsUpEnabled(false);
-            actionBar.setHomeButtonEnabled(false);
         }
     }
 
