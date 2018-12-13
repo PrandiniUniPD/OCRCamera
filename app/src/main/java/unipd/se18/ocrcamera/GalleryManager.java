@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.provider.SyncStateContract;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
@@ -58,6 +59,7 @@ public class GalleryManager
      * Loads images and metadata
      * @param context The reference to the activity where the gallery is displayed
      * @return A list of the photos with the corresponding metadata
+     * @author Leonardo Rossi
      */
     public static ArrayList<PhotoStructure> getImages(Context context)
     {
@@ -93,6 +95,7 @@ public class GalleryManager
      * @param ingredients The ingredients that has to be stored with the image
      * @param reliability The OCR reliability on the photo
      * @throws IOException if an error occurs during image saving or metadata writing
+     * @author Leonardo Rossi
      */
     public static void storeImage(Context context, Bitmap toStore, ArrayList<String> ingredients, String reliability) throws IOException
     {
@@ -108,6 +111,20 @@ public class GalleryManager
         String filePath = saveToFile(toStore, imageName);
         //Metadata writing
         writeMetadata(filePath, ingredients, reliability);
+    }
+
+
+    /**
+     * Stores image and metadata
+     * @param photoToDelete photo that I want to delete
+     * @throws IOException if an error occurs during deletaion
+     * @author Romanello Stefano
+     */
+    public static void deleteImage(PhotoStructure photoToDelete) throws IOException
+    {
+        File photoFile = new File(photoToDelete.fileImagePath);
+        if(!photoFile.delete())
+            throw new IOException();
     }
 
     /**
@@ -130,6 +147,7 @@ public class GalleryManager
      * Reads the metadata from the given image
      * @param image The image from which the metadata have to be read
      * @return An object that contains the image with its metadata. Null if the given image can't be opened
+     * @author Leonardo Rossi
      */
     private static PhotoStructure buildStructure(File image)
     {
@@ -144,7 +162,7 @@ public class GalleryManager
             structure.ingredients.add(ingredients);
             structure.photo = BitmapFactory.decodeFile(image.getAbsolutePath());
             structure.reliability = reliability;
-
+            structure.fileImagePath = image.getPath();
             return structure;
         }
         catch (IOException e)
@@ -162,6 +180,7 @@ public class GalleryManager
      * @param name The name with which the image has to be saved
      * @return The path of the file that is created
      * @throws IOException if it's impossible to find the file at the specified path or if it's impossible to write to the same file
+     * @author Leonardo Rossi
      */
     private static String saveToFile(Bitmap toStore, String name) throws IOException
     {
@@ -181,6 +200,7 @@ public class GalleryManager
      * @param ingredients The information that has to be stored with the image
      * @param  reliability The OCR reliability on the photo
      * @throws IOException if it's impossible to reach the file at the specified path
+     * @author Leonardo Rossi
      */
     private static void writeMetadata(String path, ArrayList<String> ingredients, String reliability) throws IOException
     {
@@ -200,12 +220,13 @@ public class GalleryManager
     {
         public Bitmap photo;
         public String reliability;
+        public String fileImagePath;
         public ArrayList<String> ingredients = new ArrayList<String>();
     }
 
 
     /**
-     * Adapter for the cardView in the UI
+     * Adapter for the cardView in the UI. Load the cards with images and reliability inside the recycler view
      * @author Romanello Stefano
      * @request need the activity context and ArrayList<PhotoStructure> of photos to load.
      */
@@ -302,6 +323,11 @@ public class GalleryManager
         @Override
         public int getItemCount() {
             return photosList.size();
+        }
+
+        public int getPhotoPosition(PhotoStructure photoToRemove)
+        {
+            return photosList.indexOf(photoToRemove);
         }
 
 

@@ -19,12 +19,15 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -66,6 +69,9 @@ public class GalleryActivity extends AppCompatActivity {
      */
     public static class MainFragment extends Fragment {
 
+
+        GalleryManager.RecycleCardsAdapter cardAdapter;
+
         /**
          * Event triggered once everything in the activity have finished loading
          */
@@ -97,7 +103,6 @@ public class GalleryActivity extends AppCompatActivity {
         @Override
         public void onViewCreated(View view, Bundle savedInstanceState)
         {
-
             //Create the container for all my cards
             RecyclerView picturesRecycleView = view.findViewById(R.id.recycle_view);
             picturesRecycleView.setHasFixedSize(true);
@@ -109,8 +114,32 @@ public class GalleryActivity extends AppCompatActivity {
 
             //Load the cards using the RecycleCardsAdapter into the picturesRecycleView
             ArrayList<GalleryManager.PhotoStructure> photos = GalleryManager.getImages(view.getContext());
-            GalleryManager.RecycleCardsAdapter cardAdapter = new GalleryManager.RecycleCardsAdapter(view.getContext(), photos);
+            cardAdapter = new GalleryManager.RecycleCardsAdapter(view.getContext(), photos);
             picturesRecycleView.setAdapter(cardAdapter);
+
+
+        }
+
+
+        /**
+         * Event when the main fragment change its hidden status.
+         * @param hidden true=is hidden, false=is not hidden.
+         */
+        @Override
+        public void onHiddenChanged(boolean hidden) {
+            //I have to understand if the used has deleted an image
+            //If the answer is yes I have to remove the item from the recycleView
+            if(!hidden)
+            {
+                if(DetailFragment.deleteActionOccour!=null)
+                {
+                    //have to remove the photo from the recycler
+                    int cardPosition = cardAdapter.getPhotoPosition(DetailFragment.deleteActionOccour);
+                    cardAdapter.photosList.remove(cardPosition);
+                    cardAdapter.notifyItemRemoved(cardPosition);
+                }
+            }
+
         }
     }
 
@@ -120,6 +149,11 @@ public class GalleryActivity extends AppCompatActivity {
     public static class DetailFragment extends Fragment
     {
         private GalleryManager.PhotoStructure photoInfos;
+
+        //this variable is used for undersend if I've deleted something when I close the DetailFragment
+        //if this variable is null I didn't delete anything
+        //If this variable is not null the value of the variable is the image (card) that I have to remove
+        public static GalleryManager.PhotoStructure deleteActionOccour=null;
 
         /**
          * Event triggered once everything in the activity have finished loading
@@ -133,6 +167,9 @@ public class GalleryActivity extends AppCompatActivity {
             actionBar.setTitle("Details");
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
+
+            //When I load the fragment I always set the delete action to false.
+            deleteActionOccour=null;
         }
 
         /**
@@ -148,6 +185,14 @@ public class GalleryActivity extends AppCompatActivity {
             return view;
         }
 
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            // Inflate the menu items for use in the action bar
+            inflater.inflate(R.menu.gallery_details_menu, menu);
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+
         /**
          * Listner for the back button action that will close the deailed Fragment
          * @param item value of the item clicked
@@ -156,20 +201,18 @@ public class GalleryActivity extends AppCompatActivity {
         public boolean onOptionsItemSelected(MenuItem item)
         {
             switch (item.getItemId()) {
+                //I've clicked the back buton on the actionBar
                 case android.R.id.home:
                     //Go back with fragment and restore the actionBar for the main gallery
-                    getFragmentManager().popBackStack();
-                    ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
-                    actionBar.setTitle("Gallery");
-                    actionBar.setDisplayHomeAsUpEnabled(false);
-                    actionBar.setHomeButtonEnabled(false);
+                    closeDetailFragment();
+                    break;
+                case R.id.galleryDelete:
+                    deleteCurrentPhoto();
                     break;
             }
             return super.onOptionsItemSelected(item);
         }
 
-
-        //
 
         /**
          * This event is triggered soon after onCreateView()
@@ -197,6 +240,52 @@ public class GalleryActivity extends AppCompatActivity {
             txtPercentage.setText("Reliability: " +photoInfos.reliability);
             imageView.setImageBitmap(photoInfos.photo);
         }
+
+        /**
+         * Action triggered when I click the delete icon in the actionBar
+         * Method colled from onOptionsItemSelected
+         */
+        private void deleteCurrentPhoto()
+        {
+            try {
+                //Notify the MainFragment that I have deleted something and that he need to remove the card
+                deleteActionOccour=photoInfos;
+
+                //Delete the actual image
+                GalleryManager.deleteImage(photoInfos);
+
+                //Close current fragment
+                closeDetailFragment();
+
+            } catch (IOException e) {
+                //Manage the exaption with a dialog
+                AlertDialog.Builder builder;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Dialog_Alert);
+                } else {
+                    builder = new AlertDialog.Builder(getContext());
+                }
+                builder.setTitle("Error")
+                        .setMessage("Error while deleting the photo. Retry")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) { }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        }
+
+        /**
+         * Method for closing the current fragment
+         */
+        private void closeDetailFragment()
+        {
+            getFragmentManager().popBackStack();
+            ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
+            actionBar.setTitle("Gallery");
+            actionBar.setDisplayHomeAsUpEnabled(false);
+            actionBar.setHomeButtonEnabled(false);
+        }
     }
 
 
@@ -204,7 +293,7 @@ public class GalleryActivity extends AppCompatActivity {
     /******************PERMISSIONS****************/
     /***********@author Romanello Stefano*********/
     /*********************************************/
-    
+
 
     /**
      * Verify if the user granted the permission
@@ -232,7 +321,7 @@ public class GalleryActivity extends AppCompatActivity {
      * @return boolean of the current status (before asking the permission)
      * if its false this prevent the app to load the fragment that uses the internal storage
      */
-    private boolean verifyStoragePermission()
+    public boolean verifyStoragePermission()
     {
         //Check and in case Ask for permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -250,7 +339,7 @@ public class GalleryActivity extends AppCompatActivity {
     /**
      * Show a simple error message before closing the activity in case bad permissioN
      */
-    private void showPermissionErrorDialog()
+    public void showPermissionErrorDialog()
     {
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -269,4 +358,5 @@ public class GalleryActivity extends AppCompatActivity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
+
 }
