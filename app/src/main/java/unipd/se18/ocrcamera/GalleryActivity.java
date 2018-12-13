@@ -256,8 +256,8 @@ public class GalleryActivity extends AppCompatActivity {
                     .replace("[", "")  //remove the right bracket
                     .replace("]", "")  //remove the left bracket
                     .trim();
-            txtIngredients.setText("Ingredients: " + formattedIngredients);
-            txtPercentage.setText("Reliability: " +photoInfos.reliability);
+            txtIngredients.setText(formattedIngredients);
+            txtPercentage.setText(photoInfos.reliability);
             imageView.setImageBitmap(photoInfos.photo);
         }
 

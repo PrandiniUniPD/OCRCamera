@@ -10,34 +10,63 @@ android:id="@+id/galleryDetailsLayout"
 android:weightSum="1"
 android:padding="5dp">
 
-<ImageView
-    android:id="@+id/imageViewGalleryDetailPhoto"
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="0.7"
-    tools:srcCompat="@tools:sample/backgrounds/scenic"
-    />
+    <ImageView
+        android:id="@+id/imageViewGalleryDetailPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.7"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
-<TextView
-    android:id="@+id/textViewGalleryDetailPercentage"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    android:text="Percentuale"
-    />
-
-<ScrollView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <TextView
-        android:id="@+id/textViewGalleryDetailIngredients"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ingredienti"
-        android:layout_margin="10dp"
-        />
+        android:orientation="vertical">
 
-</ScrollView>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Reliability"
+            android:gravity="center"
+            android:textSize="25dp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/textViewGalleryDetailPercentage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:textStyle="italic"
+            android:text="Percentuale" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Ingredients"
+            android:gravity="center"
+            android:textSize="25dp"
+            android:textStyle="bold"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/textViewGalleryDetailIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="20dp"
+                android:textStyle="italic"
+                android:text="Ingredienti"
+                android:layout_margin="10dp" />
+
+        </ScrollView>
+
+    </LinearLayout>
 
 
 

@@ -158,10 +158,9 @@ public class CameraActivity extends AppCompatActivity {
                 edit.apply();
 
                 ArrayList<String> test = new ArrayList<String>();
-                test.add("Tomare");
-                test.add("123");
-                test.add("456");
-                test.add("666666");
+                test.add("hdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj khdkjadkjsnclknksncjksd kjcdjks cdks cdskcj dskj cdksj k");
+
+
                 try {
                     GalleryManager.storeImage(CameraActivity.this,bitmapImage,test,"99%");
                 } catch (IOException e) {

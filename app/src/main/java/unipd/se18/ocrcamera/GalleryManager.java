@@ -305,6 +305,8 @@ public class GalleryManager
                     ft.commit();
                 }
             });
+
+
             return cardViewHolder;
         }
 
