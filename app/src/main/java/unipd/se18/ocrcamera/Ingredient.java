@@ -28,7 +28,7 @@ public class Ingredient implements Comparable<String> {
     private String updateDate;
 
 
-    public Ingredient() {
+    Ingredient() {
         this.cosingRefNo = "";
         this.inciName = "";
         this.innName = "";

@@ -1,39 +1,35 @@
 package unipd.se18.ocrcamera;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.List;
 
 /**
  * Class used for showing the result of the OCR processing
  */
 public class ResultActivity extends AppCompatActivity {
 
-    /**
-     * The TextView of the extracted test from the captured photo.
-     */
-    private TextView mOCRTextView;
+    //ListView of extracted ingredients
+    private ListView ingredientsListView;
 
-    /**
-     * Bitmap of the lastPhoto saved
-     */
-    private Bitmap lastPhoto;
+    private final String TAG = "ResultActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +38,11 @@ public class ResultActivity extends AppCompatActivity {
 
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
-        mOCRTextView = findViewById(R.id.ocr_text_view);
-        mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
+        ingredientsListView = findViewById(R.id.ingredients_list);
+
+        //set on empty list view
+        TextView emptyView = findViewById(R.id.empty_list);
+        ingredientsListView.setEmptyView(emptyView);
 
         // Floating action buttons listeners (Francesco Pham)
         FloatingActionButton fabNewPic = findViewById(R.id.newPictureFab);
@@ -54,22 +53,14 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton fabSearchIngr = findViewById(R.id.searchIngredients);
-        fabSearchIngr.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(ResultActivity.this, IngredientsActivity.class);
-                startActivity(i);
-            }
-        });
-
 
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
         String OCRText = prefs.getString("text", null);
 
-        lastPhoto = BitmapFactory.decodeFile(pathImage);
+        //Bitmap of the lastPhoto saved
+        Bitmap lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
@@ -80,16 +71,18 @@ public class ResultActivity extends AppCompatActivity {
         //Displaying the text, from OCR or preferences
         if(OCRText != null) {
             // Text in preferences
-            if(OCRText.equals("")) {
-                mOCRTextView.setText(R.string.no_text_found);
-            } else {
-                //Show the text of the last image
-                mOCRTextView.setText(OCRText);
+            if(!OCRText.equals("")) {
+                ProgressDialog progressDialog = ProgressDialog.show(ResultActivity.this,
+                        getString(R.string.processing),
+                        getString(R.string.processing_ingredients));
+                List<Ingredient> ingredients = extractIngredients(OCRText);
+                showIngredients(ingredients);
+                progressDialog.dismiss();
             }
         } else{
             // text from OCR
-            AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
-            ocrTask.execute(lastPhoto);
+            executionThread inciThread = new executionThread(lastPhoto, ingredientsListView);
+            inciThread.start();
         }
     }
 
@@ -127,70 +120,94 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     /**
-     * Execute a task and post the result on the TextView given on construction
-     * (g3) - modified by Rossi Leonardo
+     * Thread that executes ocr, extract ingredients and show results
+     * @author Francesco Pham
      */
-    @SuppressLint("StaticFieldLeak")
-    private class AsyncLoad extends AsyncTask<Bitmap, Void, String> {
-
+    private class executionThread extends Thread{
+        private Bitmap photo;
         private ProgressDialog progressDialog;
-        private TextView resultTextView;
-        private String progressMessage;
+        ListView listView;
 
-        AsyncLoad(TextView view, String progressMessage) {
-            this.resultTextView = view;
-            this.progressMessage = progressMessage;
-        }
-
-        @Override
-        protected String doInBackground(Bitmap... bitmaps) {
-            TextExtractor ocr = new TextExtractor();
-            String textRecognized = "";
-            if(lastPhoto != null) {
-                textRecognized = ocr.getTextFromImg(lastPhoto);
-                if(textRecognized.equals(""))
-                {
-                    textRecognized = getString(R.string.no_text_found);
-                    final String finalTextRecognized = textRecognized;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mOCRTextView.setText(finalTextRecognized);
-                        }
-                    });
-                }
-                else
-                {
-                    final String finalTextRecognized = textRecognized;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mOCRTextView.setText(finalTextRecognized);
-                        }
-                    });
-                }
-            } else {
-                Log.e("NOT_FOUND", "photo not found");
-            }
-            return textRecognized;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            progressDialog.dismiss();
-            // Saving in the preferences
-            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("text", s);
-            editor.apply();
-        }
-
-        @Override
-        protected void onPreExecute() {
+        executionThread(Bitmap photo, ListView listView){
+            this.photo = photo;
+            this.listView = listView;
             progressDialog = ProgressDialog.show(ResultActivity.this,
-                    progressMessage,
-                    "");
+                    getString(R.string.processing),
+                    getString(R.string.processing_ocr));
         }
+
+        public void run(){
+            if(photo != null) {
+                //execute ocr
+                TextExtractor ocr = new TextExtractor();
+                String textRecognized = ocr.getTextFromImg(photo);
+
+                //extract ingredients from ocr text
+                progressDialog.setMessage(getString(R.string.processing_ingredients));
+                if(!textRecognized.equals("")){
+                    List<Ingredient> ingredients = extractIngredients(textRecognized);
+                    showIngredients(ingredients);
+                }
+
+                // Saving ocr text in the preferences
+                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("text", textRecognized);
+                editor.apply();
+            }
+            else{
+                Log.e(TAG, "photo not found");
+            }
+
+            progressDialog.dismiss();
+        }
+
+
+    }
+
+    /**
+     * ingredients extraction from the ocr text
+     * @param ocrText The ocr text
+     * @return List of Ingredient objects containing associated information
+     * @author Francesco Pham
+     */
+    private List<Ingredient> extractIngredients(String ocrText){
+        TimingLogger timings = new TimingLogger(TAG, "inci execution");
+
+        //load inci db and initialize ingredient extractor
+        List<Ingredient> listInciIngredients = Inci.getListIngredients(getApplicationContext());
+        TextAutoCorrection textCorrector = new TextAutoCorrection(getApplicationContext());
+        IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+
+        timings.addSplit("load db");
+
+        //find ingredients in inci db
+        final List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(ocrText);
+
+        timings.addSplit("search in db");
+        timings.dumpToLog();
+
+        return ingredients;
+    }
+
+    /**
+     * Show results on a list view
+     * @param ingredients Ingredients to be displayed
+     * @author Francesco Pham
+     */
+    private void showIngredients(final List<Ingredient> ingredients){
+        //show results using adapter
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AdapterIngredient adapter =
+                        new AdapterIngredient(
+                                ResultActivity.this,
+                                ingredients
+                        );
+                ingredientsListView.setAdapter(adapter);
+            }
+        });
     }
 }
 

@@ -20,7 +20,7 @@ import com.opencsv.CSVReader;
  * http://opencsv.sourceforge.net/
  * @author Francesco Pham
  */
-public class Inci {
+class Inci {
 
     private static final String TAG = "Inci";
 
@@ -29,11 +29,11 @@ public class Inci {
      * @param context The application context
      * @author Francesco Pham
      */
-    public static List<Ingredient> getListIngredients(Context context){
+    static List<Ingredient> getListIngredients(Context context){
         InputStream inputStream = context.getResources().openRawResource(R.raw.incidb);
         Reader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-        List<Ingredient> listIngredients = new ArrayList<Ingredient>(); //initializing list of ingredients
+        List<Ingredient> listIngredients = new ArrayList<>(); //initializing list of ingredients
 
         //initializing openCSV reader
         CSVReader csvReader = new CSVReader(reader);

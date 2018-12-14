@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Adapter for list view of ingredients after processing with incidb
- * @Author Francesco Pham
+ * @author Francesco Pham
  */
 public class AdapterIngredient extends BaseAdapter {
 

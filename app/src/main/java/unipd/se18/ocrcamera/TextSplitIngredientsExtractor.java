@@ -74,7 +74,7 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
     @Override
     public ArrayList<Ingredient> findListIngredients(String text) {
 
-        ArrayList<Ingredient> foundIngredients = new ArrayList<Ingredient>();
+        ArrayList<Ingredient> foundIngredients = new ArrayList<>();
 
         //maximum accepted distance between block of text and inci name
         final double maxDistance = 0.2;

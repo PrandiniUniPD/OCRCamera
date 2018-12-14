@@ -31,6 +31,7 @@
             android:scrollbars="vertical"
             android:fillViewport="true">-->
             <!-- TextView - author (g2) -->
+            <!--
             <TextView
                 android:id="@+id/ocr_text_view"
                 android:text="@string/take_photo"
@@ -38,7 +39,27 @@
                 android:layout_height="0dp"
                 android:layout_weight="2"
                 android:layout_gravity="center_horizontal|center"/>
+            -->
         <!--</ScrollView>-->
+
+        <!-- ingredients list (Francesco Pham) -->
+        <ListView
+            android:id="@+id/ingredients_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:scrollbars="vertical">
+        </ListView>
+
+        <TextView
+            android:id="@+id/empty_list"
+            android:text="@string/empty_list_ingredients"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:scrollbars="vertical">
+        </TextView>
+
     </LinearLayout>
 
     <!-- Camera activity launcher button (Francesco Pham) -->
@@ -53,15 +74,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:backgroundTint="@color/colorPrimary"/>
 
-    <!-- Button to search ingredients inside ocr text (Francesco Pham) -->
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/searchIngredients"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20sp"
-        android:layout_marginBottom="10sp"
-        android:src="@drawable/ic_icon_search"
-        app:layout_constraintBottom_toTopOf="@+id/newPictureFab"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:backgroundTint="@color/colorPrimary"/>
 </android.support.constraint.ConstraintLayout>

@@ -28,9 +28,10 @@ public class NavigatorActivity extends AppCompatActivity {
         Intent intent;
 
         /**
-            If already exists a photo, launch result activity to show it
-            with text attached - Author Luca Moroldo modified by Francesco Pham
-        **/
+         * If already exists a photo, launch result activity to show it
+         * with text attached.
+         * @author Luca Moroldo modified by Francesco Pham
+        */
         if(pathImage != null) {
             //load last extracted text
             prefs = getSharedPreferences("prefs", MODE_PRIVATE);

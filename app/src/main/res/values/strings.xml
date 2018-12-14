@@ -24,6 +24,8 @@
     <string name="inci_name_title">Inci name:</string>
     <string name="description_title">Description:</string>
     <string name="processing_ingredients">Extracting ingredients</string>
+    <string name="processing_ocr">Executing ocr</string>
     <string name="extracted_ingredients_title">Extracted ingredients:</string>
     <string name="view_details">Details</string>
+    <string name="empty_list_ingredients">No ingredients found</string>
 </resources>
