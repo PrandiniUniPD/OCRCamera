@@ -22,6 +22,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.example.imageprocessing.ImageProcessing;
+import com.example.imageprocessing.TextRegions;
+
+import java.util.List;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -63,6 +67,10 @@ public class ResultActivity extends AppCompatActivity {
         String OCRText = prefs.getString("text", null);
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
+        ImageProcessing processing = new ImageProcessing();
+        TextRegions regions = processing.detectTextRegions(lastPhoto);
+        List<Bitmap> bitmaps = processing.extractTextFromBitmap(lastPhoto, regions);
+
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));

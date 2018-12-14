@@ -2,8 +2,6 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
-
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.Core;
@@ -13,7 +11,6 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
@@ -276,10 +273,11 @@ public class ImageProcessing implements DetectTheText {
         RotatedRect rectangle;
         while(textContainer.hasNext()){
             rectangle = (RotatedRect)textContainer.next();
-            Mat croppedMat = Crop(rectangle, img);
-            Bitmap croppedBitmap = conversionMatToBitmap(croppedMat);
-            imgTextContainer.add(croppedImg);
+            Mat croppedMat = crop(rectangle, img);
+            Bitmap croppedBitmap = IPUtils.conversionMatToBitmap(croppedMat);
+            imgTextContainer.add(croppedBitmap);
         }
+        IPDebug.saveBitmapList(imgTextContainer);
         return imgTextContainer;
     }
 }
