@@ -223,7 +223,7 @@ public class ImageProcessing implements DetectTheText {
      * @return a matrix that contains only the rectangle
      * @author Thomas Porro(g1), Oscar Garrido (g1)
      */
-    public Mat crop(RotatedRect rectangle, Mat mat) {
+    private Mat crop(RotatedRect rectangle, Mat mat) {
 
         //Matrices we'll use
         Mat croppedImg = new Mat();
@@ -261,7 +261,7 @@ public class ImageProcessing implements DetectTheText {
         Mat img = IPUtils.conversionBitmapToMat(image);
         Mat filteredMat = applyFilters(img);
         List<RotatedRect> rectanglesList = detectTextAreas(filteredMat);
-        
+
         for(RotatedRect rectangle :  rectanglesList){
             textContainer.addRegion(rectangle);
         }
@@ -269,7 +269,17 @@ public class ImageProcessing implements DetectTheText {
     }
 
     @Override
-    public List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions regions) {
-        return null;
+    public List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions textContainer) {
+        List<Bitmap> imgTextContainer = new ArrayList<>();
+        Mat img = IPUtils.conversionBitmapToMat(image);
+
+        RotatedRect rectangle;
+        while(textContainer.hasNext()){
+            rectangle = (RotatedRect)textContainer.next();
+            Mat croppedMat = Crop(rectangle, img);
+            Bitmap croppedBitmap = conversionMatToBitmap(croppedMat);
+            imgTextContainer.add(croppedImg);
+        }
+        return imgTextContainer;
     }
 }
