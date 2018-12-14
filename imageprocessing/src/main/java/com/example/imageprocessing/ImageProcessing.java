@@ -60,36 +60,18 @@ public class ImageProcessing implements DetectTheText {
 
 
     /**
-     * Find, crop and rotate the text in an image
-     * @param imagePath the path of the image you want to analyze
-     * @return the cropped image
-     * @throws FileNotFoundException if imagePath doesn't exist
-     * @author Thomas Porro (g1)
-     */
-    public Bitmap findText(String imagePath) throws FileNotFoundException {
-
-        //Converts the image into a matrix
-        Mat img = Imgcodecs.imread(imagePath);
-
-        //Call of internal methods
-        RotatedRect area = detectMaxTextArea(imagePath);
-        img = crop(area, img);
-        return IPUtils.conversionMatToBitmap(img);
-    }
-
-
-    /**
      * Calculate the angle between the text and the horizontal
-     * @param imagePath path of the image you want to analyze
+     * @param image The image you want to analyze
      * @return the angle between the text and the horizontal
-     * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1)
      */
-    private double computeSkew(String imagePath) throws FileNotFoundException {
+    private double computeSkew(Bitmap image){
 
-        //Turns the image in grayscale and put it in a matrix
-        Log.d(TAG, "Image path = " + imagePath);
-        Mat img = IPUtils.conversionBitmapToMat(imagePath);
+        //Turns the image into a matrix
+        Mat img = IPUtils.conversionBitmapToMat(image);
+
+        Mat grayscale = new Mat();
+        Imgproc.cvtColor(img, grayscale, Imgproc.COLOR_RGB2GRAY);
        /*
             Method used for debug
             IPUtils.save(img, "grayScale", ".jpg");
@@ -103,7 +85,7 @@ public class ImageProcessing implements DetectTheText {
         double threshold2 = 200;
         int apertureSize = 3;
         boolean l2gradient = false;
-        Imgproc.Canny(img, img, threshold1, threshold2, apertureSize, l2gradient);
+        Imgproc.Canny(grayscale, grayscale, threshold1, threshold2, apertureSize, l2gradient);
 
         //Create a 4 dimensions vector using matrix
         MatOfInt4 lines = new MatOfInt4();
@@ -148,28 +130,22 @@ public class ImageProcessing implements DetectTheText {
 
     /**
      * Applies filters to an image do make it easier to detect rectangle areas
-     * @param imagePath the path of the image you want to analyze
+     * @param imageMat The matrix you want to analyze
      * @return a matrix of the filtered image
-     * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
-    private Mat applyFilters(String imagePath) throws FileNotFoundException {
-        //Turns the image in grayscale and put it in a matrix
-        Log.d(TAG, "Image path = " + imagePath);
-
-        Mat img = IPUtils.conversionBitmapToMat(imagePath);
-
-        //save(img, "grayScale.jpg");
+    private Mat applyFilters(Mat imageMat){
+        Mat grayscale = new Mat();
+        Imgproc.cvtColor(imageMat, grayscale, Imgproc.COLOR_RGB2GRAY);
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
         Mat threshold = new Mat();
         double maxValue = 200;
         int blockSize = 21;
         double constant = 8;
-        Imgproc.adaptiveThreshold(img, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
+        Imgproc.adaptiveThreshold(grayscale, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
         /*
             Method used for debug
-
             save(threshold, "threshold.jpg");
         */
 
@@ -181,7 +157,6 @@ public class ImageProcessing implements DetectTheText {
         boolean l2gradient = false;
         Imgproc.Canny(threshold, canny, threshold1, threshold2, apertureSize, l2gradient);
         //save(canny, "canny.jpg");
-
 
         /*
             kernelSize is the dimension of "element" matrix
@@ -212,15 +187,16 @@ public class ImageProcessing implements DetectTheText {
         return dilatated;
     }
 
+
     /**
      * Searches the rectangles in the matrix of an image to find the largest one
-     * @param imagePath the path of the image you want to find the rectangles of text
+     * @param filteredMat the matrix of the image you want to find the rectangles of text
      * @return the rectangle which contains the text with maximum area (it could be rotated)
-     * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
-    private RotatedRect detectMaxTextArea(String imagePath) throws FileNotFoundException{
-        Mat filteredMat = applyFilters(imagePath);
+    private List<RotatedRect> detectTextAreas(Mat filteredMat){
+        List<RotatedRect> rectanglesList = new ArrayList<>();
+
         //Saves the contours in a list of MatOfPoint (multidimensional vector)
         List<MatOfPoint> contours = new ArrayList<>();
         int mode = 0;
@@ -228,26 +204,16 @@ public class ImageProcessing implements DetectTheText {
         Imgproc.findContours(filteredMat, contours, new Mat(), mode, method);
         //The third parameter contains additional information that is unused
 
-        /*
-            EXPERIMENTAL:
-            finds the text rectangle with the largest area
-            and saves it in "max_contour"
-         */
-        double maxArea = 0;
-        MatOfPoint max_contour = new MatOfPoint();
-        Iterator<MatOfPoint> iterator = contours.iterator();
-        while (iterator.hasNext()) {
-            MatOfPoint contour = iterator.next();
-            double area = Imgproc.contourArea(contour);
-            if (area > maxArea) {
-                maxArea = area;
-                max_contour = contour;
-            }
+        //Fills rectanglesList with all the found rectangles of the image
+        MatOfPoint maxContour;
+        for (MatOfPoint contour : contours) {
+            maxContour = contour;
+            //Creates a rotated rectangle based on "max_contour
+            RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(maxContour.toArray()));
+            rectanglesList.add(rect);
         }
 
-        //Creates a rotated rectangle based on "max_contour"
-        RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
-        return rect;
+        return rectanglesList;
     }
 
     /**
@@ -290,7 +256,16 @@ public class ImageProcessing implements DetectTheText {
 
     @Override
     public TextRegions detectTextRegions(Bitmap image) {
-        return null;
+        TextAreas textContainer = new TextAreas();
+        //Turns the image in grayscale and put it in a matrix
+        Mat img = IPUtils.conversionBitmapToMat(image);
+        Mat filteredMat = applyFilters(img);
+        List<RotatedRect> rectanglesList = detectTextAreas(filteredMat);
+        
+        for(RotatedRect rectangle :  rectanglesList){
+            textContainer.addRegion(rectangle);
+        }
+        return textContainer;
     }
 
     @Override

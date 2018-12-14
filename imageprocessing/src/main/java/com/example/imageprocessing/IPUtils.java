@@ -73,22 +73,24 @@ class IPUtils {
 
 
     /**
-     * Converts the Bitmap into a grayscale matrix
-     * @param imagePath the Bitmap you want to convert
+     * Converts the Bitmap into a matrix
+     * @param image the Bitmap you want to convert
      * @return the matrix corresponding to the Bitmap
-     * @throws FileNotFoundException if the imagePath doesn't exist
      * @author Oscar Garrido (g1)
      */
-    static Mat conversionBitmapToMat(String imagePath) throws FileNotFoundException {
+    static Mat conversionBitmapToMat(Bitmap image){
 
         //Loads the grayscale image in a matrix
-        Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
+        Mat img = new Mat();
+        Utils.bitmapToMat(image, img);
 
+        //TODO verify what kind of exception it throws
+        /*
         //Throw an Exception if "img" is empty
         if (img.empty()) {
             Log.e(TAG, "File not found");
             throw new FileNotFoundException();
-        }
+        }*/
         return img;
     }
 
