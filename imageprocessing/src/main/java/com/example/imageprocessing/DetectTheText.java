@@ -14,7 +14,7 @@ public interface DetectTheText {
      * @param image The image we want to analyze. Not null.
      * @return The TextAreas object that contains the area where there's some text
      */
-    TextAreas detectTextRegions(Bitmap image);
+    TextRegions detectTextRegions(Bitmap image);
 
 
     /**
@@ -23,5 +23,5 @@ public interface DetectTheText {
      * @param regions The object that contains the area where there's some text
      * @return A list of bitmaps, each containing some text
      */
-    List<Bitmap> extractTextFromBitmap(Bitmap image, TextAreas regions);
+    List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions regions);
 }

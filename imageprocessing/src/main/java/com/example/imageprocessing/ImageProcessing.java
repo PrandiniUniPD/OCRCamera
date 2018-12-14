@@ -1,9 +1,8 @@
-package com.example.imageprocessing.ProcessingMethods;
+package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.example.imageprocessing.DetectTheText;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +86,6 @@ public class ImageProcessing implements DetectTheText {
      * @author Thomas Porro (g1)
      */
     private double computeSkew(String imagePath) throws FileNotFoundException {
-        private
 
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
@@ -149,22 +147,19 @@ public class ImageProcessing implements DetectTheText {
 
 
     /**
-     * Detect in which region of the picture there is some text and finds
-     * the largest one, even if it's rotated
+     * Applies filters to an image do make it easier to detect rectangle areas
      * @param imagePath the path of the image you want to analyze
-     * @return the rectangle which contains the text with maximum area (it could be rotated)
+     * @return a matrix of the filtered image
      * @throws FileNotFoundException if imagePath doesn't exist
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
-    public RotatedRect detectMaxTextArea(String imagePath) throws FileNotFoundException {
-
+    private Mat applyFilters(String imagePath) throws FileNotFoundException {
         //Turns the image in grayscale and put it in a matrix
         Log.d(TAG, "Image path = " + imagePath);
+
         Mat img = IPUtils.conversionBitmapToMat(imagePath);
-        /*
-            Method used for debug
-            //IPUtils.save(img, "grayScale", ".jpg");
-        */
+
+        //save(img, "grayScale.jpg");
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
         Mat threshold = new Mat();
@@ -172,7 +167,11 @@ public class ImageProcessing implements DetectTheText {
         int blockSize = 21;
         double constant = 8;
         Imgproc.adaptiveThreshold(img, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
-        //IPUtils.save(threshold, "threshold", ".jpg");
+        /*
+            Method used for debug
+
+            save(threshold, "threshold.jpg");
+        */
 
         //Detect the edges in the image
         Mat canny = new Mat();
@@ -181,7 +180,8 @@ public class ImageProcessing implements DetectTheText {
         int apertureSize = 3;
         boolean l2gradient = false;
         Imgproc.Canny(threshold, canny, threshold1, threshold2, apertureSize, l2gradient);
-        //IPUtils.save(canny, "canny", ".jpg");
+        //save(canny, "canny.jpg");
+
 
         /*
             kernelSize is the dimension of "element" matrix
@@ -190,27 +190,42 @@ public class ImageProcessing implements DetectTheText {
         Size kernelSize = new Size(20, 20);
         Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, kernelSize);
 
+
         //Fill the close edges created by "canny"
         Mat morphology = new Mat();
         Imgproc.morphologyEx(canny, morphology, Imgproc.MORPH_CLOSE, element);
-        //IPUtils.save(morphology, "morphology", "jpg");
+        //save(morphology, "morphology.jpg");
+
 
         //Smoothes the image using the median filter.
         Mat blurredMat = new Mat();
         int ksize = 15;
         Imgproc.medianBlur(morphology, blurredMat, ksize);
-        //IPUtils.save(blurredMat, "gaussianBlur", ".jpg");
+        //save(blurredMat, "gaussianBlur.jpg");
+
 
         //Dilates the image
         Mat dilatated = new Mat();
         Imgproc.dilate(blurredMat, dilatated, element);
-        //IPUtils.save(dilatated, "dilate", ".jpg");
+        //save(dilatated, "dilate.jpg");
 
+        return dilatated;
+    }
+
+    /**
+     * Searches the rectangles in the matrix of an image to find the largest one
+     * @param imagePath the path of the image you want to find the rectangles of text
+     * @return the rectangle which contains the text with maximum area (it could be rotated)
+     * @throws FileNotFoundException if imagePath doesn't exist
+     * @author Thomas Porro (g1), Oscar Garrido (g1)
+     */
+    private RotatedRect detectMaxTextArea(String imagePath) throws FileNotFoundException{
+        Mat filteredMat = applyFilters(imagePath);
         //Saves the contours in a list of MatOfPoint (multidimensional vector)
         List<MatOfPoint> contours = new ArrayList<>();
         int mode = 0;
         int method = 1;
-        Imgproc.findContours(dilatated, contours, new Mat(), mode, method);
+        Imgproc.findContours(filteredMat, contours, new Mat(), mode, method);
         //The third parameter contains additional information that is unused
 
         /*
@@ -220,7 +235,9 @@ public class ImageProcessing implements DetectTheText {
          */
         double maxArea = 0;
         MatOfPoint max_contour = new MatOfPoint();
-        for (MatOfPoint contour : contours) {
+        Iterator<MatOfPoint> iterator = contours.iterator();
+        while (iterator.hasNext()) {
+            MatOfPoint contour = iterator.next();
             double area = Imgproc.contourArea(contour);
             if (area > maxArea) {
                 maxArea = area;
@@ -228,10 +245,10 @@ public class ImageProcessing implements DetectTheText {
             }
         }
 
-        //Creates and return a rotated rectangle based on "max_contour"
-        return Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
+        //Creates a rotated rectangle based on "max_contour"
+        RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(max_contour.toArray()));
+        return rect;
     }
-
 
     /**
      * Crop the matrix with the given rectangle
@@ -271,4 +288,13 @@ public class ImageProcessing implements DetectTheText {
         return croppedImg;
     }
 
+    @Override
+    public TextRegions detectTextRegions(Bitmap image) {
+        return null;
+    }
+
+    @Override
+    public List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions regions) {
+        return null;
+    }
 }

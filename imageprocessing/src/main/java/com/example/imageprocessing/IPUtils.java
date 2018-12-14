@@ -1,4 +1,4 @@
-package com.example.imageprocessing.ProcessingMethods;
+package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
