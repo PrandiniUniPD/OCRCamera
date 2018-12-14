@@ -53,7 +53,8 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
     /**
-     * Function for load the home fragment from onActivityCreated and onRequestPermissionsResult in case I don't have the storage permission
+     * Function for load the home fragment from onActivityCreated and
+     * onRequestPermissionsResult in case I get the storage permission from the permission
      */
     FragmentManager fm;
     private void loadHomeFragment()
@@ -67,6 +68,9 @@ public class GalleryActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        //If there is more than 1 fragment running I close the
+        //current one (DetailsFragment) and return to the prevous (HomeFragment)
+        //Or I just call the default onBackPressed which closes the activity
         if (backStackEntryCount != 0) {
             fm.popBackStack();
         } else {
@@ -74,12 +78,18 @@ public class GalleryActivity extends AppCompatActivity {
         }
     }
 
+
+
+    /************************************************************/
+    /***************************FRAGMENTS************************/
+    /************************************************************/
+
+
     /**
      * Fragment of the gallery layout
      * @author Romanello Stefano
      */
     public static class MainFragment extends Fragment {
-
 
         GalleryManager.RecycleCardsAdapter cardAdapter;
 
@@ -91,7 +101,7 @@ public class GalleryActivity extends AppCompatActivity {
         {
             super.onActivityCreated(savedInstanceState);
             ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
-            actionBar.setTitle("Gallery");
+            actionBar.setTitle(R.string.galleryFragmentTitle);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setHomeButtonEnabled(false);
         }
@@ -126,8 +136,6 @@ public class GalleryActivity extends AppCompatActivity {
             ArrayList<GalleryManager.PhotoStructure> photos = GalleryManager.getImages(view.getContext());
             cardAdapter = new GalleryManager.RecycleCardsAdapter(view.getContext(), photos);
             picturesRecycleView.setAdapter(cardAdapter);
-
-
         }
 
 
@@ -137,21 +145,23 @@ public class GalleryActivity extends AppCompatActivity {
          */
         @Override
         public void onHiddenChanged(boolean hidden) {
-            //I have to understand if the used has deleted an image
+            //I have to understand if the user has deleted an image
             //If the answer is yes I have to remove the item from the recycleView
             if(!hidden)
             {
-                if(DetailFragment.deleteActionOccour!=null)
+                //When I delete something from the DetailsFragment I set
+                //the deleteActionOccur with the object that I've deleted
+                if(DetailFragment.deleteActionOccur!=null)
                 {
                     //have to remove the photo from the recycler
-                    int cardPosition = cardAdapter.getPhotoPosition(DetailFragment.deleteActionOccour);
+                    int cardPosition = cardAdapter.getPhotoPosition(DetailFragment.deleteActionOccur);
                     cardAdapter.photosList.remove(cardPosition);
                     cardAdapter.notifyItemRemoved(cardPosition);
                 }
 
                 //Restore the actionBar
                 ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
-                actionBar.setTitle("Gallery");
+                actionBar.setTitle(R.string.galleryFragmentTitle);
                 actionBar.setDisplayHomeAsUpEnabled(false);
                 actionBar.setHomeButtonEnabled(false);
             }
@@ -170,7 +180,7 @@ public class GalleryActivity extends AppCompatActivity {
         //this variable is used for undersend if I've deleted something when I close the DetailFragment
         //if this variable is null I didn't delete anything
         //If this variable is not null the value of the variable is the image (card) that I have to remove
-        public static GalleryManager.PhotoStructure deleteActionOccour=null;
+        public static GalleryManager.PhotoStructure deleteActionOccur=null;
 
         /**
          * Event triggered once everything in the activity have finished loading
@@ -181,12 +191,12 @@ public class GalleryActivity extends AppCompatActivity {
             super.onActivityCreated(savedInstanceState);
 
             ActionBar actionBar =((GalleryActivity)getActivity()).getSupportActionBar();
-            actionBar.setTitle("Details");
+            actionBar.setTitle(R.string.galleryDetailsFragmentTitle);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
 
-            //When I load the fragment I always set the delete action to false.
-            deleteActionOccour=null;
+            //When I load the fragment I always set the delete action to false. (Safety precaution)
+            deleteActionOccur=null;
         }
 
         /**
@@ -197,7 +207,7 @@ public class GalleryActivity extends AppCompatActivity {
         {
             // Defines the xml file for the fragment
             View view = inflater.inflate(R.layout.activitygallerydetails, parent, false);
-            //Very important part. Whiout this line the fragment doens't know that it has a menu and it will not trigger onOptionsItemSelected
+            //Very important part. Without this line the fragment does't know that it has a menu and it will not trigger onOptionsItemSelected
             setHasOptionsMenu(true);
             return view;
         }
@@ -213,26 +223,20 @@ public class GalleryActivity extends AppCompatActivity {
         }
 
         /**
-         * Listner for the back button action that will close the deailed Fragment
+         * Listner for actionBar buttons of the DetailsFragment
          * @param item value of the item clicked
          */
         @Override
         public boolean onOptionsItemSelected(MenuItem item)
-                {
-                    switch (item.getItemId()) {
-                        //I've clicked the back buton on the actionBar
-                        case android.R.id.home:
-                            //Go back with fragment and restore the actionBar for the main gallery
-                            closeDetailFragment();
-                            break;
-                        case R.id.galleryDelete:
-                            deleteCurrentPhoto();
-                            break;
+        {
+            switch (item.getItemId()) {
+                //I've clicked the back buton on the actionBar
+                case android.R.id.home: closeDetailFragment(); break;
+                //Delete the current photo and close the detailsFragment
+                case R.id.galleryDelete: deleteCurrentPhoto(); break;
             }
             return super.onOptionsItemSelected(item);
         }
-
-
 
         /**
          * This event is triggered soon after onCreateView()
@@ -240,7 +244,6 @@ public class GalleryActivity extends AppCompatActivity {
         @Override
         public void onViewCreated(View view, Bundle savedInstanceState)
         {
-
             //Load the information from the bundle
             Bundle bundle = getArguments();
             if (bundle != null) {
@@ -269,7 +272,7 @@ public class GalleryActivity extends AppCompatActivity {
         {
             try {
                 //Notify the MainFragment that I have deleted something and that he need to remove the card
-                deleteActionOccour=photoInfos;
+                deleteActionOccur=photoInfos;
 
                 //Delete the actual image
                 GalleryManager.deleteImage(photoInfos);
@@ -307,7 +310,6 @@ public class GalleryActivity extends AppCompatActivity {
 
     /*********************************************/
     /******************PERMISSIONS****************/
-    /***********@author Romanello Stefano*********/
     /*********************************************/
 
 

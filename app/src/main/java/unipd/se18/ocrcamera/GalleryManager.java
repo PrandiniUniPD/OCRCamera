@@ -346,6 +346,11 @@ public class GalleryManager
             return photosList.size();
         }
 
+        /**
+         * Return the card Position containing the given PhotoStructure (useful for remove the card)
+         * @param photoToRemove of the item that I want to remove
+         * @return the integer position of the card
+         */
         public int getPhotoPosition(PhotoStructure photoToRemove)
         {
             return photosList.indexOf(photoToRemove);

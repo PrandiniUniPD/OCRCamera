@@ -32,4 +32,6 @@
     <string name="homeFragmentTag">homefgm</string>
     <string name="detailFragmentTag">detailfgm</string>
     <string name="serializableObjectName">PhotoStructureObject</string>
+    <string name="galleryFragmentTitle">Gallery</string>
+    <string name="galleryDetailsFragmentTitle">Details</string>
 </resources>
