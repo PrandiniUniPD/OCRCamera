@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Gallery;
@@ -16,12 +17,14 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /** Classe che implementa una galleria a griglia di immagini
  * Leonardo Pratesi - gruppo 1
- * usa classe CustomGalleryAdapter
+ * usa classe InternalStorageManager (di moroldo)
  *
  */
 
@@ -29,6 +32,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     private GridView imageGrid;
     private ArrayList<Bitmap> bitmapList;
+    private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
     // array of images
 
 
@@ -40,37 +44,41 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         this.imageGrid = (GridView) findViewById(R.id.griglia);
         this.bitmapList = new ArrayList<Bitmap>();
 
-        File path = new File(Environment.getExternalStorageDirectory(), "/");
+        File path = new File(PHOTOS_FOLDER);
         System.out.println(path);
         System.out.println(path.list()); //il path non contiene elementi =null RISOLVERE
 
 
-        /**
-         * test griglia disperato
-         */
-
-        Bitmap bitmap1 = BitmapFactory.decodeFile("/sdcard/Download/image1.jpg");
-        this.bitmapList.add(bitmap1);
-        this.imageGrid.setAdapter(new ImageAdapter(this, this.bitmapList));
-
-
-
-
-  /**      if (path.exists()) {
+        if (path.exists()) {
             String[] fileNames = path.list();
 
-            try {
-                for (int i = 0; i < 6; i++) {
-                    Bitmap bitmap = BitmapFactory.decodeFile(path.getPath() + "/" + fileNames[i]);
-                    this.bitmapList.add(bitmap);
+                for (int i = 0; i < 20; i++) {
+                    System.out.println(fileNames[i]); //controllare che file carica
+
+
+                    //works but very slow, create Thread?
+                    try {
+                        File f=new File(PHOTOS_FOLDER, fileNames[i]);
+                        bitmapList.add(BitmapFactory.decodeStream(new FileInputStream(f)));
+                    }
+                    catch (FileNotFoundException e)
+                    {
+                        e.printStackTrace();
+                    }
+
+
+
+                    //non funziona
+                    //InternalStorageManager dir = new InternalStorageManager(this, PHOTOS_FOLDER, fileNames[i]);
+                    //bitmapList.add(dir.loadBitmapFromInternalStorage());
+
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
         }
         this.imageGrid.setAdapter(new ImageAdapter(this, this.bitmapList));
-  */
+
     }
+
 
 }
 
