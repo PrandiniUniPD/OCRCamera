@@ -1,26 +1,18 @@
 package unipd.se18.ocrcamera;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.io.File;
-
-/*
-    This activity is the starting activity that chooses which activity to start
-    Author: Francesco Pham
+/**
+    This activity is the first started activity that chooses which activity launch next
+    @author Francesco Pham
  */
 public class NavigatorActivity extends AppCompatActivity {
 
-    /**
-     * TAG used for logs
-     */
+    //Tag used for logs
     private static final String TAG = "NavigatorActivity";
 
     @Override

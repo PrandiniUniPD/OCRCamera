@@ -37,7 +37,7 @@ public class IngredientsActivity extends AppCompatActivity {
 
         public InciThread(String ocrText){
             this.ocrText = ocrText;
-            progressDialog = ProgressDialog.show(IngredientsActivity.this, getString(R.string.processing), "");
+            progressDialog = ProgressDialog.show(IngredientsActivity.this, getString(R.string.processing), getString(R.string.processing_ingredients));
         }
 
         public void run(){

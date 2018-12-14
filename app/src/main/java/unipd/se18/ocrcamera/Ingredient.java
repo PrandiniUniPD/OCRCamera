@@ -1,7 +1,8 @@
 package unipd.se18.ocrcamera;
 
 /**
- * Ingredient class that contained the informations of the ingredient taken from inci db
+ * Ingredient class which contains the information of the ingredient taken from inci db
+ * @author Francesco Pham
  */
 public class Ingredient implements Comparable<String> {
 
@@ -25,10 +26,6 @@ public class Ingredient implements Comparable<String> {
     private String function;
 
     private String updateDate;
-
-    private String foundText;
-
-    private double ocrTextSimilarity;
 
 
     public Ingredient() {
@@ -85,14 +82,6 @@ public class Ingredient implements Comparable<String> {
         return updateDate;
     }
 
-    public String getFoundText() {
-        return foundText;
-    }
-
-    public double getOcrTextSimilarity() {
-        return ocrTextSimilarity;
-    }
-
     //SETTERS
     public void setCosingRefNo(String cosingRefNo) {
         this.cosingRefNo = cosingRefNo;
@@ -132,14 +121,6 @@ public class Ingredient implements Comparable<String> {
 
     public void setUpdateDate(String updateDate) {
         this.updateDate = updateDate;
-    }
-
-    public void setFoundText(String foundText) {
-        this.foundText = foundText;
-    }
-
-    public void setOcrTextSimilarity(double ocrTextSimilarity) {
-        this.ocrTextSimilarity = ocrTextSimilarity;
     }
 
     @Override

@@ -12,19 +12,29 @@ import edu.gatech.gtri.bktree.BkTreeSearcher;
 import edu.gatech.gtri.bktree.Metric;
 import edu.gatech.gtri.bktree.MutableBkTree;
 
+/**
+ * IngredientsExtractor implementation that splits the ocr text and for each block of text search
+ * inside INCI DB for the ingredient with minimum distance using Levenshtein.
+ * The downside of this method is that ingredients that are not properly separated are not recognized.
+ * @author Francesco Pham
+ */
 public class TextSplitIngredientsExtractor implements IngredientsExtractor {
 
     //list of recognized ingredients where are stored informations about ingredients
     private List<Ingredient> listIngredients;
 
-    private static final String TAG = "TextSplitIngredientsExtractor";
+    private static final String TAG = "IngredientsExtractor";
 
     private BkTreeSearcher<String> inciNameSearcher;
 
+    /**
+     * Constructor loads a tree of inci names for a much faster search
+     * @param listIngredients Total list of ingredients from the INCI DB
+     */
     public TextSplitIngredientsExtractor(List<Ingredient> listIngredients) {
         this.listIngredients = listIngredients;
 
-        //sort by inci name
+        //listIngredients has to be sorted for the binary search to work
         Collections.sort(listIngredients, new Comparator<Ingredient>() {
             @Override
             public int compare(Ingredient o1, Ingredient o2) {
@@ -63,12 +73,13 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
      */
     @Override
     public ArrayList<Ingredient> findListIngredients(String text) {
-        //initializing the list
+
         ArrayList<Ingredient> foundIngredients = new ArrayList<Ingredient>();
 
         //maximum accepted distance between block of text and inci name
         final double maxDistance = 0.2;
 
+        //split the text by each comma or dot
         String[] splittedText = text.trim().split("[,.]+");
 
         //for every splitted text inside the ocr text search for the most similar in the inci db
@@ -90,7 +101,7 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
                 }
             }
 
-            //add the ingredient object to list
+            //search ingredient by its name and add it to list
             if(found) {
                 Log.d(TAG, "found "+ingredientName+" in "+str+". Distance="+minDistance);
                 int indexBestIngredient = Collections.binarySearch(listIngredients, ingredientName);

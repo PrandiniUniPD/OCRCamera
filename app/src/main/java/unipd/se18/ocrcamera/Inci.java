@@ -25,7 +25,7 @@ public class Inci {
     private static final String TAG = "Inci";
 
     /**
-     * Load inci database and return list of Ingredient
+     * Load inci database and return list of Ingredient objects
      * @param context The application context
      * @author Francesco Pham
      */
