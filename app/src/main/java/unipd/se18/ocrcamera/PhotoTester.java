@@ -423,16 +423,26 @@ public class PhotoTester {
                 List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
                 List<Ingredient> correctIngredients = ocrIngredientsExtractor.findListIngredients(correctIngredientsText);
 
-                //make ingredients extraction report
-                String ingredientsExtractionReport = "";
-                for(Ingredient extracted : extractedIngredients){
-                    ingredientsExtractionReport = ingredientsExtractionReport + extracted.getInciName() + "\n";
+                StringBuilder extractionReport = new StringBuilder();
+                extractionReport.append("Extracted: ");
+                Iterator<Ingredient> iterator = extractedIngredients.iterator();
+                while(iterator.hasNext()){
+                    extractionReport.append(iterator.next().getInciName());
+                    extractionReport.append(iterator.hasNext() ? ", " : "\n");
                 }
+
+                extractionReport.append("Correct: ");
+                iterator = correctIngredients.iterator();
+                while(iterator.hasNext()){
+                    extractionReport.append(iterator.next().getInciName());
+                    extractionReport.append(iterator.hasNext() ? ", " : "\n");
+                }
+
 
                 //compare extracted ingredients with correct ingredients (Francesco Pham)
                 int nCorrectExtractedIngreds = 0;
                 for(Ingredient correct : correctIngredients){
-                    Iterator<Ingredient> iterator = extractedIngredients.iterator();
+                    iterator = extractedIngredients.iterator();
                     while(iterator.hasNext()){
                         if(iterator.next().getCosingRefNo().equalsIgnoreCase(correct.getCosingRefNo())) {
                             nCorrectExtractedIngreds++;
@@ -440,14 +450,16 @@ public class PhotoTester {
                         }
                     }
                 }
+
+                //make ingredients extraction report (Francesco Pham)
                 int nWrongExtractedIngreds = extractedIngredients.size();
                 String percentCorrectIngreds = String.format("%.2f",(float)100* nCorrectExtractedIngreds / correctIngredients.size());
-                ingredientsExtractionReport = ingredientsExtractionReport
-                        + "% correct ingredients extracted: "
+                extractionReport.append(
+                        "% correct ingredients extracted: "
                         + percentCorrectIngreds+"% \n"
-                        + "# wrong ingredients extracted: "+nWrongExtractedIngreds;
+                        + "# wrong ingredients extracted: "+nWrongExtractedIngreds);
 
-                test.setIngredientsExtraction(ingredientsExtractionReport);
+                test.setIngredientsExtraction(extractionReport.toString());
 
 
                 //evaluate alterations if any
