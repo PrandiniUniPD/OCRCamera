@@ -44,19 +44,19 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         this.imageGrid = (GridView) findViewById(R.id.griglia);
         this.bitmapList = new ArrayList<Bitmap>();
 
-        File path = new File(PHOTOS_FOLDER);
+        /** File path = new File(PHOTOS_FOLDER);
         System.out.println(path);
         System.out.println(path.list()); //il path non contiene elementi =null RISOLVERE
 
 
-        if (path.exists()) {
+         if (path.exists()) {
             String[] fileNames = path.list();
 
                 for (int i = 0; i < 20; i++) {
                     System.out.println(fileNames[i]); //controllare che file carica
 
 
-                    //works but very slow, create Thread?
+                     works but very slow, create Thread?
                     try {
                         File f=new File(PHOTOS_FOLDER, fileNames[i]);
                         bitmapList.add(BitmapFactory.decodeStream(new FileInputStream(f)));
@@ -65,6 +65,9 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                     {
                         e.printStackTrace();
                     }
+
+                    */
+                    new Thread(new GalleryThread(PHOTOS_FOLDER, bitmapList, imageGrid));
 
 
 
@@ -75,11 +78,11 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                 }
 
         }
-        this.imageGrid.setAdapter(new ImageAdapter(this, this.bitmapList));
-
-    }
+        //this.imageGrid.setAdapter(new ImageAdapter(this, this.bitmapList));
 
 
-}
+
+
+
 
 
