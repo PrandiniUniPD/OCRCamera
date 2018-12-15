@@ -136,7 +136,8 @@ class TextAutoCorrection {
      */
     private String formatText(String text){
         text = text.toUpperCase();
-        text = text.replaceAll("- *[\\n\\r]+ *", "");
+        text = text.replaceAll(" *- *", "-");
+        text = text.replaceAll("-[\\n\\r]+ *", "");
         text = text.replaceAll("[\\n\\r]+", " ");
         text = text.trim().replaceAll(" +", " ");
         return text;

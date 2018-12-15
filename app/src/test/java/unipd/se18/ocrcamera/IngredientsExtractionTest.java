@@ -91,8 +91,13 @@ public class IngredientsExtractionTest {
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("83720", extractedIngredients.get(0).getCosingRefNo());
 
+        //whitespaces before and after hyphen
+        text = "CHOLETH  -   10";
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals("75006", extractedIngredients.get(0).getCosingRefNo());
+
         //test of a difficult text
-        text = "some more text...DiSsODLUM TEtraMETH-  \n  YLHEADECENVL  \nSUOCINOYL\nCYSTEINEblabla";
+        text = "some more text...DiSsODLUM TEtraMETH -  \n  YLHEADECENVL  \nSUOCINOYL\nCYSTEINEblabla";
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("92137", extractedIngredients.get(0).getCosingRefNo());
     }
