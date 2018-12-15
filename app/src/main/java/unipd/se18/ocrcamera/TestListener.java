@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
-interface TestListener {
-    void onProcessingComplete();
+public interface TestListener {
+    void onTestFinished();
+    void onAlterationAnalyzed();
 }

@@ -2,25 +2,22 @@ package unipd.se18.ocrcamera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-
 /**
  * Activity for showing the result of the tests
- * Luca Moroldo (g2) - Pietro Prandini (g3)
+ * Pietro Prandini (g2)
  */
 public class TestResultActivity extends AppCompatActivity {
     /**
@@ -46,10 +43,11 @@ public class TestResultActivity extends AppCompatActivity {
         setContentView(R.layout.activity_test_result);
 
         // Checks the permissions
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
-            ActivityCompat.requestPermissions(this, permissions, MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, permissions,
+                    MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
             return;
         }
 
@@ -57,43 +55,30 @@ public class TestResultActivity extends AppCompatActivity {
         ListView listEntriesView = findViewById(R.id.test_entries_list);
 
         // Sets the elements of the list as AsyncTask
-        AsyncReport report = new AsyncReport(listEntriesView,
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "OCRCameraDB",
-                getString(R.string.processing));
+        AsyncReport report = new AsyncReport(listEntriesView);
         report.execute();
     }
 
     /**
      * Execute the ocr task for every test pic in the storage
-     * Luca Moroldo (g3) - Pietro Prandini (g2)
+     * TraPietro Prandini (g2)
      */
     @SuppressLint("StaticFieldLeak")
-    private class AsyncReport extends AsyncTask<Void, Void, Void> {
+    private class AsyncReport extends AsyncTask<Void, Integer, Void> {
         /**
          * The ListView where showing the results.
          */
         private ListView listEntriesView;
 
         /**
-         * File object that represents where find the directory of the test pics.
+         * The String of the test pics directory path.
          */
-        private File environment;
-
-        /**
-         * The String of the test pics directory name.
-         */
-        private String dirName;
+        private String dirPath;
 
         /**
          * The String of the message to show when the task is in progress
          */
         private String progressMessage;
-
-        /**
-         * The ProgressDialog object used while the AsyncTask is running
-         */
-        private ProgressDialog progressDialog;
 
         /**
          * Instance of PhotoTester used for doing the tests
@@ -106,18 +91,26 @@ public class TestResultActivity extends AppCompatActivity {
         private String report;
 
         /**
+         * The progress bar used for indicating the progress of the tests
+         */
+        private ProgressBar progressBar;
+
+        /**
+         * The text used for indicating the progress of the tests
+         */
+        private TextView progressText;
+
+        /**
+         * The number of tested elements so far
+         */
+        private int testedElements = 0;
+        /**
          * Constructor of the class
          * @param listEntriesView The ListView used for showing the results as list
-         * @param environment File object that represents where find the directory of the test pics
-         * @param dirName The String of the test pics directory name
-         * @param progressMessage The String of the message to show when the task is in progress
          */
-        AsyncReport(ListView listEntriesView,File environment,
-                    String dirName, String progressMessage) {
+        AsyncReport(ListView listEntriesView) {
             this.listEntriesView = listEntriesView;
-            this.environment = environment;
-            this.dirName = dirName;
-            this.progressMessage = progressMessage;
+            this.dirPath = PhotoDownloadTask.PHOTOS_FOLDER;
         }
 
         /**
@@ -126,10 +119,8 @@ public class TestResultActivity extends AppCompatActivity {
          */
         @Override
         protected void onPreExecute() {
-            // Shows the dialog to the user
-            progressDialog = ProgressDialog.show(TestResultActivity.this,
-                    progressMessage,
-                    "");
+            progressBar = findViewById(R.id.tests_progress_bar);
+            progressText = findViewById(R.id.progress_testing_text);
         }
 
         /**
@@ -143,26 +134,23 @@ public class TestResultActivity extends AppCompatActivity {
          */
         @Override
         protected Void doInBackground(Void... voids) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    String path = environment + "/" + dirName;
-                    Toast.makeText(
-                            TestResultActivity.this,
-                            "Directory where the photo should be stored:\n"
-                                    + path,Toast.LENGTH_LONG
-                    ).show();
-                }
-            });
-            this.tester = new PhotoTester(environment,dirName);
+            this.tester = new PhotoTester(dirPath);
+            progressBar.setMax(tester.getTestSize());
 
+            TestListener testListener = new TestListener() {
+                @Override
+                public void onTestFinished() {
+                    publishProgress(++testedElements);
+                }
+            };
+            tester.setTestListener(testListener);
+            //publish progress
             try {
                 report = tester.testAndReport();
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 report = "Elaboration interrupted";
             }
-
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -175,7 +163,16 @@ public class TestResultActivity extends AppCompatActivity {
                     listEntriesView.setAdapter(adapter);
                 }
             });
+
             return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            progressBar.setProgress(testedElements);
+            String progress = "Tested: " + values[0] +
+                    " of " + tester.getTestSize();
+            progressText.setText(progress);
         }
 
         /**
@@ -187,8 +184,6 @@ public class TestResultActivity extends AppCompatActivity {
          */
         @Override
         protected void onPostExecute(Void v) {
-            progressDialog.dismiss();
-
             //add statistics author: Francesco Pham
             TextView statsView = new TextView(TestResultActivity.this);
             String statsText = "";

@@ -2,27 +2,17 @@ package unipd.se18.ocrcamera;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import org.json.JSONException;
-
-import java.text.DecimalFormat;
 
 /**
  * Adapter for the view of the processing result of the pics
- * @author Pietro Prandini
+ * @author Pietro Prandini (g2)
  */
 public class AdapterTestElement extends BaseAdapter
 {
@@ -53,16 +43,16 @@ public class AdapterTestElement extends BaseAdapter
     }
 
     @Override
-    public int getCount() {
-        return entries.length;
-    }
+    public int getCount() { return entries.length; }
 
     @Override
     public Object getItem(int position) { return entries[position]; }
 
     @Override
     public long getItemId(int position) {
-        return position;
+        // The prefix is "foto", so the suffix starts at 4
+        int suffix = 4;
+        return Integer.parseInt(entries[position].getFileName().substring(suffix));
     }
 
     @Override
@@ -71,96 +61,47 @@ public class AdapterTestElement extends BaseAdapter
             convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
         }
 
-        // Set the correctness value
-
-        Button viewAlterationsButton = convertView.findViewById(R.id.view_alterations_button);
-        viewAlterationsButton.setOnClickListener(new View.OnClickListener() {
+        Button viewDetailsButton = convertView.findViewById(R.id.view_details_button);
+        viewDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(context,TestAlterationsActivity.class);
-                TestAlterationsActivity.entry = entries[position];
+                Intent i = new Intent(context, TestElementDetails.class);
+                TestElementDetails.entry = entries[position];
                 context.startActivity(i);
             }
         });
-        viewAlterationsButton.setEnabled(false);
+
+        // Set the correctness value
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entries[position].getConfidence();
-        String confidenceText = new DecimalFormat("#0").format(confidence) + " %";
+        correctness.setText(TestElementDetails.formatPercentString(confidence));
 
-        // Set the color of the correctness
-        if(confidence < 70) {
-            correctness.setTextColor(Color.RED);
-        } else if (confidence < 85) {
-            correctness.setTextColor(Color.YELLOW);
-        } else {
-            correctness.setTextColor(Color.GREEN);
-        }
-
-        correctness.setText(confidenceText);
+        // Set the color of the correctness text value
+        TestElementDetails.redUntil = 70;
+        TestElementDetails.yellowUntil = 85;
+        correctness.setTextColor(TestElementDetails.chooseColorOfValue(confidence,
+                TestElementDetails.redUntil,TestElementDetails.yellowUntil));
 
         // Set the name of the pic
         TextView name = convertView.findViewById(R.id.pic_name_view);
         String picName = entries[position].getFileName();
         name.setText(picName);
 
-        // Set the pic view
-        ImageView analyzedPic = convertView.findViewById(R.id.pic_view);
-        Bitmap img = entries[position].getPicture();
-
-        // Scaling the pic view
-        int imgWidth = img.getWidth();
-        int imgHeight = img.getHeight();
-        WindowManager mWindowManager = (WindowManager) convertView.getContext()
-                .getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics mDisplayMetrics = new DisplayMetrics();
-        Display mDisplay = mWindowManager.getDefaultDisplay();
-        mDisplay.getMetrics(mDisplayMetrics);
-        int scaledWidth = mDisplayMetrics.widthPixels;
-        int scaledHeight = (scaledWidth*imgHeight)/imgWidth;
-
-        Log.v(TAG,"pic \"" + picName + "\" scaled from " + imgWidth + "x" + imgHeight +
-                " to " + scaledWidth + "x" + scaledHeight);
-        analyzedPic.setImageBitmap(Bitmap.createScaledBitmap(img, scaledWidth, scaledHeight,false));
-
         // Set the Tags text
         TextView tags = convertView.findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
-        for(String tag: entries[position].getTags()) {
+        for (String tag : entries[position].getTags()) {
             assignedTags.append(tag).append(", ");
         }
         tags.setText(assignedTags.toString());
 
-        // Set the ingredients text
-        TextView ingredients = convertView.findViewById(R.id.ingredients_view);
-        StringBuilder realIngredients = new StringBuilder();
-        for(String ingredient: entries[position].getIngredientsArray()) {
-            realIngredients.append(ingredient).append(", ");
-        }
-        ingredients.setText(realIngredients);
-
-        // Set the extracted text
-        TextView extractedText = convertView.findViewById(R.id.extractedText_view);
-        extractedText.setText(entries[position].getRecognizedText());
-
-        // Set the notes text
-        TextView notes = convertView.findViewById(R.id.notes_view);
-        notes.setText(entries[position].getNotes());
-
         // Set alterations view
-        String[] alterations = entries[position].getAlterationsNames();
-        StringBuilder alterationsText = new StringBuilder();
-        TextView alterationsView = convertView.findViewById(R.id.alterations_view);
-
-        if(alterations != null) {
-            for(String alteration: alterations) {
-                alterationsText.append(alteration).append(" - confidence ")
-                        .append(entries[position].getAlterationConfidence(alteration)).append("\n");
-            }
-            alterationsView.setText(alterationsText.toString());
-            viewAlterationsButton.setEnabled(true);
-        }
-        // return the view of the entry
+        TestElementDetails.setAlterationsView(
+                context,
+                (RelativeLayout) convertView.findViewById(R.id.result_view),
+                R.id.tags_view,
+                entries[position]
+        );
         return convertView;
-
     }
 }

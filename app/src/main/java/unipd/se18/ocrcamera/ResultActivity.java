@@ -33,7 +33,6 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView mOCRTextView;
 
-
     /**
      * Listener used by the extraction process to notify results
      */

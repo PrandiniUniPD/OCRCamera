@@ -24,4 +24,5 @@
     <string name="view_alterations">View alterations</string>
     <string name="extraction_error">"Something has gone wrong, plese try again."</string>
     <string name="error_code">"Error code: "</string>
+    <string name="view_details">Details</string>
 </resources>
