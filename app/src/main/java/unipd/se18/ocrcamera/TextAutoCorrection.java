@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -29,18 +28,23 @@ class TextAutoCorrection {
 
     private final String TAG = "TextAutoCorrection";
 
+    //searcher for words in the word list with minimum distance from a given query
     private BkTreeSearcher<String> searcher;
 
+    //percentage distance below which we substitute the word with the term found in dictionary
+    final double maxDistance;
 
     /**
-     * Constructor
-     * @param context app context
+     * Constructor that load word list into a bk-tree and initialize searcher
+     * @param wordList InputStream from the word list
+     * @param maxDistance Percentage distance below which we substitute the word with the term found in dictionary
      * @author Francesco Pham
      */
-    TextAutoCorrection(Context context){
+    TextAutoCorrection(InputStream wordList, double maxDistance){
+        this.maxDistance = maxDistance;
+
         //open word list
-        InputStream stream = context.getResources().openRawResource(R.raw.inciwordlist);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(wordList));
 
         //declaring metric used for string distance
         final LevenshteinStringDistance levenshtein = new LevenshteinStringDistance();
@@ -80,8 +84,7 @@ class TextAutoCorrection {
         //not correcting words with less than minChars characters
         final int minChars = 3;
 
-        //Threshold of minimum normalized distance below which we substitute the word with the term found in dictionary
-        final double maxDistance = 0.2;
+
 
         text = formatText(text);
 
@@ -93,34 +96,36 @@ class TextAutoCorrection {
                 if(i > lastNonAlphanumIndex+minChars){
 
                     String word = text.substring(lastNonAlphanumIndex+1,i);
+                    String corrected = correctWord(word);
 
-                    //Searches the tree for elements whose distance satisfy maxDistance
-                    Set<BkTreeSearcher.Match<? extends String>> matches =
-                            searcher.search(word, (int) (word.length()*maxDistance));
+                    if(!corrected.equals(word)){
 
-                    //find the word with minimum distance
-                    int minDistance = Integer.MAX_VALUE;
-                    String term = "";
-                    for (BkTreeSearcher.Match<? extends String> match : matches){
-                        if(match.getDistance() < minDistance) {
-                            minDistance = match.getDistance();
-                            term = match.getMatch();
-                        }
-                    }
-
-                    if(!term.equals("") && !term.equals(word)){
-
-                        Log.d(TAG,"word = "+word+" ; found word = "+term+" ; distance = "+minDistance);
+                        Log.d(TAG,"word = "+word+" ; found word = "+corrected);
 
                         //substitute with the word found
-                        text = text.substring(0, lastNonAlphanumIndex+1) + term + text.substring(i);
+                        text = text.substring(0, lastNonAlphanumIndex+1) + corrected + text.substring(i);
 
                         //take into account the difference of length between the words
-                        i += term.length()-word.length();
+                        i += corrected.length()-word.length();
                     }
                 }
 
                 lastNonAlphanumIndex = i;
+            }
+        }
+
+        //check last word
+        if(text.length() > lastNonAlphanumIndex+minChars){
+
+            String word = text.substring(lastNonAlphanumIndex+1);
+            String corrected = correctWord(word);
+
+            if(!corrected.equals(word)){
+
+                Log.d(TAG,"word = "+word+" ; found word = "+corrected);
+
+                //substitute with the word found
+                text = text.substring(0, lastNonAlphanumIndex+1) + corrected;
             }
         }
 
@@ -130,7 +135,7 @@ class TextAutoCorrection {
 
     /**
      * format the text in order to increase the probability to match ingredients in the INCI DB
-     * @param text
+     * @param text Text to be formatted
      * @return Text formatted
      */
     private String formatText(String text){
@@ -139,5 +144,28 @@ class TextAutoCorrection {
         return text;
     }
 
+    /**
+     * Correct a single word by searching for the most similar in word list
+     * @param word The word to be corrected
+     * @return Best candidate word from word list. If no words within maxDistance is found, the same word is returned.
+     */
+    private String correctWord(String word){
 
+        //Searches the tree for elements whose distance satisfy maxDistance
+        Set<BkTreeSearcher.Match<? extends String>> matches =
+                searcher.search(word, (int) (word.length()*maxDistance));
+
+        //find the word with minimum distance
+        int minDistance = Integer.MAX_VALUE;
+        String closest = "";
+        for (BkTreeSearcher.Match<? extends String> match : matches){
+            if(match.getDistance() < minDistance) {
+                minDistance = match.getDistance();
+                closest = match.getMatch();
+            }
+        }
+
+        //If no words within maxDistance is found, the same word is returned.
+        return closest.equals("") ? word : closest;
+    }
 }

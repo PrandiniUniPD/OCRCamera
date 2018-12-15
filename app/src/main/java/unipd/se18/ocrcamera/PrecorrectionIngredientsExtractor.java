@@ -5,7 +5,7 @@ import java.util.List;
 
 
 /**
- * IngredientsExtractor implementation which tries to correct the text, then for each INCI
+ * IngredientsExtractor implementation which tries to correct the text before, then for each INCI
  * ingredient check if it is contained inside the corrected text
  * @author Francesco Pham
  */

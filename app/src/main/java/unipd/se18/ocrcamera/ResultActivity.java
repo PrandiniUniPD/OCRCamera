@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -176,7 +177,8 @@ public class ResultActivity extends AppCompatActivity {
 
         //load inci db and initialize ingredient extractor
         List<Ingredient> listInciIngredients = Inci.getListIngredients(getApplicationContext());
-        TextAutoCorrection textCorrector = new TextAutoCorrection(getApplicationContext());
+        InputStream wordListStream = ResultActivity.this.getResources().openRawResource(R.raw.inciwordlist);
+        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream, 0.2);
         IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
 
         timings.addSplit("load db");

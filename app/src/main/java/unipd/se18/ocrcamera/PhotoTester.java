@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -161,7 +162,8 @@ public class PhotoTester {
 
         //load inci db and initialize ingredient extractor (Francesco Pham)
         List<Ingredient> listInciIngredients = Inci.getListIngredients(context);
-        TextAutoCorrection textCorrector = new TextAutoCorrection(context);
+        InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
+        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream, 0.2);
         ocrIngredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
 
