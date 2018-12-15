@@ -68,8 +68,8 @@ public class ResultActivity extends AppCompatActivity {
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
         ImageProcessing processing = new ImageProcessing();
-        TextRegions regions = processing.detectTextRegions(lastPhoto);
-        List<Bitmap> bitmaps = processing.extractTextFromBitmap(lastPhoto, regions);
+        TextRegions regions = processing.detectTextRegions(lastPhoto.copy(Bitmap.Config.ARGB_8888, true));
+        List<Bitmap> bitmaps = processing.extractTextFromBitmap(lastPhoto.copy(Bitmap.Config.ARGB_8888, true), regions);
 
 
         if (lastPhoto != null) {

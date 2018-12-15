@@ -133,7 +133,7 @@ public class ImageProcessing implements DetectTheText {
      */
     private Mat applyFilters(Mat imageMat){
         Mat grayscale = new Mat();
-        Imgproc.cvtColor(imageMat, grayscale, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(imageMat, grayscale, Imgproc.COLOR_BGR2GRAY);
 
         //Transforms a grayscale image to a binary image using the gaussian algorithm
         Mat threshold = new Mat();
@@ -196,9 +196,8 @@ public class ImageProcessing implements DetectTheText {
 
         //Saves the contours in a list of MatOfPoint (multidimensional vector)
         List<MatOfPoint> contours = new ArrayList<>();
-        int mode = 0;
-        int method = 1;
-        Imgproc.findContours(filteredMat, contours, new Mat(), mode, method);
+        Imgproc.findContours(filteredMat, contours, new Mat(), Imgproc.RETR_EXTERNAL,
+                Imgproc.CHAIN_APPROX_SIMPLE);
         //The third parameter contains additional information that is unused
 
         //Fills rectanglesList with all the found rectangles of the image
@@ -246,6 +245,7 @@ public class ImageProcessing implements DetectTheText {
         //Perform the affine transformation (rotation)                                   *
         Imgproc.warpAffine(mat, rotatedImg, rotationMat, mat.size(), INTER_CUBIC);
 
+        Log.d(TAG, "Channels = "+rotatedImg.channels());
         //Crop the resulting image
         getRectSubPix(rotatedImg, rectSize, rectangle.center, croppedImg);
         return croppedImg;
@@ -269,7 +269,7 @@ public class ImageProcessing implements DetectTheText {
     public List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions textContainer) {
         List<Bitmap> imgTextContainer = new ArrayList<>();
         Mat img = IPUtils.conversionBitmapToMat(image);
-
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_BGRA2BGR);
         RotatedRect rectangle;
         while(textContainer.hasNext()){
             rectangle = (RotatedRect)textContainer.next();

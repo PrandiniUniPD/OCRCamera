@@ -82,7 +82,7 @@ class IPUtils {
 
         //Loads the grayscale image in a matrix
         Mat img = new Mat();
-        Utils.bitmapToMat(image, img);
+        Utils.bitmapToMat(image, img, true);
 
         //TODO verify what kind of exception it throws
         /*
