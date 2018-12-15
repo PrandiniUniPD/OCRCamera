@@ -26,14 +26,13 @@ class Inci {
 
     /**
      * Load inci database and return list of Ingredient objects
-     * @param context The application context
+     * @param
      * @author Francesco Pham
      */
-    static List<Ingredient> getListIngredients(Context context){
-        InputStream inputStream = context.getResources().openRawResource(R.raw.incidb);
-        Reader reader = new BufferedReader(new InputStreamReader(inputStream));
+    static ArrayList<Ingredient> getListIngredients(InputStream inciDbStream){
+        Reader reader = new BufferedReader(new InputStreamReader(inciDbStream));
 
-        List<Ingredient> listIngredients = new ArrayList<>(); //initializing list of ingredients
+        ArrayList<Ingredient> listIngredients = new ArrayList<>(); //initializing list of ingredients
 
         //initializing openCSV reader
         CSVReader csvReader = new CSVReader(reader);
@@ -49,7 +48,7 @@ class Inci {
                     element.setDescription(line[6]);
                     listIngredients.add(element);
                 }
-                else System.out.println("There is an empty line in the database file, line "+csvReader.getLinesRead());
+                else Log.d(TAG, "There is an empty line in the database file, line "+csvReader.getLinesRead());
             }
 
         } catch(IOException e){

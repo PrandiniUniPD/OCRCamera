@@ -161,7 +161,8 @@ public class PhotoTester {
         final JSONObject fullJsonReport = new JSONObject();
 
         //load inci db and initialize ingredient extractor (Francesco Pham)
-        List<Ingredient> listInciIngredients = Inci.getListIngredients(context);
+        InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
+        List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
         TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream, 0.2);
         ocrIngredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);

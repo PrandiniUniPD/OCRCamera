@@ -1,6 +1,8 @@
 package unipd.se18.ocrcamera;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -25,7 +27,16 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
      * @param corrector Text Corrector
      */
     public PrecorrectionIngredientsExtractor(List<Ingredient> listIngredients, TextAutoCorrection corrector) {
-        this.listIngredients = listIngredients;
+        //copying list so that sorting doesn't affect original list
+        this.listIngredients = new ArrayList<>(listIngredients);
+
+        //sort by name length so when we search for ingredients in text we match longer names first
+        Collections.sort(this.listIngredients, new Comparator<Ingredient>() {
+            @Override
+            public int compare(Ingredient o1, Ingredient o2) {
+                return o2.getInciName().length() - o1.getInciName().length();
+            }
+        });
         this.corrector = corrector;
     }
 
@@ -39,7 +50,7 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
     @Override
     public ArrayList<Ingredient> findListIngredients(String text) {
 
-        ArrayList<Ingredient> foundIngredients = new ArrayList<Ingredient>();
+        ArrayList<Ingredient> foundIngredients = new ArrayList<>();
 
         //text correction
         text = corrector.correctText(text);
@@ -48,6 +59,7 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
         for(Ingredient ingredient : listIngredients){
             if(text.contains(ingredient.getInciName())){
                 foundIngredients.add(ingredient);
+                text = text.replace(ingredient.getInciName(), "");  //remove the ingredient from text
             }
         }
 

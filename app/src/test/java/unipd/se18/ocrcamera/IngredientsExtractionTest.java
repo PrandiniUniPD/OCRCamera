@@ -2,13 +2,11 @@ package unipd.se18.ocrcamera;
 
 import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.InputStream;
-import java.lang.reflect.Method;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -48,5 +46,42 @@ public class IngredientsExtractionTest {
 
         //multiple words correction separated by symbols
         assertEquals("COCOYL$HYDROLYZED:COLLAGEN", corrector.correctText("CQCOYL$HYROLYZED:COLLGEN"));
+    }
+
+    @Test
+    public void ingredientsExtractionTest(){
+        //load word list for text corrector
+        File wordListFile = new File("src/main/res/raw/inciwordlist.txt");
+        InputStream wordListStream;
+        try {
+            wordListStream = new FileInputStream(wordListFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+        final double maxDistance = 0.2;
+        TextAutoCorrection corrector = new TextAutoCorrection(wordListStream, maxDistance);
+
+        //load inci db
+        File inciFile = new File("src/main/res/raw/incidb.csv");
+        InputStream inciStream;
+        try {
+            inciStream = new FileInputStream(inciFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+        List<Ingredient> totIngredients = Inci.getListIngredients(inciStream);
+        IngredientsExtractor extractor = new PrecorrectionIngredientsExtractor(totIngredients,corrector);
+
+        //single word ingredients name
+        String text = "CHOLETH-10";
+        List<Ingredient> extractedIngredients = extractor.findListIngredients(text);
+        assertEquals("75006", extractedIngredients.get(0).getCosingRefNo());
+
+        //name composed by multiple words
+        text = "SODIUM ACRYLATES COPOLYMER";
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals("79031", extractedIngredients.get(0).getCosingRefNo());
     }
 }

@@ -176,7 +176,8 @@ public class ResultActivity extends AppCompatActivity {
         TimingLogger timings = new TimingLogger(TAG, "inci execution");
 
         //load inci db and initialize ingredient extractor
-        List<Ingredient> listInciIngredients = Inci.getListIngredients(getApplicationContext());
+        InputStream inciDbStream = ResultActivity.this.getResources().openRawResource(R.raw.incidb);
+        List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
         InputStream wordListStream = ResultActivity.this.getResources().openRawResource(R.raw.inciwordlist);
         TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream, 0.2);
         IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
