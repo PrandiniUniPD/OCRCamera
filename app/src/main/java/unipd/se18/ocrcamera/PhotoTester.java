@@ -24,8 +24,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static java.lang.Float.NaN;
-
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
  * providing a JSON report containing stats and results.
@@ -333,12 +331,12 @@ public class PhotoTester {
             }
         }
         float confidence = (points / maxPoints)*100;
-        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
 
         //I found a test where the function returned NaN (the correct ingredient text was '-') - Luca Moroldo
-        if(confidence == NaN) {
-            confidence = 0;
-        }
+        if(Float.isNaN(confidence)) confidence = 0;
+
+        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
+
         return confidence;
 
     }
@@ -468,7 +466,10 @@ public class PhotoTester {
 
                 //make ingredients extraction report (Francesco Pham)
                 int nWrongExtractedIngreds = extractedIngredients.size();
-                String percentCorrectIngreds = String.format("%.2f",(float)100* nCorrectExtractedIngreds / correctIngredients.size());
+                float percent = (float)100*nCorrectExtractedIngreds / correctIngredients.size();
+                if(Float.isNaN(percent)) percent = 0;
+                test.setPercentCorrectIngredients(percent);
+                String percentCorrectIngreds = String.format("%.2f",percent);
                 extractionReport.append(
                         "% correct ingredients extracted: "
                         + percentCorrectIngreds+"% \n"
@@ -613,6 +614,18 @@ public class PhotoTester {
     }
 
     /**
+     * Calculate average of percentage of correct ingredients extracted from the ocr.
+     * @return Average of percentage of correct ingredients extracted from the ocr.
+     * @author Francesco Pham
+     */
+    private float getAverageCorrectIngredients(){
+        float total = 0;
+        for(TestElement element : testElements)
+            total += element.getPercentCorrectIngredients();
+        return total/testElements.size();
+    }
+
+    /**
      * Convert statistics returned by getTagsStats() into a readable text
      * @author Francesco Pham (g3)
      */
@@ -632,6 +645,8 @@ public class PhotoTester {
             report = report + keymin + " : " + alterationsTagsGainStats.get(keymin) + "%\n";
             alterationsTagsGainStats.remove(keymin);
         }
+
+        report += "\nAverage percentage correct ingredients extracted: "+getAverageCorrectIngredients() +" %";
 
         Log.d(TAG, "Tag stats: \n" + report);
 

@@ -31,6 +31,7 @@ public class TestElement {
     private JSONObject jsonObject;
     private String fileName;
     private HashMap<String, String> alterationsImagesPath;
+    private float percentCorrectIngredients;
 
     /**
      *
@@ -394,5 +395,23 @@ public class TestElement {
             Log.i(TAG, "Failed to get ingredients extraction");
         }
         return null;
+    }
+
+    /**
+     * Get percentage of correct ingredients extracted from the ocr.
+     * @return percentage of correct ingredients extracted from the ocr.
+     * @author Francesco Pham
+     */
+    public float getPercentCorrectIngredients() {
+        return percentCorrectIngredients;
+    }
+
+    /**
+     * Set percentage of correct ingredients extracted from the ocr.
+     * @param percentCorrectIngredients Percentage of correct ingredients extracted from the ocr.
+     * @author Francesco Pham
+     */
+    public void setPercentCorrectIngredients(float percentCorrectIngredients) {
+        this.percentCorrectIngredients = percentCorrectIngredients;
     }
 }
