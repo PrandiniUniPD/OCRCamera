@@ -477,8 +477,12 @@ public class PhotoTester {
                     testOCRListener
             );
 
+            // Retrieves the test pic
+            String imagePath = test.getImagePath();
+            Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
+
             // Launches the text extracting process
-            ocrTestProcess.getTextFromImg(test.getPicture());
+            ocrTestProcess.getTextFromImg(testBitmap);
         }
 
         /**
@@ -515,12 +519,18 @@ public class PhotoTester {
          */
         private void analyzeAlteration(final String alterationFilename) {
             // Gets the alterations pic
-            Bitmap alterationBitmap = test.getAlterationBitmap(alterationFilename);
+            String alterationImagePath = test.getAlterationImagePath(alterationFilename);
+            Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationImagePath);
 
             // Listener useful to notify the alteration processing completed
             final TestListener alterationResultListener = new TestListener() {
                 @Override
-                public void onProcessingComplete() {
+                public void onTestFinished() {
+                    // not useful in this case
+                }
+
+                @Override
+                public void onAlterationAnalyzed() {
                     synchronized (lock) {
                         // +1 alteration analyzed
                         alterationsAnalyzed += 1;
@@ -579,7 +589,7 @@ public class PhotoTester {
             // Inserts evaluation
             test.setAlterationConfidence(alterationFilename, alterationConfidence);
             test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
-            alterationResultListener.onProcessingComplete();
+            alterationResultListener.onAlterationAnalyzed();
         }
 
         /**
@@ -599,7 +609,7 @@ public class PhotoTester {
 
             //if the listener has been set then call onTestFinished function
             if(testListener != null) {
-                synchronized (testListener) {
+                synchronized (lock) {
                     testListener.onTestFinished();
                 }
 

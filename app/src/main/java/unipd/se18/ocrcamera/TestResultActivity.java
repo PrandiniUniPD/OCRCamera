@@ -142,6 +142,11 @@ public class TestResultActivity extends AppCompatActivity {
                 public void onTestFinished() {
                     publishProgress(++testedElements);
                 }
+
+                @Override
+                public void onAlterationAnalyzed() {
+                    // not useful in this case
+                }
             };
             tester.setTestListener(testListener);
             //publish progress
