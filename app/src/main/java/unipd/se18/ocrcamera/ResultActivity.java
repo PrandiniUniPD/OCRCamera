@@ -143,8 +143,14 @@ public class ResultActivity extends AppCompatActivity {
                 TextExtractor ocr = new TextExtractor();
                 String textRecognized = ocr.getTextFromImg(photo);
 
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.setMessage(getString(R.string.processing_ingredients));
+                    }
+                });
+
                 //extract ingredients from ocr text
-                progressDialog.setMessage(getString(R.string.processing_ingredients));
                 if(!textRecognized.equals("")){
                     List<Ingredient> ingredients = extractIngredients(textRecognized);
                     showIngredients(ingredients);
