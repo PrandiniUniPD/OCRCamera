@@ -123,34 +123,6 @@
             android:textSize="15sp"
             android:paddingStart="10sp"
             android:paddingEnd="10sp"/>
-
-        <!-- Alterations -->
-        <TextView
-            android:id="@+id/alterations_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/alterations"
-            android:layout_below="@id/notes_view"
-            android:layout_alignParentStart="true"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:padding="5sp" />
-        <TextView
-            android:id="@+id/alterations_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/alterations_title"
-            android:layout_alignParentStart="true"
-            android:textSize="15sp"
-            android:paddingStart="10sp"
-            android:paddingEnd="10sp" />
-        <Button
-            android:id="@+id/view_alterations_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/alterations_view"
-            android:layout_alignParentEnd="true"
-            android:text="@string/view_alterations"/>
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

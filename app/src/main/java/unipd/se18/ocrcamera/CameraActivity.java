@@ -31,7 +31,7 @@ import java.io.OutputStream;
 public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
-    private static String orientationResult;
+    private static String orientationResult="P";
 
     /**
      * onCreate method of the Android Activity Lifecycle
@@ -143,39 +143,35 @@ public class CameraActivity extends AppCompatActivity {
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
 
                 //Image rotation
-                if(orientationResult != null)
+                switch (orientationResult)
                 {
-                    switch (orientationResult)
-                    {
-                        case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
-                        case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
-                        case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
-                        default: break;
-                    }
-
-                    //Temporary stores the captured photo into a file that will be used from the Camera Result activity
-                    String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
-
-                    final Uri resultImageUri = Uri.fromFile(new File(getCacheDir(),"croppedImg.jpg"));
-                    //Build Uri from filePath adding scheme
-                    Uri.Builder builder = new Uri.Builder().scheme("file").path(filePath);
-                    final Uri captureImageUri = builder.build();
-
-                    //Create a new result file and take his Uri
-                    UCrop.Options options = new UCrop.Options();
-                    options.setHideBottomControls(false);
-                    options.setFreeStyleCropEnabled(true);
-                    options.setActiveWidgetColor(getResources().getColor(R.color.colorPrimary));
-                    options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
-                    options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
-                    options.setToolbarTitle(getResources().getString(R.string.focus_on_ingredients));
-                    UCrop.of(captureImageUri, resultImageUri)
-                            .withOptions(options)
-                            .start(CameraActivity.this);
+                    case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
+                    case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
+                    case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
+                    default: break;
                 }
+
+                //Temporary stores the captured photo into a file that will be used from the Camera Result activity
+                String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
+
+                final Uri resultImageUri = Uri.fromFile(new File(getCacheDir(),"croppedImg.jpg"));
+                //Build Uri from filePath adding scheme
+                Uri.Builder builder = new Uri.Builder().scheme("file").path(filePath);
+                final Uri captureImageUri = builder.build();
+
+                //Create a new result file and take his Uri
+                UCrop.Options options = new UCrop.Options();
+                options.setHideBottomControls(false);
+                options.setFreeStyleCropEnabled(true);
+                options.setActiveWidgetColor(getResources().getColor(R.color.colorPrimary));
+                options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
+                options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+                options.setToolbarTitle(getResources().getString(R.string.focus_on_ingredients));
+                UCrop.of(captureImageUri, resultImageUri)
+                        .withOptions(options)
+                        .start(CameraActivity.this);
             }
         });
-
     }
 
     @Override
@@ -273,12 +269,6 @@ public class CameraActivity extends AppCompatActivity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
-
-
-
-
-
-
 }
 
 
