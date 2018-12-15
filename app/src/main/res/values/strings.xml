@@ -22,4 +22,6 @@
     <string name="extrected_text">Extracted text:</string>
     <string name="alterations">Alterations:</string>
     <string name="view_alterations">View alterations</string>
+    <string name="extraction_error">"Something has gone wrong, plese try again."</string>
+    <string name="error_code">"Error code: "</string>
 </resources>

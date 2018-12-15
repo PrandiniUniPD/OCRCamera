@@ -23,6 +23,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import info.debatty.java.stringsimilarity.*;
 import unipd.se18.ocrcamera.recognizer.OCR;
+import unipd.se18.ocrcamera.recognizer.OCRListener;
 import unipd.se18.ocrcamera.recognizer.TextRecognizer;
 
 /**
@@ -322,18 +323,6 @@ public class PhotoTester {
         }
     }
 
-
-    /**
-     *
-     * @param bitmap from which the text is extracted
-     * @return String - the text extracted
-     */
-    private String executeOcr(Bitmap bitmap) {
-        OCR textExtractor = TextRecognizer.getRecognizer(TextRecognizer.Recognizer.mlKit);
-        return textExtractor.getTextFromImg(bitmap);
-    }
-
-
     /**
      * Class used to run a single test
      * @author Luca Moroldo (g3)
@@ -342,63 +331,129 @@ public class PhotoTester {
         private TestElement test;
         private JSONObject jsonReport;
         private CountDownLatch countDownLatch;
+        private String correctIngredients;
+        private long started;
+        private long ended;
+        private int alterations;
+        private int alterationsAnalyzed;
+        private final Semaphore lock = new Semaphore(1);
+
+        OCRListener testListener = new OCRListener() {
+            @Override
+            public void onTextRecognized(String text) {
+                setTestResult(text);
+            }
+
+            @Override
+            public void onTextRecognizedError(int code) {
+                String errorText = R.string.extraction_error
+                        + " (" + R.string.error_code + code + ")";
+                setTestResult(errorText);
+            }
+        };
 
         /**
          * @param jsonReport JSONObject containing tests data
          * @param test element of a test - must contain bitmap and ingredients fields
          * @param countDownLatch used to signal the task completion
-         * @param semaphore semaphore used to signal the end of the task
          */
-        public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
+        RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
             this.jsonReport = jsonReport;
             this.test = test;
             this.countDownLatch = countDownLatch;
+            this.alterationsAnalyzed = 0;
         }
 
         @Override
         public void run() {
+            started = java.lang.System.currentTimeMillis();
+            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
+            correctIngredients = test.getIngredients();
+            OCR ocrTestProcess = TextRecognizer.getTextRecognizer(
+                    TextRecognizer.Recognizer.mlKit,
+                    testListener
+            );
+            ocrTestProcess.getTextFromImg(test.getPicture());
+        }
 
-                Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
-                long started = java.lang.System.currentTimeMillis();
+        private void setTestResult(String extractedIngredients) {
+            float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
-                //evaluate text extraction confidence
-                String extractedIngredients = executeOcr(test.getPicture());
-                String correctIngredients = test.getIngredients();
-                float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+            //insert results in test
+            test.setConfidence(confidence);
+            test.setRecognizedText(extractedIngredients);
 
-                //insert results in test
-                test.setConfidence(confidence);
-                test.setRecognizedText(extractedIngredients);
+            //evaluate alterations if any
+            String[] alterationsFileNames = test.getAlterationsNames();
+            if(alterationsFileNames != null) {
+                alterations = alterationsFileNames.length;
+                for(String alterationFilename : alterationsFileNames) {
+                    analyzeAlteration(alterationFilename);
+                }
+            } else {
+                closingTest();
+            }
+        }
 
-                //evaluate alterations if any
-                String[] alterationsFileNames = test.getAlterationsNames();
-                if(alterationsFileNames != null) {
-                    for(String alterationFilename : alterationsFileNames) {
+        private void analyzeAlteration(final String alterationFilename) {
+            Bitmap alterationBitmap = test.getAlterationBitmap(alterationFilename);
 
-                        Bitmap alterationBitmap = test.getAlterationBitmap(alterationFilename);
-                        String alterationExtractedIngredients = "";
-                        if(alterationBitmap != null) {
-                            alterationExtractedIngredients = executeOcr(alterationBitmap);
+            final TestListener alterationResultListener = new TestListener() {
+                @Override
+                public void alterationAnalyzed() {
+                    synchronized (lock) {
+                        alterationsAnalyzed += 1;
+                        if(alterations == alterationsAnalyzed) {
+                            closingTest();
                         }
-                        float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
-
-                        //insert evaluation
-                        test.setAlterationConfidence(alterationFilename, alterationConfidence);
-                        test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
                     }
                 }
+            };
 
-                try {
-                    addTestElement(jsonReport, test);
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
+            final OCRListener alterationListener = new OCRListener() {
+                @Override
+                public void onTextRecognized(String text) {
+                    setAlterationsResult(alterationFilename,text,alterationResultListener);
                 }
 
-                //signal the end of this single test
-                countDownLatch.countDown();
+                @Override
+                public void onTextRecognizedError(int code) {
+                    String errorText = R.string.extraction_error
+                            + " (" + R.string.error_code + code + ")";
+                    setAlterationsResult(alterationFilename,errorText,alterationResultListener);
+                }
+            };
 
-                long ended = java.lang.System.currentTimeMillis();
-                Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
+            if(alterationBitmap != null) {
+                OCR ocrAlterationsProcess = TextRecognizer.getTextRecognizer(
+                        TextRecognizer.Recognizer.mlKit,
+                        alterationListener
+                );
+                ocrAlterationsProcess.getTextFromImg(alterationBitmap);
+            }
+        }
+
+        private void setAlterationsResult(String alterationFilename, String alterationExtractedIngredients,TestListener alterationResultListener) {
+            float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
+
+            //insert evaluation
+            test.setAlterationConfidence(alterationFilename, alterationConfidence);
+            test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
+            alterationResultListener.alterationAnalyzed();
+        }
+
+        private void closingTest() {
+            try {
+                addTestElement(jsonReport, test);
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
+            }
+
+            //signal the end of this single test
+            countDownLatch.countDown();
+
+            ended = java.lang.System.currentTimeMillis();
+            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
         }
     }
 

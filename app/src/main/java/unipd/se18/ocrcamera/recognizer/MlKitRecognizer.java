@@ -32,6 +32,11 @@ class MlKitRecognizer implements OCR {
      */
     private final String TAG = "MlKitRecognizer -> ";
 
+    /**
+     * The listener used to notify the result of the extraction
+     */
+    private OCRListener textExtractionListener;
+
     /*
     The next four int are used for recognizing the position of the FirebaseVisionText Objects.
     They could be useful for sorting the blocks or for an automatic recognition
@@ -47,6 +52,15 @@ class MlKitRecognizer implements OCR {
     private final int BOTTOM_LEFT   = 2;
     private final int BOTTOM_RIGHT  = 3;
 
+    /**
+     * Constructor of this recognizer
+     * @param textExtractionListener The listener used to notify the result of the extraction
+     * @author Pietro Prandini (g2)
+     */
+    MlKitRecognizer(OCRListener textExtractionListener) {
+        this.textExtractionListener = textExtractionListener;
+    }
+
     /*
     The next method is required by the OCRInterface that avoid a single point of failure.
      */
@@ -55,27 +69,15 @@ class MlKitRecognizer implements OCR {
      * Extracts a text from a given image.
      * More details at: {@link FirebaseVisionText}.
      * @param img The image in a Bitmap format
-     * @return The String of the ingredients recognized, empty String if nothing is recognized
      * @author Pietro Prandini (g2)
      */
-    public String getTextFromImg(Bitmap img) {
+    public void getTextFromImg(Bitmap img) {
         // String used for the logs of this method
         final String methodTag = "getTextFromImg -> ";
         Log.d(TAG, methodTag + "launched");
 
         // Extracts the text from the pic
-        FirebaseVisionText firebaseVisionTextExtracted = extractFireBaseVisionText(img);
-
-        // Returns the result
-        if (firebaseVisionTextExtracted != null) {
-            // Text found in img -> returns the String of the text found
-            Log.v(TAG, methodTag + "Text found");
-            return extractString(firebaseVisionTextExtracted);
-        } else {
-            // Text not found in img -> returns an empty string
-            Log.v(TAG, methodTag + "Text not found");
-            return "";
-        }
+        extractFireBaseVisionText(img);
     }
 
     /**
@@ -83,16 +85,15 @@ class MlKitRecognizer implements OCR {
      * More details at: {@link FirebaseVisionText}, {@link CountDownLatch},
      * {@link Task#addOnSuccessListener(OnSuccessListener)}, {@link OnSuccessListener}.
      * @param img The image in a Bitmap format
-     * @return The FirebaseVisionText of the text recognized, null if nothing is recognized
      * @author Pietro Prandini (g2), Luca Moroldo (g3)
      */
-    private FirebaseVisionText extractFireBaseVisionText(Bitmap img) {
+    private void extractFireBaseVisionText(Bitmap img) {
         // String used for the logs of this method
         final String methodTag = "extractFireBaseVisionText -> ";
         Log.d(TAG, methodTag + "launched");
 
         // Starts the time counter - useful for tests
-        long beforeWaiting = java.lang.System.currentTimeMillis();
+        final long beforeWaiting = java.lang.System.currentTimeMillis();
 
         // Settings the image to analyze
         FirebaseVisionImage firebaseVisionImage = FirebaseVisionImage.fromBitmap(img);
@@ -100,15 +101,6 @@ class MlKitRecognizer implements OCR {
         // Settings the "on device" analyzing method
         FirebaseVisionTextRecognizer textRecognizer =
                 FirebaseVision.getInstance().getOnDeviceTextRecognizer();
-
-        /*
-        The standard java Semaphore is not used because it's not work properly
-        with the Task<FirebaseVisionText>.
-         */
-
-        // Instantiates the CountDownLatch used for synchronizing the extraction - Luca Moroldo (g3)
-        int numberOfCountDownLatches = 1;
-        final CountDownLatch extraction = new CountDownLatch(numberOfCountDownLatches);
 
         // Settings the extraction task
         Task<FirebaseVisionText> firebaseVisionTextTask =
@@ -120,38 +112,24 @@ class MlKitRecognizer implements OCR {
                                         + "-----      RECOGNIZED TEXT       -----"
                                         + "\n" + firebaseVisionText.getText() + "\n"
                                         + "----- END OF THE RECOGNIZED TEXT -----");
-                                // Extraction ended - Analogous to signal
-                                extraction.countDown(); // Luca Moroldo (g3)
+
+                                // Ends the time counter - useful for tests
+                                long afterWaiting = java.lang.System.currentTimeMillis();
+                                Log.i(TAG, methodTag + "text extracted in "
+                                        + (afterWaiting - beforeWaiting) + " ms");
+
+                                // Notify to the listener the result of the task
+                                textExtractionListener.onTextRecognized(extractString(firebaseVisionText));
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG, "Error: " + e);
-                        // The result will be null
-                        extraction.countDown();
+
+                        // Notify to the listener the result of the task
+                        textExtractionListener.onTextRecognizedError(OCRListener.FAILURE);
                     }
                 });
-        // Waits until the extraction ends
-        if (!firebaseVisionTextTask.isSuccessful()) {
-            try {
-                // Analogous to wait
-                extraction.await(); // Luca Moroldo (g3)
-            } catch (InterruptedException e) {
-                Log.e(TAG, methodTag + "Synchronizing problem -> "
-                        + "return null (nothing recognized)");
-                return null;
-            }
-
-        }
-
-        // Ends the time counter - useful for tests
-        long afterWaiting = java.lang.System.currentTimeMillis();
-
-        Log.i(TAG, methodTag + "text extracted in "
-                + (afterWaiting - beforeWaiting) + " ms");
-
-        // Returns the FirebaseVisionText recognized by the task
-        return firebaseVisionTextTask.getResult();
     }
 
     /**
