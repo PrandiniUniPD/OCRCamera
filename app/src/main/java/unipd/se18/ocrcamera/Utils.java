@@ -2,6 +2,8 @@ package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.support.media.ExifInterface;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,9 +21,33 @@ public class Utils {
      */
     public static Bitmap loadBitmapFromFile(String filePath) {
         Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+
+        //rotate pic according to EXIF data (Francesco Pham)
+        try {
+            ExifInterface exif = new ExifInterface(filePath);
+            int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            int rotationInDegrees = Utils.exifToDegrees(rotation);
+            Matrix matrix = new Matrix();
+            if (rotation != 0) {matrix.preRotate(rotationInDegrees);}
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return bitmap;
     }
 
+    /**
+     * Convert exit orientation information from image into degree
+     * @param exifOrientation
+     * @return degree
+     * @author Francesco Pham
+     */
+    public static int exifToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
+        return 0;
+    }
 
     /**
      * @param filePath
@@ -81,6 +107,5 @@ public class Utils {
         }
         return array;
     }
-
 
 }
