@@ -33,6 +33,34 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView mOCRTextView;
 
+
+    /**
+     * Listener used by the extraction process to notify results
+     */
+    private OCRListener textExtractionListener = new OCRListener() {
+        @Override
+        public void onTextRecognized(String text) {
+                    /*
+                     Text correctly recognized
+                     -> prints it on the screen and saves it in the preferences
+                     */
+            mOCRTextView.setText(text);
+            saveTheResult(text);
+        }
+
+        @Override
+        public void onTextRecognizedError(int code) {
+                    /*
+                     Text not correctly recognized
+                     -> prints the error on the screen and saves it in the preferences
+                     */
+            String errorText = R.string.extraction_error
+                    + " (" + R.string.error_code + code + ")";
+            mOCRTextView.setText(errorText);
+            saveTheResult(errorText);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +88,8 @@ public class ResultActivity extends AppCompatActivity {
         Bitmap lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
-            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
+            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(),
+                    lastPhoto.getHeight(), false));
         } else {
             Log.e("ResultActivity", "error retrieving last photo");
         }
@@ -75,30 +104,8 @@ public class ResultActivity extends AppCompatActivity {
                 mOCRTextView.setText(OCRText);
             }
         } else {
-            // Listener used by the extraction process to notify results
-            OCRListener textExtractionListener = new OCRListener() {
-                @Override
-                public void onTextRecognized(String text) {
-                    /*
-                     Text correctly recognized
-                     -> prints it on the screen and saves it in the preferences
-                     */
-                    mOCRTextView.setText(text);
-                    saveTheResult(text);
-                }
-
-                @Override
-                public void onTextRecognizedError(int code) {
-                    /*
-                     Text not correctly recognized
-                     -> prints the error on the screen and saves it in the preferences
-                     */
-                    String errorText = R.string.extraction_error
-                            + " (" + R.string.error_code + code + ")";
-                    mOCRTextView.setText(errorText);
-                    saveTheResult(errorText);
-                }
-            };
+            // Views processing string
+            mOCRTextView.setText(R.string.processing);
 
             // Instance of an OCR recognizer
             OCR ocrProcess = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
@@ -117,7 +124,8 @@ public class ResultActivity extends AppCompatActivity {
      */
     private void saveTheResult(String text) {
         // Saving in the preferences
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs",
+                Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("text", text);
         editor.apply();
@@ -147,7 +155,8 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(i);
                 return true;
             case R.id.download_photos:
-                Intent download_intent = new Intent(ResultActivity.this, DownloadDbActivity.class);
+                Intent download_intent = new Intent(ResultActivity.this,
+                        DownloadDbActivity.class);
                 startActivity(download_intent);
                 return true;
             default:
