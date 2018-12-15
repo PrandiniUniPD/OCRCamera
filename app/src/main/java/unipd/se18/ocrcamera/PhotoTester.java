@@ -60,8 +60,8 @@ public class PhotoTester {
     private String report;
 
     //ingredients extractors (Francesco Pham)
-    private PrecorrectionIngredientsExtractor ocrIngredientsExtractor;
-    private TextSplitIngredientsExtractor correctIngredientsExtractor;
+    private IngredientsExtractor ocrIngredientsExtractor;
+    private IngredientsExtractor correctIngredientsExtractor;
 
 
 
@@ -424,7 +424,7 @@ public class PhotoTester {
 
                 //extract ingredients from ocr text and from correctIngredientsText (Francesco Pham)
                 List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
-                List<Ingredient> correctIngredients = ocrIngredientsExtractor.findListIngredients(correctIngredientsText);
+                List<Ingredient> correctIngredients = correctIngredientsExtractor.findListIngredients(correctIngredientsText);
 
                 //sort alphabetically (Francesco Pham)
                 Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
