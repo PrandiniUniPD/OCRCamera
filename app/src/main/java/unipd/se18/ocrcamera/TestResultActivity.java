@@ -137,9 +137,11 @@ public class TestResultActivity extends AppCompatActivity {
             this.tester = new PhotoTester(dirPath);
             progressBar.setMax(tester.getTestSize());
 
+            // Listener useful for updating the progress bar
             TestListener testListener = new TestListener() {
                 @Override
                 public void onTestFinished() {
+                    // +1 test finished -> +1 progress bar
                     publishProgress(++testedElements);
                 }
 
@@ -149,7 +151,8 @@ public class TestResultActivity extends AppCompatActivity {
                 }
             };
             tester.setTestListener(testListener);
-            //publish progress
+
+            // publishes progress
             try {
                 report = tester.testAndReport();
             } catch (InterruptedException e) {

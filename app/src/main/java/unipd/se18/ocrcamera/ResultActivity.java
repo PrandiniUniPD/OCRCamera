@@ -39,20 +39,20 @@ public class ResultActivity extends AppCompatActivity {
     private OCRListener textExtractionListener = new OCRListener() {
         @Override
         public void onTextRecognized(String text) {
-                    /*
-                     Text correctly recognized
-                     -> prints it on the screen and saves it in the preferences
-                     */
+            /*
+             Text correctly recognized
+             -> prints it on the screen and saves it in the preferences
+             */
             mOCRTextView.setText(text);
             saveTheResult(text);
         }
 
         @Override
         public void onTextRecognizedError(int code) {
-                    /*
-                     Text not correctly recognized
-                     -> prints the error on the screen and saves it in the preferences
-                     */
+            /*
+             Text not correctly recognized
+             -> prints the error on the screen and saves it in the preferences
+             */
             String errorText = R.string.extraction_error
                     + " (" + R.string.error_code + code + ")";
             mOCRTextView.setText(errorText);
