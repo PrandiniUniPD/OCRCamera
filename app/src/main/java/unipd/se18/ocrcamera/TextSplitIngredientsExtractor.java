@@ -32,10 +32,12 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
      * @param listIngredients Total list of ingredients from the INCI DB
      */
     public TextSplitIngredientsExtractor(List<Ingredient> listIngredients) {
-        this.listIngredients = listIngredients;
+
+        //copying list so that sorting doesn't affect original list
+        this.listIngredients = new ArrayList<>(listIngredients);
 
         //listIngredients has to be sorted for the binary search to work
-        Collections.sort(listIngredients, new Comparator<Ingredient>() {
+        Collections.sort(this.listIngredients, new Comparator<Ingredient>() {
             @Override
             public int compare(Ingredient o1, Ingredient o2) {
                 return o1.compareTo(o2.getInciName());

@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -426,19 +428,29 @@ public class PhotoTester {
                 List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
                 List<Ingredient> correctIngredients = ocrIngredientsExtractor.findListIngredients(correctIngredientsText);
 
+                //sort alphabetically (Francesco Pham)
+                Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
+                    @Override
+                    public int compare(Ingredient o1, Ingredient o2) {
+                        return o1.compareTo(o2.getInciName());
+                    }
+                };
+                Collections.sort(extractedIngredients,cmp);
+                Collections.sort(correctIngredients, cmp);
+
                 StringBuilder extractionReport = new StringBuilder();
                 extractionReport.append("Extracted: ");
                 Iterator<Ingredient> iterator = extractedIngredients.iterator();
                 while(iterator.hasNext()){
                     extractionReport.append(iterator.next().getInciName());
-                    extractionReport.append(iterator.hasNext() ? ", " : "\n");
+                    extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
                 }
 
                 extractionReport.append("Correct: ");
                 iterator = correctIngredients.iterator();
                 while(iterator.hasNext()){
                     extractionReport.append(iterator.next().getInciName());
-                    extractionReport.append(iterator.hasNext() ? ", " : "\n");
+                    extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
                 }
 
 

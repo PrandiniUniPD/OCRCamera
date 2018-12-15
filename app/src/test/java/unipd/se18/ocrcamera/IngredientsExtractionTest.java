@@ -79,9 +79,14 @@ public class IngredientsExtractionTest {
         List<Ingredient> extractedIngredients = extractor.findListIngredients(text);
         assertEquals("75006", extractedIngredients.get(0).getCosingRefNo());
 
-        //name composed by multiple words
+        //name composed by multiple words (check if "SODIUM ACRYLATES COPOLYMER" is matched first and not just "SODIUM")
         text = "SODIUM ACRYLATES COPOLYMER";
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("79031", extractedIngredients.get(0).getCosingRefNo());
+
+        //multiple whitespaces inside text
+        text = "ASTER         AGERATOIDES    EXTRACT";
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals("83720", extractedIngredients.get(0).getCosingRefNo());
     }
 }
