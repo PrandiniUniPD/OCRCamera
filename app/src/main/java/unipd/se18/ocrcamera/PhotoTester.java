@@ -166,7 +166,7 @@ public class PhotoTester {
         InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
         List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
-        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream, 0.2);
+        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
         ocrIngredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
 

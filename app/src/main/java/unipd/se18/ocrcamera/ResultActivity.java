@@ -179,7 +179,7 @@ public class ResultActivity extends AppCompatActivity {
         InputStream inciDbStream = ResultActivity.this.getResources().openRawResource(R.raw.incidb);
         List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
         InputStream wordListStream = ResultActivity.this.getResources().openRawResource(R.raw.inciwordlist);
-        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream, 0.2);
+        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
         IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
 
         timings.addSplit("load db");

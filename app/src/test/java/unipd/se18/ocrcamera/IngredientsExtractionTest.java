@@ -32,8 +32,7 @@ public class IngredientsExtractionTest {
             e.printStackTrace();
             return;
         }
-        final double maxDistance = 0.2;
-        TextAutoCorrection corrector = new TextAutoCorrection(wordListStream, maxDistance);
+        TextAutoCorrection corrector = new TextAutoCorrection(wordListStream);
 
         //single word correction
         assertEquals("CHOLESTEROL", corrector.correctText("CNOLSTEROL"));
@@ -46,6 +45,10 @@ public class IngredientsExtractionTest {
 
         //multiple words correction separated by symbols
         assertEquals("COCOYL$HYDROLYZED:COLLAGEN", corrector.correctText("CQCOYL$HYROLYZED:COLLGEN"));
+
+        //test substitution of hyphen + line break
+        assertEquals("OLIGOSACCHARIDES", corrector.correctText("OLIGOSAC-\nCHARIDES"));
+        assertEquals("OLIGOSACCHARIDES", corrector.correctText("OLIGOSAC-  \n   CHARIDES"));
     }
 
     @Test
@@ -59,8 +62,7 @@ public class IngredientsExtractionTest {
             e.printStackTrace();
             return;
         }
-        final double maxDistance = 0.2;
-        TextAutoCorrection corrector = new TextAutoCorrection(wordListStream, maxDistance);
+        TextAutoCorrection corrector = new TextAutoCorrection(wordListStream);
 
         //load inci db
         File inciFile = new File("src/main/res/raw/incidb.csv");
@@ -88,5 +90,10 @@ public class IngredientsExtractionTest {
         text = "ASTER         AGERATOIDES    EXTRACT";
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("83720", extractedIngredients.get(0).getCosingRefNo());
+
+        //test of a difficult text
+        text = "some more text...DiSsODLUM TEtraMETH-  \n  YLHEADECENVL  \nSUOCINOYL CYSTEINEblabla";
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals("92137", extractedIngredients.get(0).getCosingRefNo());
     }
 }

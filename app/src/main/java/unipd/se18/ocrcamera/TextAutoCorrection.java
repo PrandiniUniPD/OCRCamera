@@ -32,16 +32,14 @@ class TextAutoCorrection {
     private BkTreeSearcher<String> searcher;
 
     //percentage distance below which we substitute the word with the term found in dictionary
-    final double maxDistance;
+    private final double maxDistance = 0.25;
 
     /**
      * Constructor that load word list into a bk-tree and initialize searcher
      * @param wordList InputStream from the word list
-     * @param maxDistance Percentage distance below which we substitute the word with the term found in dictionary
      * @author Francesco Pham
      */
-    TextAutoCorrection(InputStream wordList, double maxDistance){
-        this.maxDistance = maxDistance;
+    TextAutoCorrection(InputStream wordList){
 
         //open word list
         BufferedReader reader = new BufferedReader(new InputStreamReader(wordList));
@@ -83,8 +81,6 @@ class TextAutoCorrection {
 
         //not correcting words with less than minChars characters
         final int minChars = 3;
-
-
 
         text = formatText(text);
 
@@ -141,6 +137,8 @@ class TextAutoCorrection {
     private String formatText(String text){
         text = text.toUpperCase();
         text = text.trim().replaceAll(" +", " ");
+        text = text.replaceAll("- *[\\n\\r]+ *", "");
+        text = text.replaceAll("[\\n\\r]+", "");
         return text;
     }
 
