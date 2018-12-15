@@ -92,7 +92,7 @@ public class IngredientsExtractionTest {
         assertEquals("83720", extractedIngredients.get(0).getCosingRefNo());
 
         //test of a difficult text
-        text = "some more text...DiSsODLUM TEtraMETH-  \n  YLHEADECENVL  \nSUOCINOYL CYSTEINEblabla";
+        text = "some more text...DiSsODLUM TEtraMETH-  \n  YLHEADECENVL  \nSUOCINOYL\nCYSTEINEblabla";
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("92137", extractedIngredients.get(0).getCosingRefNo());
     }
