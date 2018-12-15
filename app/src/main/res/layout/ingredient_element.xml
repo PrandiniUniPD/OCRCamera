@@ -38,5 +38,26 @@
         android:paddingStart="10sp"
         android:paddingEnd="10sp"/>
 
+    <!-- function -->
+    <TextView
+        android:id="@+id/function_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/function_title"
+        android:layout_below="@id/description_view"
+        android:layout_alignParentStart="true"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:padding="5sp"/>
+    <TextView
+        android:id="@+id/function_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/function_title"
+        android:layout_alignParentStart="true"
+        android:textSize="15sp"
+        android:paddingStart="10sp"
+        android:paddingEnd="10sp"/>
+
 </RelativeLayout>
 

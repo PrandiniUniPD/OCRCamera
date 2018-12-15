@@ -55,6 +55,10 @@ public class AdapterIngredient extends BaseAdapter {
         TextView description = convertView.findViewById(R.id.description_view);
         description.setText(ingredients.get(position).getDescription());
 
+        // Set function
+        TextView function = convertView.findViewById(R.id.function_view);
+        function.setText(ingredients.get(position).getFunction());
+
         return convertView;
     }
 }

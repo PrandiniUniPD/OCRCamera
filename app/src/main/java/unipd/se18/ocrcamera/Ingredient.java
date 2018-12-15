@@ -88,7 +88,7 @@ public class Ingredient implements Comparable<String> {
     }
 
     public void setInciName(String inciName) {
-        this.inciName = inciName;
+        this.inciName = inciName.trim();
     }
 
     public void setInnName(String innName) {

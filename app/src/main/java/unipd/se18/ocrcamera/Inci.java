@@ -36,6 +36,14 @@ class Inci {
 
         //initializing openCSV reader
         CSVReader csvReader = new CSVReader(reader);
+
+        //skip fist line containing field names
+        try {
+            csvReader.skip(1);
+        } catch (IOException e) {
+            Log.e(TAG, "Error skipping first line");
+        }
+
         String[] line;
 
         //for each line in the csv add an Ingredient object to the list
@@ -46,6 +54,7 @@ class Inci {
                     element.setCosingRefNo(line[0]);
                     element.setInciName(line[1]);
                     element.setDescription(line[6]);
+                    element.setFunction(line[8]);
                     listIngredients.add(element);
                 }
                 else Log.d(TAG, "There is an empty line in the database file, line "+csvReader.getLinesRead());
