@@ -1,11 +1,11 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.recognizer;
 
 import android.graphics.Bitmap;
 
-interface OCRInterface {
+public interface OCR {
     /**
-     * Wrapper for OCR libraries. Extract a text from a given image.
-     * @param img The image in a Bitmap format
+     * Extract a text from a given image.
+     * @param img The image in the Bitmap format
      * @return The String of the text recognized (empty String if nothing is recognized)
      */
     String getTextFromImg(Bitmap img);

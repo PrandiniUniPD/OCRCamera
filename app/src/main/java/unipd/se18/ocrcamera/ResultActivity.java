@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -18,11 +17,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import unipd.se18.ocrcamera.recognizer.OCR;
+import unipd.se18.ocrcamera.recognizer.TextRecognizer;
 /**
  * Class used for showing the result of the OCR processing
  */
@@ -136,7 +135,9 @@ public class ResultActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Bitmap... bitmaps) {
-            TextExtractor ocr = new TextExtractor();
+            // Gets an OCR recognized
+            OCR ocr = TextRecognizer.getRecognizer(TextRecognizer.Recognizer.mlKit);
+
             String textRecognized = "";
             if(lastPhoto != null) {
                 textRecognized = ocr.getTextFromImg(lastPhoto);

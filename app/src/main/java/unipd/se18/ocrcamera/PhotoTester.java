@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +22,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import info.debatty.java.stringsimilarity.*;
+import unipd.se18.ocrcamera.recognizer.OCR;
+import unipd.se18.ocrcamera.recognizer.TextRecognizer;
 
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
@@ -326,11 +329,8 @@ public class PhotoTester {
      * @return String - the text extracted
      */
     private String executeOcr(Bitmap bitmap) {
-
-        TextExtractor textExtractor = new TextExtractor();
+        OCR textExtractor = TextRecognizer.getRecognizer(TextRecognizer.Recognizer.mlKit);
         return textExtractor.getTextFromImg(bitmap);
-
-
     }
 
 

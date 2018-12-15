@@ -1,5 +1,4 @@
-package unipd.se18.ocrcamera;
-
+package unipd.se18.ocrcamera.recognizer;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -27,11 +26,11 @@ import java.util.concurrent.CountDownLatch;
  *     ml-kit, recognize text</a>
  * @author Pietro Prandini (g2)
  */
-public class TextExtractor implements OCRInterface {
+class MlKitRecognizer implements OCR {
     /**
      * String used for the logs of this class.
      */
-    private final String TAG = "TextExtractor";
+    private final String TAG = "MlKitRecognizer -> ";
 
     /*
     The next four int are used for recognizing the position of the FirebaseVisionText Objects.
@@ -114,17 +113,17 @@ public class TextExtractor implements OCRInterface {
         // Settings the extraction task
         Task<FirebaseVisionText> firebaseVisionTextTask =
                 textRecognizer.processImage(firebaseVisionImage).addOnSuccessListener(
-                new OnSuccessListener<FirebaseVisionText>() {
-                    @Override
-                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                        Log.v(TAG, methodTag + "onSuccess ->\n"
-                                + "-----      RECOGNIZED TEXT       -----"
-                                + "\n" + firebaseVisionText.getText() + "\n"
-                                + "----- END OF THE RECOGNIZED TEXT -----");
-                        // Extraction ended - Analogous to signal
-                        extraction.countDown(); // Luca Moroldo (g3)
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
+                        new OnSuccessListener<FirebaseVisionText>() {
+                            @Override
+                            public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                                Log.v(TAG, methodTag + "onSuccess ->\n"
+                                        + "-----      RECOGNIZED TEXT       -----"
+                                        + "\n" + firebaseVisionText.getText() + "\n"
+                                        + "----- END OF THE RECOGNIZED TEXT -----");
+                                // Extraction ended - Analogous to signal
+                                extraction.countDown(); // Luca Moroldo (g3)
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG, "Error: " + e);
@@ -211,13 +210,13 @@ public class TextExtractor implements OCRInterface {
         // Comparator for ordering the blocks by the y axis
         Comparator<FirebaseVisionText.TextBlock> mYComparator =
                 new Comparator<FirebaseVisionText.TextBlock>() {
-            @Override
-            public int compare(FirebaseVisionText.TextBlock o1, FirebaseVisionText.TextBlock o2) {
-                int o1TopLeftY = Objects.requireNonNull(o1.getCornerPoints())[TOP_LEFT].y;
-                int o2TopLeftY = Objects.requireNonNull(o2.getCornerPoints())[TOP_LEFT].y;
-                return Integer.compare(o1TopLeftY,o2TopLeftY);
-            }
-        };
+                    @Override
+                    public int compare(FirebaseVisionText.TextBlock o1, FirebaseVisionText.TextBlock o2) {
+                        int o1TopLeftY = Objects.requireNonNull(o1.getCornerPoints())[TOP_LEFT].y;
+                        int o2TopLeftY = Objects.requireNonNull(o2.getCornerPoints())[TOP_LEFT].y;
+                        return Integer.compare(o1TopLeftY,o2TopLeftY);
+                    }
+                };
         // Sorts the blocks
         Collections.sort(OCRBlocks, mYComparator);
         return OCRBlocks;
