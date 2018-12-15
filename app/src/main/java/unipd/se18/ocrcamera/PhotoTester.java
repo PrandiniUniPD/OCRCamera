@@ -325,27 +325,68 @@ public class PhotoTester {
 
     /**
      * Class used to run a single test
-     * @author Luca Moroldo (g3)
+     * @author Luca Moroldo (g3) - Pietro Prandini (g2)
      */
     public class RunnableTest implements Runnable {
+        /**
+         * Element of test to be analyzed
+         */
         private TestElement test;
-        private JSONObject jsonReport;
-        private CountDownLatch countDownLatch;
-        private String correctIngredients;
-        private long started;
-        private long ended;
-        private int alterations;
-        private int alterationsAnalyzed;
-        private final Semaphore lock = new Semaphore(1);
 
-        OCRListener testListener = new OCRListener() {
+        /**
+         * Report to be generated
+         */
+        private JSONObject jsonReport;
+
+        /**
+         * Synchronization construct for synchronizing with the other test threads
+         */
+        private CountDownLatch countDownLatch;
+
+        /**
+         * String where putting the correctIngredients provided by the database
+         */
+        private String correctIngredients;
+
+        /**
+         * Start runnable time variable
+         */
+        private long started;
+
+        /**
+         * Stop runnable time variable
+         */
+        private long ended;
+
+        /**
+         * Number of alterations to be processed
+         */
+        private int alterations;
+
+        /**
+         * Counter for the alterations analyzed
+         */
+        private int alterationsAnalyzed;
+
+        /**
+         * Object useful for synchronize critical statements
+         * (such as the increment of alterationsAnalyzed variable)
+         */
+        private final Object lock = new Object();
+
+        /**
+         * Listener used by the OCR process
+         */
+        OCRListener testOCRListener = new OCRListener() {
             @Override
             public void onTextRecognized(String text) {
+                // Process has got success -> processes the result
                 setTestResult(text);
             }
 
             @Override
             public void onTextRecognizedError(int code) {
+                // Process hasn't got success -> notifies to the result
                 String errorText = R.string.extraction_error
                         + " (" + R.string.error_code + code + ")";
                 setTestResult(errorText);
@@ -366,64 +407,94 @@ public class PhotoTester {
 
         @Override
         public void run() {
+            // Starts the runnable test
             started = java.lang.System.currentTimeMillis();
             Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
+
+            // Retrieves the ingredients provided by the database
             correctIngredients = test.getIngredients();
+
+            // Instance of the OCR object
             OCR ocrTestProcess = TextRecognizer.getTextRecognizer(
                     TextRecognizer.Recognizer.mlKit,
-                    testListener
+                    testOCRListener
             );
+
+            // Launches the text extracting process
             ocrTestProcess.getTextFromImg(test.getPicture());
         }
 
+        /**
+         * Sets the Test result
+         * @param extractedIngredients The extracted ingredients from the OCR process
+         */
         private void setTestResult(String extractedIngredients) {
+            // Compares the text provided by the database and the text extracted
             float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
 
-            //insert results in test
+            //inserts results in the test element
             test.setConfidence(confidence);
             test.setRecognizedText(extractedIngredients);
 
-            //evaluate alterations if any
+            // evaluates alterations if any
             String[] alterationsFileNames = test.getAlterationsNames();
             if(alterationsFileNames != null) {
+                // Sets the number of alterations
                 alterations = alterationsFileNames.length;
+
+                // Processes the alterations
                 for(String alterationFilename : alterationsFileNames) {
                     analyzeAlteration(alterationFilename);
                 }
             } else {
+                // No alterations -> TestElement analyzing completed
                 closingTest();
             }
         }
 
+        /**
+         * Analyzes an alteration
+         * @param alterationFilename The filename of the alteration to be analyzed
+         */
         private void analyzeAlteration(final String alterationFilename) {
+            // Gets the alterations pic
             Bitmap alterationBitmap = test.getAlterationBitmap(alterationFilename);
 
+            // Listener useful to notify the alteration processing completed
             final TestListener alterationResultListener = new TestListener() {
                 @Override
-                public void alterationAnalyzed() {
+                public void onProcessingComplete() {
                     synchronized (lock) {
+                        // +1 alteration analyzed
                         alterationsAnalyzed += 1;
+
+                        // Check if all the alterations is analyzed
                         if(alterations == alterationsAnalyzed) {
+                            // All the alterations is analyzed -> closes the test
                             closingTest();
                         }
                     }
                 }
             };
 
+            // Listener useful for analyzing the alteration
             final OCRListener alterationListener = new OCRListener() {
                 @Override
                 public void onTextRecognized(String text) {
+                    // Alteration correctly analyzed
                     setAlterationsResult(alterationFilename,text,alterationResultListener);
                 }
 
                 @Override
                 public void onTextRecognizedError(int code) {
+                    // Error during the alteration analyzing
                     String errorText = R.string.extraction_error
                             + " (" + R.string.error_code + code + ")";
                     setAlterationsResult(alterationFilename,errorText,alterationResultListener);
                 }
             };
 
+            // Analyze the alteration pic if it's correctly retrieved
             if(alterationBitmap != null) {
                 OCR ocrAlterationsProcess = TextRecognizer.getTextRecognizer(
                         TextRecognizer.Recognizer.mlKit,
@@ -433,32 +504,52 @@ public class PhotoTester {
             }
         }
 
-        private void setAlterationsResult(String alterationFilename, String alterationExtractedIngredients,TestListener alterationResultListener) {
-            float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
+        /**
+         * Sets the alterations result
+         * @param alterationFilename Filename of the alteration analyzed
+         * @param alterationExtractedIngredients Extracted ingredients
+         * @param alterationResultListener Listener used to synchronize the analyzing process
+         */
+        private void setAlterationsResult(String alterationFilename,
+                                          String alterationExtractedIngredients,
+                                          TestListener alterationResultListener) {
+            // Compares the text provided by the database and the text extracted
+            float alterationConfidence = ingredientsTextComparison(
+                    correctIngredients,
+                    alterationExtractedIngredients
+            );
 
-            //insert evaluation
+            // Inserts evaluation
             test.setAlterationConfidence(alterationFilename, alterationConfidence);
             test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
-            alterationResultListener.alterationAnalyzed();
+            alterationResultListener.onProcessingComplete();
         }
 
+        /**
+         * Closes the analyzing process
+         */
         private void closingTest() {
+            // Adds the test element to the report
             try {
                 addTestElement(jsonReport, test);
             } catch (JSONException e) {
-                Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
+                Log.e(TAG, "Failed to add test element '" + test.getFileName()
+                        + " to json report");
             }
 
-            //signal the end of this single test
+            //signals the end of this single test
             countDownLatch.countDown();
 
+            // Closing log
             ended = java.lang.System.currentTimeMillis();
-            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
+            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId()
+                    + "\" ended (runned for " + (ended - started) + " ms)");
         }
     }
 
     /**
-     * Add a single TestElement associated JSONReport inside the JSONObject jsonReport, multi-thread safe
+     * Add a single TestElement associated JSONReport inside the JSONObject jsonReport,
+     * multi-thread safe
      * @param jsonReport the report containing tests in JSON format
      * @param test element of a test
      * @modify jsonReport

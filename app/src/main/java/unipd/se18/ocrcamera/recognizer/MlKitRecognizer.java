@@ -85,7 +85,7 @@ class MlKitRecognizer implements OCR {
      * More details at: {@link FirebaseVisionText}, {@link CountDownLatch},
      * {@link Task#addOnSuccessListener(OnSuccessListener)}, {@link OnSuccessListener}.
      * @param img The image in a Bitmap format
-     * @author Pietro Prandini (g2), Luca Moroldo (g3)
+     * @author Pietro Prandini (g2)
      */
     private void extractFireBaseVisionText(Bitmap img) {
         // String used for the logs of this method
@@ -103,33 +103,32 @@ class MlKitRecognizer implements OCR {
                 FirebaseVision.getInstance().getOnDeviceTextRecognizer();
 
         // Settings the extraction task
-        Task<FirebaseVisionText> firebaseVisionTextTask =
-                textRecognizer.processImage(firebaseVisionImage).addOnSuccessListener(
-                        new OnSuccessListener<FirebaseVisionText>() {
-                            @Override
-                            public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                                Log.v(TAG, methodTag + "onSuccess ->\n"
-                                        + "-----      RECOGNIZED TEXT       -----"
-                                        + "\n" + firebaseVisionText.getText() + "\n"
-                                        + "----- END OF THE RECOGNIZED TEXT -----");
-
-                                // Ends the time counter - useful for tests
-                                long afterWaiting = java.lang.System.currentTimeMillis();
-                                Log.i(TAG, methodTag + "text extracted in "
-                                        + (afterWaiting - beforeWaiting) + " ms");
-
-                                // Notify to the listener the result of the task
-                                textExtractionListener.onTextRecognized(extractString(firebaseVisionText));
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
+        textRecognizer.processImage(firebaseVisionImage).addOnSuccessListener(
+                new OnSuccessListener<FirebaseVisionText>() {
                     @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Error: " + e);
+                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                        Log.v(TAG, methodTag + "onSuccess ->\n"
+                                + "-----      RECOGNIZED TEXT       -----"
+                                + "\n" + firebaseVisionText.getText() + "\n"
+                                + "----- END OF THE RECOGNIZED TEXT -----");
+
+                        // Ends the time counter - useful for tests
+                        long afterWaiting = java.lang.System.currentTimeMillis();
+                        Log.i(TAG, methodTag + "text extracted in "
+                                + (afterWaiting - beforeWaiting) + " ms");
 
                         // Notify to the listener the result of the task
-                        textExtractionListener.onTextRecognizedError(OCRListener.FAILURE);
+                        textExtractionListener.onTextRecognized(extractString(firebaseVisionText));
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "Error: " + e);
+
+                // Notify to the listener the result of the task
+                textExtractionListener.onTextRecognizedError(OCRListener.FAILURE);
+            }
+        });
     }
 
     /**
@@ -189,7 +188,8 @@ class MlKitRecognizer implements OCR {
         Comparator<FirebaseVisionText.TextBlock> mYComparator =
                 new Comparator<FirebaseVisionText.TextBlock>() {
                     @Override
-                    public int compare(FirebaseVisionText.TextBlock o1, FirebaseVisionText.TextBlock o2) {
+                    public int compare(FirebaseVisionText.TextBlock o1,
+                                       FirebaseVisionText.TextBlock o2) {
                         int o1TopLeftY = Objects.requireNonNull(o1.getCornerPoints())[TOP_LEFT].y;
                         int o2TopLeftY = Objects.requireNonNull(o2.getCornerPoints())[TOP_LEFT].y;
                         return Integer.compare(o1TopLeftY,o2TopLeftY);
