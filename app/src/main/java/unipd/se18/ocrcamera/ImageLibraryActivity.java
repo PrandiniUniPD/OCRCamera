@@ -52,7 +52,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         setContentView(R.layout.imagegallery);
         this.imageGrid = (GridView) findViewById(R.id.griglia);
         this.bitmapList = new ArrayList<Bitmap>();
-        mHandlerThread.sendEmptyMessage(START_PROGRESS);
 
 
         // listener per interagire con le foto
@@ -91,8 +90,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
             }
         });
-
-        //update gridView (NEED METHOD TO COMUNICATE WITH THREAD)
+        thread1.start();
     }
 
     //gestione dei messaggi dell'handler
