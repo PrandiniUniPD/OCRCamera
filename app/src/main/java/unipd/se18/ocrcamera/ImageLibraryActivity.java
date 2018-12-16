@@ -8,6 +8,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,6 +38,12 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     private ArrayList<Bitmap> bitmapList; //Array of images
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/OCRCameraDB";
     private int progress;
+    Thread thread1;
+    Handler mHandlerThread; //handler per comunicare dal thread alla View
+    private static final int UPDATE = 101;
+    private static final int START_PROGRESS = 100;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +52,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         setContentView(R.layout.imagegallery);
         this.imageGrid = (GridView) findViewById(R.id.griglia);
         this.bitmapList = new ArrayList<Bitmap>();
+        mHandlerThread.sendEmptyMessage(START_PROGRESS);
 
 
         // listener per interagire con le foto
@@ -54,38 +63,59 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                         Toast.LENGTH_SHORT).show();
             }
         });
-    // thread that load images in the bitmapList
-        new Thread() {
-            public void run()
-            {
-                try{
-                File path = new File(PHOTOS_FOLDER);
-                if (path.exists()) {
-                    String[] fileNames = path.list();
-                    for (int i = 0; i < 60; i++) {
-                        try {
-                            File f = new File(PHOTOS_FOLDER, fileNames[i]);
-                            bitmapList.add(BitmapFactory.decodeStream(new FileInputStream(f)));
-                            progress++;
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
+
+        // thread that load images in the bitmapList
+        thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    File path = new File(PHOTOS_FOLDER);
+                    if (path.exists()) {
+                        String[] fileNames = path.list();
+                        for (int i = 0; i < 30; i++) {
+                            try {
+                                File f = new File(PHOTOS_FOLDER, fileNames[i]);
+                                bitmapList.add(BitmapFactory.decodeStream(new FileInputStream(f)));
+                                progress++;
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
-                    }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
+                }
+                Message message = new Message();
+                message.what = UPDATE;
+                mHandlerThread.sendMessage(message);
+
+            }
+        });
+
+        //update gridView (NEED METHOD TO COMUNICATE WITH THREAD)
+    }
+
+    //gestione dei messaggi dell'handler
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mHandlerThread = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                if (msg.what == UPDATE) {
+                    imageGrid.setAdapter(new ImageAdapter(getApplicationContext(), bitmapList));
+                }
+                else if (msg.what == START_PROGRESS){
+                    thread1.start();
                 }
 
             }
-        }.start();
 
-        //update gridView (NEED METHOD TO COMUNICATE WITH THREAD)
-            imageGrid.setAdapter(new ImageAdapter(this, bitmapList));
-        }
+        };
     }
 
-
+}
 
 
 
