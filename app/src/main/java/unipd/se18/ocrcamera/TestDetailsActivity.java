@@ -160,18 +160,18 @@ public class TestDetailsActivity extends AppCompatActivity {
      * @param context The context where would be the alterations text
      * @param relativeLayout The layout to add the text views
      * @param idBelowOf The id of the view where putting the alterations text below of
-     * @param elemente The test elemente where searching the alterations
+     * @param element The test elemente where searching the alterations
      * @author Pietro Prandini (g2)
      */
     protected static void setAlterationsView(Context context, RelativeLayout relativeLayout,
-                                             int idBelowOf, TestElement elemente) {
-        String[] alterations = elemente.getAlterationsNames();
+                                             int idBelowOf, TestElement element) {
+        String[] alterations = element.getAlterationsNames();
         StringBuilder alterationsText = new StringBuilder();
         if(alterations != null) {
             // Sets details of alterations
             for (String alteration : alterations) {
                 // Prepares the alterations String
-                float confidenceOfAlteration = elemente.getAlterationConfidence(alteration);
+                float confidenceOfAlteration = element.getAlterationConfidence(alteration);
                 alterationsText.append(alteration)
                         .append(" - confidence ")
                         .append(TestDetailsActivity.formatPercentString(confidenceOfAlteration))
@@ -181,7 +181,7 @@ public class TestDetailsActivity extends AppCompatActivity {
                 TextView alterationsView = new TextView(context);
                 alterationsView.setText(alterationsText.toString());
                 alterationsView.setTextColor(
-                        chooseColorOfValue(confidenceOfAlteration, elemente.getConfidence()));
+                        chooseColorOfValue(confidenceOfAlteration, element.getConfidence()));
                 // Sets shadow (supports the coloured view)
                 float radius = 1;
                 float dx = 0;
