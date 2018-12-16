@@ -100,7 +100,8 @@ public class TestsListAdapter extends BaseAdapter
                 context,
                 (RelativeLayout) convertView.findViewById(R.id.result_view),
                 R.id.tags_view,
-                entries[position]
+                entries[position],
+                false
         );
         return convertView;
     }

@@ -80,7 +80,8 @@ public class TestDetailsActivity extends AppCompatActivity {
                 TestDetailsActivity.this,
                 (RelativeLayout) findViewById(R.id.result_view),
                 R.id.notes_view,
-                entry);
+                entry,
+                true);
     }
 
     /**
@@ -160,11 +161,12 @@ public class TestDetailsActivity extends AppCompatActivity {
      * @param context The context where would be the alterations text
      * @param relativeLayout The layout to add the text views
      * @param idBelowOf The id of the view where putting the alterations text below of
-     * @param element The test elemente where searching the alterations
+     * @param element The test element where searching the alterations
+     * @param viewDetails True for viewing details of alterations, false otherwise
      * @author Pietro Prandini (g2)
      */
     protected static void setAlterationsView(Context context, RelativeLayout relativeLayout,
-                                             int idBelowOf, TestElement element) {
+                                             int idBelowOf, TestElement element, Boolean viewDetails) {
         String[] alterations = element.getAlterationsNames();
         StringBuilder alterationsText = new StringBuilder();
         if(alterations != null) {
@@ -207,7 +209,52 @@ public class TestDetailsActivity extends AppCompatActivity {
                 // Sets an appropriate id
                 alterationsView.setId(View.generateViewId());
                 idBelowOf = alterationsView.getId();
+
+                // Sets details if required
+                if(viewDetails) {
+                    idBelowOf = viewAlterationDetails(
+                            context,
+                            relativeLayout,
+                            idBelowOf,
+                            element,
+                            alteration
+                    );
+                }
             }
         }
+    }
+
+    /**
+     * Sets the details of an altered test
+     * @param context The context where would be the alterations text
+     * @param relativeLayout The layout to add the text views
+     * @param idBelowOf The id of the view where putting the alterations text below of
+     * @param element The test element where searching the alterations
+     * @param alteration The alteration type String
+     * @author Pietro Prandini (g2)
+     */
+    protected static int viewAlterationDetails(Context context, RelativeLayout relativeLayout,
+                                        int idBelowOf, TestElement element, String alteration) {
+        // Prepares the layout
+        RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        paramsView.addRule(RelativeLayout.BELOW, idBelowOf);
+        paramsView.addRule(RelativeLayout.CENTER_HORIZONTAL);
+
+        // Obtains the altered pic
+        String imagePath = element.getAlterationImagePath(alteration);
+        Bitmap img = scaleBitmap(context,Utils.loadBitmapFromFile(imagePath));
+        ImageView picView = new ImageView(context);
+        picView.setImageBitmap(img);
+
+        // Adds the pic view
+        relativeLayout.addView(picView,paramsView);
+
+        // Sets an appropriate id
+        picView.setId(View.generateViewId());
+        idBelowOf = picView.getId();
+
+        return idBelowOf;
     }
 }
