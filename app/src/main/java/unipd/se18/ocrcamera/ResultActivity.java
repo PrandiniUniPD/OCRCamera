@@ -190,6 +190,7 @@ public class ResultActivity extends AppCompatActivity {
             }
 
             progressBar.incrementProgressBy(20);
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
