@@ -14,8 +14,12 @@ import android.widget.TextView;
  * Adapter for the view of the processing result of the pics
  * @author Pietro Prandini (g2)
  */
-public class TestsListAdapter extends BaseAdapter
-{
+public class TestsListAdapter extends BaseAdapter {
+    /**
+     * String used for the logs of this class
+     */
+    private final String TAG = "TestsListAdapter -> ";
+
     /**
      * Context of the app
      */
@@ -24,22 +28,29 @@ public class TestsListAdapter extends BaseAdapter
     /**
      * Elements of test
      */
-    private TestElement[] entries;
+    private static TestElement[] entries;
 
-    /**
-     * String used for the logs of this class
+    /*
+    Limits for choosing the color of the correctness relatively to the goodness of the extraction
      */
-    private final String TAG = "TestsListAdapter -> ";
+    private float redUntil;
+    private float yellowUntil;
+
+    /*
+    Strings used for passing by intent some data to the other activity
+     */
+    static final String positionString = "position";
+    static final String redUntilString = "redUntil";
+    static final String yellowUntilString = "yellowUntil";
 
     /**
      * Defines an object of AdapterTestElement type
      * @param context The reference to the activity where the adapter will be used
      * @param entries The list of the test elements containing data from photos test
      */
-    TestsListAdapter(Context context, TestElement[] entries)
-    {
+    TestsListAdapter(Context context, TestElement[] entries) {
         this.context = context;
-        this.entries = entries;
+        TestsListAdapter.entries = entries;
     }
 
     @Override
@@ -61,26 +72,17 @@ public class TestsListAdapter extends BaseAdapter
             convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
         }
 
-        Button viewDetailsButton = convertView.findViewById(R.id.view_details_button);
-        viewDetailsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(context, TestDetailsActivity.class);
-                TestDetailsActivity.entry = entries[position];
-                context.startActivity(i);
-            }
-        });
-
         // Set the correctness value
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entries[position].getConfidence();
         correctness.setText(TestDetailsActivity.formatPercentString(confidence));
 
         // Set the color of the correctness text value
-        TestDetailsActivity.redUntil = 70;
-        TestDetailsActivity.yellowUntil = 85;
-        correctness.setTextColor(TestDetailsActivity.chooseColorOfValue(confidence,
-                TestDetailsActivity.redUntil,TestDetailsActivity.yellowUntil));
+        redUntil = 70;
+        yellowUntil = 85;
+        correctness.setTextColor(
+                TestDetailsActivity.chooseColorOfValue(confidence, redUntil, yellowUntil)
+        );
 
         // Set the name of the pic
         TextView name = convertView.findViewById(R.id.pic_name_view);
@@ -103,6 +105,32 @@ public class TestsListAdapter extends BaseAdapter
                 entries[position],
                 false
         );
+
+        Button viewDetailsButton = convertView.findViewById(R.id.view_details_button);
+        viewDetailsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Prepares the Intent for launching the TestDetailsActivity
+                Intent testDetailsActivity = new Intent(context, TestDetailsActivity.class);
+
+                // Passes some values by the intents
+                testDetailsActivity.putExtra(positionString,position);
+                testDetailsActivity.putExtra(redUntilString,redUntil);
+                testDetailsActivity.putExtra(yellowUntilString,yellowUntil);
+
+                // Starts the activity
+                context.startActivity(testDetailsActivity);
+            }
+        });
         return convertView;
+    }
+
+    /**
+     * Gets the test elements analyzed
+     * @return The array of the Test Elements analyzed
+     * @author Pietro Prandini (g2)
+     */
+    static TestElement[] getTestElements() {
+        return TestsListAdapter.entries;
     }
 }

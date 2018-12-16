@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -21,37 +22,56 @@ import java.text.DecimalFormat;
  * @author Pietro Prandini (g2)
  */
 public class TestDetailsActivity extends AppCompatActivity {
-    protected static TestElement entry;
-    protected static float redUntil;
-    protected static float yellowUntil;
-
+    /**
+     * String used for the log of this class
+     */
     private String TAG = "TestDetailsActivity -> ";
+
+    /**
+     * TestElement to be viewed
+     */
+    private TestElement entry;
+
+    /*
+    Limits for choosing the color of the correctness relatively to the goodness of the extraction
+     */
+    private float redUntil;
+    private float yellowUntil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_element_details);
 
-        // Set the correctness value
+        // Retrieves the TestElement to be viewed (default == 0)
+        Intent lastIntent = getIntent();
+        int position = lastIntent.getIntExtra(TestsListAdapter.positionString,0);
+        entry = TestsListAdapter.getTestElements()[position];
+
+        // Retrieves the limits for the correctness color (default == 0)
+        redUntil = lastIntent.getIntExtra(TestsListAdapter.redUntilString, 0);
+        yellowUntil = lastIntent.getIntExtra(TestsListAdapter.yellowUntilString, 0);
+
+        // Sets the correctness value
         TextView correctness = findViewById(R.id.correctness_view);
         float confidence = entry.getConfidence();
         correctness.setText(formatPercentString(confidence));
 
-        // Set the color of the correctness text value
+        // Sets the color of the correctness text value
         correctness.setTextColor(chooseColorOfValue(confidence,redUntil,yellowUntil));
 
-        // Set the name of the pic
+        // Sets the name of the pic
         TextView name = findViewById(R.id.pic_name_view);
         String picName = entry.getFileName();
         name.setText(picName);
 
-        // Set the pic view
+        // Sets the pic view
         ImageView analyzedPic = findViewById(R.id.pic_view);
         String imagePath = entry.getImagePath();
         Bitmap img = Utils.loadBitmapFromFile(imagePath);
         analyzedPic.setImageBitmap(scaleBitmap(TestDetailsActivity.this, img));
 
-        // Set the Tags text
+        // Sets the Tags text
         TextView tags = findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
         for(String tag: entry.getTags()) {
@@ -59,7 +79,7 @@ public class TestDetailsActivity extends AppCompatActivity {
         }
         tags.setText(assignedTags.toString());
 
-        // Set the ingredients text
+        // Sets the ingredients text
         TextView ingredients = findViewById(R.id.ingredients_view);
         StringBuilder realIngredients = new StringBuilder();
         for(String ingredient: entry.getIngredientsArray()) {
@@ -67,15 +87,15 @@ public class TestDetailsActivity extends AppCompatActivity {
         }
         ingredients.setText(realIngredients);
 
-        // Set the extracted text
+        // Sets the extracted text
         TextView extractedText = findViewById(R.id.extractedText_view);
         extractedText.setText(entry.getRecognizedText());
 
-        // Set the notes text
+        // Sets the notes text
         TextView notes = findViewById(R.id.notes_view);
         notes.setText(entry.getNotes());
 
-        // Set alterations view
+        // Sets the alterations view
         setAlterationsView(
                 TestDetailsActivity.this,
                 (RelativeLayout) findViewById(R.id.result_view),
