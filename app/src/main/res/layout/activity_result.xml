@@ -45,23 +45,28 @@
 
     <TextView
         android:id="@+id/empty_list"
-        android:text="@string/empty_list_ingredients"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/img_captured_view"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:text="@string/empty_list_ingredients"
+        app:layout_constraintTop_toBottomOf="@+id/img_captured_view">
     </TextView>
 
     <ProgressBar
         android:id="@+id/progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/circle_shape"
         android:indeterminate="false"
         android:max="100"
         android:progress="1"
-        app:layout_constraintTop_toBottomOf="@+id/img_captured_view"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:progressDrawable="@drawable/circular_progress_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/empty_list"
+        app:layout_constraintStart_toStartOf="@+id/empty_list"
+        app:layout_constraintTop_toBottomOf="@+id/img_captured_view">
     </ProgressBar>
 
     <!-- Camera activity launcher button (Francesco Pham) -->

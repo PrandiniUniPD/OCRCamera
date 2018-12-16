@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import java.io.InputStream;
 import java.util.List;
@@ -29,9 +28,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public class ResultActivity extends AppCompatActivity {
 
-    //ListView of extracted ingredients
+    // UI components
     private ListView ingredientsListView;
-
     private ProgressBar progressBar;
 
     private final String TAG = "ResultActivity";
@@ -51,8 +49,8 @@ public class ResultActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
 
         //set on empty list view
-        TextView emptyView = findViewById(R.id.empty_list);
-        ingredientsListView.setEmptyView(emptyView);
+        View emptyListView = findViewById(R.id.empty_list);
+        ingredientsListView.setEmptyView(emptyListView);
 
         // Floating action buttons listeners (Francesco Pham)
         FloatingActionButton fabNewPic = findViewById(R.id.newPictureFab);
@@ -186,11 +184,16 @@ public class ResultActivity extends AppCompatActivity {
             //extract ingredients from ocr text
             if(OCRText!=null && !OCRText.equals("")) {
                 List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(OCRText);
-                showIngredients(ingredients);
+                if(ingredients.size() != 0) showIngredients(ingredients);
             }
 
             progressBar.incrementProgressBy(20);
-            progressBar.setVisibility(View.INVISIBLE);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                }
+            });
         }
     }
 
