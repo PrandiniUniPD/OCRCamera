@@ -270,6 +270,7 @@ public class TestDetailsActivity extends AppCompatActivity {
 
         int titlePadding = 5;
         tagsTitle.setPadding(titlePadding,titlePadding,titlePadding,titlePadding);
+        tagsTitle.setTypeface(Typeface.DEFAULT_BOLD);
 
         idBelowOf = addViewBelow(relativeLayout,idBelowOf,tagsTitle);
 
@@ -292,6 +293,7 @@ public class TestDetailsActivity extends AppCompatActivity {
         extractedTextTitle.setText(R.string.extrected_text);
 
         extractedTextTitle.setPadding(titlePadding,titlePadding,titlePadding,titlePadding);
+        extractedTextTitle.setTypeface(Typeface.DEFAULT_BOLD);
 
         idBelowOf = addViewBelow(relativeLayout,idBelowOf,extractedTextTitle);
 
@@ -307,6 +309,7 @@ public class TestDetailsActivity extends AppCompatActivity {
         notesTitle.setText(R.string.notes);
 
         notesTitle.setPadding(titlePadding,titlePadding,titlePadding,titlePadding);
+        notesTitle.setTypeface(Typeface.DEFAULT_BOLD);
 
         idBelowOf = addViewBelow(relativeLayout,idBelowOf,notesTitle);
 
