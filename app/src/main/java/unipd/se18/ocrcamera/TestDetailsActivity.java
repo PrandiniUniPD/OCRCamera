@@ -21,7 +21,7 @@ import java.text.DecimalFormat;
  * @author Pietro Prandini (g2)
  */
 public class TestDetailsActivity extends AppCompatActivity {
-    protected static TestElement entry;
+    protected static TestElement element;
     protected static float redUntil;
     protected static float yellowUntil;
 
@@ -34,7 +34,7 @@ public class TestDetailsActivity extends AppCompatActivity {
 
         // Set the correctness value
         TextView correctness = findViewById(R.id.correctness_view);
-        float confidence = entry.getConfidence();
+        float confidence = element.getConfidence();
         correctness.setText(formatPercentString(confidence));
 
         // Set the color of the correctness text value
@@ -42,19 +42,19 @@ public class TestDetailsActivity extends AppCompatActivity {
 
         // Set the name of the pic
         TextView name = findViewById(R.id.pic_name_view);
-        String picName = entry.getFileName();
+        String picName = element.getFileName();
         name.setText(picName);
 
         // Set the pic view
         ImageView analyzedPic = findViewById(R.id.pic_view);
-        String imagePath = entry.getImagePath();
+        String imagePath = element.getImagePath();
         Bitmap img = Utils.loadBitmapFromFile(imagePath);
         analyzedPic.setImageBitmap(scaleBitmap(TestDetailsActivity.this, img));
 
         // Set the Tags text
         TextView tags = findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
-        for(String tag: entry.getTags()) {
+        for(String tag: element.getTags()) {
             assignedTags.append(tag).append(", ");
         }
         tags.setText(assignedTags.toString());
@@ -62,25 +62,25 @@ public class TestDetailsActivity extends AppCompatActivity {
         // Set the ingredients text
         TextView ingredients = findViewById(R.id.ingredients_view);
         StringBuilder realIngredients = new StringBuilder();
-        for(String ingredient: entry.getIngredientsArray()) {
+        for(String ingredient: element.getIngredientsArray()) {
             realIngredients.append(ingredient).append(", ");
         }
         ingredients.setText(realIngredients);
 
         // Set the extracted text
         TextView extractedText = findViewById(R.id.extractedText_view);
-        extractedText.setText(entry.getRecognizedText());
+        extractedText.setText(element.getRecognizedText());
 
         // Set the notes text
         TextView notes = findViewById(R.id.notes_view);
-        notes.setText(entry.getNotes());
+        notes.setText(element.getNotes());
 
         // Set alterations view
         setAlterationsView(
                 TestDetailsActivity.this,
                 (RelativeLayout) findViewById(R.id.result_view),
                 R.id.notes_view,
-                entry);
+                element);
     }
 
     /**
@@ -160,19 +160,18 @@ public class TestDetailsActivity extends AppCompatActivity {
      * @param context The context where would be the alterations text
      * @param relativeLayout The layout to add the text views
      * @param idBelowOf The id of the view where putting the alterations text below of
-     * @param entry The test element where searching the alterations
+     * @param element The test element where searching the alterations
      * @author Pietro Prandini (g2)
      */
     protected static void setAlterationsView(Context context, RelativeLayout relativeLayout,
-                                             int idBelowOf, TestElement entry) {
-        String[] alterations = entry.getAlterationsNames();
+                                             int idBelowOf, TestElement element) {
+        String[] alterations = element.getAlterationsNames();
         StringBuilder alterationsText = new StringBuilder();
         if(alterations != null) {
-
             // Sets details of alterations
             for (String alteration : alterations) {
                 // Prepares the alterations String
-                float confidenceOfAlteration = entry.getAlterationConfidence(alteration);
+                float confidenceOfAlteration = element.getAlterationConfidence(alteration);
                 alterationsText.append(alteration)
                         .append(" - confidence ")
                         .append(TestDetailsActivity.formatPercentString(confidenceOfAlteration))
@@ -182,7 +181,7 @@ public class TestDetailsActivity extends AppCompatActivity {
                 TextView alterationsView = new TextView(context);
                 alterationsView.setText(alterationsText.toString());
                 alterationsView.setTextColor(
-                        chooseColorOfValue(confidenceOfAlteration, entry.getConfidence()));
+                        chooseColorOfValue(confidenceOfAlteration, element.getConfidence()));
                 // Sets shadow (supports the coloured view)
                 float radius = 1;
                 float dx = 0;
