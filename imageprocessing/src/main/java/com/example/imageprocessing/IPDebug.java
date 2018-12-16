@@ -3,6 +3,7 @@ package com.example.imageprocessing;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
+import org.opencv.core.Mat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,11 +13,12 @@ import java.util.List;
 
 /**
  * Class used for debugging
+ * @author Thomas Porro (g1)
  */
 class IPDebug {
-    private final static String directory = Environment.getExternalStorageDirectory()+
-            "/"+Environment.DIRECTORY_PICTURES+"/ImageProcessingTest/";
     private final static String TAG = "IPDebug";
+    private final static String DIRECTORY = Environment.getExternalStorageDirectory()+
+            "/"+Environment.DIRECTORY_PICTURES+"/ImageProcessingTest/";
 
     /**
      * Class used to save a list of bitmap in a directory
@@ -27,10 +29,22 @@ class IPDebug {
         String imageName;
         for(Bitmap currentImage : bitmapList){
             imageName = "imageNumber_n"+imageNumber+".jpg";
-            saveImage(currentImage, directory+imageName);
+            saveImage(currentImage, DIRECTORY+imageName);
             imageNumber++;
         }
     }
+
+
+    /**
+     * Method used to convert and save a matrix as a image in a predefined directory
+     * @param matrix The matrix we want to save
+     * @param name The path where we want to save the image
+     */
+    static void saveMatrix (Mat matrix, String name){
+        Bitmap image = IPUtils.conversionMatToBitmap(matrix);
+        saveImage(image, DIRECTORY+name);
+    }
+
 
     /**
      * Method used to save an image in a predefined directory

@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.util.Log;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

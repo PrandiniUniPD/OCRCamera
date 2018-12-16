@@ -140,10 +140,11 @@ public class ImageProcessing implements DetectTheText {
         double maxValue = 200;
         int blockSize = 21;
         double constant = 8;
-        Imgproc.adaptiveThreshold(grayscale, threshold, maxValue, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
+        Imgproc.adaptiveThreshold(grayscale, threshold, maxValue,
+                Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blockSize, constant);
         /*
             Method used for debug
-            save(threshold, "threshold.jpg");
+            IPDebug.saveMatrix(threshold, "threshold.jpg");
         */
 
         //Detect the edges in the image
@@ -153,33 +154,33 @@ public class ImageProcessing implements DetectTheText {
         int apertureSize = 3;
         boolean l2gradient = false;
         Imgproc.Canny(threshold, canny, threshold1, threshold2, apertureSize, l2gradient);
-        //save(canny, "canny.jpg");
+        //IPDebug.saveMatrix(canny, "canny.jpg");
 
         /*
             kernelSize is the dimension of "element" matrix
             element is the matrix used for "morphologyEx" and "dilate" transformations
          */
-        Size kernelSize = new Size(20, 20);
+        Size kernelSize = new Size(13, 13);
         Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, kernelSize);
 
 
         //Fill the close edges created by "canny"
         Mat morphology = new Mat();
         Imgproc.morphologyEx(canny, morphology, Imgproc.MORPH_CLOSE, element);
-        //save(morphology, "morphology.jpg");
+        //IPDebug.saveMatrix(morphology, "morphology.jpg");
 
 
         //Smoothes the image using the median filter.
         Mat blurredMat = new Mat();
-        int ksize = 15;
+        int ksize = 13;
         Imgproc.medianBlur(morphology, blurredMat, ksize);
-        //save(blurredMat, "gaussianBlur.jpg");
+        //IPDebug.saveMatrix(blurredMat, "gaussianBlur.jpg");
 
 
         //Dilates the image
         Mat dilatated = new Mat();
         Imgproc.dilate(blurredMat, dilatated, element);
-        //save(dilatated, "dilate.jpg");
+        //IPDebug.saveMatrix(dilatated, "dilate.jpg");
 
         return dilatated;
     }
@@ -254,11 +255,12 @@ public class ImageProcessing implements DetectTheText {
     @Override
     public TextRegions detectTextRegions(Bitmap image) {
         TextAreas textContainer = new TextAreas();
-        //Turns the image in grayscale and put it in a matrix
+        //Put the image into a matrix
         Mat img = IPUtils.conversionBitmapToMat(image);
+        //Do the image Processing
         Mat filteredMat = applyFilters(img);
+        //Add each element to the TextAreas's object
         List<RotatedRect> rectanglesList = detectTextAreas(filteredMat);
-
         for(RotatedRect rectangle :  rectanglesList){
             textContainer.addRegion(rectangle);
         }
@@ -268,8 +270,13 @@ public class ImageProcessing implements DetectTheText {
     @Override
     public List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions textContainer) {
         List<Bitmap> imgTextContainer = new ArrayList<>();
+        //Put the image into a matrix
         Mat img = IPUtils.conversionBitmapToMat(image);
+        /*Modifies the number of channel of the image so the Imgproc.getRectSubPix method
+          doesn't throw an exception*/
         Imgproc.cvtColor(img, img, Imgproc.COLOR_BGRA2BGR);
+        /*For each rectangle contained in textContainer extract the rectangle and saves it
+          into a bitmap*/
         RotatedRect rectangle;
         while(textContainer.hasNext()){
             rectangle = (RotatedRect)textContainer.next();
