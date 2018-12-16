@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,27 +9,36 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.TimingLogger;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 
 /**
  * Class used for showing the result of the OCR processing
+ * @author modified by Francesco Pham
  */
 public class ResultActivity extends AppCompatActivity {
 
     //ListView of extracted ingredients
     private ListView ingredientsListView;
 
+    private ProgressBar progressBar;
+
     private final String TAG = "ResultActivity";
+
+    private String OCRText;
+
+    private CountDownLatch latch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +48,7 @@ public class ResultActivity extends AppCompatActivity {
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
+        progressBar = findViewById(R.id.progress_bar);
 
         //set on empty list view
         TextView emptyView = findViewById(R.id.empty_list);
@@ -58,33 +67,32 @@ public class ResultActivity extends AppCompatActivity {
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
-        String OCRText = prefs.getString("text", null);
+        OCRText = prefs.getString("text", null);
 
         //Bitmap of the lastPhoto saved
         Bitmap lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
-            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
-        } else {
-            Log.e("ResultActivity", "error retrieving last photo");
-        }
 
-        //Displaying the text, from OCR or preferences
-        if(OCRText != null) {
-            // Text in preferences
-            if(!OCRText.equals("")) {
-                ProgressDialog progressDialog = ProgressDialog.show(ResultActivity.this,
-                        getString(R.string.processing),
-                        getString(R.string.processing_ingredients));
-                List<Ingredient> ingredients = extractIngredients(OCRText);
-                showIngredients(ingredients);
-                progressDialog.dismiss();
+            latch = new CountDownLatch(1);
+
+            //extract ingredients
+            IngredientsExtractionThread ingredientsExtractionThread = new IngredientsExtractionThread();
+            ingredientsExtractionThread.start();
+
+            if(OCRText == null) {
+                //text from ocr
+                OcrThread ocrThread = new OcrThread(lastPhoto);
+                ocrThread.start();
             }
-        } else{
-            // text from OCR
-            executionThread inciThread = new executionThread(lastPhoto, ingredientsListView);
-            inciThread.start();
+
+            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
+
+            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
         }
+        else
+            Log.e("ResultActivity", "error retrieving last photo");
+
     }
 
     /**
@@ -121,82 +129,68 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     /**
-     * Thread that executes ocr, extract ingredients and show results
-     * @author Francesco Pham
+     * Thread for ocr text extraction and saving into preferences
+     * @author modified by Francesco Pham
      */
-    private class executionThread extends Thread{
+    private class OcrThread extends Thread{
         private Bitmap photo;
-        private ProgressDialog progressDialog;
-        ListView listView;
 
-        executionThread(Bitmap photo, ListView listView){
+        OcrThread(Bitmap photo){
             this.photo = photo;
-            this.listView = listView;
-            progressDialog = ProgressDialog.show(ResultActivity.this,
-                    getString(R.string.processing),
-                    getString(R.string.processing_ocr));
         }
 
         public void run(){
-            if(photo != null) {
-                //execute ocr
-                TextExtractor ocr = new TextExtractor();
-                String textRecognized = ocr.getTextFromImg(photo);
+            // text from OCR
+            TextExtractor ocr = new TextExtractor();
+            OCRText = ocr.getTextFromImg(photo);
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressDialog.setMessage(getString(R.string.processing_ingredients));
-                    }
-                });
-
-                //extract ingredients from ocr text
-                if(!textRecognized.equals("")){
-                    List<Ingredient> ingredients = extractIngredients(textRecognized);
-                    showIngredients(ingredients);
-                }
-
-                // Saving ocr text in the preferences
-                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("text", textRecognized);
-                editor.apply();
-            }
-            else{
-                Log.e(TAG, "photo not found");
-            }
-
-            progressDialog.dismiss();
+            // Saving ocr text in the preferences
+            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("text", OCRText);
+            editor.apply();
         }
-
-
     }
 
     /**
-     * ingredients extraction from the ocr text
-     * @param ocrText The ocr text
-     * @return List of Ingredient objects containing associated information
+     * Thread for loading of inci db, extractor inizialization,
+     * ingredients extraction from ocr text, and display into list view.
      * @author Francesco Pham
      */
-    private List<Ingredient> extractIngredients(String ocrText){
-        TimingLogger timings = new TimingLogger(TAG, "inci execution");
+    private class IngredientsExtractionThread extends Thread{
+        public void run(){
+            //load inci db and initialize ingredient extractor
+            InputStream inciDbStream = ResultActivity.this.getResources().openRawResource(R.raw.incidb);
+            List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
 
-        //load inci db and initialize ingredient extractor
-        InputStream inciDbStream = ResultActivity.this.getResources().openRawResource(R.raw.incidb);
-        List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
-        InputStream wordListStream = ResultActivity.this.getResources().openRawResource(R.raw.inciwordlist);
-        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
-        IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+            progressBar.incrementProgressBy(20);
 
-        timings.addSplit("load db");
+            InputStream wordListStream = ResultActivity.this.getResources().openRawResource(R.raw.inciwordlist);
+            TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
 
-        //find ingredients in inci db
-        final List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(ocrText);
+            progressBar.incrementProgressBy(20);
 
-        timings.addSplit("search in db");
-        timings.dumpToLog();
+            IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
 
-        return ingredients;
+            progressBar.incrementProgressBy(20);
+
+            //wait for ocr to finish
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            progressBar.incrementProgressBy(20);
+
+            //extract ingredients from ocr text
+            if(OCRText!=null && !OCRText.equals("")) {
+                List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(OCRText);
+                showIngredients(ingredients);
+            }
+
+            progressBar.incrementProgressBy(20);
+        }
     }
 
     /**
@@ -204,7 +198,7 @@ public class ResultActivity extends AppCompatActivity {
      * @param ingredients Ingredients to be displayed
      * @author Francesco Pham
      */
-    private void showIngredients(final List<Ingredient> ingredients){
+    private void showIngredients(final List<Ingredient> ingredients) {
         //show results using adapter
         runOnUiThread(new Runnable() {
             @Override

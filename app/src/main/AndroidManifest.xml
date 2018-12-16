@@ -51,11 +51,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".TestResultActivity" />
-        <activity
-            android:name=".TestAlterationsActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
-        <activity android:name=".IngredientsActivity"></activity>
         <activity android:name=".DownloadDbActivity"></activity>
         <activity android:name=".TestElementDetails"></activity>
     </application>
