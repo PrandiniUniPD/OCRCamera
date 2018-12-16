@@ -226,7 +226,7 @@ public class TestDetailsActivity extends AppCompatActivity {
                 paramsView.addRule(RelativeLayout.CENTER_HORIZONTAL);
 
                 // Adds the view
-                idBelowOf = addViewBelow(context,relativeLayout,paramsView,idBelowOf,alterationsView);
+                idBelowOf = addViewBelow(relativeLayout,paramsView,idBelowOf,alterationsView);
 
                 // Sets details if required
                 if(viewDetails) {
@@ -261,40 +261,85 @@ public class TestDetailsActivity extends AppCompatActivity {
         picView.setImageBitmap(img);
 
         // Adds the pics view (set the id to the id of that view)
-        idBelowOf = addViewBelowInAWrapContentView(context, relativeLayout, idBelowOf, picView);
+        idBelowOf = addViewBelow(relativeLayout, idBelowOf, picView);
 
-        element.getAlterationTags(alteration);
+        // Adds the alteration details
+        // Tags title
+        TextView tagsTitle = new TextView(context);
+        tagsTitle.setText(R.string.tags);
 
-        element.getAlterationRecognizedText(alteration);
+        int titlePadding = 5;
+        tagsTitle.setPadding(titlePadding,titlePadding,titlePadding,titlePadding);
 
-        element.getAlterationNotes(alteration);
+        idBelowOf = addViewBelow(relativeLayout,idBelowOf,tagsTitle);
+
+        // Tags details
+        TextView tags = new TextView(context);
+        int detailsPadding = 10;
+        // Sets the Tags text
+        StringBuilder assignedTags = new StringBuilder();
+        for(String tag: element.getAlterationTags(alteration)) {
+            assignedTags.append(tag).append(", ");
+        }
+
+        tags.setText(assignedTags.toString());
+        tags.setPadding(detailsPadding, detailsPadding, detailsPadding,detailsPadding);
+
+        idBelowOf = addViewBelow(relativeLayout,idBelowOf,tags);
+
+        // Extracted text title
+        TextView extractedTextTitle = new TextView(context);
+        extractedTextTitle.setText(R.string.extrected_text);
+
+        extractedTextTitle.setPadding(titlePadding,titlePadding,titlePadding,titlePadding);
+
+        idBelowOf = addViewBelow(relativeLayout,idBelowOf,extractedTextTitle);
+
+        // Extracted text details
+        TextView extractedText = new TextView(context);
+        extractedText.setText(element.getAlterationRecognizedText(alteration));
+        extractedText.setPadding(detailsPadding, detailsPadding, detailsPadding, detailsPadding);
+        
+        idBelowOf = addViewBelow(relativeLayout,idBelowOf,extractedText);
+
+        // Notes title
+        TextView notesTitle = new TextView(context);
+        notesTitle.setText(R.string.notes);
+
+        notesTitle.setPadding(titlePadding,titlePadding,titlePadding,titlePadding);
+
+        idBelowOf = addViewBelow(relativeLayout,idBelowOf,notesTitle);
+
+        // Notes details
+        TextView notes = new TextView(context);
+        notes.setText(element.getAlterationNotes(alteration));
+        notes.setPadding(detailsPadding, detailsPadding, detailsPadding, detailsPadding);
+
+        idBelowOf = addViewBelow(relativeLayout,idBelowOf,notes);
 
         return idBelowOf;
     }
 
     /**
      * Adds a view below with parameters set to "WRAP_CONTENT"
-     * @param context The context where would be the alterations text
      * @param relativeLayout The layout to add the text views
      * @param idBelowOf The id of the view where putting the alterations text below of
      * @param view The view to be added
      * @return The id of the view added
      * @author Pietro Prandini (g2)
      */
-    protected static int addViewBelowInAWrapContentView(Context context,
-                                                        RelativeLayout relativeLayout,
-                                                        int idBelowOf, View view) {
+    protected static int addViewBelow(RelativeLayout relativeLayout,
+                                      int idBelowOf, View view) {
         // Configures the layout parameters
         RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.WRAP_CONTENT,
             RelativeLayout.LayoutParams.WRAP_CONTENT);
 
-        return addViewBelow(context, relativeLayout, paramsView, idBelowOf,view);
+        return addViewBelow(relativeLayout, paramsView, idBelowOf,view);
     }
 
     /**
      * Adds a view below
-     * @param context The context where would be the alterations text
      * @param relativeLayout The layout to add the text views
      * @param layoutParams The parameters of the layout
      * @param idBelowOf The id of the view where putting the alterations text below of
@@ -302,7 +347,7 @@ public class TestDetailsActivity extends AppCompatActivity {
      * @return The id of the view added
      * @author Pietro Prandini (g2)
      */
-    protected static int addViewBelow(Context context, RelativeLayout relativeLayout,
+    protected static int addViewBelow(RelativeLayout relativeLayout,
                                       RelativeLayout.LayoutParams layoutParams,
                                       int idBelowOf, View view) {
         // Puts below of the id passed
