@@ -19,11 +19,11 @@ import android.widget.Toast;
  * Activity for showing the result of the tests
  * Pietro Prandini (g2)
  */
-public class TestResultActivity extends AppCompatActivity {
+public class TestsListActivity extends AppCompatActivity {
     /**
      * String used for the logs of this class
      */
-    private static final String TAG = "TestResultActivity";
+    private static final String TAG = "TestsListActivity";
 
     /**
      * The custom request code requested for permission use
@@ -163,9 +163,9 @@ public class TestResultActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    AdapterTestElement adapter =
-                            new AdapterTestElement(
-                                    TestResultActivity.this,
+                    TestsListAdapter adapter =
+                            new TestsListAdapter(
+                                    TestsListActivity.this,
                                     tester.getTestElements()
                             );
                     listEntriesView.setAdapter(adapter);
@@ -193,7 +193,7 @@ public class TestResultActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void v) {
             //add statistics author: Francesco Pham
-            TextView statsView = new TextView(TestResultActivity.this);
+            TextView statsView = new TextView(TestsListActivity.this);
             String statsText = "";
 
             statsText = tester.getTagsStatsString();
@@ -224,7 +224,7 @@ public class TestResultActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(TestResultActivity.this,
+                            Toast.makeText(TestsListActivity.this,
                                     R.string.permissions_not_granted, Toast.LENGTH_LONG).show();
                         }
                     });

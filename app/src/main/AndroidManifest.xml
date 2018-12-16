@@ -50,9 +50,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TestResultActivity" />
+        <activity android:name=".TestsListActivity" />
         <activity android:name=".DownloadDbActivity" />
-        <activity android:name=".TestElementDetails"></activity>
+        <activity android:name=".TestDetailsActivity"></activity>
     </application>
 
 </manifest>

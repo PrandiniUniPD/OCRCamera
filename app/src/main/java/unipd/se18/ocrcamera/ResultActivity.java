@@ -150,7 +150,7 @@ public class ResultActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.test:
-                Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
+                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
                 startActivity(i);
                 return true;
             case R.id.download_photos:

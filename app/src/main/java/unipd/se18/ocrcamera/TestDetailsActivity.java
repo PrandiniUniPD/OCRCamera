@@ -20,12 +20,12 @@ import java.text.DecimalFormat;
  * Prints to the screen the details of a TestElement
  * @author Pietro Prandini (g2)
  */
-public class TestElementDetails extends AppCompatActivity {
+public class TestDetailsActivity extends AppCompatActivity {
     protected static TestElement entry;
     protected static float redUntil;
     protected static float yellowUntil;
 
-    private String TAG = "TestElementDetails -> ";
+    private String TAG = "TestDetailsActivity -> ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +49,7 @@ public class TestElementDetails extends AppCompatActivity {
         ImageView analyzedPic = findViewById(R.id.pic_view);
         String imagePath = entry.getImagePath();
         Bitmap img = Utils.loadBitmapFromFile(imagePath);
-        analyzedPic.setImageBitmap(scaleBitmap(TestElementDetails.this, img));
+        analyzedPic.setImageBitmap(scaleBitmap(TestDetailsActivity.this, img));
 
         // Set the Tags text
         TextView tags = findViewById(R.id.tags_view);
@@ -77,7 +77,7 @@ public class TestElementDetails extends AppCompatActivity {
 
         // Set alterations view
         setAlterationsView(
-                TestElementDetails.this,
+                TestDetailsActivity.this,
                 (RelativeLayout) findViewById(R.id.result_view),
                 R.id.notes_view,
                 entry);
@@ -175,7 +175,7 @@ public class TestElementDetails extends AppCompatActivity {
                 float confidenceOfAlteration = entry.getAlterationConfidence(alteration);
                 alterationsText.append(alteration)
                         .append(" - confidence ")
-                        .append(TestElementDetails.formatPercentString(confidenceOfAlteration))
+                        .append(TestDetailsActivity.formatPercentString(confidenceOfAlteration))
                         .append("\n");
 
                 // Prepares the alterations TextView

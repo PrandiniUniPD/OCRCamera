@@ -14,7 +14,7 @@ import android.widget.TextView;
  * Adapter for the view of the processing result of the pics
  * @author Pietro Prandini (g2)
  */
-public class AdapterTestElement extends BaseAdapter
+public class TestsListAdapter extends BaseAdapter
 {
     /**
      * Context of the app
@@ -29,14 +29,14 @@ public class AdapterTestElement extends BaseAdapter
     /**
      * String used for the logs of this class
      */
-    private final String TAG = "AdapterTestElement";
+    private final String TAG = "TestsListAdapter -> ";
 
     /**
      * Defines an object of AdapterTestElement type
      * @param context The reference to the activity where the adapter will be used
      * @param entries The list of the test elements containing data from photos test
      */
-    AdapterTestElement(Context context, TestElement[] entries)
+    TestsListAdapter(Context context, TestElement[] entries)
     {
         this.context = context;
         this.entries = entries;
@@ -65,8 +65,8 @@ public class AdapterTestElement extends BaseAdapter
         viewDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(context, TestElementDetails.class);
-                TestElementDetails.entry = entries[position];
+                Intent i = new Intent(context, TestDetailsActivity.class);
+                TestDetailsActivity.entry = entries[position];
                 context.startActivity(i);
             }
         });
@@ -74,13 +74,13 @@ public class AdapterTestElement extends BaseAdapter
         // Set the correctness value
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entries[position].getConfidence();
-        correctness.setText(TestElementDetails.formatPercentString(confidence));
+        correctness.setText(TestDetailsActivity.formatPercentString(confidence));
 
         // Set the color of the correctness text value
-        TestElementDetails.redUntil = 70;
-        TestElementDetails.yellowUntil = 85;
-        correctness.setTextColor(TestElementDetails.chooseColorOfValue(confidence,
-                TestElementDetails.redUntil,TestElementDetails.yellowUntil));
+        TestDetailsActivity.redUntil = 70;
+        TestDetailsActivity.yellowUntil = 85;
+        correctness.setTextColor(TestDetailsActivity.chooseColorOfValue(confidence,
+                TestDetailsActivity.redUntil,TestDetailsActivity.yellowUntil));
 
         // Set the name of the pic
         TextView name = convertView.findViewById(R.id.pic_name_view);
@@ -96,7 +96,7 @@ public class AdapterTestElement extends BaseAdapter
         tags.setText(assignedTags.toString());
 
         // Set alterations view
-        TestElementDetails.setAlterationsView(
+        TestDetailsActivity.setAlterationsView(
                 context,
                 (RelativeLayout) convertView.findViewById(R.id.result_view),
                 R.id.tags_view,
