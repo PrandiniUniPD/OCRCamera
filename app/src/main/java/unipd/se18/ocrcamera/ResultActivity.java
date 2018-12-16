@@ -83,8 +83,7 @@ public class ResultActivity extends AppCompatActivity {
                 OcrThread ocrThread = new OcrThread(lastPhoto);
                 ocrThread.start();
             }
-
-            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
+            else latch.countDown();
 
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
         }
@@ -147,6 +146,8 @@ public class ResultActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("text", OCRText);
             editor.apply();
+
+            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
         }
     }
 
@@ -185,6 +186,8 @@ public class ResultActivity extends AppCompatActivity {
             if(OCRText!=null && !OCRText.equals("")) {
                 List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(OCRText);
                 if(ingredients.size() != 0) showIngredients(ingredients);
+            }else{
+                Log.d(TAG, "Text not found");
             }
 
             progressBar.incrementProgressBy(20);
