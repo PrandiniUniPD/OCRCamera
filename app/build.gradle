@@ -49,5 +49,9 @@ dependencies {
 
     //FTP dependencies
     implementation 'commons-net:commons-net:3.6'
+
+    //Image cropper dependencies
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.5.+'
+
 }
 apply plugin: 'com.google.gms.google-services'

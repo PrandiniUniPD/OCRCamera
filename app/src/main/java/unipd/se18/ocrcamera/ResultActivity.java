@@ -7,9 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -18,15 +18,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 /**
  * Class used for showing the result of the OCR processing
  */
 public class ResultActivity extends AppCompatActivity {
+
+    private static String TAG = "ResultActivity";
 
     /**
      * The TextView of the extracted test from the captured photo.
@@ -38,15 +39,32 @@ public class ResultActivity extends AppCompatActivity {
      */
     private Bitmap lastPhoto;
 
+    CropImageView mCropImageView;
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
         // UI components
-        ImageView mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
+        mCropImageView = findViewById(R.id.cropImageView);
+
+        mCropImageView.setMultiTouchEnabled(true);
+
+        //OnCropOverlayReleased will be called when the user release the finger from the mCropImageView
+        //on any finger release i run again the OCR
+        mCropImageView.setOnSetCropOverlayReleasedListener(new CropImageView.OnSetCropOverlayReleasedListener() {
+            @Override
+            public void onCropOverlayReleased(Rect rect) {
+                Bitmap croppedBitmap = mCropImageView.getCroppedImage();
+
+                //get text from OCR
+                new AsyncOCRExecute().execute(croppedBitmap);
+            }
+        });
 
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -65,7 +83,8 @@ public class ResultActivity extends AppCompatActivity {
         lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
-            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
+            mCropImageView.setImageBitmap(lastPhoto);
+
         } else {
             Log.e("ResultActivity", "error retrieving last photo");
         }
@@ -117,6 +136,9 @@ public class ResultActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
+
 
     /**
      * Execute a task and post the result on the TextView given on construction
@@ -182,6 +204,58 @@ public class ResultActivity extends AppCompatActivity {
             progressDialog = ProgressDialog.show(ResultActivity.this,
                     progressMessage,
                     "");
+        }
+    }
+
+    /**
+     * Class used to run async OCR and update the UI
+     * @author Luca Moroldo
+     */
+    private class AsyncOCRExecute extends AsyncTask<Bitmap, Void, String> {
+
+        public AsyncOCRExecute() {
+            super();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mOCRTextView.setText("Calculating..");
+                }
+            });
+
+        }
+
+        @Override
+        protected String doInBackground(Bitmap... bitmaps) {
+            TextExtractor ocr = new TextExtractor();
+            return ocr.getTextFromImg(bitmaps[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            final String finalText;
+            if(s.equals("")) {
+                finalText = getString(R.string.no_text_found);
+            } else {
+                finalText = s;
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mOCRTextView.setText(finalText);
+                }
+            });
+
+
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            Log.i(TAG, "Task cancelled");
         }
     }
 }
