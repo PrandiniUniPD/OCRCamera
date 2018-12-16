@@ -83,7 +83,7 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
 
         //split the text by each comma or dot
         text = text.toUpperCase();
-        String[] splittedText = text.trim().split("[,.]+");
+        String[] splittedText = text.trim().split("[,.:]+");
 
         //for every splitted text inside the ocr text search for the most similar in the inci db
         for (String str : splittedText) {
