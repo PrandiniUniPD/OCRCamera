@@ -80,13 +80,12 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
             }
         }.start();
 
-        if (progress==20)
-        {
+        //aggiorno libreria
             imageGrid.setAdapter(new ImageAdapter(this, bitmapList));
         }
     }
 
-}
+
 
 
 
