@@ -198,7 +198,7 @@ public class GalleryManager
      */
     private static String saveToFile(Bitmap toStore, String name) throws IOException
     {
-        File image = new File(PATH, name);
+        File image = new File(PATH, name+".jpg");
 
         OutputStream outStream = new FileOutputStream(image);
         toStore.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
