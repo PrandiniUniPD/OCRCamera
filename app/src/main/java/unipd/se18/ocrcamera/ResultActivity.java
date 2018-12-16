@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -158,19 +159,25 @@ public class ResultActivity extends AppCompatActivity {
      */
     private class IngredientsExtractionThread extends Thread{
         public void run(){
+
+            TimingLogger timings = new TimingLogger(TAG, "Ingredients extraction times"); //just for testing
+
             //load inci db and initialize ingredient extractor
             InputStream inciDbStream = ResultActivity.this.getResources().openRawResource(R.raw.incidb);
             List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
 
+            timings.addSplit("load csv");
             progressBar.incrementProgressBy(20);
 
             InputStream wordListStream = ResultActivity.this.getResources().openRawResource(R.raw.inciwordlist);
             TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
 
+            timings.addSplit("load text corrector");
             progressBar.incrementProgressBy(20);
 
             IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
 
+            timings.addSplit("load ingredients extractor");
             progressBar.incrementProgressBy(20);
 
             //wait for ocr to finish
@@ -180,6 +187,7 @@ public class ResultActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            timings.addSplit("waiting for ocr to finish");
             progressBar.incrementProgressBy(20);
 
             //extract ingredients from ocr text
@@ -190,7 +198,10 @@ public class ResultActivity extends AppCompatActivity {
                 Log.d(TAG, "Text not found");
             }
 
+            timings.addSplit("extract ingredients");
             progressBar.incrementProgressBy(20);
+
+            timings.dumpToLog();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

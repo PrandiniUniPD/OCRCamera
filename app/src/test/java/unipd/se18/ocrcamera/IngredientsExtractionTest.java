@@ -100,5 +100,10 @@ public class IngredientsExtractionTest {
         text = "some more text...DiSsODLUM TEtraMETH -  \n  YLHEADECENVL  \nSUOCINOYL\nCYSTEINEblabla";
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("92137", extractedIngredients.get(0).getCosingRefNo());
+
+        //test of whitespaces before and after slash
+        text = "ALPINIA SPECIOSA FLOWER   /  LEAF   /SEED/   STEM EXTRACT";
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals("89745", extractedIngredients.get(0).getCosingRefNo());
     }
 }

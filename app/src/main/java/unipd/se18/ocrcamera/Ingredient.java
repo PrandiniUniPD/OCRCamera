@@ -88,7 +88,13 @@ public class Ingredient implements Comparable<String> {
     }
 
     public void setInciName(String inciName) {
-        this.inciName = inciName.trim();
+        //remove trailing and leading spaces
+        inciName = inciName.trim();
+
+        //ignore whitespaces before and after slash (this increases loading time by 0.7s,
+        //we should rewrite all csv instead of doing this here)
+        inciName = inciName.replaceAll(" */ *", "/");
+        this.inciName = inciName;
     }
 
     public void setInnName(String innName) {
