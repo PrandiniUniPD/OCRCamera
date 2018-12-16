@@ -27,6 +27,8 @@ public class Ingredient implements Comparable<String> {
 
     private String updateDate;
 
+    private String strippedInciName;
+
 
     Ingredient() {
         this.cosingRefNo = "";
@@ -82,18 +84,17 @@ public class Ingredient implements Comparable<String> {
         return updateDate;
     }
 
+    public String getStrippedInciName() {
+        return strippedInciName;
+    }
+
     //SETTERS
     public void setCosingRefNo(String cosingRefNo) {
         this.cosingRefNo = cosingRefNo;
     }
 
     public void setInciName(String inciName) {
-        //remove trailing and leading spaces
-        inciName = inciName.trim();
-
-        //ignore whitespaces before and after slash (this increases loading time by 0.7s,
-        //we should rewrite all csv instead of doing this here)
-        inciName = inciName.replaceAll(" */ *", "/");
+        setStrippedInciName(inciName);
         this.inciName = inciName;
     }
 
@@ -132,5 +133,10 @@ public class Ingredient implements Comparable<String> {
     @Override
     public int compareTo(String o) {
         return getInciName().compareToIgnoreCase(o);
+    }
+
+    //this method removes all non alphanumeric characters
+    private void setStrippedInciName(String name){
+        this.strippedInciName = name.replaceAll("[^A-Za-z0-9]", "");
     }
 }

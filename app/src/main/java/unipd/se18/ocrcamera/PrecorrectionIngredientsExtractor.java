@@ -55,9 +55,12 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
         //text correction
         text = corrector.correctText(text);
 
+        //ignore non alphanumeric characters from text
+        text = text.replaceAll("[^A-Za-z0-9]", "");
+
         //for each inci ingredient check if it is contained in the text
         for(Ingredient ingredient : listIngredients){
-            if(text.contains(ingredient.getInciName())){
+            if(text.contains(ingredient.getStrippedInciName())){
                 foundIngredients.add(ingredient);
                 text = text.replace(ingredient.getInciName(), "");  //remove the ingredient from text
             }
