@@ -59,6 +59,8 @@ public class GalleryManager
     private static final int widthSizeCard= 400;
     private static final int heightSizeCard = 400;
 
+    private static PhotoStructure deletedImage;
+
     /**
      * Loads images and metadata
      * @param context The reference to the activity where the gallery is displayed
@@ -126,7 +128,7 @@ public class GalleryManager
 
 
     /**
-     * Stores image and metadata
+     * Method to delete the photo file from the storage
      * @param photoToDelete photo that I want to delete
      * @throws IOException if an error occurs during deletaion
      * @author Romanello Stefano
@@ -134,8 +136,9 @@ public class GalleryManager
     public static void deleteImage(PhotoStructure photoToDelete) throws IOException
     {
         File photoFile = new File(photoToDelete.fileImagePath);
-        if(!photoFile.delete())
-            throw new IOException();
+        /*if(!photoFile.delete())
+            throw new IOException();*/
+        deletedImage=photoToDelete;
     }
 
     /**
@@ -347,13 +350,24 @@ public class GalleryManager
         }
 
         /**
-         * Return the card Position containing the given PhotoStructure (useful for remove the card)
-         * @param photoToRemove of the item that I want to remove
+         * Return the card Position of the deleted Image containing the given PhotoStructure (useful for remove the card)
          * @return the integer position of the card
          */
-        public int getPhotoPosition(PhotoStructure photoToRemove)
+        public int getDeletedPhotoPosition()
         {
-            return photosList.indexOf(photoToRemove);
+            if(deletedImage==null)
+            {
+                //Return -1 because in this way I notify that nothing has been deleted.
+                return -1;
+            }
+            else
+            {
+                //If I dont set deletedImage=null every time I check in GalleryActivity if an item has been deleted
+                //I always get the same item to remove even if I've already deleted it
+                int position = photosList.indexOf(deletedImage);
+                deletedImage=null;
+                return position;
+            }
         }
 
         /**

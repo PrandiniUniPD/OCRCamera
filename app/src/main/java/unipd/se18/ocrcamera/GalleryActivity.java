@@ -149,14 +149,17 @@ public class GalleryActivity extends AppCompatActivity {
             //If the answer is yes I have to remove the item from the recycleView
             if(!hidden)
             {
-                //When I delete something from the DetailsFragment I set
-                //the deleteActionOccur with the object that I've deleted
-                if(DetailFragment.deleteActionOccur!=null)
+                //When I delete something from the DetailsFragment using the method GalleryManager.deleteImage(photoInfos);
+                //I set in the GalleryManager an object containing the PhotoStructure to delete.
+                //Calling .getDeletedPhotoPosition() I check if the object is null, if not I return the position of
+                //the PhotoStructure to delete
+
+                int deletedPosition=cardAdapter.getDeletedPhotoPosition();
+                if(deletedPosition!=-1)
                 {
                     //have to remove the photo from the recycler
-                    int cardPosition = cardAdapter.getPhotoPosition(DetailFragment.deleteActionOccur);
-                    cardAdapter.photosList.remove(cardPosition);
-                    cardAdapter.notifyItemRemoved(cardPosition);
+                    cardAdapter.photosList.remove(deletedPosition);
+                    cardAdapter.notifyItemRemoved(deletedPosition);
                 }
 
                 //Restore the actionBar
@@ -175,12 +178,8 @@ public class GalleryActivity extends AppCompatActivity {
      */
     public static class DetailFragment extends Fragment
     {
+        //Object used to store the photo that I want to load.
         private GalleryManager.PhotoStructure photoInfos;
-
-        //this variable is used for undersend if I've deleted something when I close the DetailFragment
-        //if this variable is null I didn't delete anything
-        //If this variable is not null the value of the variable is the image (card) that I have to remove
-        public static GalleryManager.PhotoStructure deleteActionOccur=null;
 
         /**
          * Event triggered once everything in the activity have finished loading
@@ -194,9 +193,6 @@ public class GalleryActivity extends AppCompatActivity {
             actionBar.setTitle(R.string.galleryDetailsFragmentTitle);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
-
-            //When I load the fragment I always set the delete action to false. (Safety precaution)
-            deleteActionOccur=null;
         }
 
         /**
@@ -271,9 +267,6 @@ public class GalleryActivity extends AppCompatActivity {
         private void deleteCurrentPhoto()
         {
             try {
-                //Notify the MainFragment that I have deleted something and that he need to remove the card
-                deleteActionOccur=photoInfos;
-
                 //Delete the actual image
                 GalleryManager.deleteImage(photoInfos);
 
