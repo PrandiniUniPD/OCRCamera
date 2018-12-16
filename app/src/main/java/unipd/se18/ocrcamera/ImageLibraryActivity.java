@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                         Toast.LENGTH_SHORT).show();
             }
         });
-    // thread che carica immagini in bitmapList
+    // thread that load images in the bitmapList
         new Thread() {
             public void run()
             {
@@ -80,7 +80,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
             }
         }.start();
 
-        //aggiorno libreria
+        //update gridView (NEED METHOD TO COMUNICATE WITH THREAD)
             imageGrid.setAdapter(new ImageAdapter(this, bitmapList));
         }
     }
