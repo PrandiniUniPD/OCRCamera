@@ -221,14 +221,12 @@ public class TestDetailsActivity extends AppCompatActivity {
                 RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
                         RelativeLayout.LayoutParams.WRAP_CONTENT,
                         RelativeLayout.LayoutParams.WRAP_CONTENT);
-                paramsView.addRule(RelativeLayout.BELOW, idBelowOf);
+
+                // View horizontally centered
                 paramsView.addRule(RelativeLayout.CENTER_HORIZONTAL);
 
-                relativeLayout.addView(alterationsView, paramsView);
-
-                // Sets an appropriate id
-                alterationsView.setId(View.generateViewId());
-                idBelowOf = alterationsView.getId();
+                // Adds the view
+                idBelowOf = addViewBelow(context,relativeLayout,paramsView,idBelowOf,alterationsView);
 
                 // Sets details if required
                 if(viewDetails) {
@@ -255,12 +253,6 @@ public class TestDetailsActivity extends AppCompatActivity {
      */
     protected static int viewAlterationDetails(Context context, RelativeLayout relativeLayout,
                                         int idBelowOf, TestElement element, String alteration) {
-        // Prepares the layout
-        RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        paramsView.addRule(RelativeLayout.BELOW, idBelowOf);
-        paramsView.addRule(RelativeLayout.CENTER_HORIZONTAL);
 
         // Obtains the altered pic
         String imagePath = element.getAlterationImagePath(alteration);
@@ -268,13 +260,60 @@ public class TestDetailsActivity extends AppCompatActivity {
         ImageView picView = new ImageView(context);
         picView.setImageBitmap(img);
 
-        // Adds the pic view
-        relativeLayout.addView(picView,paramsView);
+        // Adds the pics view (set the id to the id of that view)
+        idBelowOf = addViewBelowInAWrapContentView(context, relativeLayout, idBelowOf, picView);
 
-        // Sets an appropriate id
-        picView.setId(View.generateViewId());
-        idBelowOf = picView.getId();
+        element.getAlterationTags(alteration);
 
+        element.getAlterationRecognizedText(alteration);
+
+        element.getAlterationNotes(alteration);
+
+        return idBelowOf;
+    }
+
+    /**
+     * Adds a view below with parameters set to "WRAP_CONTENT"
+     * @param context The context where would be the alterations text
+     * @param relativeLayout The layout to add the text views
+     * @param idBelowOf The id of the view where putting the alterations text below of
+     * @param view The view to be added
+     * @return The id of the view added
+     * @author Pietro Prandini (g2)
+     */
+    protected static int addViewBelowInAWrapContentView(Context context,
+                                                        RelativeLayout relativeLayout,
+                                                        int idBelowOf, View view) {
+        // Configures the layout parameters
+        RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.WRAP_CONTENT,
+            RelativeLayout.LayoutParams.WRAP_CONTENT);
+
+        return addViewBelow(context, relativeLayout, paramsView, idBelowOf,view);
+    }
+
+    /**
+     * Adds a view below
+     * @param context The context where would be the alterations text
+     * @param relativeLayout The layout to add the text views
+     * @param layoutParams The parameters of the layout
+     * @param idBelowOf The id of the view where putting the alterations text below of
+     * @param view The view to be added
+     * @return The id of the view added
+     * @author Pietro Prandini (g2)
+     */
+    protected static int addViewBelow(Context context, RelativeLayout relativeLayout,
+                                      RelativeLayout.LayoutParams layoutParams,
+                                      int idBelowOf, View view) {
+        // Puts below of the id passed
+        layoutParams.addRule(RelativeLayout.BELOW, idBelowOf);
+
+        // Adds the view
+        relativeLayout.addView(view,layoutParams);
+
+        // Sets the appropriate id
+        view.setId(View.generateViewId());
+        idBelowOf = view.getId();
         return idBelowOf;
     }
 }
