@@ -5,4 +5,7 @@
     <item android:id="@+id/gallery"
         android:title="Galleria"
         />
+    <item
+        android:id="@+id/blurtesting"
+        android:title="BlurTesting" />
 </menu>

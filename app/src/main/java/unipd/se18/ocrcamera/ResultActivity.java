@@ -121,6 +121,9 @@ public class ResultActivity extends AppCompatActivity {
             case R.id.gallery:
                 Intent galleryintent = new Intent(ResultActivity.this,ImageLibraryActivity.class);
                 startActivity(galleryintent);
+            case R.id.blurtesting:
+                Intent blurintent = new Intent(ResultActivity.this, BlurCalculatioAllImages.class);
+                startActivity(blurintent);
             default:
                 return super.onOptionsItemSelected(item);
         }

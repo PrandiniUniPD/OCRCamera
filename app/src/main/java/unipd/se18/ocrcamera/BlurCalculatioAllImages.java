@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +25,11 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/OCRCameraDB";
     ArrayList list = new ArrayList<Double>();
 
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -31,7 +38,8 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         File path = new File(PHOTOS_FOLDER);
         String[] fileNames = path.list();
-        for (int i = 0; i < 80; i++) {
+
+    /**    for (int i = 0; i < 10; i++) {
             try {
                 File f = new File(PHOTOS_FOLDER, fileNames[i]);
                 Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));
@@ -41,9 +49,26 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+*/
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        // specify an adapter (see also next example)
+        mAdapter = new MyAdapter(fileNames);
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
+
     }
 
 
 
 
-}
+
