@@ -24,14 +24,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import info.debatty.java.stringsimilarity.*;
 import unipd.se18.ocrcamera.recognizer.OCR;
 import unipd.se18.ocrcamera.recognizer.OCRListener;
 import unipd.se18.ocrcamera.recognizer.TextRecognizer;
-import info.debatty.java.stringsimilarity.CharacterSubstitutionInterface;
-import info.debatty.java.stringsimilarity.WeightedLevenshtein;
-
-import static java.lang.Float.NaN;
 
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
@@ -39,8 +34,6 @@ import static java.lang.Float.NaN;
  * @author Luca Moroldo (g3) - Francesco Pham (g3)
  */
 public class PhotoTester {
-
-    private Context context;
 
     private static final String TAG = "PhotoTester";
 
@@ -68,9 +61,15 @@ public class PhotoTester {
 
     private String report;
 
+
+
+
     //ingredients extractors (Francesco Pham)
+    private Context context;
     private IngredientsExtractor ocrIngredientsExtractor;
     private IngredientsExtractor correctIngredientsExtractor;
+
+
 
 
 
@@ -81,6 +80,7 @@ public class PhotoTester {
      */
     public PhotoTester(Context context, String dirPath) {
         this.context = context;
+
 
         File directory = getStorageDir(dirPath);
         this.dirPath = directory.getPath();
@@ -169,6 +169,8 @@ public class PhotoTester {
 
         final JSONObject fullJsonReport = new JSONObject();
 
+
+
         //load inci db and initialize ingredient extractor (Francesco Pham)
         InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
         List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
@@ -176,6 +178,8 @@ public class PhotoTester {
         TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
         ocrIngredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
+
+
 
 
         //countDownLatch allows to sync this thread with the end of all the single tests
@@ -284,6 +288,7 @@ public class PhotoTester {
 
         LevenshteinStringDistance stringComparator = new LevenshteinStringDistance();
 
+
         //for each correct word
         for (String word : correctWords) {
             boolean found = false;
@@ -297,6 +302,7 @@ public class PhotoTester {
                     //for each extracted words starting from posLastWordFound
                     index = (posLastWordFound + i) % extractedWords.length;
 
+
                     double similarity = stringComparator.getNormalizedSimilarity(word, extractedWords[index]);
 
                     //if similarity grater than similarityThreshold the word is found
@@ -307,7 +313,7 @@ public class PhotoTester {
                             //if word found is distant from posLastWordFound the ocr text isn't ordered, less points
                             points += (float) word.length()*similarity/2;
                         }
-                        Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
+                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
                         extractedWords[index] = ""; //remove found word
                         found = true;
                     }
@@ -324,7 +330,7 @@ public class PhotoTester {
                         } else {
                             points += (float)word.length()/2;
                         }
-                        Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[index] + "\"");
+                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[index] + "\"");
                         extractedWords[index] = extractedWords[index].replace(word, ""); //remove found word
                         found = true;
                     }
@@ -339,11 +345,10 @@ public class PhotoTester {
             }
         }
         float confidence = (points / maxPoints)*100;
+        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
 
         //I found a test where the function returned NaN (the correct ingredient text was '-') - Luca Moroldo
         if(Float.isNaN(confidence)) confidence = 0;
-
-        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
 
         return confidence;
 
@@ -378,126 +383,94 @@ public class PhotoTester {
         }
     }
 
+
     /**
-     * Class used to run a single test
-     * @author Luca Moroldo (g3) - Pietro Prandini (g2) - modified by Francesco Pham (g3)
+     *
+     * @param bitmap from which the text is extracted
+     * @return String - the text extracted
      */
-    public class RunnableTest implements Runnable {
-        /**
-         * Element of test to be analyzed
-         */
-        private TestElement test;
+    private String executeOcr(Bitmap bitmap) {
 
-        /**
-         * Report to be generated
-         */
-        private JSONObject jsonReport;
+        final CountDownLatch waitForExtraction = new CountDownLatch(1);
 
-        /**
-         * Synchronization construct for synchronizing with the other test threads
-         */
-        private CountDownLatch countDownLatch;
+        final String[] recognizedText = new String[1];
 
-        /**
-         * String where putting the correctIngredients provided by the database
-         */
-        private String correctIngredients;
 
-        /**
-         * Start runnable time variable
-         */
-        private long started;
-
-        /**
-         * Stop runnable time variable
-         */
-        private long ended;
-
-        /**
-         * Number of alterations to be processed
-         */
-        private int alterations;
-
-        /**
-         * Counter for the alterations analyzed
-         */
-        private int alterationsAnalyzed;
-
-        /**
-         * Object useful for synchronize critical statements
-         * (such as the increment of alterationsAnalyzed variable)
-         */
-        private final Object lock = new Object();
-
-        /**
-         * Listener used by the OCR process
-         */
-        OCRListener testOCRListener = new OCRListener() {
+        final OCRListener ocrTextListener = new OCRListener() {
             @Override
             public void onTextRecognized(String text) {
-                // Process has got success -> processes the result
-                setTestResult(text);
+                waitForExtraction.countDown();
+                recognizedText[0] = text;
             }
 
             @Override
             public void onTextRecognizedError(int code) {
-                // Process hasn't got success -> notifies to the result
-                String errorText = R.string.extraction_error
-                        + " (" + R.string.error_code + code + ")";
-                setTestResult(errorText);
+                waitForExtraction.countDown();
+                String errorText = R.string.extraction_error + " " + R.string.error_code + ")";
+                recognizedText[0] = errorText;
             }
         };
+        OCR ocrTextProcess = TextRecognizer.getTextRecognizer(TextRecognizer.Recognizer.mlKit, ocrTextListener);
+        ocrTextProcess.getTextFromImg(bitmap);
+
+        try {
+            waitForExtraction.await();
+        } catch (InterruptedException e) {
+            Log.i(TAG, "Extraction interrupted");
+        }
+
+        return recognizedText[0];
+
+    }
+
+
+    /**
+     * Class used to run a single test
+     * @author Luca Moroldo (g3)
+     */
+    public class RunnableTest implements Runnable {
+        private TestElement test;
+        private JSONObject jsonReport;
+        private CountDownLatch countDownLatch;
 
         /**
          * @param jsonReport JSONObject containing tests data
          * @param test element of a test - must contain an image path and ingredients fields
          * @param countDownLatch used to signal the task completion
          */
-        RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
+        public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
             this.jsonReport = jsonReport;
             this.test = test;
             this.countDownLatch = countDownLatch;
-            this.alterationsAnalyzed = 0;
         }
 
         @Override
         public void run() {
-            // Starts the runnable test
-            started = java.lang.System.currentTimeMillis();
+
             Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
+            long started = java.lang.System.currentTimeMillis();
 
-            // Retrieves the ingredients provided by the database
-            correctIngredients = test.getIngredients();
 
-            // Instance of the OCR object
-            OCR ocrTestProcess = TextRecognizer.getTextRecognizer(
-                    TextRecognizer.Recognizer.mlKit,
-                    testOCRListener
-            );
-
-            // Retrieves the test pic
+            //evaluate text extraction confidence
             String imagePath = test.getImagePath();
             Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
 
-            // Launches the text extracting process
-            ocrTestProcess.getTextFromImg(testBitmap);
-        }
 
-        /**
-         * Sets the Test result
-         * @param ocrText The extracted text from the OCR process
-         */
-        private void setTestResult(String ocrText) {
-            // Compares the text provided by the database and the text extracted
+
+
+
+            String ocrText = executeOcr(testBitmap);
+
+            String correctIngredients = test.getIngredients();
             float confidence = ingredientsTextComparison(correctIngredients, ocrText);
 
-            //inserts results in the test element
+            //insert results in test
             test.setConfidence(confidence);
             test.setRecognizedText(ocrText);
 
             //extract ingredients from ocr text and from correctIngredientsText (Francesco Pham)
             List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
-            List<Ingredient> correctIngredients = correctIngredientsExtractor.findListIngredients(test.getIngredients());
+            List<Ingredient> correctListIngredients = correctIngredientsExtractor.findListIngredients(ocrText);
 
             //sort alphabetically (Francesco Pham)
             Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
@@ -507,7 +480,7 @@ public class PhotoTester {
                 }
             };
             Collections.sort(extractedIngredients,cmp);
-            Collections.sort(correctIngredients, cmp);
+            Collections.sort(correctListIngredients, cmp);
 
             StringBuilder extractionReport = new StringBuilder();
             extractionReport.append("Extracted: ");
@@ -518,7 +491,7 @@ public class PhotoTester {
             }
 
             extractionReport.append("Correct: ");
-            iterator = correctIngredients.iterator();
+            iterator = correctListIngredients.iterator();
             while(iterator.hasNext()){
                 extractionReport.append(iterator.next().getInciName());
                 extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
@@ -527,7 +500,7 @@ public class PhotoTester {
 
             //compare extracted ingredients with correct ingredients (Francesco Pham)
             int nCorrectExtractedIngreds = 0;
-            for(Ingredient correct : correctIngredients){
+            for(Ingredient correct : correctListIngredients){
                 iterator = extractedIngredients.iterator();
                 while(iterator.hasNext()){
                     if(iterator.next().getCosingRefNo().equalsIgnoreCase(correct.getCosingRefNo())) {
@@ -539,7 +512,7 @@ public class PhotoTester {
 
             //make ingredients extraction report (Francesco Pham)
             int nWrongExtractedIngreds = extractedIngredients.size();
-            float percent = (float)100*nCorrectExtractedIngreds / correctIngredients.size();
+            float percent = (float)100*nCorrectExtractedIngreds / correctListIngredients.size();
             if(Float.isNaN(percent)) percent = 0;
             test.setPercentCorrectIngredients(percent);
             String percentCorrectIngreds = String.format("%.2f",percent);
@@ -550,129 +523,45 @@ public class PhotoTester {
 
             test.setIngredientsExtraction(extractionReport.toString());
 
-
-            // evaluates alterations if any
+            //evaluate alterations if any
             String[] alterationsFileNames = test.getAlterationsNames();
             if(alterationsFileNames != null) {
-                // Sets the number of alterations
-                alterations = alterationsFileNames.length;
-
-                // Processes the alterations
                 for(String alterationFilename : alterationsFileNames) {
-                    analyzeAlteration(alterationFilename);
-                }
-            } else {
-                // No alterations -> TestElement analyzing completed
-                closingTest();
-            }
-        }
 
-        /**
-         * Analyzes an alteration
-         * @param alterationFilename The filename of the alteration to be analyzed
-         */
-        private void analyzeAlteration(final String alterationFilename) {
-            // Gets the alterations pic
-            String alterationImagePath = test.getAlterationImagePath(alterationFilename);
-            Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationImagePath);
+                    String alterationImagePath = test.getAlterationImagePath(alterationFilename);
+                    Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationImagePath);
 
-            // Listener useful to notify the alteration processing completed
-            final TestListener alterationResultListener = new TestListener() {
-                @Override
-                public void onTestFinished() {
-                    // not useful in this case
-                }
-
-                @Override
-                public void onAlterationAnalyzed() {
-                    synchronized (lock) {
-                        // +1 alteration analyzed
-                        alterationsAnalyzed += 1;
-
-                        // Check if all the alterations is analyzed
-                        if(alterations == alterationsAnalyzed) {
-                            // All the alterations is analyzed -> closes the test
-                            closingTest();
-                        }
+                    String alterationExtractedIngredients = "";
+                    if(alterationBitmap != null) {
+                        alterationExtractedIngredients = executeOcr(alterationBitmap);
                     }
-                }
-            };
+                    float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
 
-            // Listener useful for analyzing the alteration
-            final OCRListener alterationListener = new OCRListener() {
-                @Override
-                public void onTextRecognized(String text) {
-                    // Alteration correctly analyzed
-                    setAlterationsResult(alterationFilename,text,alterationResultListener);
+                    //insert evaluation
+                    test.setAlterationConfidence(alterationFilename, alterationConfidence);
+                    test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
                 }
-
-                @Override
-                public void onTextRecognizedError(int code) {
-                    // Error during the alteration analyzing
-                    String errorText = R.string.extraction_error
-                            + " (" + R.string.error_code + code + ")";
-                    setAlterationsResult(alterationFilename,errorText,alterationResultListener);
-                }
-            };
-
-            // Analyze the alteration pic if it's correctly retrieved
-            if(alterationBitmap != null) {
-                OCR ocrAlterationsProcess = TextRecognizer.getTextRecognizer(
-                        TextRecognizer.Recognizer.mlKit,
-                        alterationListener
-                );
-                ocrAlterationsProcess.getTextFromImg(alterationBitmap);
             }
-        }
 
-        /**
-         * Sets the alterations result
-         * @param alterationFilename Filename of the alteration analyzed
-         * @param alterationExtractedIngredients Extracted ingredients
-         * @param alterationResultListener Listener used to synchronize the analyzing process
-         */
-        private void setAlterationsResult(String alterationFilename,
-                                          String alterationExtractedIngredients,
-                                          TestListener alterationResultListener) {
-            // Compares the text provided by the database and the text extracted
-            float alterationConfidence = ingredientsTextComparison(
-                    correctIngredients,
-                    alterationExtractedIngredients
-            );
 
-            // Inserts evaluation
-            test.setAlterationConfidence(alterationFilename, alterationConfidence);
-            test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
-            alterationResultListener.onAlterationAnalyzed();
-        }
-
-        /**
-         * Closes the analyzing process
-         */
-        private void closingTest() {
-            // Adds the test element to the report
             try {
                 addTestElement(jsonReport, test);
             } catch (JSONException e) {
-                Log.e(TAG, "Failed to add test element '" + test.getFileName()
-                        + " to json report");
+                Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
             }
-
-            //signals the end of this single test
-            countDownLatch.countDown();
 
             //if the listener has been set then call onTestFinished function
             if(testListener != null) {
-                synchronized (lock) {
+                synchronized (testListener) {
                     testListener.onTestFinished();
                 }
 
             }
-            // Closing log
-            ended = java.lang.System.currentTimeMillis();
-            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId()
-                    + "\" ended (runned for " + (ended - started) + " ms)");
 
+            //signal the end of this single test
+            countDownLatch.countDown();
+            long ended = java.lang.System.currentTimeMillis();
+            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
         }
     }
 
@@ -685,8 +574,7 @@ public class PhotoTester {
     }
 
     /**
-     * Add a single TestElement associated JSONReport inside the JSONObject jsonReport,
-     * multi-thread safe
+     * Add a single TestElement associated JSONReport inside the JSONObject jsonReport, multi-thread safe
      * @param jsonReport the report containing tests in JSON format
      * @param test element of a test
      * @modify jsonReport
@@ -698,9 +586,9 @@ public class PhotoTester {
     }
 
     /**
-    * Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
-    * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
-    */
+     * Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
+     * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
+     */
     private HashMap getTagsStats() {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
