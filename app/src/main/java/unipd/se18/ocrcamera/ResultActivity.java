@@ -50,8 +50,8 @@ public class ResultActivity extends AppCompatActivity {
         // UI components
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
-        mCropImageView = findViewById(R.id.cropImageView);
 
+        mCropImageView = findViewById(R.id.cropImageView);
         mCropImageView.setMultiTouchEnabled(true);
 
         //OnCropOverlayReleased will be called when the user release the finger from the mCropImageView
@@ -60,11 +60,13 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void onCropOverlayReleased(Rect rect) {
                 Bitmap croppedBitmap = mCropImageView.getCroppedImage();
-
                 //get text from OCR
-                new AsyncOCRExecute().execute(croppedBitmap);
+                AsyncOCRExecute asyncOCRExecute = new AsyncOCRExecute();
+                asyncOCRExecute.execute(croppedBitmap);
             }
         });
+
+
 
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -79,10 +81,10 @@ public class ResultActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
         String OCRText = prefs.getString("text", null);
-
         lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
+
             mCropImageView.setImageBitmap(lastPhoto);
 
         } else {
@@ -211,10 +213,33 @@ public class ResultActivity extends AppCompatActivity {
      * Class used to run async OCR and update the UI
      * @author Luca Moroldo
      */
+    @SuppressLint("StaticFieldLeak")
     private class AsyncOCRExecute extends AsyncTask<Bitmap, Void, String> {
 
+        private String progressDialogMessage;
+        private String progressDialogTitle;
+        private boolean isProgressDialogVisible;
+        private ProgressDialog progressDialog;
         public AsyncOCRExecute() {
             super();
+        }
+        public AsyncOCRExecute(String progressDialogTitle, String progressDialogMessage) {
+            this.progressDialogTitle = progressDialogTitle;
+            this.progressDialogMessage = progressDialogMessage;
+        }
+
+        public void setProgressBarVisibility(boolean visibility) {
+            if(progressDialogMessage == null)
+                isProgressDialogVisible = false;
+            else
+                isProgressDialogVisible = visibility;
+        }
+
+        public void setProgressBarMessage(String message) {
+            this.progressDialogMessage = message;
+        }
+        public void setProgressBarTitle(String title) {
+            this.progressDialogTitle = title;
         }
 
         @Override
@@ -225,6 +250,13 @@ public class ResultActivity extends AppCompatActivity {
                     mOCRTextView.setText("Calculating..");
                 }
             });
+            if(isProgressDialogVisible) {
+                progressDialog = ProgressDialog.show(
+                        getApplicationContext(),
+                        progressDialogTitle,
+                        progressDialogMessage
+                );
+            }
 
         }
 
@@ -249,13 +281,11 @@ public class ResultActivity extends AppCompatActivity {
                 }
             });
 
+            if(isProgressDialogVisible) {
+                progressDialog.dismiss();
+            }
 
-        }
 
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-            Log.i(TAG, "Task cancelled");
         }
     }
 }

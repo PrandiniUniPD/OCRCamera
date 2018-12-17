@@ -9,17 +9,17 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="match_parent">
 
 
         <com.theartofdev.edmodo.cropper.CropImageView
             xmlns:custom="http://schemas.android.com/apk/res-auto"
             android:id="@+id/cropImageView"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:layout_weight="2"
-            android:padding="20sp"
+            android:paddingTop="5sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -29,9 +29,10 @@
             <!-- TextView - author (g2) -->
             <TextView
                 android:id="@+id/ocr_text_view"
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_weight="2"
+                android:paddingStart="5sp"
                 android:layout_gravity="center_horizontal|center"/>
         <!--</ScrollView>-->
     </LinearLayout>
