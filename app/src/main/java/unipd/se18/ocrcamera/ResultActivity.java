@@ -138,7 +138,7 @@ public class ResultActivity extends AppCompatActivity {
 
     /**
      * Handling click events on the menu
-     * @author Francesco Pham
+     * @author Francesco Pham - modified by Stefano Romanello
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -147,6 +147,10 @@ public class ResultActivity extends AppCompatActivity {
             case R.id.test:
                 Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
                 startActivity(i);
+                return true;
+            case R.id.download_photos:
+                Intent download_intent = new Intent(ResultActivity.this, DownloadDbActivity.class);
+                startActivity(download_intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
