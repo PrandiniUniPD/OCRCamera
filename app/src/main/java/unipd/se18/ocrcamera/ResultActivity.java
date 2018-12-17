@@ -18,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -160,25 +159,16 @@ public class ResultActivity extends AppCompatActivity {
     private class IngredientsExtractionThread extends Thread{
         public void run(){
 
-            TimingLogger timings = new TimingLogger(TAG, "Ingredients extraction times"); //just for testing
+            TimingLogger timings = new TimingLogger(TAG, "Ingredients extraction times");
 
-            //load inci db and initialize ingredient extractor
-            InputStream inciDbStream = ResultActivity.this.getResources().openRawResource(R.raw.incidb);
-            List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
+            //load inci db and initialize extractor if not already loaded
+            if(IngredExtractorSingleton.getInstance().ingredientsExtractor == null)
+                IngredExtractorSingleton.getInstance().load(getApplicationContext());
 
-            timings.addSplit("load csv");
-            progressBar.incrementProgressBy(20);
-
-            InputStream wordListStream = ResultActivity.this.getResources().openRawResource(R.raw.inciwordlist);
-            TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
-
-            timings.addSplit("load text corrector");
-            progressBar.incrementProgressBy(20);
-
-            IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance().ingredientsExtractor;
 
             timings.addSplit("load ingredients extractor");
-            progressBar.incrementProgressBy(20);
+            progressBar.incrementProgressBy(33);
 
             //wait for ocr to finish
             try {
@@ -188,18 +178,18 @@ public class ResultActivity extends AppCompatActivity {
             }
 
             timings.addSplit("waiting for ocr to finish");
-            progressBar.incrementProgressBy(20);
+            progressBar.incrementProgressBy(33);
 
             //extract ingredients from ocr text
             if(OCRText!=null && !OCRText.equals("")) {
-                List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(OCRText);
+                List<Ingredient> ingredients = extractor.findListIngredients(OCRText);
                 if(ingredients.size() != 0) showIngredients(ingredients);
             }else{
                 Log.d(TAG, "Text not found");
             }
 
             timings.addSplit("extract ingredients");
-            progressBar.incrementProgressBy(20);
+            progressBar.incrementProgressBy(33);
 
             timings.dumpToLog();
             runOnUiThread(new Runnable() {

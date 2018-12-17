@@ -62,7 +62,7 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
         for(Ingredient ingredient : listIngredients){
             if(text.contains(ingredient.getStrippedInciName())){
                 foundIngredients.add(ingredient);
-                text = text.replace(ingredient.getInciName(), "");  //remove the ingredient from text
+                text = text.replace(ingredient.getStrippedInciName(), "");  //remove the ingredient from text
             }
         }
 

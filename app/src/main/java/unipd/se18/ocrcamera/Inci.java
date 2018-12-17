@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -9,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.opencsv.CSVReader;
 
@@ -26,7 +24,7 @@ class Inci {
 
     /**
      * Load inci database and return list of Ingredient objects
-     * @param
+     * @param inciDbStream InputStream from inci db csv file
      * @author Francesco Pham
      */
     static ArrayList<Ingredient> getListIngredients(InputStream inciDbStream){
