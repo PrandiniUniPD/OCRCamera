@@ -43,6 +43,11 @@ public class ResultActivity extends AppCompatActivity {
 
     private String OCRText;
 
+    /**
+     * Useful for testing
+     */
+    private TimingLogger timings;
+
     private CountDownLatch latch;
     /**
      * Listener used by the extraction process to notify results
@@ -50,12 +55,9 @@ public class ResultActivity extends AppCompatActivity {
     private OCRListener textExtractionListener = new OCRListener() {
         @Override
         public void onTextRecognized(String text) {
-            /*
-             Text correctly recognized
-             -> prints it on the screen and saves it in the preferences
-             */
-            mOCRTextView.setText(text);
+            OCRText = text;
             saveTheResult(text);
+            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
         }
 
         @Override
@@ -66,8 +68,9 @@ public class ResultActivity extends AppCompatActivity {
              */
             String errorText = R.string.extraction_error
                     + " (" + R.string.error_code + code + ")";
-            mOCRTextView.setText(errorText);
+            OCRText = "";
             saveTheResult(errorText);
+            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
         }
     };
 
@@ -75,6 +78,8 @@ public class ResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
+
+        timings = new TimingLogger(TAG, "Ingredients extraction times"); //just for testing
 
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
@@ -122,8 +127,7 @@ public class ResultActivity extends AppCompatActivity {
             else latch.countDown();
 
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
-        }
-        else
+        } else {
             Log.e("ResultActivity", "error retrieving last photo");
         }
     }
@@ -177,41 +181,12 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     /**
-     * Thread for ocr text extraction and saving into preferences
-     * @author modified by Francesco Pham
-     */
-    private class OcrThread extends Thread{
-        private Bitmap photo;
-
-        OcrThread(Bitmap photo){
-            this.photo = photo;
-        }
-
-        public void run(){
-            // text from OCR
-            TextExtractor ocr = new TextExtractor();
-            OCRText = ocr.getTextFromImg(photo);
-
-            // Saving ocr text in the preferences
-            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("text", OCRText);
-            editor.apply();
-
-            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
-        }
-    }
-
-    /**
      * Thread for loading of inci db, extractor inizialization,
      * ingredients extraction from ocr text, and display into list view.
      * @author Francesco Pham
      */
     private class IngredientsExtractionThread extends Thread{
         public void run(){
-
-            TimingLogger timings = new TimingLogger(TAG, "Ingredients extraction times"); //just for testing
-
             //load inci db and initialize ingredient extractor
             InputStream inciDbStream = ResultActivity.this.getResources().openRawResource(R.raw.incidb);
             List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
@@ -236,29 +211,39 @@ public class ResultActivity extends AppCompatActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-            timings.addSplit("waiting for ocr to finish");
-            progressBar.incrementProgressBy(20);
-
-            //extract ingredients from ocr text
             if(OCRText!=null && !OCRText.equals("")) {
-                List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(OCRText);
-                if(ingredients.size() != 0) showIngredients(ingredients);
-            }else{
-                Log.d(TAG, "Text not found");
+                extractIngredients(OCRText, ingredientsExtractor);
+            } else {
+                // "Nothing recognized" is set automatically to the user view
+                Log.d(TAG,"Nothing recognized");
             }
-
-            timings.addSplit("extract ingredients");
-            progressBar.incrementProgressBy(20);
-
-            timings.dumpToLog();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    progressBar.setVisibility(View.GONE);
-                }
-            });
         }
+    }
+
+    /**
+     * Extract the ingredients from a text
+     * @param OCRText The text to be analyzed
+     * @param ingredientsExtractor The extractor object
+     * @author Francesco Pham (g3)
+     */
+    private void extractIngredients(String OCRText, IngredientsExtractor ingredientsExtractor) {
+        timings.addSplit("waiting for ocr to finish");
+        progressBar.incrementProgressBy(20);
+
+        //extract ingredients from ocr text
+        List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(OCRText);
+        if(ingredients.size() != 0) showIngredients(ingredients);
+
+        timings.addSplit("extract ingredients");
+        progressBar.incrementProgressBy(20);
+
+        timings.dumpToLog();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
     }
 
     /**

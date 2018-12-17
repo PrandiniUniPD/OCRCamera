@@ -95,11 +95,15 @@ public class TestDetailsActivity extends AppCompatActivity {
         TextView notes = findViewById(R.id.notes_view);
         notes.setText(entry.getNotes());
 
+        // Sets the ingredients extraction report
+        TextView extractedIngredientsView = findViewById(R.id.extracted_ingredients_view);
+        extractedIngredientsView.setText(entry.getIngredientsExtraction());
+
         // Sets the alterations view
         setAlterationsView(
                 TestDetailsActivity.this,
                 (RelativeLayout) findViewById(R.id.result_view),
-                R.id.notes_view,
+                R.id.extracted_ingredients_view,
                 entry,
                 true);
     }

@@ -485,19 +485,19 @@ public class PhotoTester {
 
         /**
          * Sets the Test result
-         * @param extractedIngredients The extracted ingredients from the OCR process
+         * @param ocrText The extracted text from the OCR process
          */
-        private void setTestResult(String extractedIngredients) {
+        private void setTestResult(String ocrText) {
             // Compares the text provided by the database and the text extracted
-            float confidence = ingredientsTextComparison(correctIngredients, extractedIngredients);
+            float confidence = ingredientsTextComparison(correctIngredients, ocrText);
 
             //inserts results in the test element
             test.setConfidence(confidence);
-            test.setRecognizedText(extractedIngredients);
+            test.setRecognizedText(ocrText);
 
             //extract ingredients from ocr text and from correctIngredientsText (Francesco Pham)
             List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
-            List<Ingredient> correctIngredients = correctIngredientsExtractor.findListIngredients(correctIngredientsText);
+            List<Ingredient> correctIngredients = correctIngredientsExtractor.findListIngredients(test.getIngredients());
 
             //sort alphabetically (Francesco Pham)
             Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
