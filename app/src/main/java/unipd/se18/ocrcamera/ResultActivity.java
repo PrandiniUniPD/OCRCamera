@@ -8,6 +8,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TimingLogger;
 import android.view.Menu;
@@ -28,6 +30,9 @@ import unipd.se18.ocrcamera.recognizer.OCRListener;
 import unipd.se18.ocrcamera.recognizer.TextRecognizer;
 
 import static unipd.se18.ocrcamera.recognizer.TextRecognizer.getTextRecognizer;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -64,12 +69,10 @@ public class ResultActivity extends AppCompatActivity {
         public void onTextRecognizedError(int code) {
             /*
              Text not correctly recognized
-             -> prints the error on the screen and saves it in the preferences
+             -> prints the error on the screen and doesn't save it in the preferences
              */
             String errorText = R.string.extraction_error
                     + " (" + R.string.error_code + code + ")";
-            OCRText = "";
-            saveTheResult(errorText);
             latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
         }
     };
@@ -145,6 +148,16 @@ public class ResultActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("text", text);
         editor.apply();
+
+        //I cant understand the ingredients yet, for now I put everything as one ingredient
+        ArrayList<String> txt = new ArrayList<>();
+        String testoFormattato=String.valueOf(Html.fromHtml(s));
+        txt.add(testoFormattato);
+        try {
+            GalleryManager.storeImage(getBaseContext(),lastPhoto,txt,"0%");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -175,6 +188,10 @@ public class ResultActivity extends AppCompatActivity {
                         DownloadDbActivity.class);
                 startActivity(download_intent);
                 return true;
+            case R.id.gallery:
+                Intent gallery_intent = new Intent(ResultActivity.this, GalleryActivity.class);
+                startActivity(gallery_intent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -204,6 +221,7 @@ public class ResultActivity extends AppCompatActivity {
 
             timings.addSplit("load ingredients extractor");
             progressBar.incrementProgressBy(20);
+            private Bitmap workingImage;
 
             //wait for ocr to finish
             try {
