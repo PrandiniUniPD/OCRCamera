@@ -7,6 +7,11 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,11 +28,12 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
 
 
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/OCRCameraDB";
-    ArrayList list = new ArrayList<Double>();
+    Double[] blurval = new Double[200];
+    ListView listView;
+    ArrayAdapter<String> adapter;
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+
+
 
 
 
@@ -38,31 +44,36 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         File path = new File(PHOTOS_FOLDER);
         String[] fileNames = path.list();
+        String[] texttoview = new String[8];
 
-    /**    for (int i = 0; i < 10; i++) {
+        for (int i = 2; i < 10; i++) {
             try {
                 File f = new File(PHOTOS_FOLDER, fileNames[i]);
                 Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));
-                list.add(CameraActivity.blurValue(image));
+
+                if (image != null)
+                {
+                    blurval[i]=CameraActivity.blurValue(image);
+                    texttoview[i]= fileNames[i] + "value: "+ blurval[i];
+
+                }
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         }
-*/
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(true);
+        listView = (ListView) findViewById(R.id.listview);
 
-        // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, texttoview);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        // specify an adapter (see also next example)
-        mAdapter = new MyAdapter(fileNames);
-        mRecyclerView.setAdapter(mAdapter);
+            }
+        });
+
     }
 
 
