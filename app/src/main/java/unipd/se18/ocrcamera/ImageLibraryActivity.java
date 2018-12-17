@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /** Classe che implementa una galleria a griglia di immagini
  * Leonardo Pratesi - gruppo 1
- * usa classe InternalStorageManager (di moroldo)
+ *
  *
  */
 
@@ -75,7 +75,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                             try {
                                 File f = new File(PHOTOS_FOLDER, fileNames[i]);
                                 bitmapList.add(BitmapFactory.decodeStream(new FileInputStream(f)));
-                                progress++;
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                             }
