@@ -22,4 +22,6 @@
     <string name="extrected_text">Extracted text:</string>
     <string name="alterations">Alterations:</string>
     <string name="view_alterations">View alterations</string>
+    <string name="too_bright_picture">The picture might be too bright</string>
+    <string name="too_dark_picture">The picture might be too dark</string>
 </resources>

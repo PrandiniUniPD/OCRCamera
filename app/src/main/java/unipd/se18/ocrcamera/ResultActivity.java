@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -43,6 +44,9 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
+        // handler to use in the BrightnessRecognition thread
+        final Handler handler = new Handler(getApplicationContext().getMainLooper());
+
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
@@ -66,7 +70,42 @@ public class ResultActivity extends AppCompatActivity {
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
-        } else {
+
+            // analyze the brightness of the taken photo  @author Balzan Pietro
+            //creating a final version of te bitmap to be accessed form BrightnessRecognition
+            final Bitmap photoFinal = lastPhoto;
+            // run the brightness recognition on a new thread to improve performance
+            Thread imgBrightnessThread = new Thread(new Runnable() {
+                public void run() {
+                    //get strings from res to support localization
+                    final String tooBright = getString(R.string.too_bright_picture);
+                    final String tooDark = getString(R.string.too_dark_picture);
+                    //Values in the method are set according to the ones that we found to give more consistent results during tests
+                    int brightnessResult= BrightnessRecognition.imgBrightness(photoFinal,190,80,3);
+                    //show messages to the user via Toasts
+                    if (brightnessResult == 1){
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), tooBright, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                    else if (brightnessResult== -1){
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), tooDark, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
+            });
+            
+            // start the thread
+            imgBrightnessThread.start();
+        }
+        else {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 

@@ -31,7 +31,6 @@ public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
     private static String orientationResult="P";
-    private Handler handler;
 
     /**
      * onCreate method of the Android Activity Lifecycle
@@ -42,8 +41,6 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-        handler = new Handler(getApplicationContext().getMainLooper());  // handler to use in the BrightnessRecognition thread
-
         cameraKitView = findViewById(R.id.cameraKitView);
 
         //Load sensor for understand the orientation of the phone
@@ -160,41 +157,11 @@ public class CameraActivity extends AppCompatActivity {
                 edit.putString("imagePath", filePath.trim());
                 edit.apply();
 
-                // analyze the brightness of the taken photo  @author Balzan Pietro
-                //creating a final version of te bitmap to be accessed form BrightnessRecognition
-                final Bitmap bitmapImage2 = bitmapImage;
-                //star a new thread to improve user experience
-                new Thread(new Runnable() {      // run the brightness recognition on a new thread to improve performance
-                    public void run() {
-                        final String tooBright = "The picture might be too bright";
-                        final String tooDark = "The picture might be too dark";
-                        int brightnessResult= BrightnessRecognition.imgBrightness(bitmapImage2,190,80,3);
-                        //show messages to the user via Toasts
-                        if (brightnessResult == 1){
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getApplicationContext(), tooBright, Toast.LENGTH_LONG).show();
-                                }
-                            });
-                        }
-                        else if (brightnessResult== -1){
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getApplicationContext(), tooDark, Toast.LENGTH_LONG).show();
-                                }
-                            });
-                        }
-                    }
-                }).start();
-
                 //An intent that will launch the activity that will analyse the photo
                 Intent i = new Intent(CameraActivity.this, ResultActivity.class);
                 startActivity(i);
             }
         });
-
     }
 
 

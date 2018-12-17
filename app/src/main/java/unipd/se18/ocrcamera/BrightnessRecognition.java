@@ -40,7 +40,10 @@ public class BrightnessRecognition {
                 G = Color.green(pixel);     // Green value of the pixel 0<G<255
                 B = Color.blue(pixel);      // Blue value of the pixel 0<B<255
 
-                //  RGB/Luma conversion formula, dermines "luminance", brightness of a pixel
+                /*
+                * RGB/Luma conversion formula, dermines "luminance", brightness of a pixel
+                * with a weighted average (for more info see "Luma(video)" on Wikipedia)
+                */
                 double brightness = (0.2126 * R + 0.7152 * G + 0.0722 * B);
                 totalBrightness += brightness;
                 totalPixels++;
