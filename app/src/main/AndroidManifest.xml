@@ -52,6 +52,7 @@
         </activity>
         <activity android:name=".TestsListActivity" />
         <activity android:name=".DownloadDbActivity" />
+        <activity android:name=".ManualTestOnSinglePhoto" />
         <activity android:name=".TestDetailsActivity"></activity>
     </application>
 

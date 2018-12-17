@@ -158,6 +158,9 @@ public class ResultActivity extends AppCompatActivity {
                         DownloadDbActivity.class);
                 startActivity(download_intent);
                 return true;
+            case R.id.manual_test:
+                Intent manualTest= new Intent(ResultActivity.this, ManualTestOnSinglePhoto.class);
+                startActivity(manualTest);
             default:
                 return super.onOptionsItemSelected(item);
         }
