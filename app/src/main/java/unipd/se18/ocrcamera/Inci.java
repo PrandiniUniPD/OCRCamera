@@ -66,18 +66,26 @@ public class Inci extends AppCompatActivity {
 
     /**
      * @author Giovanni Fasan(g1)
-     * @param text String in which you have to find the ingredients
      * @return String with ingredients list of the label
      */
 
+    public String ingredientsFoundToString() {
+        String inci="";
+            for (int j=0; j<this.listIngredientFound.size(); j++){       //defines ingredient as each row of the database
+                    inci = inci + "<b>" + listIngredientFound.get(j) + "</b>; ";
+            }
+
+        return inci;
+    }
+
     public String findIngredients(String text) {
         String inci="";
-        String noEnd = text.replaceAll("\n", " ");
-        String [] word = noEnd.split(",");
+        String noSpace = text.replaceAll("\n", " ");
+        String [] word = noSpace.split(",");
         for (int i = 0; i < word.length; i++) {
             for (int j=0; j<this.listInci.size(); j++){       //defines ingredient as each row of the database
                 if (word[i].trim().toUpperCase().equals(listInci.get(j))) {
-                    inci = inci + "<b>" + listInci.get(j) + "</b>; ";
+                    inci = inci + "<b>" + listIngredientFound.get(j) + "</b>; ";
                 }
             }
         }
@@ -88,11 +96,11 @@ public class Inci extends AppCompatActivity {
     /**
      * @author Giovanni Fasan(g1)
      * @param text String in which you have to find the ingredients
-     * @return List of ingredients list of the label with description
+     * loads all the ingredients inci found in the ArrayList listIngredientFound
      */
-    public ArrayList<String> findIngredientsList(String text) {
+    public void findIngredientsList(String text) {
         //ArrayList<String> inci = new ArrayList<String>();
-
+        listIngredientFound = new ArrayList<String>();
         String noSpace = text.replaceAll("\n", " ");
         String [] word = noSpace.split(",");
         for (int i = 0; i < word.length; i++) {
@@ -103,7 +111,6 @@ public class Inci extends AppCompatActivity {
             }
         }
 
-        return getListIngredientFound();
     }
 
 }

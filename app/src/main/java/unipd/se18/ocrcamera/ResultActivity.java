@@ -103,7 +103,8 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent popUp = new Intent(ResultActivity.this, PopUp.class);
-                popUp.putStringArrayListExtra("ingredienti", ingredients.findIngredientsList(OCRText));
+                ingredients.findIngredientsList(OCRText);
+                popUp.putStringArrayListExtra("ingredienti", ingredients.getListIngredientFound());
                 startActivity(popUp);
             }
         });
@@ -130,8 +131,8 @@ public class ResultActivity extends AppCompatActivity {
             } else {
                 //Show the text of the last image
                 mOCRTextView.setText(OCRText);
-                //tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+inciDetectorEtichetta(OCRText)+""));
-                tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.findIngredients(OCRText)+""));
+                ingredients.findIngredientsList(OCRText);
+                tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.ingredientsFoundToString()+""));
             }
         } else{
             // text from OCR
@@ -199,7 +200,8 @@ public class ResultActivity extends AppCompatActivity {
                         public void run() {
                             mOCRTextView.setText(finalTextRecognized);
                             //tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+inciDetectorEtichetta(finalTextRecognized)+""));
-                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.findIngredients(finalTextRecognized)+""));
+                            ingredients.findIngredientsList(finalTextRecognized);
+                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.ingredientsFoundToString()+""));
                             OCRText=finalTextRecognized;
                         }
                     });
@@ -212,7 +214,8 @@ public class ResultActivity extends AppCompatActivity {
                         public void run() {
                             mOCRTextView.setText(finalTextRecognized);
                             //tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+inciDetectorEtichetta(finalTextRecognized)+""));
-                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.findIngredients(finalTextRecognized)+""));
+                            ingredients.findIngredientsList(finalTextRecognized);
+                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.ingredientsFoundToString()+""));
                             OCRText=finalTextRecognized;
                         }
                     });
