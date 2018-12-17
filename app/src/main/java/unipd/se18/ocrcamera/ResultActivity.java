@@ -53,7 +53,16 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TimingLogger timings;
 
+    /**
+     * Useful for synchronization
+     */
     private CountDownLatch latch;
+
+    /**
+     * The Bitmap of the last photo taken
+     */
+    private Bitmap lastPhoto;
+
     /**
      * Listener used by the extraction process to notify results
      */
@@ -73,6 +82,7 @@ public class ResultActivity extends AppCompatActivity {
              */
             String errorText = R.string.extraction_error
                     + " (" + R.string.error_code + code + ")";
+            Log.e(TAG, errorText);
             latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
         }
     };
@@ -109,7 +119,7 @@ public class ResultActivity extends AppCompatActivity {
         OCRText = prefs.getString("text", null);
 
         //Bitmap of the lastPhoto saved
-        Bitmap lastPhoto = BitmapFactory.decodeFile(pathImage);
+        lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
 
@@ -151,8 +161,8 @@ public class ResultActivity extends AppCompatActivity {
 
         //I cant understand the ingredients yet, for now I put everything as one ingredient
         ArrayList<String> txt = new ArrayList<>();
-        String testoFormattato=String.valueOf(Html.fromHtml(s));
-        txt.add(testoFormattato);
+        String formattedText=String.valueOf(Html.fromHtml(text));
+        txt.add(formattedText);
         try {
             GalleryManager.storeImage(getBaseContext(),lastPhoto,txt,"0%");
         } catch (IOException e) {
@@ -221,7 +231,6 @@ public class ResultActivity extends AppCompatActivity {
 
             timings.addSplit("load ingredients extractor");
             progressBar.incrementProgressBy(20);
-            private Bitmap workingImage;
 
             //wait for ocr to finish
             try {
