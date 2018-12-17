@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.example.imageprocessing.ImageProcessing;
 import com.example.imageprocessing.TextRegions;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -42,6 +44,16 @@ public class ResultActivity extends AppCompatActivity {
      */
     private Bitmap lastPhoto;
 
+    /**
+     *  The TextView of the ingredients of Inci database.
+     */
+    private TextView tViewInci;
+
+    /**
+     * Class for use Inci database
+     */
+    Inci ingredients;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +63,13 @@ public class ResultActivity extends AppCompatActivity {
         ImageView mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
+
+        tViewInci = findViewById(R.id.textViewInci);
+        tViewInci.setMovementMethod(new ScrollingMovementMethod());
+
+
+        InputStream database = getResources().openRawResource(R.raw.database);
+        ingredients = new Inci(database);
 
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -86,6 +105,8 @@ public class ResultActivity extends AppCompatActivity {
             } else {
                 //Show the text of the last image
                 mOCRTextView.setText(OCRText);
+                ingredients.findIngredientsList(OCRText);
+                tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.ingredientsFoundToString()+""));
             }
         } else{
             // text from OCR
@@ -156,6 +177,8 @@ public class ResultActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             mOCRTextView.setText(finalTextRecognized);
+                            ingredients.findIngredientsList(finalTextRecognized);
+                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.ingredientsFoundToString()+""));
                         }
                     });
                 }
@@ -166,6 +189,8 @@ public class ResultActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             mOCRTextView.setText(finalTextRecognized);
+                            ingredients.findIngredientsList(finalTextRecognized);
+                            tViewInci.setText(Html.fromHtml("Ingredienti trovati: "+ingredients.ingredientsFoundToString()+""));
                         }
                     });
                 }
