@@ -134,7 +134,7 @@ public class TestsListActivity extends AppCompatActivity {
          */
         @Override
         protected Void doInBackground(Void... voids) {
-            this.tester = new PhotoTester(dirPath);
+            this.tester = new PhotoTester(getApplicationContext(), dirPath);
             progressBar.setMax(tester.getTestSize());
 
             // Listener useful for updating the progress bar

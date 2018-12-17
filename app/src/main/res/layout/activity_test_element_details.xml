@@ -132,6 +132,27 @@
                 android:paddingStart="10sp"
                 android:paddingEnd="10sp"/>
 
+            <!-- Extracted ingredients -->
+            <TextView
+                android:id="@+id/extracted_ingredients_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/extracted_ingredients_title"
+                android:layout_below="@id/notes_view"
+                android:layout_alignParentStart="true"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:padding="5sp"/>
+            <TextView
+                android:id="@+id/extracted_ingredients_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/extracted_ingredients_title"
+                android:layout_alignParentStart="true"
+                android:textSize="15sp"
+                android:paddingStart="10sp"
+                android:paddingEnd="10sp"/>
+
             <!-- Alterations -->
             <!--<TextView
                 android:id="@+id/alterations_title"
@@ -152,6 +173,8 @@
                 android:textSize="15sp"
                 android:paddingStart="10sp"
                 android:paddingEnd="10sp" />-->
+
+
         </RelativeLayout>
     </ScrollView>
 </android.support.constraint.ConstraintLayout>

@@ -21,8 +21,15 @@
     <string name="test">TEST</string>
     <string name="extrected_text">Extracted text:</string>
     <string name="alterations">Alterations:</string>
+    <string name="inci_name_title">Inci name:</string>
+    <string name="description_title">Description:</string>
+    <string name="processing_ingredients">Extracting ingredients</string>
+    <string name="processing_ocr">Executing ocr</string>
+    <string name="extracted_ingredients_title">Extracted ingredients:</string>
     <string name="view_alterations">View alterations</string>
     <string name="extraction_error">"Something has gone wrong, plese try again."</string>
     <string name="error_code">"Error code: "</string>
     <string name="view_details">Details</string>
+    <string name="empty_list_ingredients">No ingredients found</string>
+    <string name="function_title">Function:</string>
 </resources>

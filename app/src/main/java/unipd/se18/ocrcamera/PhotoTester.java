@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -10,9 +11,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -33,6 +39,8 @@ import static java.lang.Float.NaN;
  * @author Luca Moroldo (g3) - Francesco Pham (g3)
  */
 public class PhotoTester {
+
+    private Context context;
 
     private static final String TAG = "PhotoTester";
 
@@ -60,7 +68,9 @@ public class PhotoTester {
 
     private String report;
 
-
+    //ingredients extractors (Francesco Pham)
+    private IngredientsExtractor ocrIngredientsExtractor;
+    private IngredientsExtractor correctIngredientsExtractor;
 
 
 
@@ -69,7 +79,9 @@ public class PhotoTester {
      * Load test elements (images + description)
      * @param dirPath The path where the photos and descriptions are.
      */
-    public PhotoTester(String dirPath) {
+    public PhotoTester(Context context, String dirPath) {
+        this.context = context;
+
         File directory = getStorageDir(dirPath);
         this.dirPath = directory.getPath();
         Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
@@ -156,6 +168,15 @@ public class PhotoTester {
         long started = java.lang.System.currentTimeMillis();
 
         final JSONObject fullJsonReport = new JSONObject();
+
+        //load inci db and initialize ingredient extractor (Francesco Pham)
+        InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
+        List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
+        InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
+        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
+        ocrIngredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+        correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
+
 
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(testElements.size());
@@ -261,28 +282,7 @@ public class PhotoTester {
         int consecutiveNotFound = 0; //consecutive words not found since last word found
         final double similarityThreshold = 0.8; //threshold above which the word we are looking at is considered found
 
-        WeightedLevenshtein levenshtein = new WeightedLevenshtein(
-                new CharacterSubstitutionInterface() {
-                    public double cost(char c1, char c2) {
-
-                        // The cost for substituting 't' and 'r' is considered
-                        // smaller as these 2 are located next to each other
-                        // on a keyboard
-                        if (c1 == 't' && c2 == 'r') {
-                            return 0.5;
-                        }
-                        else if (c1 == 'q' && c2 == 'o') {
-                            return 0.5;
-                        }
-                        else if (c1 == 'I' && c2 == 'l') {
-                            return 0.5;
-                        }
-
-                        // For most cases, the cost of substituting 2 characters
-                        // is 1.0
-                        return 1.0;
-                    }
-                });
+        LevenshteinStringDistance stringComparator = new LevenshteinStringDistance();
 
         //for each correct word
         for (String word : correctWords) {
@@ -297,9 +297,7 @@ public class PhotoTester {
                     //for each extracted words starting from posLastWordFound
                     index = (posLastWordFound + i) % extractedWords.length;
 
-                    //Calculate similarity and normalize
-                    int maxLength = Math.max(word.length(),extractedWords[index].length());
-                    double similarity = 1.0 - levenshtein.distance(word,extractedWords[index])/maxLength;
+                    double similarity = stringComparator.getNormalizedSimilarity(word, extractedWords[index]);
 
                     //if similarity grater than similarityThreshold the word is found
                     if (similarity > similarityThreshold) {
@@ -309,7 +307,7 @@ public class PhotoTester {
                             //if word found is distant from posLastWordFound the ocr text isn't ordered, less points
                             points += (float) word.length()*similarity/2;
                         }
-                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
+                        Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
                         extractedWords[index] = ""; //remove found word
                         found = true;
                     }
@@ -326,7 +324,7 @@ public class PhotoTester {
                         } else {
                             points += (float)word.length()/2;
                         }
-                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[index] + "\"");
+                        Log.v(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[index] + "\"");
                         extractedWords[index] = extractedWords[index].replace(word, ""); //remove found word
                         found = true;
                     }
@@ -341,12 +339,12 @@ public class PhotoTester {
             }
         }
         float confidence = (points / maxPoints)*100;
-        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
 
         //I found a test where the function returned NaN (the correct ingredient text was '-') - Luca Moroldo
-        if(confidence == NaN) {
-            confidence = 0;
-        }
+        if(Float.isNaN(confidence)) confidence = 0;
+
+        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
+
         return confidence;
 
     }
@@ -382,7 +380,7 @@ public class PhotoTester {
 
     /**
      * Class used to run a single test
-     * @author Luca Moroldo (g3) - Pietro Prandini (g2)
+     * @author Luca Moroldo (g3) - Pietro Prandini (g2) - modified by Francesco Pham (g3)
      */
     public class RunnableTest implements Runnable {
         /**
@@ -496,6 +494,62 @@ public class PhotoTester {
             //inserts results in the test element
             test.setConfidence(confidence);
             test.setRecognizedText(extractedIngredients);
+
+            //extract ingredients from ocr text and from correctIngredientsText (Francesco Pham)
+            List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
+            List<Ingredient> correctIngredients = correctIngredientsExtractor.findListIngredients(correctIngredientsText);
+
+            //sort alphabetically (Francesco Pham)
+            Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
+                @Override
+                public int compare(Ingredient o1, Ingredient o2) {
+                    return o1.compareTo(o2.getInciName());
+                }
+            };
+            Collections.sort(extractedIngredients,cmp);
+            Collections.sort(correctIngredients, cmp);
+
+            StringBuilder extractionReport = new StringBuilder();
+            extractionReport.append("Extracted: ");
+            Iterator<Ingredient> iterator = extractedIngredients.iterator();
+            while(iterator.hasNext()){
+                extractionReport.append(iterator.next().getInciName());
+                extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
+            }
+
+            extractionReport.append("Correct: ");
+            iterator = correctIngredients.iterator();
+            while(iterator.hasNext()){
+                extractionReport.append(iterator.next().getInciName());
+                extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
+            }
+
+
+            //compare extracted ingredients with correct ingredients (Francesco Pham)
+            int nCorrectExtractedIngreds = 0;
+            for(Ingredient correct : correctIngredients){
+                iterator = extractedIngredients.iterator();
+                while(iterator.hasNext()){
+                    if(iterator.next().getCosingRefNo().equalsIgnoreCase(correct.getCosingRefNo())) {
+                        nCorrectExtractedIngreds++;
+                        iterator.remove();
+                    }
+                }
+            }
+
+            //make ingredients extraction report (Francesco Pham)
+            int nWrongExtractedIngreds = extractedIngredients.size();
+            float percent = (float)100*nCorrectExtractedIngreds / correctIngredients.size();
+            if(Float.isNaN(percent)) percent = 0;
+            test.setPercentCorrectIngredients(percent);
+            String percentCorrectIngreds = String.format("%.2f",percent);
+            extractionReport.append(
+                    "% correct ingredients extracted: "
+                            + percentCorrectIngreds+"% \n"
+                            + "# wrong ingredients extracted: "+nWrongExtractedIngreds);
+
+            test.setIngredientsExtraction(extractionReport.toString());
+
 
             // evaluates alterations if any
             String[] alterationsFileNames = test.getAlterationsNames();
@@ -717,6 +771,18 @@ public class PhotoTester {
     }
 
     /**
+     * Calculate average of percentage of correct ingredients extracted from the ocr.
+     * @return Average of percentage of correct ingredients extracted from the ocr.
+     * @author Francesco Pham
+     */
+    private float getAverageCorrectIngredients(){
+        float total = 0;
+        for(TestElement element : testElements)
+            total += element.getPercentCorrectIngredients();
+        return total/testElements.size();
+    }
+
+    /**
      * Convert statistics returned by getTagsStats() into a readable text
      * @author Francesco Pham (g3)
      */
@@ -736,6 +802,8 @@ public class PhotoTester {
             report = report + keymin + " : " + alterationsTagsGainStats.get(keymin) + "%\n";
             alterationsTagsGainStats.remove(keymin);
         }
+
+        report += "\nAverage percentage correct ingredients extracted: "+getAverageCorrectIngredients() +" %";
 
         Log.d(TAG, "Tag stats: \n" + report);
 
