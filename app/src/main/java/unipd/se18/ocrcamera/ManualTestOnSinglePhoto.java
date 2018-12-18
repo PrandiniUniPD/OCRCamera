@@ -10,11 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.TextView;
-import java.util.concurrent.CountDownLatch;
-import java.util.ArrayList;
-import java.util.List;
 import unipd.se18.ocrcamera.recognizer.OCR;
 import unipd.se18.ocrcamera.recognizer.OCRListener;
 import unipd.se18.ocrcamera.recognizer.TextRecognizer;
@@ -30,29 +26,20 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
 
     private TextView textView;
     private String Tag;
-    /**
-     * Value of rotation angle and number of rotation
-     */
-    private final int angleRotation = 360;
-    private final int numberOfRotation = 360 / angleRotation; // number of possible rotation fo angleRotation degrees
-
-    private final String firstPartRotation = "Per la foto con rotazione di ";
-    private final String secondPart = ": \nPercentuale di testo comune: ";
-
-    private List<InformationEntry> resultList = new ArrayList<InformationEntry>();
-
-    public enum Type {ROTATION} //Da aggiungere con l'aggiunta dei metodi
+    private String startingOCRText;
 
     /**
-     * Async Controller inizialize
+     * Strings
      */
-    private CountDownLatch signal = new CountDownLatch(1);
-    ;
+    private final String firstPart = "Per la foto con rotazione di ";
+    private final String secondPart = " gradi: \nPercentuale di testo comune: ";
+    private final String thirdPart = "% \n Testo trovato: ";
+    private final String errorLog1 = "No filePath preferences found";
 
     /**
-     * Entry used to exchange information
+     * Value of rotation angle of rotation
      */
-    private InformationEntry defaultEntry = new InformationEntry();
+    private final int angleRotation = 10;
 
     /**
      * Listener used by the extraction process to notify results
@@ -64,8 +51,7 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
              Text correctly recognized
              -> prints it on the screen and saves it in the preferences
              */
-            defaultEntry.setOCRText(text);
-            signal.countDown();
+            SetResult(text);
         }
 
         @Override
@@ -88,103 +74,86 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
         textView = findViewById(R.id.manualTextView);
         textView.setMovementMethod(new ScrollingMovementMethod());
 
-        CountDownLatch signal = new CountDownLatch(1);
-        String resultString="";
 
         try {
             //Get image path and text of the last image from preferences
             SharedPreferences prefs = this.getSharedPreferences("prefs", MODE_PRIVATE);
             String pathImage = prefs.getString("imagePath", null);
-            String OCRText = prefs.getString("text", null);
+            startingOCRText = prefs.getString("text", null);
 
             Bitmap photo = BitmapFactory.decodeFile(pathImage);
-            if (photo == null) {
-                Log.e(Tag, "No filePath preferences found");
+            if (photo == null)
                 throw new PhotoNullException();
-            }
 
-            int rotation=0;
-            for(int i=0; i<numberOfRotation;i++) {
-                Bitmap photoToCompare = rotateImage(photo, rotation);
-                // create and start OCR thread
-                Runnable test = new Worker(signal, photoToCompare, ocrListener);
-
-                signal.await();
-
-                //Add information in defaultEntry
-                AddWarningAndSimilarity(OCRText);
-                defaultEntry.setVariation(rotation);
-                defaultEntry.setSimilarity(compareString(defaultEntry.getOCRText(),OCRText));
-                defaultEntry.setTypeROTATION();
-                resultList.add(defaultEntry.clone());
-                rotation += angleRotation;
-            }
-            Log.e(Tag,"registration rotation photo complete");
-
-            for(InformationEntry element : resultList)
-            {
-                if(element.getType()==Type.ROTATION)
-                {
-                    resultString += firstPartRotation+ angleRotation+ secondPart+ element.getSimilarity();
-                }
-            }
+            //Photo changes
+            Bitmap photoToCompare = rotateImage(photo, angleRotation);
 
 
-            textView.setText(resultString);
+            // Instance of an OCR recognizer
+            OCR ocrProcess = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
+                    ocrListener);
+
+            // Runs the operations of text extraction
+            ocrProcess.getTextFromImg(photoToCompare);
 
 
         } catch (PhotoNullException e) {
-            Log.e(Tag, "No preferences found");
-            Intent takeANewPhoto = new Intent(ManualTestOnSinglePhoto.this, CameraActivity.class);
-            startActivity(takeANewPhoto);
-        } catch (InterruptedException ex) {
-            Log.e(Tag, "CountDownLatch error");
+            Log.e(Tag, errorLog1);
             Intent takeANewPhoto = new Intent(ManualTestOnSinglePhoto.this, CameraActivity.class);
             startActivity(takeANewPhoto);
         }
+    }
 
+    /**Based on the text received and startingOCRTText, analise informations like confidence
+     * and show them on textView
+     * @param text string got from OCR
+     * @modify show on textView the result
+     */
+    private void SetResult(String text){
+
+        //Add information in defaultEntry
+        String warning = findWarning(text, startingOCRText.length());
+        int confidence = compareString(startingOCRText,text);
+
+        String resultString = firstPart + angleRotation + secondPart + confidence
+                +thirdPart + text
+                +"\n"+warning;
+        textView.setText(resultString);
     }
 
 
     /**
-     *Add warinings and similarity with standard text in defaulEntry
-     * @param standardText referenced text that has to be compared with the one got from defaultEntry
-     * @modify defaulEntry add warinings and similarity in defaulEntry
-     * @throws PhotoNullException when text stored in defaulEntry is null
+     *Analise the given string and get the right warnings and add them on waring variable
+     * @param text String to analise
+     * @param length int of length of starting string
+     * @return  warnings
      */
-    private void AddWarningAndSimilarity(String standardText) throws PhotoNullException
-    {
-
-        String warning = "";
+    public String findWarning(String text, int length) {
+        String warnings = "";
         final String noTextWarning = "OCR found no text in this photo";
         final String lessThen10CharWarning = "Less then 10 chars found by OCR";
         final String lessThen20CharWarning = "Less then 20 chars found by OCR";
         final String lessThen30CharWarning = "Less then 30 chars found by OCR";
-        String textToCompare = defaultEntry.getOCRText();
-        if(textToCompare==null)
-            throw new PhotoNullException();
 
-        if (textToCompare.equals("")) {
-            warning = noTextWarning;
-        } else if (textToCompare.length() < 10) {
-            warning = lessThen10CharWarning;
-        } else if (textToCompare.length() < 20) {
-            warning = lessThen20CharWarning;
-        } else if (textToCompare.length() < 30) {
-            warning = lessThen30CharWarning;
+        if (text.equals("")) {
+            warnings = noTextWarning;
+        } else if (text.length() < 10 && length>14) {
+            warnings = lessThen10CharWarning;
+        } else if (text.length() < 20 && length>26) {
+            warnings = lessThen20CharWarning;
+        } else if (text.length() < 30 && length>30) {
+            warnings = lessThen30CharWarning;
         }
 
-        defaultEntry.setSimilarity(compareString(textToCompare, standardText));
-        defaultEntry.setWarning(warning);
+        return warnings;
     }
 
-
-    /**
-     * Rotate the bitmap image of the angle
-     * @param source the image
-     * @param angle angle of rotation
-     * @return Bitmap image rotated
-     */
+        /**
+         * Rotate the bitmap image of the angle
+         * @param source the image
+         * @param angle angle of rotation
+         * @return Bitmap image rotated
+         */
     public static Bitmap rotateImage (Bitmap source,int angle)
     {
         Matrix matrix = new Matrix();
@@ -195,106 +164,25 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
 
 
     /** Split string1 in patterns and count how many times the patterns is found in in string2
-     * @param string1 string to split and search in string2
-     * @param string2 string where to search
+     * @param stringToSplit string to split and search in string2
+     * @param stringWhereToSearch string where to search
      * @return Bitmap image decoded
      */
-    public static int compareString (String string1, String string2) {
-        int i=0;
-        String[] patterns = string1.split("\\W");
-        if(KMP(patterns[i],string2)!=-1)
-        {
-            //Count the time a string is
-            i++;
+    public static int compareString (String stringToSplit, String stringWhereToSearch) {
+        int counter=0;
+        String[] stringsToSplitArray = stringToSplit.split("\\W");
+        String[] stringsWhereToSearchArray = stringWhereToSearch.split("\\W");
+        for(String string1: stringsToSplitArray) {
+            Boolean check=true;
+            for(String string2: stringsWhereToSearchArray){
+                if(string1.equals(string2) && check && string1!=""){
+                    counter++;
+                    check=false;
+                }
+            }
         }
         // % of matching
-        return i/patterns.length*100;
-    }
-
-    /**KMP pattern matching algorithm
-     * @param search String where to search
-     * @param target String to search
-     * @return the index of the match, -1 if no match found
-     */
-    public static int KMP(String search, String target) {
-        int[] failureTable = failureTable(target);
-
-        int targetPointer = 0; // current char in target string
-        int searchPointer = 0; // current char in search string
-
-        while (searchPointer < search.length()) { // while there is more to search with, keep searching
-            if (search.charAt(searchPointer) == target.charAt(targetPointer)) { // case 1
-                // found current char in targetPointer in search string
-                targetPointer++;
-                if (targetPointer == target.length()) { // found all characters
-                    int x = target.length() + 1;
-                    return searchPointer - x; // return starting index of found target inside searched string
-                }
-                searchPointer++; // move forward if not found target string
-            } else if (targetPointer > 0) { // case 2
-                // use failureTable to use pointer pointed at nearest location of usable string prefix
-                targetPointer = failureTable[targetPointer];
-            } else { // case 3
-                // targetPointer is pointing at state 0, so restart search with current searchPointer index
-                searchPointer++;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Returns an int[] that points to last valid string prefix, given target string
-     */
-    public static int[] failureTable(String target) {
-        int[] table = new int[target.length() + 1];
-        // state 0 and 1 are guarenteed be the prior
-        table[0] = -1;
-        table[1] = 0;
-
-        // the pointers pointing at last failure and current satte
-        int left = 0;
-        int right = 2;
-
-        while (right < table.length) { // RIGHT NEVER MOVES RIGHT UNTIL ASSIGNED A VALID POINTER
-            if (target.charAt(right - 1) == target.charAt(left)) { // when both chars before left and right are equal, link both and move both forward
-                left++;
-                table[right] = left;
-                right++;
-            }  else if (left > 0) { // if left isn't at the very beginning, then send left backward
-                // by following the already set pointer to where it is pointing to
-                left = table[left];
-            } else { // left has fallen all the way back to the beginning
-                table[right] = left;
-                right++;
-            }
-        }
-        return table;
-    }
-}
-
-
-/**
- * Runnable class that call getTextFromImg in a different thread to allow async tasks
- */
-
-class Worker implements Runnable {
-    private final CountDownLatch signal;
-    private Bitmap photo;
-    private OCRListener ocrListener;
-
-    Worker(CountDownLatch signal, Bitmap photo, OCRListener ocrListener) {
-        this.signal = signal;
-        this.photo = photo;
-        this.ocrListener = ocrListener;
-    }
-
-    public void run() {
-        // Instance of an OCR recognizer
-        OCR ocrProcess = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
-                ocrListener);
-
-        // Runs the operations of text extraction
-        ocrProcess.getTextFromImg(photo);
+        return counter*100/stringsWhereToSearchArray.length;
     }
 }
 
@@ -313,65 +201,3 @@ class PhotoNullException extends Exception
         super(message);
     }
 }
-
-/**
- * Entry to store information
- */
-class InformationEntry
-{
-    private String OCRText;
-    private String warning;
-    private int variation;
-    private int similarity;
-    private ManualTestOnSinglePhoto.Type type;
-
-    //Constructor
-    public InformationEntry(String OCRText, String warning)
-    {
-        this.OCRText=OCRText;
-        this.warning=warning;
-    }
-
-    //Constructor
-    public InformationEntry(){
-        this.OCRText=null;
-        this.similarity=-1;
-        this.type=null;
-        this.variation=-1;
-        this.warning=null;
-    }
-
-    public void setOCRText(String OCRText) {this.OCRText = OCRText;}
-
-    public void setVariation(int variation) { this.variation = variation; }
-
-    public void setSimilarity(int similarity) {this.similarity = similarity;}
-
-    public void setTypeROTATION(){type=ManualTestOnSinglePhoto.Type.ROTATION;}
-
-    public void setType(ManualTestOnSinglePhoto.Type type){this.type=type;}
-
-    public void setWarning(String warning){this.warning= warning;}
-
-    public String getOCRText() {return OCRText;}
-
-    public String getWarning() {return warning;}
-
-    public int getVariation() {return variation;}
-
-    public int getSimilarity() {return similarity;}
-
-    public ManualTestOnSinglePhoto.Type getType() {return type;}
-
-    public InformationEntry clone(){
-        InformationEntry newEntry=new InformationEntry(this.OCRText, this.warning);
-
-        newEntry.setSimilarity(this.similarity);
-        newEntry.setVariation(this.variation);
-        newEntry.setType(this.type);
-
-        return newEntry;
-    }
-}
-
-
