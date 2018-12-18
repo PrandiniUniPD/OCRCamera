@@ -24,6 +24,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import unipd.se18.ocrcamera.inci.Inci;
+import unipd.se18.ocrcamera.inci.Ingredient;
+import unipd.se18.ocrcamera.inci.IngredientsExtractor;
+import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
+import unipd.se18.ocrcamera.inci.PrecorrectionIngredientsExtractor;
+import unipd.se18.ocrcamera.inci.TextAutoCorrection;
+import unipd.se18.ocrcamera.inci.TextSplitIngredientsExtractor;
 import unipd.se18.ocrcamera.recognizer.OCR;
 import unipd.se18.ocrcamera.recognizer.OCRListener;
 import unipd.se18.ocrcamera.recognizer.TextRecognizer;

@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.inci;
 
 import android.util.Log;
 
@@ -18,7 +18,7 @@ import com.opencsv.CSVReader;
  * http://opencsv.sourceforge.net/
  * @author Francesco Pham
  */
-class Inci {
+public class Inci {
 
     private static final String TAG = "Inci";
 
@@ -27,7 +27,7 @@ class Inci {
      * @param inciDbStream InputStream from inci db csv file
      * @author Francesco Pham
      */
-    static ArrayList<Ingredient> getListIngredients(InputStream inciDbStream){
+    public static ArrayList<Ingredient> getListIngredients(InputStream inciDbStream){
         Reader reader = new BufferedReader(new InputStreamReader(inciDbStream));
 
         ArrayList<Ingredient> listIngredients = new ArrayList<>(); //initializing list of ingredients

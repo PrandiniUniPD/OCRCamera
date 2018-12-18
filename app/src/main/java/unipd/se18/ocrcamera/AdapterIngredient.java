@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import unipd.se18.ocrcamera.inci.Ingredient;
+
 /**
  * Adapter for list view of ingredients after processing with incidb
  * @author Francesco Pham

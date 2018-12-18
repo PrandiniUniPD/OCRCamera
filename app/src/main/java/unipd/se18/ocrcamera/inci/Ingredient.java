@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.inci;
 
 /**
  * Ingredient class which contains the information of the ingredient taken from inci db

@@ -4,6 +4,12 @@ import android.content.Context;
 import java.io.InputStream;
 import java.util.List;
 
+import unipd.se18.ocrcamera.inci.Inci;
+import unipd.se18.ocrcamera.inci.Ingredient;
+import unipd.se18.ocrcamera.inci.IngredientsExtractor;
+import unipd.se18.ocrcamera.inci.PrecorrectionIngredientsExtractor;
+import unipd.se18.ocrcamera.inci.TextAutoCorrection;
+
 /**
  * Using singleton design pattern for single time inci db loading and text extractor initialization.
  * @author Francesco Pham

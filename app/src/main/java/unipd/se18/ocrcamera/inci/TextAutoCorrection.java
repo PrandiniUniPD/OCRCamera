@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.inci;
 
 import android.util.Log;
 
@@ -24,7 +24,7 @@ import edu.gatech.gtri.bktree.MutableBkTree;
  *
  * @author Francesco Pham
  */
-class TextAutoCorrection {
+public class TextAutoCorrection {
 
     private final String TAG = "TextAutoCorrection";
 
@@ -39,7 +39,7 @@ class TextAutoCorrection {
      * @param wordList InputStream from the word list
      * @author Francesco Pham
      */
-    TextAutoCorrection(InputStream wordList){
+    public TextAutoCorrection(InputStream wordList){
 
         //open word list
         BufferedReader reader = new BufferedReader(new InputStreamReader(wordList));

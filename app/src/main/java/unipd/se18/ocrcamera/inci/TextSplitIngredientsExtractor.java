@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.inci;
 
 import android.util.Log;
 
@@ -31,7 +31,7 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
      * Constructor loads a tree of inci names for a much faster search
      * @param listIngredients Total list of ingredients from the INCI DB
      */
-    TextSplitIngredientsExtractor(List<Ingredient> listIngredients) {
+    public TextSplitIngredientsExtractor(List<Ingredient> listIngredients) {
 
         //copying list so that sorting doesn't affect original list
         this.listIngredients = new ArrayList<>(listIngredients);

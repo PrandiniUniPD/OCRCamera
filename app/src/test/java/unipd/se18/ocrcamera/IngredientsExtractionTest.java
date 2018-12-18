@@ -8,6 +8,13 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 
+import unipd.se18.ocrcamera.inci.Inci;
+import unipd.se18.ocrcamera.inci.Ingredient;
+import unipd.se18.ocrcamera.inci.IngredientsExtractor;
+import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
+import unipd.se18.ocrcamera.inci.PrecorrectionIngredientsExtractor;
+import unipd.se18.ocrcamera.inci.TextAutoCorrection;
+
 import static org.junit.Assert.*;
 
 public class IngredientsExtractionTest {

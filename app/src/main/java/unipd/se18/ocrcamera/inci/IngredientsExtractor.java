@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.inci;
 
 import java.util.ArrayList;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Classes that implement this interface should provide a method to extract a list of ingredients from a text
  * @author Francesco Pham
  */
-interface IngredientsExtractor {
+public interface IngredientsExtractor {
 
     /**
      * This method extracts ingredients from the ocr text and returns the list of ingredients.
