@@ -386,7 +386,8 @@ public class PhotoTester {
 
     /**
      *
-     * @param bitmap from which the text is extracted
+     * @param bitmap from which the text is extracted - this method blocks the calling thread
+     * and waits for the text extraction from the OCR
      * @return String - the text extracted
      */
     private String executeOcr(Bitmap bitmap) {
@@ -395,19 +396,18 @@ public class PhotoTester {
 
         final String[] recognizedText = new String[1];
 
-
         final OCRListener ocrTextListener = new OCRListener() {
             @Override
             public void onTextRecognized(String text) {
-                waitForExtraction.countDown();
                 recognizedText[0] = text;
+                waitForExtraction.countDown();
             }
 
             @Override
             public void onTextRecognizedError(int code) {
-                waitForExtraction.countDown();
                 String errorText = R.string.extraction_error + " " + R.string.error_code + ")";
                 recognizedText[0] = errorText;
+                waitForExtraction.countDown();
             }
         };
         OCR ocrTextProcess = TextRecognizer.getTextRecognizer(TextRecognizer.Recognizer.mlKit, ocrTextListener);
@@ -420,7 +420,6 @@ public class PhotoTester {
         }
 
         return recognizedText[0];
-
     }
 
 
@@ -451,26 +450,13 @@ public class PhotoTester {
             long started = java.lang.System.currentTimeMillis();
 
 
-            //evaluate text extraction confidence
-            String imagePath = test.getImagePath();
-            Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
+            //evaluate text extraction - set recognized text and confidence with the recognition
+            evaluateTest(test);
 
-
-
-
-
-            String ocrText = executeOcr(testBitmap);
-
-            String correctIngredients = test.getIngredients();
-            float confidence = ingredientsTextComparison(correctIngredients, ocrText);
-
-            //insert results in test
-            test.setConfidence(confidence);
-            test.setRecognizedText(ocrText);
-
+            //TODO split the code into methods
             //extract ingredients from ocr text and from correctIngredientsText (Francesco Pham)
-            List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
-            List<Ingredient> correctListIngredients = correctIngredientsExtractor.findListIngredients(ocrText);
+            List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(test.getRecognizedText());
+            List<Ingredient> correctListIngredients = correctIngredientsExtractor.findListIngredients(test.getRecognizedText());
 
             //sort alphabetically (Francesco Pham)
             Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
@@ -523,7 +509,52 @@ public class PhotoTester {
 
             test.setIngredientsExtraction(extractionReport.toString());
 
-            //evaluate alterations if any
+
+
+
+            //evaluate alterations if any - set for each alteration: recognized text and confidence with the extraction
+            evaluateTestAlterations(test);
+
+            try {
+                addTestElement(jsonReport, test);
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
+            }
+
+            //calls TestListener.onTestFinished (synchronized to avoid concurrency)
+            signalTestFinished();
+
+            //signal the end of this single test
+            countDownLatch.countDown();
+            long ended = java.lang.System.currentTimeMillis();
+            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
+        }
+
+        /**
+         * Evaluate a test setting the recognized text and the confidence with the recognition
+         * @param test TestElement to evaluate
+         * @modify test
+         */
+        private void evaluateTest(TestElement test) {
+            String imagePath = test.getImagePath();
+            Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
+
+            String ocrText = executeOcr(testBitmap);
+
+            String correctIngredients = test.getIngredients();
+            float confidence = ingredientsTextComparison(correctIngredients, ocrText);
+
+            //insert results in test
+            test.setConfidence(confidence);
+            test.setRecognizedText(ocrText);
+        }
+
+        /**
+         * Evaluate each alteration (if any) setting the recognized text and the confidence with the recognition
+         * @param test TestElement to evaluate
+         * @modify test
+         */
+        private void evaluateTestAlterations(TestElement test) {
             String[] alterationsFileNames = test.getAlterationsNames();
             if(alterationsFileNames != null) {
                 for(String alterationFilename : alterationsFileNames) {
@@ -535,33 +566,25 @@ public class PhotoTester {
                     if(alterationBitmap != null) {
                         alterationExtractedIngredients = executeOcr(alterationBitmap);
                     }
-                    float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
+                    float alterationConfidence = ingredientsTextComparison(test.getIngredients(), alterationExtractedIngredients);
 
                     //insert evaluation
                     test.setAlterationConfidence(alterationFilename, alterationConfidence);
                     test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
                 }
             }
+        }
 
-
-            try {
-                addTestElement(jsonReport, test);
-            } catch (JSONException e) {
-                Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
-            }
-
-            //if the listener has been set then call onTestFinished function
+        /**
+         * Signal the end of a single test by calling TestListener.onTestFinished if a listener has been set
+         */
+        private synchronized void signalTestFinished() {
             if(testListener != null) {
-                synchronized (testListener) {
-                    testListener.onTestFinished();
-                }
-
+                testListener.onTestFinished();
+            } else {
+                Log.v(TAG, "No listener set");
             }
 
-            //signal the end of this single test
-            countDownLatch.countDown();
-            long ended = java.lang.System.currentTimeMillis();
-            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
         }
     }
 
@@ -581,7 +604,7 @@ public class PhotoTester {
      * @throws JSONException
      * @author Luca Moroldo (g3)
      */
-    synchronized void addTestElement(JSONObject jsonReport, TestElement test) throws JSONException {
+    private synchronized void addTestElement(JSONObject jsonReport, TestElement test) throws JSONException {
         jsonReport.put(test.getFileName(), test.getJsonObject());
     }
 
