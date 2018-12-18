@@ -89,8 +89,9 @@ public class TestDetailsActivity extends AppCompatActivity {
         TestUtils.setAlterationsView(
                 TestDetailsActivity.this,
                 (RelativeLayout) findViewById(R.id.result_view),
-                R.id.extracted_ingredients_view,
+                extractedIngredientsView,
                 entry,
-                true);
+                true
+        );
     }
 }

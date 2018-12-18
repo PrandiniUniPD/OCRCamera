@@ -91,9 +91,9 @@ public class TestsListAdapter extends BaseAdapter {
 
         // Sets the alterations view
         TestUtils.setAlterationsView(
-                context,
+                convertView.getContext(),
                 (RelativeLayout) convertView.findViewById(R.id.result_view),
-                R.id.tags_view,
+                tags,
                 entries[position],
                 false
         );

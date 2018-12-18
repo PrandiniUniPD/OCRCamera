@@ -108,13 +108,13 @@ class TestUtils {
      * Set the alterations text to the view of the activity
      * @param context The context where would be the alterations text
      * @param relativeLayout The layout to add the text views
-     * @param idBelowOf The id of the view where putting the alterations text below of
+     * @param belowOf The view where putting the alterations text below of
      * @param element The test element where searching the alterations
      * @param viewDetails True for viewing details of alterations, false otherwise
      * @author Pietro Prandini (g2)
      */
     protected static void setAlterationsView(Context context, RelativeLayout relativeLayout,
-                                             int idBelowOf, TestElement element, Boolean viewDetails) {
+                                             View belowOf, TestElement element, Boolean viewDetails) {
         String[] alterations = element.getAlterationsNames();
         StringBuilder alterationsText = new StringBuilder();
         if(alterations != null) {
@@ -154,14 +154,14 @@ class TestUtils {
                 paramsView.addRule(RelativeLayout.CENTER_HORIZONTAL);
 
                 // Adds the view
-                idBelowOf = addViewBelow(relativeLayout,paramsView,idBelowOf,alterationsView);
+                belowOf = addViewBelow(relativeLayout,paramsView,belowOf,alterationsView);
 
                 // Sets details if required
                 if(viewDetails) {
-                    idBelowOf = viewAlterationDetails(
+                    belowOf = viewAlterationDetails(
                             context,
                             relativeLayout,
-                            idBelowOf,
+                            belowOf,
                             element,
                             alteration
                     );
@@ -174,13 +174,14 @@ class TestUtils {
      * Sets the details of an altered test
      * @param context The context where would be the alterations text
      * @param relativeLayout The layout to add the text views
-     * @param idBelowOf The id of the view where putting the alterations text below of
+     * @param belowOf The view where putting the alterations text below of
      * @param element The test element where searching the alterations
      * @param alteration The alteration type String
+     * @return the last View added
      * @author Pietro Prandini (g2)
      */
-    protected static int viewAlterationDetails(Context context, RelativeLayout relativeLayout,
-                                               int idBelowOf, TestElement element, String alteration) {
+    private static View viewAlterationDetails(Context context, RelativeLayout relativeLayout,
+                                               View belowOf, TestElement element, String alteration) {
 
         // Obtains the altered pic
         String imagePath = element.getAlterationImagePath(alteration);
@@ -189,7 +190,7 @@ class TestUtils {
         picView.setImageBitmap(img);
 
         // Adds the pics view (set the id to the id of that view)
-        idBelowOf = addViewBelow(relativeLayout, idBelowOf, picView);
+        belowOf = addViewBelow(relativeLayout, belowOf, picView);
 
         // Adds the alteration details
         // Tags title
@@ -200,7 +201,7 @@ class TestUtils {
         tagsTitle.setPadding(titlePadding,titlePadding,titlePadding,titlePadding);
         tagsTitle.setTypeface(Typeface.DEFAULT_BOLD);
 
-        idBelowOf = addViewBelow(relativeLayout,idBelowOf,tagsTitle);
+        belowOf = addViewBelow(relativeLayout,belowOf,tagsTitle);
 
         // Tags details
         TextView tags = new TextView(context);
@@ -214,7 +215,7 @@ class TestUtils {
         tags.setText(assignedTags.toString());
         tags.setPadding(detailsPadding, detailsPadding, detailsPadding,detailsPadding);
 
-        idBelowOf = addViewBelow(relativeLayout,idBelowOf,tags);
+        belowOf = addViewBelow(relativeLayout,belowOf,tags);
 
         // Extracted text title
         TextView extractedTextTitle = new TextView(context);
@@ -223,14 +224,14 @@ class TestUtils {
         extractedTextTitle.setPadding(titlePadding,titlePadding,titlePadding,titlePadding);
         extractedTextTitle.setTypeface(Typeface.DEFAULT_BOLD);
 
-        idBelowOf = addViewBelow(relativeLayout,idBelowOf,extractedTextTitle);
+        belowOf = addViewBelow(relativeLayout,belowOf,extractedTextTitle);
 
         // Extracted text details
         TextView extractedText = new TextView(context);
         extractedText.setText(element.getAlterationRecognizedText(alteration));
         extractedText.setPadding(detailsPadding, detailsPadding, detailsPadding, detailsPadding);
 
-        idBelowOf = addViewBelow(relativeLayout,idBelowOf,extractedText);
+        belowOf = addViewBelow(relativeLayout,belowOf,extractedText);
 
         // Notes title
         TextView notesTitle = new TextView(context);
@@ -239,58 +240,57 @@ class TestUtils {
         notesTitle.setPadding(titlePadding,titlePadding,titlePadding,titlePadding);
         notesTitle.setTypeface(Typeface.DEFAULT_BOLD);
 
-        idBelowOf = addViewBelow(relativeLayout,idBelowOf,notesTitle);
+        belowOf = addViewBelow(relativeLayout,belowOf,notesTitle);
 
         // Notes details
         TextView notes = new TextView(context);
         notes.setText(element.getAlterationNotes(alteration));
         notes.setPadding(detailsPadding, detailsPadding, detailsPadding, detailsPadding);
 
-        idBelowOf = addViewBelow(relativeLayout,idBelowOf,notes);
+        belowOf = addViewBelow(relativeLayout,belowOf,notes);
 
-        return idBelowOf;
+        return belowOf;
     }
 
     /**
      * Adds a view below with parameters set to "WRAP_CONTENT"
      * @param relativeLayout The layout to add the text views
-     * @param idBelowOf The id of the view where putting the alterations text below of
+     * @param belowOf The view where putting the alterations text below of
      * @param view The view to be added
-     * @return The id of the view added
+     * @return The view added
      * @author Pietro Prandini (g2)
      */
-    protected static int addViewBelow(RelativeLayout relativeLayout,
-                                      int idBelowOf, View view) {
+    private static View addViewBelow(RelativeLayout relativeLayout,
+                                      View belowOf, View view) {
         // Configures the layout parameters
         RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
 
-        return addViewBelow(relativeLayout, paramsView, idBelowOf,view);
+        return addViewBelow(relativeLayout, paramsView, belowOf,view);
     }
 
     /**
      * Adds a view below
      * @param relativeLayout The layout to add the text views
      * @param layoutParams The parameters of the layout
-     * @param idBelowOf The id of the view where putting the alterations text below of
+     * @param belowOf The view where putting the alterations text below of
      * @param view The view to be added
-     * @return The id of the view added
+     * @return The view added
      * @author Pietro Prandini (g2)
      */
-    protected static int addViewBelow(RelativeLayout relativeLayout,
+    private static View addViewBelow(RelativeLayout relativeLayout,
                                       RelativeLayout.LayoutParams layoutParams,
-                                      int idBelowOf, View view) {
+                                      View belowOf, View view) {
         // Puts below of the id passed
-        layoutParams.addRule(RelativeLayout.BELOW, idBelowOf);
+        layoutParams.addRule(RelativeLayout.BELOW, belowOf.getId());
 
         // Adds the view
         relativeLayout.addView(view,layoutParams);
 
         // Sets the appropriate id
         view.setId(View.generateViewId());
-        idBelowOf = view.getId();
-        return idBelowOf;
+        return view;
     }
 
     /**

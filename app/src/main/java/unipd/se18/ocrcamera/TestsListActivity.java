@@ -144,8 +144,13 @@ public class TestsListActivity extends AppCompatActivity {
             totalTestElements = tester.getTestSize();
             progressBar.setMax(totalTestElements);
             int initialValue = 0;
-            String progress = getTestingProgressString(initialValue, totalTestElements);
-            progressText.setText(progress);
+            final String progress = getTestingProgressString(initialValue, totalTestElements);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressText.setText(progress);
+                }
+            });
 
             // Listener useful for updating the progress bar
             TestListener testListener = new TestListener() {
