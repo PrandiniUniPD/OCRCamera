@@ -26,7 +26,7 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
      * @param listIngredients Total list of ingredients from the INCI DB
      * @param corrector Text Corrector
      */
-    PrecorrectionIngredientsExtractor(List<Ingredient> listIngredients, TextAutoCorrection corrector) {
+    public PrecorrectionIngredientsExtractor(List<Ingredient> listIngredients, TextAutoCorrection corrector) {
         //copying list so that sorting doesn't affect original list
         this.listIngredients = new ArrayList<>(listIngredients);
 
