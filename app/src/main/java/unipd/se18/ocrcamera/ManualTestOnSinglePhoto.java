@@ -8,9 +8,12 @@ import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+
 import unipd.se18.ocrcamera.recognizer.OCR;
 import unipd.se18.ocrcamera.recognizer.OCRListener;
 import unipd.se18.ocrcamera.recognizer.TextRecognizer;
@@ -24,22 +27,25 @@ import static unipd.se18.ocrcamera.recognizer.TextRecognizer.getTextRecognizer;
 
 public class ManualTestOnSinglePhoto extends AppCompatActivity {
 
-    private TextView textView;
-    private String Tag;
     private String startingOCRText;
-
-    /**
-     * Strings
-     */
-    private final String firstPart = "Per la foto con rotazione di ";
-    private final String secondPart = " gradi: \nPercentuale di testo comune: ";
-    private final String thirdPart = "% \n Testo trovato: ";
     private final String errorLog1 = "No filePath preferences found";
 
     /**
-     * Value of rotation angle of rotation
+     * Set default value in modify variable
      */
-    private final int angleRotation = 10;
+    private int angleRotation;
+    private int illuminationValue;
+    private int tiltValue;
+
+    /**
+     * Ui Initialization
+     */
+    private EditText degreeText;
+    private EditText illuminationText;
+    private EditText tiltText;
+    private TextView textView;
+
+
 
     /**
      * Listener used by the extraction process to notify results
@@ -51,6 +57,8 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
              Text correctly recognized
              -> prints it on the screen and saves it in the preferences
              */
+            setContentView(R.layout.activity_manual_test_result);
+            textView = findViewById(R.id.manualTextView);
             SetResult(text);
         }
 
@@ -70,38 +78,50 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //UI initialization
-        setContentView(R.layout.manual_test_activity);
-        textView = findViewById(R.id.manualTextView);
-        textView.setMovementMethod(new ScrollingMovementMethod());
+        setContentView(R.layout.activity_manual_test);
+        degreeText = findViewById(R.id.editText1);
+        illuminationText = findViewById(R.id.editText2);
+        tiltText = findViewById(R.id.editText3);
+
+        //Get image path and text of the last image from preferences
+        SharedPreferences prefs = this.getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = prefs.getString("imagePath", null);
+        startingOCRText = prefs.getString("text", null);
+
+        final Bitmap photo = BitmapFactory.decodeFile(pathImage);
+
+        Button fab = findViewById(R.id.btnConfirm);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+                    angleRotation = Integer.parseInt(degreeText.getText().toString());
+                    illuminationValue = Integer.parseInt(degreeText.getText().toString());
+                    tiltValue = Integer.parseInt(degreeText.getText().toString());
+
+                    if (photo == null)
+                        throw new PhotoNullException();
+
+                    //Photo changes
+                    Bitmap photoToCompare = rotateImage(photo, angleRotation);
+
+                    // Instance of an OCR recognizer
+                    OCR ocrProcess = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
+                            ocrListener);
+
+                    // Runs the operations of text extraction
+                    ocrProcess.getTextFromImg(photoToCompare);
 
 
-        try {
-            //Get image path and text of the last image from preferences
-            SharedPreferences prefs = this.getSharedPreferences("prefs", MODE_PRIVATE);
-            String pathImage = prefs.getString("imagePath", null);
-            startingOCRText = prefs.getString("text", null);
-
-            Bitmap photo = BitmapFactory.decodeFile(pathImage);
-            if (photo == null)
-                throw new PhotoNullException();
-
-            //Photo changes
-            Bitmap photoToCompare = rotateImage(photo, angleRotation);
-
-
-            // Instance of an OCR recognizer
-            OCR ocrProcess = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
-                    ocrListener);
-
-            // Runs the operations of text extraction
-            ocrProcess.getTextFromImg(photoToCompare);
-
-
-        } catch (PhotoNullException e) {
-            Log.e(Tag, errorLog1);
-            Intent takeANewPhoto = new Intent(ManualTestOnSinglePhoto.this, CameraActivity.class);
-            startActivity(takeANewPhoto);
-        }
+                } catch (PhotoNullException e) {
+                    String Tag="";
+                    Log.e(Tag, errorLog1);
+                    Intent takeANewPhoto = new Intent(ManualTestOnSinglePhoto.this, CameraActivity.class);
+                    startActivity(takeANewPhoto);
+                }
+            }
+        });
     }
 
     /**Based on the text received and startingOCRTText, analise informations like confidence
@@ -110,6 +130,10 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
      * @modify show on textView the result
      */
     private void SetResult(String text){
+
+        final String firstPart = "Per la foto con rotazione di ";
+        final String secondPart = " gradi: \nPercentuale di testo comune: ";
+        final String thirdPart = "% \n Testo trovato: ";
 
         //Add information in defaultEntry
         String warning = findWarning(text, startingOCRText.length());
@@ -175,7 +199,7 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
         for(String string1: stringsToSplitArray) {
             Boolean check=true;
             for(String string2: stringsWhereToSearchArray){
-                if(string1.equals(string2) && check && string1!=""){
+                if(string1.equals(string2) && check && string1.equals("")){
                     counter++;
                     check=false;
                 }

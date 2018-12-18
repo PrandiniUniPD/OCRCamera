@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:gravity="center"
+        android:text="Scegli le modifiche da applicare all'ultima foto scattata"
+        android:textColor="#B22222"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/subtitleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="I campi lasciati vuoti sono messi di default a 0"
+        android:textSize="15dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView" />
+
+    <TextView
+        android:id="@+id/finalTextView1"
+        android:layout_width="200dp"
+        android:layout_height="25dp"
+        android:gravity="center"
+        android:text="Rotazione in gradi"
+        android:textColor="#be000000"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/finalTextView2"
+        app:layout_constraintEnd_toStartOf="@+id/editText1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subtitleTextView" />
+
+    <TextView
+        android:id="@+id/finalTextView2"
+        android:layout_width="200dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Sovrailluminazione/Sottoilluminazione"
+        android:textColor="#be000000"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/finalTextView3"
+        app:layout_constraintEnd_toStartOf="@+id/editText2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/finalTextView1" />
+
+    <TextView
+        android:id="@+id/finalTextView3"
+        android:layout_width="200dp"
+        android:layout_height="25dp"
+        android:gravity="center"
+        android:text="Inclinazione in gradi"
+        android:textColor="#be000000"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/finalTextView4"
+        app:layout_constraintEnd_toStartOf="@+id/editText3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/finalTextView2" />
+
+    <TextView
+        android:id="@+id/finalTextView4"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:text="4° Funzione"
+        android:textColor="#be000000"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@id/btnConfirm"
+        app:layout_constraintEnd_toStartOf="@+id/editText4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/finalTextView3" />
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="#be000000"
+        android:textSize="15dp"
+        android:ems="4"
+        android:inputType="number"
+        app:layout_constraintBottom_toTopOf="@+id/finalTextView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/finalTextView1"
+        app:layout_constraintTop_toBottomOf="@+id/subtitleTextView" />
+
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="#be000000"
+        android:textSize="15dp"
+        android:ems="4"
+        android:inputType="numberSigned"
+        app:layout_constraintBottom_toTopOf="@+id/finalTextView3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/finalTextView2"
+        app:layout_constraintTop_toBottomOf="@+id/finalTextView1"
+        app:layout_goneMarginBottom="100dp" />
+
+    <EditText
+        android:id="@+id/editText3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="#be000000"
+        android:textSize="15dp"
+        android:ems="4"
+        android:inputType="numberSigned"
+        app:layout_constraintBottom_toTopOf="@+id/finalTextView4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/finalTextView3"
+        app:layout_constraintTop_toBottomOf="@+id/finalTextView2" />
+
+    <EditText
+        android:id="@+id/editText4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="null"
+        android:textColor="#be000000"
+        android:textSize="15dp"
+        android:ems="4"
+        android:inputType="number"
+        app:layout_constraintBottom_toTopOf="@id/btnConfirm"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/finalTextView4"
+        app:layout_constraintTop_toBottomOf="@+id/finalTextView3" />
+
+    <Button
+        android:id="@+id/btnConfirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Confirm"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/finalTextView4" />
+
+
+</android.support.constraint.ConstraintLayout>
