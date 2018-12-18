@@ -44,4 +44,7 @@
     <string name="serializableObjectName">PhotoStructureObject</string>
     <string name="galleryFragmentTitle">Gallery</string>
     <string name="galleryDetailsFragmentTitle">Details</string>
+    <string name="elaboration_interrupted">Elaboration interrupted</string>
+    <string name="tested">Tested:</string>
+    <string name="of">of</string>
 </resources>

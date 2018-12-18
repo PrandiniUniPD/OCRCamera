@@ -60,8 +60,8 @@ public class TestsListActivity extends AppCompatActivity {
     }
 
     /**
-     * Execute the ocr task for every test pic in the storage
-     * TraPietro Prandini (g2)
+     * Executes the ocr task for every test pic in the storage
+     * @author Pietro Prandini (g2)
      */
     @SuppressLint("StaticFieldLeak")
     private class AsyncReport extends AsyncTask<Void, Integer, Void> {
@@ -74,11 +74,6 @@ public class TestsListActivity extends AppCompatActivity {
          * The String of the test pics directory path.
          */
         private String dirPath;
-
-        /**
-         * The String of the message to show when the task is in progress
-         */
-        private String progressMessage;
 
         /**
          * Instance of PhotoTester used for doing the tests
@@ -104,6 +99,9 @@ public class TestsListActivity extends AppCompatActivity {
          * The number of tested elements so far
          */
         private int testedElements = 0;
+
+        private int totalTestElements = 0;
+
         /**
          * Constructor of the class
          * @param listEntriesView The ListView used for showing the results as list
@@ -134,8 +132,15 @@ public class TestsListActivity extends AppCompatActivity {
          */
         @Override
         protected Void doInBackground(Void... voids) {
+            // Starts the elaboration of the tests
             this.tester = new PhotoTester(getApplicationContext(), dirPath);
-            progressBar.setMax(tester.getTestSize());
+
+            // Sets the starting information about the progress
+            totalTestElements = tester.getTestSize();
+            progressBar.setMax(totalTestElements);
+            int initialValue = 0;
+            String progress = getTestingProgressString(initialValue, totalTestElements);
+            progressText.setText(progress);
 
             // Listener useful for updating the progress bar
             TestListener testListener = new TestListener() {
@@ -157,7 +162,7 @@ public class TestsListActivity extends AppCompatActivity {
                 report = tester.testAndReport();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                report = "Elaboration interrupted";
+                report = getString(R.string.elaboration_interrupted);
             }
 
             runOnUiThread(new Runnable() {
@@ -175,11 +180,17 @@ public class TestsListActivity extends AppCompatActivity {
             return null;
         }
 
+        /**
+         * Updates the progress information about the testing process
+         * More details at: {@link AsyncTask#onProgressUpdate(Object[])}
+         * @param values Values received during the progress
+         * @modify progressBar The bar representing the progress of the testing process
+         * @modify progressText The text referring to the progress of the testing process
+         */
         @Override
         protected void onProgressUpdate(Integer... values) {
             progressBar.setProgress(testedElements);
-            String progress = "Tested: " + values[0] +
-                    " of " + tester.getTestSize();
+            String progress = getTestingProgressString(testedElements, totalTestElements);
             progressText.setText(progress);
         }
 
@@ -192,7 +203,7 @@ public class TestsListActivity extends AppCompatActivity {
          */
         @Override
         protected void onPostExecute(Void v) {
-            //add statistics author: Francesco Pham
+            // add statistics author: Francesco Pham
             TextView statsView = new TextView(TestsListActivity.this);
             String statsText = "";
 
@@ -201,6 +212,19 @@ public class TestsListActivity extends AppCompatActivity {
             statsView.setText(statsText);
             listEntriesView.addHeaderView(statsView);
         }
+    }
+
+    /**
+     * Get the testing progress string
+     * @param progress The number of the terminated tests
+     * @param max The total number of the tests
+     * @return The string that describes the progress of the testing
+     * @author Pietro Prandini (g2)
+     */
+    private String getTestingProgressString(int progress, int max) {
+        String progressString = getString(R.string.tested) + " " + progress + " "
+                + getString(R.string.of) + " " + max;
+        return progressString;
     }
 
     /**
@@ -233,6 +257,5 @@ public class TestsListActivity extends AppCompatActivity {
                 }
             }
         }
-
     }
 }

@@ -113,19 +113,19 @@ public class ResultActivity extends AppCompatActivity {
         });
 
 
-        //Get image path and text of the last image from preferences
+        // Gets the image path and the text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
         OCRText = prefs.getString("text", null);
 
-        //Bitmap of the lastPhoto saved
+        // Bitmap of the lastPhoto saved
         lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
 
             latch = new CountDownLatch(1);
 
-            //extract ingredients
+            // Extracts ingredients
             IngredientsExtractionThread ingredientsExtractionThread = new IngredientsExtractionThread();
             ingredientsExtractionThread.start();
 
@@ -136,10 +136,20 @@ public class ResultActivity extends AppCompatActivity {
 
                 // Runs the operations of text extraction
                 ocrProcess.getTextFromImg(lastPhoto);
+            } else {
+                latch.countDown();
             }
-            else latch.countDown();
 
-            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
+            // Sets the image to the view
+            mImageView.setImageBitmap(
+                    // Scales the image firstly
+                    Bitmap.createScaledBitmap(
+                            lastPhoto,
+                            lastPhoto.getWidth(),
+                            lastPhoto.getHeight(),
+                            false
+                    )
+            );
         } else {
             Log.e("ResultActivity", "error retrieving last photo");
         }

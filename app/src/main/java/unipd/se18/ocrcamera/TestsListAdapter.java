@@ -68,28 +68,29 @@ public class TestsListAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
+        // Prepares the view of an element of the list
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
         }
 
-        // Set the correctness value
+        // Sets the correctness value
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entries[position].getConfidence();
         correctness.setText(TestDetailsActivity.formatPercentString(confidence));
 
-        // Set the color of the correctness text value
+        // Sets the color of the correctness text value
         redUntil = 70;
         yellowUntil = 85;
         correctness.setTextColor(
                 TestDetailsActivity.chooseColorOfValue(confidence, redUntil, yellowUntil)
         );
 
-        // Set the name of the pic
+        // Sets the name of the pic
         TextView name = convertView.findViewById(R.id.pic_name_view);
         String picName = entries[position].getFileName();
         name.setText(picName);
 
-        // Set the Tags text
+        // Sets the Tags text
         TextView tags = convertView.findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
         for (String tag : entries[position].getTags()) {
@@ -97,7 +98,7 @@ public class TestsListAdapter extends BaseAdapter {
         }
         tags.setText(assignedTags.toString());
 
-        // Set alterations view
+        // Sets the alterations view
         TestDetailsActivity.setAlterationsView(
                 context,
                 (RelativeLayout) convertView.findViewById(R.id.result_view),
@@ -106,19 +107,20 @@ public class TestsListAdapter extends BaseAdapter {
                 false
         );
 
+        // Prepares the Intent for launching the TestDetailsActivity
+        final Intent testDetailsActivity = new Intent(context, TestDetailsActivity.class);
+
+        // Prepares the values to be passed by the intent
+        testDetailsActivity.putExtra(positionString,position);
+        testDetailsActivity.putExtra(redUntilString,redUntil);
+        testDetailsActivity.putExtra(yellowUntilString,yellowUntil);
+
+        // Sets the button that launches the details activity
         Button viewDetailsButton = convertView.findViewById(R.id.view_details_button);
         viewDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Prepares the Intent for launching the TestDetailsActivity
-                Intent testDetailsActivity = new Intent(context, TestDetailsActivity.class);
-
-                // Passes some values by the intents
-                testDetailsActivity.putExtra(positionString,position);
-                testDetailsActivity.putExtra(redUntilString,redUntil);
-                testDetailsActivity.putExtra(yellowUntilString,yellowUntil);
-
-                // Starts the activity
+                // Starts the details activity
                 context.startActivity(testDetailsActivity);
             }
         });
@@ -130,7 +132,5 @@ public class TestsListAdapter extends BaseAdapter {
      * @return The array of the Test Elements analyzed
      * @author Pietro Prandini (g2)
      */
-    static TestElement[] getTestElements() {
-        return TestsListAdapter.entries;
-    }
+    static TestElement[] getTestElements() { return TestsListAdapter.entries; }
 }
