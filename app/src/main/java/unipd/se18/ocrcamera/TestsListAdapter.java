@@ -56,7 +56,7 @@ public class TestsListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return TestDetailsActivity.getTestElementId(entries[position]);
+        return TestUtils.getTestElementId(entries[position]);
     }
 
     @Override
@@ -72,13 +72,13 @@ public class TestsListAdapter extends BaseAdapter {
         // Sets the correctness value
         TextView correctness = convertView.findViewById(R.id.correctness_view);
         float confidence = entries[position].getConfidence();
-        correctness.setText(TestDetailsActivity.formatPercentString(confidence));
+        correctness.setText(TestUtils.formatPercentString(confidence));
 
         // Sets the color of the correctness text value
         final float redUntil = 70;
         final float yellowUntil = 85;
         correctness.setTextColor(
-                TestDetailsActivity.chooseColorOfValue(confidence, redUntil, yellowUntil)
+                TestUtils.chooseColorOfValue(confidence, redUntil, yellowUntil)
         );
 
         // Sets the name of the pic
@@ -95,7 +95,7 @@ public class TestsListAdapter extends BaseAdapter {
         tags.setText(assignedTags.toString());
 
         // Sets the alterations view
-        TestDetailsActivity.setAlterationsView(
+        TestUtils.setAlterationsView(
                 context,
                 (RelativeLayout) convertView.findViewById(R.id.result_view),
                 R.id.tags_view,

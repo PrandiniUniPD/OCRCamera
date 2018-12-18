@@ -177,8 +177,8 @@ public class TestsListActivity extends AppCompatActivity {
                 @Override
                 public int compare(TestElement o1, TestElement o2) {
                     return Long.compare(
-                            TestDetailsActivity.getTestElementId(o1),
-                            TestDetailsActivity.getTestElementId(o2)
+                            TestUtils.getTestElementId(o1),
+                            TestUtils.getTestElementId(o2)
                     );
                 }
             };
