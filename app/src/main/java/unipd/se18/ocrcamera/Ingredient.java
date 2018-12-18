@@ -1,7 +1,8 @@
 package unipd.se18.ocrcamera;
 
 /**
- * Ingredient class which contains the information of the ingredient taken from inci db
+ * Ingredient class which contains the information of the ingredient taken from inci db.
+ * Some fields are not used for now, but we could still use them later.
  * @author Francesco Pham
  */
 public class Ingredient implements Comparable<String> {

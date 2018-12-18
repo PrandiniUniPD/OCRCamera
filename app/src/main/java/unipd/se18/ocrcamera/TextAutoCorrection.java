@@ -31,9 +31,6 @@ class TextAutoCorrection {
     //searcher for words in the word list with minimum distance from a given query
     private BkTreeSearcher<String> searcher;
 
-    //percentage distance below which we substitute the word with the term found in dictionary
-    private final double maxDistance = 0.25;
-
     /**
      * Constructor that load word list into a bk-tree and initialize searcher
      * @param wordList InputStream from the word list
@@ -77,7 +74,7 @@ class TextAutoCorrection {
      * @param text The text (probably taken from ocr) which has to be corrected
      * @return Corrected text
      */
-    public String correctText(String text){
+    String correctText(String text){
 
         //not correcting words with less than minChars characters
         final int minChars = 3;
@@ -146,6 +143,9 @@ class TextAutoCorrection {
      * @return Best candidate word from word list. If no words within maxDistance is found, the same word is returned.
      */
     private String correctWord(String word){
+
+        //percentage distance below which we substitute the word with the term found in dictionary
+        final double maxDistance = 0.25;
 
         //Searches the tree for elements whose distance satisfy maxDistance
         Set<BkTreeSearcher.Match<? extends String>> matches =
