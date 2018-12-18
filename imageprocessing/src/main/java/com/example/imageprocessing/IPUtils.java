@@ -21,7 +21,7 @@ class IPUtils {
 
     /**
      * Converts a matrix into a Bitmap and saves it in the default temp-file dir
-     * Used in case of debug
+     * Used in case of debug.
      * @param matrix the matrix to be converted
      * @param tmpPrefix the name of the file being saved
      * @param tmpSuffix the extension of the file being saved

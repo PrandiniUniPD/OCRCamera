@@ -21,7 +21,8 @@ class IPDebug {
             "/"+Environment.DIRECTORY_PICTURES+"/ImageProcessingTest/";
 
     /**
-     * Class used to save a list of bitmap in a directory
+     * Class used to save a list of bitmap in a directory. If an image with the same
+     * name already exists in the directory it overwrites it
      * @param bitmapList the list we want to save
      */
     static void saveBitmapList(List<Bitmap> bitmapList){
@@ -36,7 +37,8 @@ class IPDebug {
 
 
     /**
-     * Method used to convert and save a matrix as a image in a predefined directory
+     * Method used to convert and save a matrix as a image in a predefined directory.
+     * If an image with the same name already exists in the directory it overwrites it
      * @param matrix The matrix we want to save
      * @param name The path where we want to save the image
      */
@@ -47,7 +49,8 @@ class IPDebug {
 
 
     /**
-     * Method used to save an image in a predefined directory
+     * Method used to save an image in a predefined directory. If an image with the
+     * same name already exists in the directory it overwrites it
      * @param image the image we want to save
      * @param path the path where we want to save the image
      */

@@ -24,7 +24,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.example.imageprocessing.ImageProcessing;
 import com.example.imageprocessing.TextRegions;
+import com.example.imageprocessing.Constants;
+import com.example.imageprocessing.exceptions.InvalidMethodUsedException;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -67,10 +70,18 @@ public class ResultActivity extends AppCompatActivity {
         String OCRText = prefs.getString("text", null);
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
+        //Try to do the image processing
         ImageProcessing processing = new ImageProcessing();
-        TextRegions regions = processing.detectTextRegions(lastPhoto.copy(Bitmap.Config.ARGB_8888, true));
-        List<Bitmap> bitmaps = processing.extractTextFromBitmap(lastPhoto.copy(Bitmap.Config.ARGB_8888, true), regions);
-
+        try{
+            TextRegions regions = processing.detectTextRegions(lastPhoto,
+                    Constants.DETECT_MAX_TEXT_AREA);
+            List<Bitmap> bitmaps = processing.extractTextFromBitmap
+                    (lastPhoto.copy(Bitmap.Config.ARGB_8888, true), regions);
+            Iterator imageIterator = bitmaps.iterator();
+            lastPhoto = (Bitmap)imageIterator.next();
+        } catch (InvalidMethodUsedException err){
+            Log.e("ImageProcessing", err.getErrorMessage());
+        }
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));

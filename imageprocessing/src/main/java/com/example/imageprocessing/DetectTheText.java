@@ -1,6 +1,9 @@
 package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
+
+import com.example.imageprocessing.exceptions.InvalidMethodUsedException;
+
 import java.util.List;
 
 /**
@@ -12,9 +15,12 @@ public interface DetectTheText {
     /**
      * Detects all the regions where there some text in the image
      * @param image The image we want to analyze. Not null.
+     * @param method The method used to extract the text area. See Constants.java.
+     *        Must be 0 or 1.
+     * @throws InvalidMethodUsedException if the method used is not valid
      * @return The TextAreas object that contains the area where there's some text
      */
-    TextRegions detectTextRegions(Bitmap image);
+    TextRegions detectTextRegions(Bitmap image, int method) throws InvalidMethodUsedException;
 
 
     /**

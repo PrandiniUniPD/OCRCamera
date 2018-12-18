@@ -2,6 +2,10 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
+
+import com.example.imageprocessing.exceptions.ErrorCodes;
+import com.example.imageprocessing.exceptions.InvalidMethodUsedException;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.Core;
@@ -51,8 +55,7 @@ public class ImageProcessing implements DetectTheText {
         //TODO verify if the library is correctly loaded
 
         //Load the openCV library
-        System.loadLibrary("opencv_java3");
-        Log.i(TAG, "Loaded the library");
+        LibraryLoaderSingletone.loadLibrary();
     }
 
 
@@ -160,7 +163,7 @@ public class ImageProcessing implements DetectTheText {
             kernelSize is the dimension of "element" matrix
             element is the matrix used for "morphologyEx" and "dilate" transformations
          */
-        Size kernelSize = new Size(13, 13);
+        Size kernelSize = new Size(20, 20);
         Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, kernelSize);
 
 
@@ -172,7 +175,7 @@ public class ImageProcessing implements DetectTheText {
 
         //Smoothes the image using the median filter.
         Mat blurredMat = new Mat();
-        int ksize = 13;
+        int ksize = 15;
         Imgproc.medianBlur(morphology, blurredMat, ksize);
         //IPDebug.saveMatrix(blurredMat, "gaussianBlur.jpg");
 
@@ -187,9 +190,10 @@ public class ImageProcessing implements DetectTheText {
 
 
     /**
-     * Searches the rectangles in the matrix of an image to find the largest one
+     * Detect all the areas of the image where is supposed to be some text
      * @param filteredMat the matrix of the image you want to find the rectangles of text
-     * @return the rectangle which contains the text with maximum area (it could be rotated)
+     * @return A list of rectangles which is supposed to contain all the areas with some
+     *         text(they could be rotated)
      * @author Thomas Porro (g1), Oscar Garrido (g1)
      */
     private List<RotatedRect> detectTextAreas(Mat filteredMat){
@@ -212,6 +216,47 @@ public class ImageProcessing implements DetectTheText {
 
         return rectanglesList;
     }
+
+
+    /**
+     * Searches the rectangles in the matrix of an image to find
+     * the largest one, even if it's rotated
+     * @param filteredMat the path of the image you want to analyze
+     * @return A list of rectangles which contains the rectangle of text with the
+     *         maximum area (it could be rotated)
+     * @author Thomas Porro (g1), Oscar Garrido (g1)
+     */
+    private List<RotatedRect> detectMaxTextArea(Mat filteredMat){
+        List<RotatedRect> rectanglesList = new ArrayList<>();
+
+
+        //Saves the contours in a list of MatOfPoint (multidimensional vector)
+        List<MatOfPoint> contours = new ArrayList<>();
+        Imgproc.findContours(filteredMat, contours, new Mat(), Imgproc.RETR_EXTERNAL,
+                Imgproc.CHAIN_APPROX_SIMPLE);
+        //The third parameter contains additional information that is unused
+
+        /*
+            Finds the text rectangle with the largest area
+            and saves it in "max_contour"
+         */
+        double maxArea = 0;
+        MatOfPoint maxContour = new MatOfPoint();
+        for (MatOfPoint contour : contours) {
+            double area = Imgproc.contourArea(contour);
+            if (area > maxArea) {
+                maxArea = area;
+                maxContour = contour;
+            }
+        }
+        //Creates a rotated rectangle based on "max_contour
+        RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(maxContour.toArray()));
+        rectanglesList.add(rect);
+
+        //Creates and return a rotated rectangle based on "max_contour"
+        return rectanglesList;
+    }
+
 
     /**
      * Crop the matrix with the given rectangle
@@ -253,14 +298,22 @@ public class ImageProcessing implements DetectTheText {
     }
 
     @Override
-    public TextRegions detectTextRegions(Bitmap image) {
+    public TextRegions detectTextRegions(Bitmap image, int modeCode)
+            throws InvalidMethodUsedException{
         TextAreas textContainer = new TextAreas();
         //Put the image into a matrix
         Mat img = IPUtils.conversionBitmapToMat(image);
         //Do the image Processing
         Mat filteredMat = applyFilters(img);
         //Add each element to the TextAreas's object
-        List<RotatedRect> rectanglesList = detectTextAreas(filteredMat);
+        List<RotatedRect> rectanglesList;
+        switch(modeCode){
+            case 0: rectanglesList = detectMaxTextArea(filteredMat);
+                    break;
+            case 1: rectanglesList = detectTextAreas(filteredMat);
+                    break;
+            default: throw new InvalidMethodUsedException(ErrorCodes.INVALID_METHOD_USED);
+        }
         for(RotatedRect rectangle :  rectanglesList){
             textContainer.addRegion(rectangle);
         }
