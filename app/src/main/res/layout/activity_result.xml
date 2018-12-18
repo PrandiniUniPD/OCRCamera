@@ -10,9 +10,11 @@
     <ImageView
         android:id="@+id/img_captured_view"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="250dp"
         android:contentDescription="@string/pic_captured"
-        android:padding="20sp" />
+        android:padding="20sp"
+        app:layout_constraintBottom_toTopOf="@id/progress_bar"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- ScrollView - author (g3) -->
     <!--<ScrollView
@@ -37,9 +39,10 @@
     <ListView
         android:id="@+id/ingredients_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/img_captured_view">
     </ListView>
 
@@ -52,11 +55,12 @@
         app:layout_constraintTop_toBottomOf="@+id/img_captured_view">
     </TextView>
 
+    <!-- Progress bar showing loading and extraction progress (Francesco Pham) -->
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="150dp"
+        android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/circle_shape"
         android:indeterminate="false"
@@ -64,8 +68,8 @@
         android:progress="1"
         android:progressDrawable="@drawable/circular_progress_bar"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/empty_list"
-        app:layout_constraintStart_toStartOf="@+id/empty_list"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/img_captured_view">
     </ProgressBar>
 

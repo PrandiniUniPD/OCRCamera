@@ -242,7 +242,7 @@ public class ResultActivity extends AppCompatActivity {
                 List<Ingredient> ingredients = extractor.findListIngredients(OCRText);
                 if (ingredients.size() != 0) showIngredients(ingredients);
             } else {
-                // "No ingredients found" is already set automatically to the user view
+                // "No ingredients found" is already set automatically to the UI
                 Log.d(TAG, "Nothing recognized");
             }
 
@@ -271,7 +271,7 @@ public class ResultActivity extends AppCompatActivity {
                 ingredientsListView.setAdapter(adapter);
 
                 //hide progress bar
-                progressBar.setVisibility(View.GONE);
+                progressBar.setVisibility(View.INVISIBLE);
             }
         });
     }
