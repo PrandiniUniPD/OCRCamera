@@ -453,10 +453,60 @@ public class PhotoTester {
             //evaluate text extraction - set recognized text and confidence with the recognition
             evaluateTest(test);
 
-            //TODO split the code into methods
-            //extract ingredients from ocr text and from correctIngredientsText (Francesco Pham)
-            List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(test.getRecognizedText());
-            List<Ingredient> correctListIngredients = correctIngredientsExtractor.findListIngredients(test.getRecognizedText());
+            //evaluate alterations if any - set for each alteration: recognized text and confidence with the extraction
+            evaluateTestAlterations(test);
+
+            try {
+                addTestElement(jsonReport, test);
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
+            }
+
+            //calls TestListener.onTestFinished (synchronized to avoid concurrency)
+            signalTestFinished();
+
+            //signal the end of this single test
+            countDownLatch.countDown();
+            long ended = java.lang.System.currentTimeMillis();
+            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
+        }
+
+
+        /**
+         * Evaluate a test setting the recognized text and the confidence with the recognition
+         * @param test TestElement to evaluate
+         * @modify test
+         */
+        private void evaluateTest(TestElement test) {
+            String imagePath = test.getImagePath();
+            Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
+
+            String ocrText = executeOcr(testBitmap);
+
+            String correctIngredients = test.getIngredients();
+            float confidence = ingredientsTextComparison(correctIngredients, ocrText);
+
+            String ingredientsExtractionReport = buildIngredientsExtractionReport(ocrText, correctIngredients);
+
+            //insert results in test
+            test.setConfidence(confidence);
+            test.setRecognizedText(ocrText);
+            test.setIngredientsExtraction(ingredientsExtractionReport);
+        }
+
+
+        /**
+         * Execute ingredients extraction from recognized text and compare with correct ingredients.
+         * Then build and return a report.
+         * @param recognizedText Text recognized by the OCR
+         * @param correctIngredientsText Text containing the correct ingredients separated by commas.
+         * @return String report
+         * @author Francesco Pham
+         */
+        private String buildIngredientsExtractionReport(String recognizedText, String correctIngredientsText){
+            //extract ingredients from ocr text and from correctIngredientsText
+            List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(recognizedText);
+            List<Ingredient> correctListIngredients = correctIngredientsExtractor.findListIngredients(correctIngredientsText);
 
             //sort alphabetically (Francesco Pham)
             Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
@@ -484,7 +534,7 @@ public class PhotoTester {
             }
 
 
-            //compare extracted ingredients with correct ingredients (Francesco Pham)
+            //compare extracted ingredients with correct ingredients
             int nCorrectExtractedIngreds = 0;
             for(Ingredient correct : correctListIngredients){
                 iterator = extractedIngredients.iterator();
@@ -496,7 +546,7 @@ public class PhotoTester {
                 }
             }
 
-            //make ingredients extraction report (Francesco Pham)
+            //make ingredients extraction report
             int nWrongExtractedIngreds = extractedIngredients.size();
             float percent = (float)100*nCorrectExtractedIngreds / correctListIngredients.size();
             if(Float.isNaN(percent)) percent = 0;
@@ -507,47 +557,9 @@ public class PhotoTester {
                             + percentCorrectIngreds+"% \n"
                             + "# wrong ingredients extracted: "+nWrongExtractedIngreds);
 
-            test.setIngredientsExtraction(extractionReport.toString());
-
-
-
-
-            //evaluate alterations if any - set for each alteration: recognized text and confidence with the extraction
-            evaluateTestAlterations(test);
-
-            try {
-                addTestElement(jsonReport, test);
-            } catch (JSONException e) {
-                Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
-            }
-
-            //calls TestListener.onTestFinished (synchronized to avoid concurrency)
-            signalTestFinished();
-
-            //signal the end of this single test
-            countDownLatch.countDown();
-            long ended = java.lang.System.currentTimeMillis();
-            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
+            return extractionReport.toString();
         }
 
-        /**
-         * Evaluate a test setting the recognized text and the confidence with the recognition
-         * @param test TestElement to evaluate
-         * @modify test
-         */
-        private void evaluateTest(TestElement test) {
-            String imagePath = test.getImagePath();
-            Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
-
-            String ocrText = executeOcr(testBitmap);
-
-            String correctIngredients = test.getIngredients();
-            float confidence = ingredientsTextComparison(correctIngredients, ocrText);
-
-            //insert results in test
-            test.setConfidence(confidence);
-            test.setRecognizedText(ocrText);
-        }
 
         /**
          * Evaluate each alteration (if any) setting the recognized text and the confidence with the recognition
