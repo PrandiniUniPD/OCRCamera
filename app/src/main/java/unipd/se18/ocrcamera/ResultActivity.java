@@ -19,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -46,11 +45,6 @@ public class ResultActivity extends AppCompatActivity {
     private final String TAG = "ResultActivity";
 
     private String OCRText;
-
-    /**
-     * Useful for testing
-     */
-    private TimingLogger timings;
 
     /**
      * Useful for synchronization
@@ -90,8 +84,6 @@ public class ResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
-
-        timings = new TimingLogger(TAG, "Ingredients extraction times"); //just for testing
 
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
@@ -222,28 +214,18 @@ public class ResultActivity extends AppCompatActivity {
      * ingredients extraction from ocr text, and display into list view.
      * @author Francesco Pham
      */
-    private class IngredientsExtractionThread extends Thread{
-        public void run(){
-            //load inci db and initialize ingredient extractor
-            InputStream inciDbStream = ResultActivity.this.getResources()
-                    .openRawResource(R.raw.incidb);
-            List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
+    private class IngredientsExtractionThread extends Thread {
+        public void run() {
+            TimingLogger timings = new TimingLogger(TAG, "Ingredients extraction times");
 
-            timings.addSplit("load csv");
-            progressBar.incrementProgressBy(20);
+            //load inci db and initialize extractor if not already loaded
+            if (IngredExtractorSingleton.getInstance().ingredientsExtractor == null)
+                IngredExtractorSingleton.getInstance().load(getApplicationContext());
 
-            InputStream wordListStream = ResultActivity.this.getResources()
-                    .openRawResource(R.raw.inciwordlist);
-            TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
-
-            timings.addSplit("load text corrector");
-            progressBar.incrementProgressBy(20);
-
-            IngredientsExtractor ingredientsExtractor =
-                    new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance().ingredientsExtractor;
 
             timings.addSplit("load ingredients extractor");
-            progressBar.incrementProgressBy(20);
+            progressBar.incrementProgressBy(33);
 
             //wait for ocr to finish
             try {
@@ -251,39 +233,24 @@ public class ResultActivity extends AppCompatActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if(OCRText!=null && !OCRText.equals("")) {
-                extractIngredients(OCRText, ingredientsExtractor);
+
+            timings.addSplit("wait for ocr to finish");
+            progressBar.incrementProgressBy(33);
+
+            //extract ingredients from ocr text
+            if (OCRText != null && !OCRText.equals("")) {
+                List<Ingredient> ingredients = extractor.findListIngredients(OCRText);
+                if (ingredients.size() != 0) showIngredients(ingredients);
             } else {
-                // "Nothing recognized" is set automatically to the user view
-                Log.d(TAG,"Nothing recognized");
+                // "No ingredients found" is already set automatically to the user view
+                Log.d(TAG, "Nothing recognized");
             }
+
+            timings.addSplit("extract ingredients");
+            progressBar.incrementProgressBy(33);
+
+            timings.dumpToLog();
         }
-    }
-
-    /**
-     * Extract the ingredients from a text
-     * @param OCRText The text to be analyzed
-     * @param ingredientsExtractor The extractor object
-     * @author Francesco Pham (g3)
-     */
-    private void extractIngredients(String OCRText, IngredientsExtractor ingredientsExtractor) {
-        timings.addSplit("waiting for ocr to finish");
-        progressBar.incrementProgressBy(20);
-
-        //extract ingredients from ocr text
-        List<Ingredient> ingredients = ingredientsExtractor.findListIngredients(OCRText);
-        if(ingredients.size() != 0) showIngredients(ingredients);
-
-        timings.addSplit("extract ingredients");
-        progressBar.incrementProgressBy(20);
-
-        timings.dumpToLog();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.GONE);
-            }
-        });
     }
 
     /**
@@ -302,6 +269,9 @@ public class ResultActivity extends AppCompatActivity {
                                 ingredients
                         );
                 ingredientsListView.setAdapter(adapter);
+
+                //hide progress bar
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
