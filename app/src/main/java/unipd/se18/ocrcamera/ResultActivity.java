@@ -250,6 +250,14 @@ public class ResultActivity extends AppCompatActivity {
             progressBar.incrementProgressBy(33);
 
             timings.dumpToLog();
+
+            //hide progress bar
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
+            });
         }
     }
 
@@ -269,9 +277,6 @@ public class ResultActivity extends AppCompatActivity {
                                 ingredients
                         );
                 ingredientsListView.setAdapter(adapter);
-
-                //hide progress bar
-                progressBar.setVisibility(View.INVISIBLE);
             }
         });
     }
