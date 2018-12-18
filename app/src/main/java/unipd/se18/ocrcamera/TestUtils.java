@@ -19,6 +19,19 @@ import java.text.DecimalFormat;
  * @author Pietro Prandini (g2)
  */
 class TestUtils {
+    /*
+    Strings used for passing by intent some data to others activity
+     */
+    static final String positionString = "position";
+    static final String redUntilString = "redUntil";
+    static final String yellowUntilString = "yellowUntil";
+
+    /*
+    Default values for choosing the color of the correctness test
+     */
+    static final int defaultRedUntil = 70;
+    static final int defaultYellowUntil = 85;
+
     /**
      * Formats the percent String
      * @param value The percent value

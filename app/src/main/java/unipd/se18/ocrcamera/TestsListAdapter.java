@@ -31,13 +31,6 @@ public class TestsListAdapter extends BaseAdapter {
      */
     private static TestElement[] entries;
 
-    /*
-    Strings used for passing by intent some data to the other activity
-     */
-    static final String positionString = "position";
-    static final String redUntilString = "redUntil";
-    static final String yellowUntilString = "yellowUntil";
-
     /**
      * Defines an object of AdapterTestElement type
      * @param context The reference to the activity where the adapter will be used
@@ -75,10 +68,12 @@ public class TestsListAdapter extends BaseAdapter {
         correctness.setText(TestUtils.formatPercentString(confidence));
 
         // Sets the color of the correctness text value
-        final float redUntil = 70;
-        final float yellowUntil = 85;
         correctness.setTextColor(
-                TestUtils.chooseColorOfValue(confidence, redUntil, yellowUntil)
+                TestUtils.chooseColorOfValue(
+                        confidence,
+                        TestUtils.defaultRedUntil,
+                        TestUtils.defaultYellowUntil
+                )
         );
 
         // Sets the name of the pic
@@ -114,9 +109,9 @@ public class TestsListAdapter extends BaseAdapter {
                 final Intent testDetailsActivity = new Intent(context, TestDetailsActivity.class);
 
                 // Prepares the values to be passed by the intent
-                testDetailsActivity.putExtra(positionString,position);
-                testDetailsActivity.putExtra(redUntilString,redUntil);
-                testDetailsActivity.putExtra(yellowUntilString,yellowUntil);
+                testDetailsActivity.putExtra(TestUtils.positionString,position);
+                testDetailsActivity.putExtra(TestUtils.redUntilString,TestUtils.defaultRedUntil);
+                testDetailsActivity.putExtra(TestUtils.yellowUntilString,TestUtils.defaultYellowUntil);
 
                 // Starts the details activity
                 context.startActivity(testDetailsActivity);

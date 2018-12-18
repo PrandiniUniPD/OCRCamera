@@ -25,12 +25,18 @@ public class TestDetailsActivity extends AppCompatActivity {
 
         // Retrieves the TestElement to be viewed (default == 0)
         Intent lastIntent = getIntent();
-        int position = lastIntent.getIntExtra(TestsListAdapter.positionString,0);
+        int position = lastIntent.getIntExtra(TestUtils.positionString,0);
         TestElement entry = TestsListAdapter.getTestElements()[position];
 
-        // Retrieves the limits for the correctness color (default == 0)
-        float redUntil = lastIntent.getIntExtra(TestsListAdapter.redUntilString, 0);
-        float yellowUntil = lastIntent.getIntExtra(TestsListAdapter.yellowUntilString, 0);
+        // Retrieves the limits for the correctness color
+        int redUntil = lastIntent.getIntExtra(
+                TestUtils.redUntilString,
+                TestUtils.defaultRedUntil
+        );
+        int yellowUntil = lastIntent.getIntExtra(
+                TestUtils.yellowUntilString,
+                TestUtils.defaultYellowUntil
+        );
 
         // Sets the correctness value
         TextView correctness = findViewById(R.id.correctness_view);
