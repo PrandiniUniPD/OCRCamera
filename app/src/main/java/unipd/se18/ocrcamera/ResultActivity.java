@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.util.TimingLogger;
 import android.view.Menu;
@@ -22,9 +23,18 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 
+import unipd.se18.ocrcamera.recognizer.OCR;
+import unipd.se18.ocrcamera.recognizer.OCRListener;
+import unipd.se18.ocrcamera.recognizer.TextRecognizer;
+
+import static unipd.se18.ocrcamera.recognizer.TextRecognizer.getTextRecognizer;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
 /**
  * Class used for showing the result of the OCR processing
- * @author modified by Francesco Pham
+ * @author Pietro Prandini (g2) - Francesco Pham (g3)
  */
 public class ResultActivity extends AppCompatActivity {
 
@@ -36,7 +46,39 @@ public class ResultActivity extends AppCompatActivity {
 
     private String OCRText;
 
+    /**
+     * Useful for synchronization
+     */
     private CountDownLatch latch;
+
+    /**
+     * The Bitmap of the last photo taken
+     */
+    private Bitmap lastPhoto;
+
+    /**
+     * Listener used by the extraction process to notify results
+     */
+    private OCRListener textExtractionListener = new OCRListener() {
+        @Override
+        public void onTextRecognized(String text) {
+            OCRText = text;
+            saveTheResult(text);
+            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
+        }
+
+        @Override
+        public void onTextRecognizedError(int code) {
+            /*
+             Text not correctly recognized
+             -> prints the error on the screen and doesn't save it in the preferences
+             */
+            String errorText = R.string.extraction_error
+                    + " (" + R.string.error_code + code + ")";
+            Log.e(TAG, errorText);
+            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,34 +104,72 @@ public class ResultActivity extends AppCompatActivity {
         });
 
 
-        //Get image path and text of the last image from preferences
+        // Gets the image path and the text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
         OCRText = prefs.getString("text", null);
 
-        //Bitmap of the lastPhoto saved
-        Bitmap lastPhoto = BitmapFactory.decodeFile(pathImage);
+        // Bitmap of the lastPhoto saved
+        lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
 
             latch = new CountDownLatch(1);
 
-            //extract ingredients
-            IngredientsExtractionThread ingredientsExtractionThread = new IngredientsExtractionThread();
+            // Extracts ingredients
+            IngredientsExtractionThread ingredientsExtractionThread =
+                    new IngredientsExtractionThread();
             ingredientsExtractionThread.start();
 
             if(OCRText == null) {
-                //text from ocr
-                OcrThread ocrThread = new OcrThread(lastPhoto);
-                ocrThread.start();
+                // Instance of an OCR recognizer
+                OCR ocrProcess = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
+                        textExtractionListener);
+
+                // Runs the operations of text extraction
+                ocrProcess.getTextFromImg(lastPhoto);
+            } else {
+                latch.countDown();
             }
-            else latch.countDown();
 
-            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
-        }
-        else
+            // Sets the image to the view
+            mImageView.setImageBitmap(
+                    // Scales the image firstly
+                    Bitmap.createScaledBitmap(
+                            lastPhoto,
+                            lastPhoto.getWidth(),
+                            lastPhoto.getHeight(),
+                            false
+                    )
+            );
+        } else {
             Log.e("ResultActivity", "error retrieving last photo");
+        }
+    }
 
+    /**
+     * Saves the result obtained in the "prefs" preferences (Context.MODE_PRIVATE)
+     * - the name of the String is "text"
+     * @param text The text extracted by the process
+     * @author Pietro Prandini (g2)
+     */
+    private void saveTheResult(String text) {
+        // Saving in the preferences
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs",
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("text", text);
+        editor.apply();
+
+        //I cant understand the ingredients yet, for now I put everything as one ingredient
+        ArrayList<String> txt = new ArrayList<>();
+        String formattedText=String.valueOf(Html.fromHtml(text));
+        txt.add(formattedText);
+        try {
+            GalleryManager.storeImage(getBaseContext(),lastPhoto,txt,"0%");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -111,43 +191,21 @@ public class ResultActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.test: {
-                Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
+            case R.id.test:
+                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
                 startActivity(i);
                 return true;
-            }
             case R.id.download_photos:
-                Intent download_intent = new Intent(ResultActivity.this, DownloadDbActivity.class);
+                Intent download_intent = new Intent(ResultActivity.this,
+                        DownloadDbActivity.class);
                 startActivity(download_intent);
+                return true;
+            case R.id.gallery:
+                Intent gallery_intent = new Intent(ResultActivity.this, GalleryActivity.class);
+                startActivity(gallery_intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    /**
-     * Thread for ocr text extraction and saving into preferences
-     * @author modified by Francesco Pham
-     */
-    private class OcrThread extends Thread{
-        private Bitmap photo;
-
-        OcrThread(Bitmap photo){
-            this.photo = photo;
-        }
-
-        public void run(){
-            // text from OCR
-            TextExtractor ocr = new TextExtractor();
-            OCRText = ocr.getTextFromImg(photo);
-
-            // Saving ocr text in the preferences
-            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("text", OCRText);
-            editor.apply();
-
-            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
         }
     }
 
@@ -156,13 +214,12 @@ public class ResultActivity extends AppCompatActivity {
      * ingredients extraction from ocr text, and display into list view.
      * @author Francesco Pham
      */
-    private class IngredientsExtractionThread extends Thread{
-        public void run(){
-
+    private class IngredientsExtractionThread extends Thread {
+        public void run() {
             TimingLogger timings = new TimingLogger(TAG, "Ingredients extraction times");
 
             //load inci db and initialize extractor if not already loaded
-            if(IngredExtractorSingleton.getInstance().ingredientsExtractor == null)
+            if (IngredExtractorSingleton.getInstance().ingredientsExtractor == null)
                 IngredExtractorSingleton.getInstance().load(getApplicationContext());
 
             IngredientsExtractor extractor = IngredExtractorSingleton.getInstance().ingredientsExtractor;
@@ -177,27 +234,22 @@ public class ResultActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            timings.addSplit("waiting for ocr to finish");
+            timings.addSplit("wait for ocr to finish");
             progressBar.incrementProgressBy(33);
 
             //extract ingredients from ocr text
-            if(OCRText!=null && !OCRText.equals("")) {
+            if (OCRText != null && !OCRText.equals("")) {
                 List<Ingredient> ingredients = extractor.findListIngredients(OCRText);
-                if(ingredients.size() != 0) showIngredients(ingredients);
-            }else{
-                Log.d(TAG, "Text not found");
+                if (ingredients.size() != 0) showIngredients(ingredients);
+            } else {
+                // "No ingredients found" is already set automatically to the user view
+                Log.d(TAG, "Nothing recognized");
             }
 
             timings.addSplit("extract ingredients");
             progressBar.incrementProgressBy(33);
 
             timings.dumpToLog();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    progressBar.setVisibility(View.GONE);
-                }
-            });
         }
     }
 
@@ -217,6 +269,9 @@ public class ResultActivity extends AppCompatActivity {
                                 ingredients
                         );
                 ingredientsListView.setAdapter(adapter);
+
+                //hide progress bar
+                progressBar.setVisibility(View.GONE);
             }
         });
     }

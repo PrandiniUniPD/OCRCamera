@@ -11,7 +11,7 @@ import java.util.Iterator;
 
 /**
  * Class that contains a single test element, used in PhotoTester to build a single test and on
- * AdapterTestElement to show data in a listview.
+ * TestsListAdapter to show data in a listview.
  * @author Luca Moroldo, Francesco Pham
  */
 

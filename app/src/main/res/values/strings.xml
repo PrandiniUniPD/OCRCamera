@@ -26,7 +26,25 @@
     <string name="processing_ingredients">Extracting ingredients</string>
     <string name="processing_ocr">Executing ocr</string>
     <string name="extracted_ingredients_title">Extracted ingredients:</string>
+    <string name="view_alterations">View alterations</string>
+    <string name="extraction_error">"Something has gone wrong, plese try again."</string>
+    <string name="error_code">"Error code: "</string>
     <string name="view_details">Details</string>
     <string name="empty_list_ingredients">No ingredients found</string>
     <string name="function_title">Function:</string>
+    <string name="username">Username</string>
+    <string name="hostname">Hostname</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="check_internet_connection">Check internet connection.</string>
+    <string name="no_permission_to_internal_storage">No permission to internal storage.</string>
+    <string name="bad_credentials_or_connection_reload_the_page_for_a_new_login">Bad Credentials or connection. Try again.</string>
+    <string name="homeFragmentTag">homefgm</string>
+    <string name="detailFragmentTag">detailfgm</string>
+    <string name="serializableObjectName">PhotoStructureObject</string>
+    <string name="galleryFragmentTitle">Gallery</string>
+    <string name="galleryDetailsFragmentTitle">Details</string>
+    <string name="elaboration_interrupted">Elaboration interrupted</string>
+    <string name="tested">Tested:</string>
+    <string name="of">of</string>
 </resources>

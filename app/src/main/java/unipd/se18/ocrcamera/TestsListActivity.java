@@ -15,15 +15,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+
 /**
  * Activity for showing the result of the tests
  * Pietro Prandini (g2)
  */
-public class TestResultActivity extends AppCompatActivity {
+public class TestsListActivity extends AppCompatActivity {
     /**
      * String used for the logs of this class
      */
-    private static final String TAG = "TestResultActivity";
+    private static final String TAG = "TestsListActivity";
 
     /**
      * The custom request code requested for permission use
@@ -60,8 +65,8 @@ public class TestResultActivity extends AppCompatActivity {
     }
 
     /**
-     * Execute the ocr task for every test pic in the storage
-     * TraPietro Prandini (g2)
+     * Executes the ocr task for every test pic in the storage
+     * @author Pietro Prandini (g2)
      */
     @SuppressLint("StaticFieldLeak")
     private class AsyncReport extends AsyncTask<Void, Integer, Void> {
@@ -74,11 +79,6 @@ public class TestResultActivity extends AppCompatActivity {
          * The String of the test pics directory path.
          */
         private String dirPath;
-
-        /**
-         * The String of the message to show when the task is in progress
-         */
-        private String progressMessage;
 
         /**
          * Instance of PhotoTester used for doing the tests
@@ -104,6 +104,9 @@ public class TestResultActivity extends AppCompatActivity {
          * The number of tested elements so far
          */
         private int testedElements = 0;
+
+        private int totalTestElements = 0;
+
         /**
          * Constructor of the class
          * @param listEntriesView The ListView used for showing the results as list
@@ -134,31 +137,66 @@ public class TestResultActivity extends AppCompatActivity {
          */
         @Override
         protected Void doInBackground(Void... voids) {
+            // Starts the elaboration of the tests
             this.tester = new PhotoTester(getApplicationContext(), dirPath);
-            progressBar.setMax(tester.getTestSize());
 
+            // Sets the starting information about the progress
+            totalTestElements = tester.getTestSize();
+            progressBar.setMax(totalTestElements);
+            int initialValue = 0;
+            final String progress = getTestingProgressString(initialValue, totalTestElements);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressText.setText(progress);
+                }
+            });
+
+            // Listener useful for updating the progress bar
             TestListener testListener = new TestListener() {
                 @Override
                 public void onTestFinished() {
+                    // +1 test finished -> +1 progress bar
                     publishProgress(++testedElements);
+                }
+
+                @Override
+                public void onAlterationAnalyzed() {
+                    // not useful in this case
                 }
             };
             tester.setTestListener(testListener);
-            //publish progress
+
+            // publishes progress
             try {
                 report = tester.testAndReport();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                report = "Elaboration interrupted";
+                report = getString(R.string.elaboration_interrupted);
             }
+
+            // Sorts the TestElements for a sorted list view
+            ArrayList<TestElement> testElementsList =
+                    new ArrayList<>(Arrays.asList(tester.getTestElements())) ;
+            Comparator<TestElement> testElementComparator = new Comparator<TestElement>() {
+                @Override
+                public int compare(TestElement o1, TestElement o2) {
+                    return Long.compare(
+                            TestUtils.getTestElementId(o1),
+                            TestUtils.getTestElementId(o2)
+                    );
+                }
+            };
+            Collections.sort(testElementsList,testElementComparator);
+            final TestElement[] testElementsArray = testElementsList.toArray(new TestElement[0]);
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    AdapterTestElement adapter =
-                            new AdapterTestElement(
-                                    TestResultActivity.this,
-                                    tester.getTestElements()
+                    TestsListAdapter adapter =
+                            new TestsListAdapter(
+                                    TestsListActivity.this,
+                                    testElementsArray
                             );
                     listEntriesView.setAdapter(adapter);
                 }
@@ -167,11 +205,17 @@ public class TestResultActivity extends AppCompatActivity {
             return null;
         }
 
+        /**
+         * Updates the progress information about the testing process
+         * More details at: {@link AsyncTask#onProgressUpdate(Object[])}
+         * @param values Values received during the progress
+         * @modify progressBar The bar representing the progress of the testing process
+         * @modify progressText The text referring to the progress of the testing process
+         */
         @Override
         protected void onProgressUpdate(Integer... values) {
             progressBar.setProgress(testedElements);
-            String progress = "Tested: " + values[0] +
-                    " of " + tester.getTestSize();
+            String progress = getTestingProgressString(testedElements, totalTestElements);
             progressText.setText(progress);
         }
 
@@ -184,8 +228,8 @@ public class TestResultActivity extends AppCompatActivity {
          */
         @Override
         protected void onPostExecute(Void v) {
-            //add statistics author: Francesco Pham
-            TextView statsView = new TextView(TestResultActivity.this);
+            // add statistics author: Francesco Pham
+            TextView statsView = new TextView(TestsListActivity.this);
             String statsText = "";
 
             statsText = tester.getTagsStatsString();
@@ -193,6 +237,19 @@ public class TestResultActivity extends AppCompatActivity {
             statsView.setText(statsText);
             listEntriesView.addHeaderView(statsView);
         }
+    }
+
+    /**
+     * Get the testing progress string
+     * @param progress The number of the terminated tests
+     * @param max The total number of the tests
+     * @return The string that describes the progress of the testing
+     * @author Pietro Prandini (g2)
+     */
+    private String getTestingProgressString(int progress, int max) {
+        String progressString = getString(R.string.tested) + " " + progress + " "
+                + getString(R.string.of) + " " + max;
+        return progressString;
     }
 
     /**
@@ -216,7 +273,7 @@ public class TestResultActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(TestResultActivity.this,
+                            Toast.makeText(TestsListActivity.this,
                                     R.string.permissions_not_granted, Toast.LENGTH_LONG).show();
                         }
                     });
@@ -225,6 +282,5 @@ public class TestResultActivity extends AppCompatActivity {
                 }
             }
         }
-
     }
 }

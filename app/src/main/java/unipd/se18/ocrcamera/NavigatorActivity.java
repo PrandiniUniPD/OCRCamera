@@ -51,7 +51,7 @@ public class NavigatorActivity extends AppCompatActivity {
         else {
             intent = new Intent(NavigatorActivity.this, CameraActivity.class);
         }
-
+        //intent = new Intent(NavigatorActivity.this, GalleryActivity.class);
 
         startActivity(intent);
         finish();

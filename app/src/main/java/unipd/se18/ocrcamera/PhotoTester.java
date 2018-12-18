@@ -24,14 +24,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import unipd.se18.ocrcamera.recognizer.OCR;
+import unipd.se18.ocrcamera.recognizer.OCRListener;
+import unipd.se18.ocrcamera.recognizer.TextRecognizer;
+
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
  * providing a JSON report containing stats and results.
  * @author Luca Moroldo (g3) - Francesco Pham (g3)
  */
 public class PhotoTester {
-
-    private Context context;
 
     private static final String TAG = "PhotoTester";
 
@@ -59,9 +61,15 @@ public class PhotoTester {
 
     private String report;
 
+
+
+
     //ingredients extractors (Francesco Pham)
+    private Context context;
     private IngredientsExtractor ocrIngredientsExtractor;
     private IngredientsExtractor correctIngredientsExtractor;
+
+
 
 
 
@@ -72,6 +80,7 @@ public class PhotoTester {
      */
     public PhotoTester(Context context, String dirPath) {
         this.context = context;
+
 
         File directory = getStorageDir(dirPath);
         this.dirPath = directory.getPath();
@@ -160,6 +169,8 @@ public class PhotoTester {
 
         final JSONObject fullJsonReport = new JSONObject();
 
+
+
         //load inci db and initialize ingredient extractor (Francesco Pham)
         InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
         List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
@@ -167,6 +178,8 @@ public class PhotoTester {
         TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
         ocrIngredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
+
+
 
 
         //countDownLatch allows to sync this thread with the end of all the single tests
@@ -179,7 +192,6 @@ public class PhotoTester {
         }
 
         Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
-
 
         //Define a thread executor that will run a maximum of 'max_concurrent_tasks' simultaneously
         ExecutorService executor = Executors.newFixedThreadPool(max_concurrent_tasks);
@@ -276,6 +288,7 @@ public class PhotoTester {
 
         LevenshteinStringDistance stringComparator = new LevenshteinStringDistance();
 
+
         //for each correct word
         for (String word : correctWords) {
             boolean found = false;
@@ -289,6 +302,7 @@ public class PhotoTester {
                     //for each extracted words starting from posLastWordFound
                     index = (posLastWordFound + i) % extractedWords.length;
 
+
                     double similarity = stringComparator.getNormalizedSimilarity(word, extractedWords[index]);
 
                     //if similarity grater than similarityThreshold the word is found
@@ -299,7 +313,7 @@ public class PhotoTester {
                             //if word found is distant from posLastWordFound the ocr text isn't ordered, less points
                             points += (float) word.length()*similarity/2;
                         }
-                        //Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
+                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" ==  \"" + extractedWords[index] + "\" similarity="+similarity);
                         extractedWords[index] = ""; //remove found word
                         found = true;
                     }
@@ -316,7 +330,7 @@ public class PhotoTester {
                         } else {
                             points += (float)word.length()/2;
                         }
-                        //Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[index] + "\"");
+                        Log.d(TAG, "ingredientsTextComparison -> \"" + word + "\" contained in  \"" + extractedWords[index] + "\"");
                         extractedWords[index] = extractedWords[index].replace(word, ""); //remove found word
                         found = true;
                     }
@@ -331,11 +345,10 @@ public class PhotoTester {
             }
         }
         float confidence = (points / maxPoints)*100;
+        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
 
         //I found a test where the function returned NaN (the correct ingredient text was '-') - Luca Moroldo
         if(Float.isNaN(confidence)) confidence = 0;
-
-        Log.i(TAG, "ingredientsTextComparison -> confidence == " + confidence + " (%)");
 
         return confidence;
 
@@ -378,8 +391,36 @@ public class PhotoTester {
      */
     private String executeOcr(Bitmap bitmap) {
 
-        TextExtractor textExtractor = new TextExtractor();
-        return textExtractor.getTextFromImg(bitmap);
+        final CountDownLatch waitForExtraction = new CountDownLatch(1);
+
+        final String[] recognizedText = new String[1];
+
+
+        final OCRListener ocrTextListener = new OCRListener() {
+            @Override
+            public void onTextRecognized(String text) {
+                waitForExtraction.countDown();
+                recognizedText[0] = text;
+            }
+
+            @Override
+            public void onTextRecognizedError(int code) {
+                waitForExtraction.countDown();
+                String errorText = R.string.extraction_error + " " + R.string.error_code + ")";
+                recognizedText[0] = errorText;
+            }
+        };
+        OCR ocrTextProcess = TextRecognizer.getTextRecognizer(TextRecognizer.Recognizer.mlKit, ocrTextListener);
+        ocrTextProcess.getTextFromImg(bitmap);
+
+        try {
+            waitForExtraction.await();
+        } catch (InterruptedException e) {
+            Log.i(TAG, "Extraction interrupted");
+        }
+
+        return recognizedText[0];
+
     }
 
 
@@ -406,117 +447,121 @@ public class PhotoTester {
         @Override
         public void run() {
 
-                Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
-                long started = java.lang.System.currentTimeMillis();
+            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
+            long started = java.lang.System.currentTimeMillis();
 
 
-                //evaluate text extraction confidence
-                String imagePath = test.getImagePath();
-                Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
-                String ocrText = executeOcr(testBitmap);
+            //evaluate text extraction confidence
+            String imagePath = test.getImagePath();
+            Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
 
-                String correctIngredientsText = test.getIngredients();
-                float confidence = ingredientsTextComparison(correctIngredientsText, ocrText);
 
-                //insert results in test
-                test.setConfidence(confidence);
-                test.setRecognizedText(ocrText);
 
-                //extract ingredients from ocr text and from correctIngredientsText (Francesco Pham)
-                List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
-                List<Ingredient> correctIngredients = correctIngredientsExtractor.findListIngredients(correctIngredientsText);
 
-                //sort alphabetically (Francesco Pham)
-                Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
-                    @Override
-                    public int compare(Ingredient o1, Ingredient o2) {
-                        return o1.compareTo(o2.getInciName());
-                    }
-                };
-                Collections.sort(extractedIngredients,cmp);
-                Collections.sort(correctIngredients, cmp);
 
-                StringBuilder extractionReport = new StringBuilder();
-                extractionReport.append("Extracted: ");
-                Iterator<Ingredient> iterator = extractedIngredients.iterator();
+            String ocrText = executeOcr(testBitmap);
+
+            String correctIngredients = test.getIngredients();
+            float confidence = ingredientsTextComparison(correctIngredients, ocrText);
+
+            //insert results in test
+            test.setConfidence(confidence);
+            test.setRecognizedText(ocrText);
+
+            //extract ingredients from ocr text and from correctIngredientsText (Francesco Pham)
+            List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(ocrText);
+            List<Ingredient> correctListIngredients = correctIngredientsExtractor.findListIngredients(ocrText);
+
+            //sort alphabetically (Francesco Pham)
+            Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
+                @Override
+                public int compare(Ingredient o1, Ingredient o2) {
+                    return o1.compareTo(o2.getInciName());
+                }
+            };
+            Collections.sort(extractedIngredients,cmp);
+            Collections.sort(correctListIngredients, cmp);
+
+            StringBuilder extractionReport = new StringBuilder();
+            extractionReport.append("Extracted: ");
+            Iterator<Ingredient> iterator = extractedIngredients.iterator();
+            while(iterator.hasNext()){
+                extractionReport.append(iterator.next().getInciName());
+                extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
+            }
+
+            extractionReport.append("Correct: ");
+            iterator = correctListIngredients.iterator();
+            while(iterator.hasNext()){
+                extractionReport.append(iterator.next().getInciName());
+                extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
+            }
+
+
+            //compare extracted ingredients with correct ingredients (Francesco Pham)
+            int nCorrectExtractedIngreds = 0;
+            for(Ingredient correct : correctListIngredients){
+                iterator = extractedIngredients.iterator();
                 while(iterator.hasNext()){
-                    extractionReport.append(iterator.next().getInciName());
-                    extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
-                }
-
-                extractionReport.append("Correct: ");
-                iterator = correctIngredients.iterator();
-                while(iterator.hasNext()){
-                    extractionReport.append(iterator.next().getInciName());
-                    extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
-                }
-
-
-                //compare extracted ingredients with correct ingredients (Francesco Pham)
-                int nCorrectExtractedIngreds = 0;
-                for(Ingredient correct : correctIngredients){
-                    iterator = extractedIngredients.iterator();
-                    while(iterator.hasNext()){
-                        if(iterator.next().getCosingRefNo().equalsIgnoreCase(correct.getCosingRefNo())) {
-                            nCorrectExtractedIngreds++;
-                            iterator.remove();
-                        }
+                    if(iterator.next().getCosingRefNo().equalsIgnoreCase(correct.getCosingRefNo())) {
+                        nCorrectExtractedIngreds++;
+                        iterator.remove();
                     }
                 }
+            }
 
-                //make ingredients extraction report (Francesco Pham)
-                int nWrongExtractedIngreds = extractedIngredients.size();
-                float percent = (float)100*nCorrectExtractedIngreds / correctIngredients.size();
-                if(Float.isNaN(percent)) percent = 0;
-                test.setPercentCorrectIngredients(percent);
-                String percentCorrectIngreds = String.format("%.2f",percent);
-                extractionReport.append(
-                        "% correct ingredients extracted: "
-                        + percentCorrectIngreds+"% \n"
-                        + "# wrong ingredients extracted: "+nWrongExtractedIngreds);
+            //make ingredients extraction report (Francesco Pham)
+            int nWrongExtractedIngreds = extractedIngredients.size();
+            float percent = (float)100*nCorrectExtractedIngreds / correctListIngredients.size();
+            if(Float.isNaN(percent)) percent = 0;
+            test.setPercentCorrectIngredients(percent);
+            String percentCorrectIngreds = String.format("%.2f",percent);
+            extractionReport.append(
+                    "% correct ingredients extracted: "
+                            + percentCorrectIngreds+"% \n"
+                            + "# wrong ingredients extracted: "+nWrongExtractedIngreds);
 
-                test.setIngredientsExtraction(extractionReport.toString());
+            test.setIngredientsExtraction(extractionReport.toString());
 
+            //evaluate alterations if any
+            String[] alterationsFileNames = test.getAlterationsNames();
+            if(alterationsFileNames != null) {
+                for(String alterationFilename : alterationsFileNames) {
 
-                //evaluate alterations if any
-                String[] alterationsFileNames = test.getAlterationsNames();
-                if(alterationsFileNames != null) {
-                    for(String alterationFilename : alterationsFileNames) {
+                    String alterationImagePath = test.getAlterationImagePath(alterationFilename);
+                    Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationImagePath);
 
-                        String alterationImagePath = test.getAlterationImagePath(alterationFilename);
-                        Bitmap alterationBitmap = Utils.loadBitmapFromFile(alterationImagePath);
-
-                        String alterationExtractedIngredients = "";
-                        if(alterationBitmap != null) {
-                            alterationExtractedIngredients = executeOcr(alterationBitmap);
-                        }
-                        float alterationConfidence = ingredientsTextComparison(correctIngredientsText, alterationExtractedIngredients);
-
-                        //insert evaluation
-                        test.setAlterationConfidence(alterationFilename, alterationConfidence);
-                        test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
+                    String alterationExtractedIngredients = "";
+                    if(alterationBitmap != null) {
+                        alterationExtractedIngredients = executeOcr(alterationBitmap);
                     }
+                    float alterationConfidence = ingredientsTextComparison(correctIngredients, alterationExtractedIngredients);
+
+                    //insert evaluation
+                    test.setAlterationConfidence(alterationFilename, alterationConfidence);
+                    test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
+                }
+            }
+
+
+            try {
+                addTestElement(jsonReport, test);
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
+            }
+
+            //if the listener has been set then call onTestFinished function
+            if(testListener != null) {
+                synchronized (testListener) {
+                    testListener.onTestFinished();
                 }
 
+            }
 
-                try {
-                    addTestElement(jsonReport, test);
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
-                }
-
-                //if the listener has been set then call onTestFinished function
-                if(testListener != null) {
-                    synchronized (testListener) {
-                        testListener.onTestFinished();
-                    }
-
-                }
-
-                //signal the end of this single test
-                countDownLatch.countDown();
-                long ended = java.lang.System.currentTimeMillis();
-                Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
+            //signal the end of this single test
+            countDownLatch.countDown();
+            long ended = java.lang.System.currentTimeMillis();
+            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
         }
     }
 
@@ -541,9 +586,9 @@ public class PhotoTester {
     }
 
     /**
-    * Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
-    * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
-    */
+     * Returns a HashMap of (Tag, Value) pairs where value is the average test result of the photos tagged with that Tag
+     * @author Nicolò Cervo (g3) with the tutoring of Francesco Pham (g3)
+     */
     private HashMap getTagsStats() {
 
         HashMap<String, Float> tagStats = new HashMap<>(); //contains the cumulative score of every tag
