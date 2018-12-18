@@ -2,6 +2,7 @@ package unipd.se18.ocrcamera;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,12 +32,6 @@ public class TestsListAdapter extends BaseAdapter {
     private static TestElement[] entries;
 
     /*
-    Limits for choosing the color of the correctness relatively to the goodness of the extraction
-     */
-    private float redUntil;
-    private float yellowUntil;
-
-    /*
     Strings used for passing by intent some data to the other activity
      */
     static final String positionString = "position";
@@ -61,16 +56,17 @@ public class TestsListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        // The prefix is "foto", so the suffix starts at 4
-        int suffix = 4;
-        return Integer.parseInt(entries[position].getFileName().substring(suffix));
+        return TestDetailsActivity.getTestElementId(entries[position]);
     }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
+        Log.v(TAG, "getView of the test " + entries[position].getFileName()
+                + " placed in the position == " + position);
         // Prepares the view of an element of the list
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.test_element, parent, false);
+            convertView = LayoutInflater.from(context)
+                    .inflate(R.layout.test_element, parent, false);
         }
 
         // Sets the correctness value
@@ -79,8 +75,8 @@ public class TestsListAdapter extends BaseAdapter {
         correctness.setText(TestDetailsActivity.formatPercentString(confidence));
 
         // Sets the color of the correctness text value
-        redUntil = 70;
-        yellowUntil = 85;
+        final float redUntil = 70;
+        final float yellowUntil = 85;
         correctness.setTextColor(
                 TestDetailsActivity.chooseColorOfValue(confidence, redUntil, yellowUntil)
         );
@@ -107,19 +103,21 @@ public class TestsListAdapter extends BaseAdapter {
                 false
         );
 
-        // Prepares the Intent for launching the TestDetailsActivity
-        final Intent testDetailsActivity = new Intent(context, TestDetailsActivity.class);
-
-        // Prepares the values to be passed by the intent
-        testDetailsActivity.putExtra(positionString,position);
-        testDetailsActivity.putExtra(redUntilString,redUntil);
-        testDetailsActivity.putExtra(yellowUntilString,yellowUntil);
-
         // Sets the button that launches the details activity
         Button viewDetailsButton = convertView.findViewById(R.id.view_details_button);
         viewDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.v(TAG, "View the details of the element " + entries[position].getFileName()
+                        + " at the position == " + position);
+                // Prepares the Intent for launching the TestDetailsActivity
+                final Intent testDetailsActivity = new Intent(context, TestDetailsActivity.class);
+
+                // Prepares the values to be passed by the intent
+                testDetailsActivity.putExtra(positionString,position);
+                testDetailsActivity.putExtra(redUntilString,redUntil);
+                testDetailsActivity.putExtra(yellowUntilString,yellowUntil);
+
                 // Starts the details activity
                 context.startActivity(testDetailsActivity);
             }

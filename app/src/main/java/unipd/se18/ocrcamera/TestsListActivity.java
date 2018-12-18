@@ -15,6 +15,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+
 /**
  * Activity for showing the result of the tests
  * Pietro Prandini (g2)
@@ -165,13 +170,28 @@ public class TestsListActivity extends AppCompatActivity {
                 report = getString(R.string.elaboration_interrupted);
             }
 
+            // Sorts the TestElements for a sorted list view
+            ArrayList<TestElement> testElementsList =
+                    new ArrayList<>(Arrays.asList(tester.getTestElements())) ;
+            Comparator<TestElement> testElementComparator = new Comparator<TestElement>() {
+                @Override
+                public int compare(TestElement o1, TestElement o2) {
+                    return Long.compare(
+                            TestDetailsActivity.getTestElementId(o1),
+                            TestDetailsActivity.getTestElementId(o2)
+                    );
+                }
+            };
+            Collections.sort(testElementsList,testElementComparator);
+            final TestElement[] testElementsArray = testElementsList.toArray(new TestElement[0]);
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     TestsListAdapter adapter =
                             new TestsListAdapter(
                                     TestsListActivity.this,
-                                    tester.getTestElements()
+                                    testElementsArray
                             );
                     listEntriesView.setAdapter(adapter);
                 }

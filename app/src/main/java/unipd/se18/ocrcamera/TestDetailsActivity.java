@@ -368,4 +368,16 @@ public class TestDetailsActivity extends AppCompatActivity {
         idBelowOf = view.getId();
         return idBelowOf;
     }
+
+    /**
+     * From a TestElement it returns the appropriate id
+     * @param element The TestElement to be analyzed
+     * @return The id of the TestElement passed
+     * @author Pietro Prandini (g2)
+     */
+    protected static long getTestElementId(TestElement element) {
+        // The prefix is "foto", so the suffix starts at 4
+        int suffix = 4;
+        return Integer.parseInt(element.getFileName().substring(suffix));
+    }
 }

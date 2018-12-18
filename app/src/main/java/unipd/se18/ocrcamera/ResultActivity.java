@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TimingLogger;
 import android.view.Menu;
@@ -126,7 +125,8 @@ public class ResultActivity extends AppCompatActivity {
             latch = new CountDownLatch(1);
 
             // Extracts ingredients
-            IngredientsExtractionThread ingredientsExtractionThread = new IngredientsExtractionThread();
+            IngredientsExtractionThread ingredientsExtractionThread =
+                    new IngredientsExtractionThread();
             ingredientsExtractionThread.start();
 
             if(OCRText == null) {
@@ -225,19 +225,22 @@ public class ResultActivity extends AppCompatActivity {
     private class IngredientsExtractionThread extends Thread{
         public void run(){
             //load inci db and initialize ingredient extractor
-            InputStream inciDbStream = ResultActivity.this.getResources().openRawResource(R.raw.incidb);
+            InputStream inciDbStream = ResultActivity.this.getResources()
+                    .openRawResource(R.raw.incidb);
             List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
 
             timings.addSplit("load csv");
             progressBar.incrementProgressBy(20);
 
-            InputStream wordListStream = ResultActivity.this.getResources().openRawResource(R.raw.inciwordlist);
+            InputStream wordListStream = ResultActivity.this.getResources()
+                    .openRawResource(R.raw.inciwordlist);
             TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
 
             timings.addSplit("load text corrector");
             progressBar.incrementProgressBy(20);
 
-            IngredientsExtractor ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+            IngredientsExtractor ingredientsExtractor =
+                    new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
 
             timings.addSplit("load ingredients extractor");
             progressBar.incrementProgressBy(20);
