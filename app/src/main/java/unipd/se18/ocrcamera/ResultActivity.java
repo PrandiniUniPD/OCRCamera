@@ -58,29 +58,6 @@ public class ResultActivity extends AppCompatActivity {
      */
     private Bitmap lastPhoto;
 
-    /**
-     * Listener used by the extraction process to notify results
-     */
-    private OCRListener textExtractionListener = new OCRListener() {
-        @Override
-        public void onTextRecognized(String text) {
-            OCRText = text;
-            saveTheResult(text);
-            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
-        }
-
-        @Override
-        public void onTextRecognizedError(int code) {
-            /*
-             Text not correctly recognized
-             -> prints the error on the screen and doesn't save it in the preferences
-             */
-            String errorText = R.string.extraction_error
-                    + " (" + R.string.error_code + code + ")";
-            Log.e(TAG, errorText);
-            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,30 +126,6 @@ public class ResultActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Saves the result obtained in the "prefs" preferences (Context.MODE_PRIVATE)
-     * - the name of the String is "text"
-     * @param text The text extracted by the process
-     * @author Pietro Prandini (g2)
-     */
-    private void saveTheResult(String text) {
-        // Saving in the preferences
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs",
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("text", text);
-        editor.apply();
-
-        //I cant understand the ingredients yet, for now I put everything as one ingredient
-        ArrayList<String> txt = new ArrayList<>();
-        String formattedText=String.valueOf(Html.fromHtml(text));
-        txt.add(formattedText);
-        try {
-            GalleryManager.storeImage(getBaseContext(),lastPhoto,txt,"0%");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Menu inflater
@@ -281,6 +234,56 @@ public class ResultActivity extends AppCompatActivity {
                 ingredientsListView.setAdapter(adapter);
             }
         });
+    }
+
+    /**
+     * Listener used by the extraction process to notify results
+     */
+    private OCRListener textExtractionListener = new OCRListener() {
+        @Override
+        public void onTextRecognized(String text) {
+            OCRText = text;
+            saveTheResult(text);
+            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
+        }
+
+        @Override
+        public void onTextRecognizedError(int code) {
+            /*
+             Text not correctly recognized
+             -> prints the error on the screen and doesn't save it in the preferences
+             */
+            String errorText = R.string.extraction_error
+                    + " (" + R.string.error_code + code + ")";
+            Log.e(TAG, errorText);
+            latch.countDown(); //signal ingredientsExtractionThread to continue with extraction
+        }
+    };
+
+
+    /**
+     * Saves the result obtained in the "prefs" preferences (Context.MODE_PRIVATE)
+     * - the name of the String is "text"
+     * @param text The text extracted by the process
+     * @author Pietro Prandini (g2)
+     */
+    private void saveTheResult(String text) {
+        // Saving in the preferences
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs",
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("text", text);
+        editor.apply();
+
+        //I cant understand the ingredients yet, for now I put everything as one ingredient
+        ArrayList<String> txt = new ArrayList<>();
+        String formattedText=String.valueOf(Html.fromHtml(text));
+        txt.add(formattedText);
+        try {
+            GalleryManager.storeImage(getBaseContext(),lastPhoto,txt,"0%");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 

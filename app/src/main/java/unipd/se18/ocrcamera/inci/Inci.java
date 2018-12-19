@@ -47,7 +47,7 @@ public class Inci {
         //for each line in the csv add an Ingredient object to the list
         try {
             while ((line = csvReader.readNext()) != null) {
-                if(line.length > 6) {
+                if(line.length > 8) {
                     Ingredient element = new Ingredient();
                     element.setCosingRefNo(line[0]);
                     element.setInciName(line[1]);

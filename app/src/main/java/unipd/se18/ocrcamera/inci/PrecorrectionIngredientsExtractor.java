@@ -1,5 +1,9 @@
 package unipd.se18.ocrcamera.inci;
 
+import android.util.Log;
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -48,9 +52,9 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
      * @author Francesco Pham
      */
     @Override
-    public ArrayList<Ingredient> findListIngredients(String text) {
+    public List<Ingredient> findListIngredients(String text) {
 
-        ArrayList<Ingredient> foundIngredients = new ArrayList<>();
+        List<Ingredient> foundIngredients = new ArrayList<>();
 
         //text correction
         text = corrector.correctText(text);
@@ -60,11 +64,28 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
 
         //for each inci ingredient check if it is contained in the text
         for(Ingredient ingredient : listIngredients){
-            if(text.contains(ingredient.getStrippedInciName())){
+            String stripped = ingredient.getStrippedInciName();
+            int indexof = text.indexOf(stripped);
+            if(indexof >= 0){
+                //found the ingredient
+                ingredient.setPositionFound(indexof);
                 foundIngredients.add(ingredient);
-                text = text.replace(ingredient.getStrippedInciName(), "");  //remove the ingredient from text
+
+                Log.d(TAG, "found "+ingredient.getInciName()+" at pos "+indexof);
+
+                //remove the ingredient from text replacing it whitespaces
+                String replacement = StringUtils.repeat(' ', stripped.length());
+                text = text.replace(stripped, replacement);
             }
         }
+
+        //sort by index where the ingredients are found (reconstruct original order of ingredients)
+        Collections.sort(foundIngredients, new Comparator<Ingredient>() {
+            @Override
+            public int compare(Ingredient o1, Ingredient o2) {
+                return o1.getPositionFound() - o2.getPositionFound();
+            }
+        });
 
         return foundIngredients;
     }

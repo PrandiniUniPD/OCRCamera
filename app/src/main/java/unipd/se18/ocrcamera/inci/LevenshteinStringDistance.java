@@ -25,6 +25,9 @@ public class LevenshteinStringDistance extends WeightedLevenshtein  {
                     else if (c1 == 'I' && c2 == 'l') {
                         return 0.5;
                     }
+                    else if (c1 == 'H' && c2 == 'N') {
+                        return 0.5;
+                    }
 
                     // For most cases, the cost of substituting 2 characters
                     // is 1.0

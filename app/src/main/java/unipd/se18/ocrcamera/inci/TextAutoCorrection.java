@@ -74,7 +74,7 @@ public class TextAutoCorrection {
      * @param text The text (probably taken from ocr) which has to be corrected
      * @return Corrected text
      */
-    String correctText(String text){
+    public String correctText(String text){
 
         //not correcting words with less than minChars characters
         final int minChars = 3;
@@ -93,7 +93,7 @@ public class TextAutoCorrection {
 
                     if(!corrected.equals(word)){
 
-                        Log.d(TAG,"word = "+word+" ; found word = "+corrected);
+                        Log.d(TAG,"word "+word+" corrected with "+corrected);
 
                         //substitute with the word found
                         text = text.substring(0, lastNonAlphanumIndex+1) + corrected + text.substring(i);
@@ -115,7 +115,7 @@ public class TextAutoCorrection {
 
             if(!corrected.equals(word)){
 
-                Log.d(TAG,"word = "+word+" ; found word = "+corrected);
+                Log.d(TAG,"word "+word+" corrected with "+corrected);
 
                 //substitute with the word found
                 text = text.substring(0, lastNonAlphanumIndex+1) + corrected;

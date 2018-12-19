@@ -30,6 +30,8 @@ public class Ingredient implements Comparable<String> {
 
     private String strippedInciName;
 
+    private int positionFound;
+
 
     Ingredient() {
         this.cosingRefNo = "";
@@ -42,6 +44,7 @@ public class Ingredient implements Comparable<String> {
         this.restriction = "";
         this.function = "";
         this.updateDate = "";
+        positionFound = -1;
     }
 
     //GETTERS
@@ -89,6 +92,10 @@ public class Ingredient implements Comparable<String> {
         return strippedInciName;
     }
 
+    public int getPositionFound() {
+        return positionFound;
+    }
+
     //SETTERS
     public void setCosingRefNo(String cosingRefNo) {
         this.cosingRefNo = cosingRefNo;
@@ -129,6 +136,10 @@ public class Ingredient implements Comparable<String> {
 
     public void setUpdateDate(String updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public void setPositionFound(int positionFound) {
+        this.positionFound = positionFound;
     }
 
     @Override
