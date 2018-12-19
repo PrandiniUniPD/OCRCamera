@@ -1,17 +1,10 @@
 package unipd.se18.ocrcamera;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.ContactsContract;
-import android.provider.SyncStateContract;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
@@ -20,12 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.ImageView;
-import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.util.Log;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Provides methods to retrieve and store image with ingredients to populate a gallery view
@@ -42,24 +31,28 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class GalleryManager
 {
-    final private static String TAG = "@@GalleryManager";
-    //The prefix that is added to a new image's name
-    final private static String NEW_IMAGE_PREFIX = "OCRApp_";
-    //The format to which the current date and time are converted
-    final private static String CONVERSION_FORMAT = "yyyMMdd_HHmmss";
+
 
     //The path of the directory where all the images are stored
-    private static String DATA_DIRECTORY_PATH = "";
+    private static String DATA_DIRECTORY_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
     //The name of the directory where all the images are stored
     private static String IMAGES_DIRECTORY_NAME = "OCRGallery";
     //The complete path to reach images folder
     private static String PATH = "";
 
     //Sizes of the images inside the cardView
-    private static final int widthSizeCard= 400;
-    private static final int heightSizeCard = 400;
+    private static final int WIDTHSIZECARD= 400;
+    private static final int HEIGHTSIZECARD = 400;
 
     private static PhotoStructure deletedImage;
+
+    final private static String TAG = "@@GalleryManager";
+    //The prefix that is added to a new image's name
+    final private static String NEW_IMAGE_PREFIX = "OCRApp_";
+    //The format to which the current date and time are converted
+    final private static String CONVERSION_FORMAT = "yyyMMdd_HHmmss";
+
+
 
     /**
      * Loads images and metadata
@@ -153,7 +146,6 @@ public class GalleryManager
      */
     private static void setupImageDirectoryInfo()
     {
-        DATA_DIRECTORY_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"";
         PATH = DATA_DIRECTORY_PATH + File.separator + IMAGES_DIRECTORY_NAME;
     }
 
@@ -255,9 +247,9 @@ public class GalleryManager
         Context mainActivity;
         ArrayList<PhotoStructure> photosList;
 
-        public RecycleCardsAdapter(Context context, ArrayList<PhotoStructure> _photos)
+        public RecycleCardsAdapter(Context context, ArrayList<PhotoStructure> photos)
         {
-            photosList=_photos;
+            photosList=photos;
             mainActivity = context;
         }
 
@@ -331,9 +323,7 @@ public class GalleryManager
             Bitmap lastPhoto = currentPhoto.photo;
 
             //Set imageView properties
-
-            //holder.imageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, 200, 200, false));
-            holder.imageView.setImageBitmap(resize(lastPhoto,widthSizeCard,heightSizeCard));
+            holder.imageView.setImageBitmap(resize(lastPhoto,WIDTHSIZECARD,HEIGHTSIZECARD));
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             //Set txtView properties with reliability
