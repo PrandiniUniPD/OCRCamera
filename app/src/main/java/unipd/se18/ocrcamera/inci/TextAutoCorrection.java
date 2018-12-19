@@ -132,7 +132,10 @@ public class TextAutoCorrection {
      * @return Text formatted
      */
     private String formatText(String text){
+        //merge the word before and after hyphen + new line (e.g. "ceta- \n ril" into "cetaryl")
         text = text.replaceAll(" *- *[\\n\\r]+ *", "");
+
+        //ignoring case by converting all into upper case
         text = text.toUpperCase();
         return text;
     }
