@@ -18,7 +18,7 @@ import java.text.DecimalFormat;
  * Class useful for the testing area
  * @author Pietro Prandini (g2)
  */
-class TestUtils {
+public class TestUtils {
     /*
     Strings used for passing by intent some data to others activity
      */
@@ -34,6 +34,7 @@ class TestUtils {
 
     /**
      * Formats the percent String
+     * More details at: {@link DecimalFormat}
      * @param value The percent value
      * @return The String formatted
      * @author Pietro Prandini (g2)
@@ -79,6 +80,14 @@ class TestUtils {
 
     /**
      * Scales a Bitmap pic relatively to the width of the screen
+     * More details at:
+     * {@link Context#getSystemService(String)}
+     * {@link Context#WINDOW_SERVICE}
+     * {@link WindowManager}
+     * {@link WindowManager#getDefaultDisplay()}
+     * {@link DisplayMetrics}
+     * {@link Display#getMetrics(DisplayMetrics)}
+     * {@link Bitmap#createScaledBitmap(Bitmap, int, int, boolean)}
      * @param context The context of the activity
      * @param img The Bitmap to be scaled
      * @return Bitmap scaled with the width same as the width of the screen
@@ -115,63 +124,74 @@ class TestUtils {
      */
     protected static void setAlterationsView(Context context, RelativeLayout relativeLayout,
                                              View belowOf, TestElement element, Boolean viewDetails) {
+        // Gets the alterations name (if any)
         String[] alterations = element.getAlterationsNames();
+
+        // If there aren't alteration there are nothing to view
+        if(alterations == null) { return; }
+
+        /*
+        Now will be prepared the views that represent the details of the alteration.
+        Not all the test pics have alterations so each views will be added programmatically only
+        if needed.
+         */
+
         StringBuilder alterationsText = new StringBuilder();
-        if(alterations != null) {
-            // Sets details of alterations
-            for (String alteration : alterations) {
-                // Prepares the alterations String
-                float confidenceOfAlteration = element.getAlterationConfidence(alteration);
-                alterationsText.append(alteration)
-                        .append(" - confidence ")
-                        .append(TestUtils.formatPercentString(confidenceOfAlteration))
-                        .append("\n");
+        for (String alteration : alterations) {
+            // Prepares the alterations String with the relative confidence (Title)
+            float confidenceOfAlteration = element.getAlterationConfidence(alteration);
+            alterationsText
+                    .append(alteration)
+                    .append(" - ")
+                    .append(context.getString(R.string.confidence))
+                    .append(" ")
+                    .append(TestUtils.formatPercentString(confidenceOfAlteration))
+                    .append("\n");
 
-                // Prepares the alterations TextView
-                TextView alterationsView = new TextView(context);
-                alterationsView.setText(alterationsText.toString());
-                alterationsView.setTextColor(
-                        chooseColorOfValue(confidenceOfAlteration, element.getConfidence()));
-                // Sets shadow (supports the coloured view)
-                float radius = 1;
-                float dx = 0;
-                float dy = 0;
-                alterationsView.setShadowLayer(radius,dx,dy,Color.BLACK);
+            // Prepares the alterations TextView programmatically
+            TextView alterationsView = new TextView(context);
+            alterationsView.setText(alterationsText.toString());
+            alterationsView.setTextColor(
+                    chooseColorOfValue(confidenceOfAlteration, element.getConfidence()));
+            // Sets shadow (supports the coloured view)
+            float radius = 1;
+            float dx = 0;
+            float dy = 0;
+            alterationsView.setShadowLayer(radius,dx,dy,Color.BLACK);
 
-                // Sets bold (supports the coloured view)
-                alterationsView.setTypeface(null, Typeface.BOLD);
+            // Sets bold (supports the coloured view)
+            alterationsView.setTypeface(null, Typeface.BOLD);
 
-                // Padding
-                int padding = 10;
-                alterationsView.setPadding(padding, padding, padding, padding);
+            // Padding
+            int padding = 10;
+            alterationsView.setPadding(padding, padding, padding, padding);
 
-                // Sets layout params
-                RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
-                        RelativeLayout.LayoutParams.WRAP_CONTENT,
-                        RelativeLayout.LayoutParams.WRAP_CONTENT);
+            // Sets layout params
+            RelativeLayout.LayoutParams paramsView = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT);
 
-                // View horizontally centered
-                paramsView.addRule(RelativeLayout.CENTER_HORIZONTAL);
+            // View horizontally centered
+            paramsView.addRule(RelativeLayout.CENTER_HORIZONTAL);
 
-                // Adds the view
-                belowOf = addViewBelow(relativeLayout,paramsView,belowOf,alterationsView);
+            // Adds the view
+            belowOf = addViewBelow(relativeLayout,paramsView,belowOf,alterationsView);
 
-                // Sets details if required
-                if(viewDetails) {
-                    belowOf = viewAlterationDetails(
-                            context,
-                            relativeLayout,
-                            belowOf,
-                            element,
-                            alteration
-                    );
-                }
+            // Sets other details if required
+            if(viewDetails) {
+                belowOf = viewAlterationDetails(
+                        context,
+                        relativeLayout,
+                        belowOf,
+                        element,
+                        alteration
+                );
             }
         }
     }
 
     /**
-     * Sets the details of an altered test
+     * Sets the details of an altered test programmatically
      * @param context The context where would be the alterations text
      * @param relativeLayout The layout to add the text views
      * @param belowOf The view where putting the alterations text below of
@@ -181,8 +201,7 @@ class TestUtils {
      * @author Pietro Prandini (g2)
      */
     private static View viewAlterationDetails(Context context, RelativeLayout relativeLayout,
-                                               View belowOf, TestElement element, String alteration) {
-
+                                              View belowOf, TestElement element, String alteration) {
         // Obtains the altered pic
         String imagePath = element.getAlterationImagePath(alteration);
         Bitmap img = scaleBitmap(context,Utils.loadBitmapFromFile(imagePath));

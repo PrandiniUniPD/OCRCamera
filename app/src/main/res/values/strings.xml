@@ -47,4 +47,5 @@
     <string name="elaboration_interrupted">Elaboration interrupted</string>
     <string name="tested">Tested:</string>
     <string name="of">of</string>
+    <string name="confidence">confidence</string>
 </resources>

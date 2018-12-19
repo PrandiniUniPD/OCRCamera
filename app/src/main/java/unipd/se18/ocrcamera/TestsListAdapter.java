@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 /**
  * Adapter for the view of the processing result of the pics
+ * More details at: {@link BaseAdapter}
  * @author Pietro Prandini (g2)
  */
 public class TestsListAdapter extends BaseAdapter {
