@@ -60,26 +60,26 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
         text = corrector.correctText(text);
 
         //ignore non alphanumeric characters from text
-        text = text.replaceAll("[^A-Za-z0-9]", "");
+        String strippedText = text.replaceAll("[^A-Za-z0-9]", "");
 
         //for each inci ingredient check if it is contained in the text
         for(Ingredient ingredient : listIngredients){
-            String stripped = ingredient.getStrippedInciName();
-            int indexof = text.indexOf(stripped);
-            if(indexof >= 0){
+            String strippedName = ingredient.getStrippedInciName();
+            int indexOf = strippedText.indexOf(strippedName);
+            if(indexOf >= 0){
                 //found the ingredient
-                ingredient.setPositionFound(indexof);
+                ingredient.setPositionFound(indexOf);
                 foundIngredients.add(ingredient);
 
-                Log.d(TAG, "found "+ingredient.getInciName()+" at pos "+indexof);
+                Log.d(TAG, "found "+ingredient.getInciName()+" at pos "+indexOf);
 
-                //remove the ingredient from text replacing it whitespaces
-                String replacement = StringUtils.repeat(' ', stripped.length());
-                text = text.replace(stripped, replacement);
+                //remove the ingredient from text replacing it with whitespaces
+                String replacement = StringUtils.repeat(' ', strippedName.length());
+                strippedText = strippedText.replace(strippedName, replacement);
             }
         }
 
-        //sort by index where the ingredients are found (reconstruct original order of ingredients)
+        //sort by index where the ingredients are found (reconstruct original order)
         Collections.sort(foundIngredients, new Comparator<Ingredient>() {
             @Override
             public int compare(Ingredient o1, Ingredient o2) {
