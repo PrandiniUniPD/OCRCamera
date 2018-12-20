@@ -70,7 +70,7 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
     /**
      * This method extract ingredients from the ocr text and returns the list of ingredients.
      * @param text The entire OCR text
-     * @return List of Ingredient objects where are stored ingredient's informations
+     * @return List of Ingredient objects where are stored ingredient's informations, empty list if no ingredients are found
      * @author Francesco Pham
      */
     @Override

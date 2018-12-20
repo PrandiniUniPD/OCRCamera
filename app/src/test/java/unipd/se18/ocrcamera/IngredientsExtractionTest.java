@@ -17,6 +17,10 @@ import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 
 import static org.junit.Assert.*;
 
+/**
+ * Junit tests of the text correction and ingredients extraction from alterated text.
+ * @author Francesco Pham
+ */
 public class IngredientsExtractionTest {
     @Test
     public void stringSimilarityTest(){

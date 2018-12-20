@@ -10,6 +10,9 @@ import info.debatty.java.stringsimilarity.*;
  */
 public class LevenshteinStringDistance extends WeightedLevenshtein  {
 
+    /**
+     * Constructor defines different substitution cost functions based on characters similarity.
+     */
     public LevenshteinStringDistance(){
         super(
             new CharacterSubstitutionInterface() {

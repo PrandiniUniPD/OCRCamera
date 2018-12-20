@@ -26,9 +26,9 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
     private TextAutoCorrection corrector;
 
     /**
-     * Constructor
+     * Constructor initializes the ingredients extractor
      * @param listIngredients Total list of ingredients from the INCI DB
-     * @param corrector Text Corrector
+     * @param corrector Text Corrector which has to be correctly pre initialized
      */
     public PrecorrectionIngredientsExtractor(List<Ingredient> listIngredients, TextAutoCorrection corrector) {
         //copying list so that sorting doesn't affect original list
@@ -48,7 +48,7 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
     /**
      * This method extracts ingredients from the ocr text and returns the list of ingredients.
      * @param text The entire OCR text
-     * @return List of Ingredient objects where are stored ingredient's informations
+     * @return List of Ingredient objects where ingredient's informations are stored, empty list if no ingredients are found.
      * @author Francesco Pham
      */
     @Override

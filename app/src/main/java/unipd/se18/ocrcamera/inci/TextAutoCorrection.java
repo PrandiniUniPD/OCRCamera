@@ -150,6 +150,8 @@ public class TextAutoCorrection {
     private String correctWord(String word){
 
         //percentage distance below which we substitute the word with the term found in dictionary
+        // (during testing i found out that above 25% the confidence does not improve by much and
+        // also increases chance of correcting words not related to ingredients)
         final double maxDistance = 0.25;
 
         //Searches the tree for elements whose distance satisfy maxDistance
