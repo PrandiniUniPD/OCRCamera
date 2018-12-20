@@ -63,13 +63,6 @@ public class ResultActivity extends AppCompatActivity {
      */
     private Bitmap lastPhoto;
 
-    /**
-     * CountDownLatch to syncronize extractor initialization and extraction execution
-     */
-    private CountDownLatch latch = new CountDownLatch(1);
-
-    private IngredientsExtractor ingredientsExtractor;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,15 +87,6 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
-        //load inci db and initialize ingredients extractor
-        Thread loadExtractorThread = new Thread() {
-            public void run() {
-                ingredientsExtractor = IngredExtractorSingleton.getInstance(getApplicationContext());
-                latch.countDown(); //signal ingredient extractor to continue with extraction
-            }
-        };
-        loadExtractorThread.start();
-
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         //load the path to the last taken picture, can be null if the user didn't take any picture
         String lastImagePath = prefs.getString("imagePath", null);
@@ -123,6 +107,7 @@ public class ResultActivity extends AppCompatActivity {
                             false
                     )
             );
+
             //create a listener for the end of the text extraction by the OCR
             OCRListener textExtractionListener = new OCRListener() {
                 //function called when the OCR extraction is finished
@@ -220,20 +205,14 @@ public class ResultActivity extends AppCompatActivity {
         protected List<Ingredient> doInBackground(String... strings) {
 
             String ocrText = strings[0];
-
-            //wait for extractor loading to finish
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance(getApplicationContext());
 
             //check if text is empty or null
             if(ocrText == null || ocrText.equals(""))
                 return null;
 
             //extract ingredients
-            List<Ingredient> ingredientList = ingredientsExtractor.findListIngredients(ocrText);
+            List<Ingredient> ingredientList = extractor.findListIngredients(ocrText);
 
             //if the list is empty then return null
             if(ingredientList.size() == 0)

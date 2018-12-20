@@ -43,7 +43,7 @@
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
         <!-- To use multiple models: android:value="ocr,model2,model3" -->
-        <activity android:name=".NavigatorActivity">
+        <activity android:name=".LauncherActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

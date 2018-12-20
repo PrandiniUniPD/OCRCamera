@@ -10,15 +10,23 @@ import android.util.Log;
     This activity is the first started activity that chooses which activity launch next
     @author Francesco Pham
  */
-public class NavigatorActivity extends AppCompatActivity {
+public class LauncherActivity extends AppCompatActivity {
 
     //Tag used for logs
-    private static final String TAG = "NavigatorActivity";
+    private static final String TAG = "LauncherActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        //load inci db and initialize ingredients extractor
+        Thread loadExtractorThread = new Thread() {
+            public void run() {
+                IngredExtractorSingleton.getInstance(getApplicationContext());
+            }
+        };
+        loadExtractorThread.start();
 
         //Get image path of last image
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
@@ -39,19 +47,18 @@ public class NavigatorActivity extends AppCompatActivity {
 
             if(OCRText != null && !(OCRText.equals(""))) {
                 //An intent that will launch the activity
-                intent = new Intent(NavigatorActivity.this, ResultActivity.class);
+                intent = new Intent(LauncherActivity.this, ResultActivity.class);
 
             }
             else {
                 Log.e(TAG, "Error retrieving last extracted text");
-                intent = new Intent(NavigatorActivity.this, CameraActivity.class);
+                intent = new Intent(LauncherActivity.this, CameraActivity.class);
             }
 
         }
         else {
-            intent = new Intent(NavigatorActivity.this, CameraActivity.class);
+            intent = new Intent(LauncherActivity.this, CameraActivity.class);
         }
-        //intent = new Intent(NavigatorActivity.this, GalleryActivity.class);
 
         startActivity(intent);
         finish();
