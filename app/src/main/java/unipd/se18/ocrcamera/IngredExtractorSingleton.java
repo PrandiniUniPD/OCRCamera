@@ -15,22 +15,21 @@ import unipd.se18.ocrcamera.inci.TextAutoCorrection;
  * @author Francesco Pham
  */
 class IngredExtractorSingleton {
-    private static volatile IngredExtractorSingleton ourInstance = new IngredExtractorSingleton();
 
-    IngredientsExtractor ingredientsExtractor;
+    private static volatile IngredientsExtractor ingredientsExtractor;
 
-    static IngredExtractorSingleton getInstance() {
-        if (ourInstance == null) {
+    static IngredientsExtractor getInstance(Context context) {
+        if (ingredientsExtractor == null) {
             synchronized (IngredExtractorSingleton.class) {
-                if (ourInstance == null) ourInstance = new IngredExtractorSingleton();
+                if (ingredientsExtractor == null) ingredientsExtractor = load(context);
             }
         }
-        return ourInstance;
+        return ingredientsExtractor;
     }
 
     private IngredExtractorSingleton() {
-        if (ourInstance != null){
-            throw new RuntimeException("Use getInstance() method to get the single instance of this class.");
+        if (ingredientsExtractor != null){
+            throw new RuntimeException("Use getInstance() method to get ingredientExtractor.");
         }
     }
 
@@ -38,7 +37,7 @@ class IngredExtractorSingleton {
      * Load list of ingredients from INCI DB and initialize ingredients extractor.
      * @param context
      */
-    void load(Context context){
+    private static IngredientsExtractor load(Context context){
         //load inci db and initialize ingredient extractor
         InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
         List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
@@ -46,6 +45,6 @@ class IngredExtractorSingleton {
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
         TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
 
-        ingredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+        return new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
     }
 }

@@ -195,11 +195,8 @@ public class ResultActivity extends AppCompatActivity {
             if(strings[0] == null || strings[0].equals(""))
                 return null;
 
-            //load inci db and initialize extractor if not already loaded
-            if (IngredExtractorSingleton.getInstance().ingredientsExtractor == null)
-                IngredExtractorSingleton.getInstance().load(getApplicationContext());
-
-            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance().ingredientsExtractor;
+            //get ingredients extractor (the extractor is loaded the first time automatically)
+            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance(getApplicationContext());
 
             progressBar.incrementProgressBy(33);
 

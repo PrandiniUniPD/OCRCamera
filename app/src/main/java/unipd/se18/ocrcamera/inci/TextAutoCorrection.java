@@ -34,7 +34,7 @@ public class TextAutoCorrection {
     private BkTreeSearcher<String> searcher;
 
     /**
-     * Constructor that load word list into a bk-tree and initialize searcher
+     * Constructor which loads the word list into a bk-tree and initialize the searcher
      * @param wordList InputStream from the word list
      * @author Francesco Pham
      */
