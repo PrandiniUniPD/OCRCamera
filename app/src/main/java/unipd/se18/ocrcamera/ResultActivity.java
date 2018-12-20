@@ -173,11 +173,8 @@ public class ResultActivity extends AppCompatActivity {
         public void run() {
             TimingLogger timings = new TimingLogger(TAG, "Ingredients extraction times");
 
-            //load inci db and initialize extractor if not already loaded
-            if (IngredExtractorSingleton.getInstance().ingredientsExtractor == null)
-                IngredExtractorSingleton.getInstance().load(getApplicationContext());
-
-            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance().ingredientsExtractor;
+            //get ingredients extractor (the extractor is loaded the first time automatically)
+            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance(getApplicationContext());
 
             timings.addSplit("load ingredients extractor");
             progressBar.incrementProgressBy(33);
