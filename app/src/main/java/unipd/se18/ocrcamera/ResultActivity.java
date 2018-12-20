@@ -24,6 +24,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
@@ -37,7 +38,7 @@ import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
 
 /**
  * Class used for showing the result of the OCR processing
- * @author Pietro Prandini (g2) - Francesco Pham (g3)
+ * @author Pietro Prandini (g2) - Francesco Pham (g3) - modified by Luca Moroldo (g3)
  */
 public class ResultActivity extends AppCompatActivity {
 
@@ -60,7 +61,14 @@ public class ResultActivity extends AppCompatActivity {
     /**
      * Contains the last photo taken by the user
      */
-    Bitmap lastPhoto;
+    private Bitmap lastPhoto;
+
+    /**
+     * CountDownLatch to syncronize extractor initialization and extraction execution
+     */
+    private CountDownLatch latch = new CountDownLatch(1);
+
+    private IngredientsExtractor ingredientsExtractor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +93,15 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
             }
         });
+
+        //load inci db and initialize ingredients extractor
+        Thread loadExtractorThread = new Thread() {
+            public void run() {
+                ingredientsExtractor = IngredExtractorSingleton.getInstance(getApplicationContext());
+                latch.countDown(); //signal ingredient extractor to continue with extraction
+            }
+        };
+        loadExtractorThread.start();
 
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         //load the path to the last taken picture, can be null if the user didn't take any picture
@@ -111,14 +128,11 @@ public class ResultActivity extends AppCompatActivity {
                 //function called when the OCR extraction is finished
                 @Override
                 public void onTextRecognized(String text) {
-                    emptyTextView.setText(R.string.searching_ingredients);
-                    progressBar.setProgress(33);
+                    //search for ingredients in the INCI db and update the UI
+                    new AsyncIngredientsExtraction().execute(text);
 
                     //save photo in the gallery and the last recognized text
                     saveTheResult(text);
-
-                    //search for ingredients in the INCI db and update the UI
-                    new AsyncUIUpdate().execute(text);
                 }
 
                 @Override
@@ -136,100 +150,12 @@ public class ResultActivity extends AppCompatActivity {
             //get an OCR instance
             OCR textRecognizer = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
                     textExtractionListener);
+
             //extract text
             textRecognizer.getTextFromImg(lastPhoto);
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
     }
-
-
-    /**
-     * Saves the result obtained in the "prefs" preferences (Context.MODE_PRIVATE)
-     * - the name of the String is "text"
-     * @param text The text extracted by the process
-     * @author Pietro Prandini (g2)
-     */
-    private void saveTheResult(String text) {
-        // Saving in the preferences
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs",
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("text", text);
-        editor.apply();
-
-        //I cant understand the ingredients yet, for now I put everything as one ingredient
-        ArrayList<String> txt = new ArrayList<>();
-        String formattedText=String.valueOf(Html.fromHtml(text));
-        txt.add(formattedText);
-        try {
-            GalleryManager.storeImage(getBaseContext(),lastPhoto,txt,"0%");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * Class used to run extract ingredients from INCI db and update the UI setting a list view with
-     * the recognized ingredients list
-     * @author Francesco Pham - refactored by Luca Moroldo
-     */
-    @SuppressLint("StaticFieldLeak")
-    private class AsyncUIUpdate extends AsyncTask<String, Void, List<Ingredient>> {
-
-        @Override
-        protected void onPreExecute() {
-            //be sure the progress bar is visible
-            progressBar.setVisibility(ProgressBar.VISIBLE);
-        }
-
-        /**
-         *
-         * @param strings text scanned for ingredients
-         * @return a list of ingredients, null if the list is empty or the param is null or empty
-         */
-        @Override
-        protected List<Ingredient> doInBackground(String... strings) {
-
-            //check if text is empty or null
-            if(strings[0] == null || strings[0].equals(""))
-                return null;
-
-            //get ingredients extractor (the extractor is loaded the first time automatically)
-            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance(getApplicationContext());
-
-            progressBar.incrementProgressBy(33);
-
-
-            List<Ingredient> ingredientList =extractor.findListIngredients(strings[0]);
-
-            //if the list is empty then return null
-            if(ingredientList.size() == 0)
-                return null;
-
-            return ingredientList;
-
-        }
-
-        @Override
-        protected void onPostExecute(List<Ingredient> ingredients) {
-
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-            //if something has been found then set the list of ingredients recognized inside INCI db
-            if(ingredients != null) {
-                emptyTextView.setVisibility(TextView.INVISIBLE);
-
-                AdapterIngredient adapter =
-                        new AdapterIngredient(
-                                ResultActivity.this,
-                                ingredients
-                        );
-                ingredientsListView.setAdapter(adapter);
-            } else
-                emptyTextView.setText(R.string.no_ingredient_found);
-        }
-    }
-
 
     /**
      * Menu inflater
@@ -265,6 +191,102 @@ public class ResultActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+
+    /**
+     * Class used to run extract ingredients from INCI db and update the UI setting a list view with
+     * the recognized ingredients list
+     * @author Francesco Pham
+     */
+    @SuppressLint("StaticFieldLeak")
+    private class AsyncIngredientsExtraction extends AsyncTask<String, Void, List<Ingredient>> {
+
+        @Override
+        protected void onPreExecute() {
+            //show progress bar
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+            emptyTextView.setText(R.string.searching_ingredients);
+        }
+
+        /**
+         *
+         * @param strings text scanned for ingredients
+         * @return a list of ingredients, null if the list is empty or the param is null or empty
+         */
+        @Override
+        protected List<Ingredient> doInBackground(String... strings) {
+
+            String ocrText = strings[0];
+
+            //wait for extractor loading to finish
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            //check if text is empty or null
+            if(ocrText == null || ocrText.equals(""))
+                return null;
+
+            //extract ingredients
+            List<Ingredient> ingredientList = ingredientsExtractor.findListIngredients(ocrText);
+
+            //if the list is empty then return null
+            if(ingredientList.size() == 0)
+                return null;
+
+            return ingredientList;
+        }
+
+        @Override
+        protected void onPostExecute(List<Ingredient> ingredients) {
+
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+
+            //if something has been found then set the list of recognized ingredients
+            if(ingredients != null) {
+                emptyTextView.setVisibility(TextView.INVISIBLE);
+
+                AdapterIngredient adapter =
+                        new AdapterIngredient(
+                                ResultActivity.this,
+                                ingredients
+                        );
+                ingredientsListView.setAdapter(adapter);
+            } else
+                emptyTextView.setText(R.string.no_ingredient_found);
+        }
+    }
+
+
+
+
+    /**
+     * Saves the result obtained in the "prefs" preferences (Context.MODE_PRIVATE)
+     * - the name of the String is "text"
+     * @param text The text extracted by the process
+     * @author Pietro Prandini (g2)
+     */
+    private void saveTheResult(String text) {
+        // Saving in the preferences
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs",
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("text", text);
+        editor.apply();
+
+        //I cant understand the ingredients yet, for now I put everything as one ingredient
+        ArrayList<String> txt = new ArrayList<>();
+        String formattedText=String.valueOf(Html.fromHtml(text));
+        txt.add(formattedText);
+        try {
+            GalleryManager.storeImage(getBaseContext(),lastPhoto,txt,"0%");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
