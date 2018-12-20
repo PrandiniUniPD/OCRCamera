@@ -41,9 +41,18 @@ import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
  */
 public class ResultActivity extends AppCompatActivity {
 
-    // UI components
+    /**
+     * listview used to show the ingredients extracted according with the INCI database
+     */
     private ListView ingredientsListView;
+
+    /**
+     * progress bar used to show the progress on the ingredients extraction from the photo taken
+     */
     private ProgressBar progressBar;
+    /**
+     * view used to show progress messages
+     */
     private TextView emptyTextView;
 
     private final String TAG = "ResultActivity";
@@ -77,10 +86,8 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
-
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-        //load the path to the last taken picture, can be null if the user didn't take
-        //any picture
+        //load the path to the last taken picture, can be null if the user didn't take any picture
         String lastImagePath = prefs.getString("imagePath", null);
 
         //only if lastImagePath is not null we set our view
@@ -99,18 +106,19 @@ public class ResultActivity extends AppCompatActivity {
                             false
                     )
             );
-
-
+            //create a listener for the end of the text extraction by the OCR
             OCRListener textExtractionListener = new OCRListener() {
                 //function called when the OCR extraction is finished
                 @Override
                 public void onTextRecognized(String text) {
                     emptyTextView.setText(R.string.searching_ingredients);
                     progressBar.setProgress(33);
+
                     //save photo in the gallery and the last recognized text
                     saveTheResult(text);
-                    AsyncUIUpdate updateTask = new AsyncUIUpdate();
-                    updateTask.execute(text);
+
+                    //search for ingredients in the INCI db and update the UI
+                    new AsyncUIUpdate().execute(text);
                 }
 
                 @Override
@@ -132,8 +140,6 @@ public class ResultActivity extends AppCompatActivity {
             textRecognizer.getTextFromImg(lastPhoto);
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
-
-
     }
 
 
@@ -177,8 +183,18 @@ public class ResultActivity extends AppCompatActivity {
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
 
+        /**
+         *
+         * @param strings text scanned for ingredients
+         * @return a list of ingredients, null if the list is empty or the param is null or empty
+         */
         @Override
         protected List<Ingredient> doInBackground(String... strings) {
+
+            //check if text is empty or null
+            if(strings[0] == null || strings[0].equals(""))
+                return null;
+
             //load inci db and initialize extractor if not already loaded
             if (IngredExtractorSingleton.getInstance().ingredientsExtractor == null)
                 IngredExtractorSingleton.getInstance().load(getApplicationContext());
@@ -187,14 +203,14 @@ public class ResultActivity extends AppCompatActivity {
 
             progressBar.incrementProgressBy(33);
 
-            if (strings[0] != null && !strings[0].equals("")) {
-                List<Ingredient> ingredients = extractor.findListIngredients(strings[0]);
-                if (ingredients.size() != 0) return ingredients;
-            } else {
-                // "No ingredients found" is already set automatically to the UI
-                Log.d(TAG, "Nothing recognized");
-            }
-            return null;
+
+            List<Ingredient> ingredientList =extractor.findListIngredients(strings[0]);
+
+            //if the list is empty then return null
+            if(ingredientList.size() == 0)
+                return null;
+
+            return ingredientList;
 
         }
 
