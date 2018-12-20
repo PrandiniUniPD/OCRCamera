@@ -25,11 +25,12 @@ import java.util.concurrent.CountDownLatch;
 
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
-import unipd.se18.ocrcamera.recognizer.OCR;
-import unipd.se18.ocrcamera.recognizer.OCRListener;
-import unipd.se18.ocrcamera.recognizer.TextRecognizer;
 
-import static unipd.se18.ocrcamera.recognizer.TextRecognizer.getTextRecognizer;
+// OCR module
+import unipd.se18.textrecognizer.OCR;
+import unipd.se18.textrecognizer.OCRListener;
+import unipd.se18.textrecognizer.TextRecognizer;
+import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
 
 import java.io.IOException;
 import java.util.ArrayList;

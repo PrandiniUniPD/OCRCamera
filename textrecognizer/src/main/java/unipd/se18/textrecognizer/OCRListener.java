@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera.recognizer;
+package unipd.se18.textrecognizer;
 
 /**
  * Listener useful to control the output of the OCR processing

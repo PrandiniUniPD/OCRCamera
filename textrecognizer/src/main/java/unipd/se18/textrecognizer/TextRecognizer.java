@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera.recognizer;
+package unipd.se18.textrecognizer;
 
 /**
  * Class useful to set a type of recognizing.

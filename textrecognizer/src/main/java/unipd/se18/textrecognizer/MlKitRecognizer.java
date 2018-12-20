@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera.recognizer;
+package unipd.se18.textrecognizer;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -93,7 +93,7 @@ class MlKitRecognizer implements OCR {
         Log.d(TAG, methodTag + "launched");
 
         // Starts the time counter - useful for tests
-        final long beforeWaiting = java.lang.System.currentTimeMillis();
+        final long beforeWaiting = System.currentTimeMillis();
 
         // Settings the image to analyze
         FirebaseVisionImage firebaseVisionImage = FirebaseVisionImage.fromBitmap(img);
@@ -113,7 +113,7 @@ class MlKitRecognizer implements OCR {
                                 + "----- END OF THE RECOGNIZED TEXT -----");
 
                         // Ends the time counter - useful for tests
-                        long afterWaiting = java.lang.System.currentTimeMillis();
+                        long afterWaiting = System.currentTimeMillis();
                         Log.i(TAG, methodTag + "text extracted in "
                                 + (afterWaiting - beforeWaiting) + " ms");
 

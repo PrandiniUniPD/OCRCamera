@@ -31,9 +31,12 @@ import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
 import unipd.se18.ocrcamera.inci.PrecorrectionIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 import unipd.se18.ocrcamera.inci.TextSplitIngredientsExtractor;
-import unipd.se18.ocrcamera.recognizer.OCR;
-import unipd.se18.ocrcamera.recognizer.OCRListener;
-import unipd.se18.ocrcamera.recognizer.TextRecognizer;
+
+// OCR module
+import unipd.se18.textrecognizer.OCR;
+import unipd.se18.textrecognizer.OCRListener;
+import unipd.se18.textrecognizer.TextRecognizer;
+import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
 
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
