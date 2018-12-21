@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,9 +21,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
@@ -34,7 +33,7 @@ import unipd.se18.textrecognizer.TextRecognizer;
 
 import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
 
-// OCR module
+
 
 /**
  * Class used for showing the result of the OCR processing
@@ -114,7 +113,7 @@ public class ResultActivity extends AppCompatActivity {
                 @Override
                 public void onTextRecognized(String text) {
                     //search for ingredients in the INCI db and update the UI
-                    new AsyncIngredientsExtraction().execute(text);
+                    new AsyncIngredientsExtraction(ResultActivity.this).execute(text);
 
                     //save photo in the gallery and the last recognized text
                     saveTheResult(text);
@@ -186,14 +185,22 @@ public class ResultActivity extends AppCompatActivity {
      * the recognized ingredients list
      * @author Francesco Pham
      */
-    @SuppressLint("StaticFieldLeak")
-    private class AsyncIngredientsExtraction extends AsyncTask<String, Void, List<Ingredient>> {
+    private static class AsyncIngredientsExtraction extends AsyncTask<String, Void, List<Ingredient>> {
+
+        private WeakReference<ResultActivity> activityReference;
+
+        AsyncIngredientsExtraction(ResultActivity context){
+            activityReference = new WeakReference<>(context);
+        }
 
         @Override
         protected void onPreExecute() {
             //show progress bar
-            progressBar.setVisibility(ProgressBar.VISIBLE);
-            emptyTextView.setText(R.string.searching_ingredients);
+            ResultActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) return;
+
+            activity.progressBar.setVisibility(ProgressBar.VISIBLE);
+            activity.emptyTextView.setText(R.string.searching_ingredients);
         }
 
         /**
@@ -205,7 +212,10 @@ public class ResultActivity extends AppCompatActivity {
         protected List<Ingredient> doInBackground(String... strings) {
 
             String ocrText = strings[0];
-            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance(getApplicationContext());
+
+            ResultActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) return null;
+            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance(activity);
 
             //check if text is empty or null
             if(ocrText == null || ocrText.equals(""))
@@ -224,20 +234,21 @@ public class ResultActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Ingredient> ingredients) {
 
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            ResultActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) return;
+
+            activity.progressBar.setVisibility(ProgressBar.INVISIBLE);
 
             //if something has been found then set the list of recognized ingredients
             if(ingredients != null) {
-                emptyTextView.setVisibility(TextView.INVISIBLE);
-
                 AdapterIngredient adapter =
                         new AdapterIngredient(
-                                ResultActivity.this,
+                                activity,
                                 ingredients
                         );
-                ingredientsListView.setAdapter(adapter);
+                activity.ingredientsListView.setAdapter(adapter);
             } else
-                emptyTextView.setText(R.string.no_ingredient_found);
+                activity.emptyTextView.setText(R.string.no_ingredient_found);
         }
     }
 
