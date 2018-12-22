@@ -11,13 +11,12 @@ import java.util.ArrayList;
  */
 class AllergensManager {
 
-    ArrayList<Allergen> listAllergens = new ArrayList<>();
+    static ArrayList<Allergen> listAllergens = new ArrayList<>();
 
-    public ArrayList<Allergen> getListAllergens (InputStream allergendbStream) {
+    public static ArrayList<Allergen> getListAllergens(InputStream allergendbStream) {
         InputStreamReader allergendbReader = new InputStreamReader(allergendbStream);
 
 
-        
         return listAllergens;
     }
 }
