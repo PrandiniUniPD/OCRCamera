@@ -19,4 +19,9 @@ class AllergensManager {
 
         return listAllergens;
     }
+
+    public static String[] matchAllergenesWithRecognizedIgredients() {
+        String[] i = new String[2];
+        return i;
+    }
 }
