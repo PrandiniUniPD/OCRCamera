@@ -78,4 +78,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:backgroundTint="@color/colorPrimary"/>
 
+    <Button
+        android:id="@+id/allergensButton"
+        android:layout_width="47dp"
+        android:layout_height="42dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="108dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </android.support.constraint.ConstraintLayout>
