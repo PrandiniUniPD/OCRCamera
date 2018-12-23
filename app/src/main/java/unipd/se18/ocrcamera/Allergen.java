@@ -5,10 +5,48 @@ package unipd.se18.ocrcamera;
  */
 class Allergen {
 
-    private String cosingRefNo;
+    private String[] inciNames;
 
-    private String inciName;
+    private String commonName;
 
-    private String commonNames;
+    private boolean selected;  //keeps track if this allergen was selected by the user
 
+    Allergen() {
+        commonName = "";
+        selected = false;
+    }
+
+    //setters
+
+    void setCommonName(String commonNames) {
+        this.commonName = commonNames;
+    }
+
+    void setInciNames(String[] inciName) {
+        this.inciNames = inciName;
+    }
+
+    void setSelection(boolean selection) { this.selected = selection; }
+
+    //getters
+
+    public String getCommonName() {
+        return commonName;
+    }
+
+    public String[] getInciNames() {
+        return inciNames;
+    }
+
+    public boolean getSelection() { return selected; }
+
+    @Override
+    public String toString() {
+
+        String str = commonName;
+        for (String s :inciNames) {
+            str = str + ", " + s + ", " + Boolean.toString(selected);
+        }
+        return (str);
+    }
 }
