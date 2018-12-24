@@ -50,7 +50,7 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
             try {
                     File f = new File(PHOTOS_FOLDER, fileNames[i]);
                     Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));
-                    BlurObject obj = new BlurObject(image);
+                    BlurObject obj = new BlurObject(fileNames[i], image);
                     arrayBlur.add(obj);
 
                 }
@@ -62,19 +62,14 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
                 e.printStackTrace();
                   Log.e("errore", "illegalargument");
                 }
-                conta++;
+                conta++; //check how many photos load
             Log.e("check", Integer.toString(conta));
         }
         //View preparation
         listView = (ListView) findViewById(R.id.listview);
         BlurObjectAdapter adapter = new BlurObjectAdapter(this, R.layout.listavalori, arrayBlur);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-            }
-        });
 
     }
 
