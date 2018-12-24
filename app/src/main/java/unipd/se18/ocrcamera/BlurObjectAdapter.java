@@ -1,12 +1,15 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -17,8 +20,9 @@ import java.util.ArrayList;
  */
 public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
 
-    private static class ViewHolder {
+    private static class ViewHolder {                       //for better performance I use a ViewHolder
         private TextView itemView;
+        public int position;                                //counter to save the position of the adapter to keep correct onClick listeners
 
     }
 
@@ -29,25 +33,36 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(this.getContext())
-                    .inflate(android.R.layout.simple_list_item_1
+            Log.e("erre", "ViewholderNONesiste");
+
+            convertView = LayoutInflater.from(getContext())
+                    .inflate(R.layout.adapterview
                             , parent, false);
 
             viewHolder = new ViewHolder();
-            viewHolder.itemView = (TextView) convertView.findViewById(android.R.id.list_container);
+            viewHolder.itemView = (TextView) convertView.findViewById(R.id.textView);
 
-            convertView.setTag(viewHolder);
+
         } else {
+            Log.e("erre", "Viewholdersiste");
             viewHolder = (ViewHolder) convertView.getTag();
         }
-
+        convertView.setTag(viewHolder);
         BlurObject item = getItem(position);
-        if (item!= null) {
-            // My layout has only one TextView
-            // do whatever you want with your string and long
-            viewHolder.itemView.setText(String.format("%s %f", item.image, item.blur));
-        }
 
+        /////////Click Listener
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+
+
+        if (item!= null) {
+            Log.e("erre", item.toString());
+            viewHolder.itemView.setText(item.toString());
+        }
+        viewHolder.position=position;
         return convertView;
     }
 }

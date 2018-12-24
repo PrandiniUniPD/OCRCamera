@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -43,9 +44,9 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         File path = new File(PHOTOS_FOLDER);
         String[] fileNames = path.list();
-
+        int conta=0;
         //blur processing
-        for (int i = 0; i < 10; i++) {                    //fileNames.length
+        for (int i = 0; i < 30; i++) {                    //fileNames.length
             try {
                     File f = new File(PHOTOS_FOLDER, fileNames[i]);
                     Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));
@@ -61,10 +62,12 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
                 e.printStackTrace();
                   Log.e("errore", "illegalargument");
                 }
+                conta++;
+            Log.e("check", Integer.toString(conta));
         }
         //View preparation
         listView = (ListView) findViewById(R.id.listview);
-        BlurObjectAdapter adapter = new BlurObjectAdapter(this, android.R.layout.simple_list_item_1, arrayBlur);
+        BlurObjectAdapter adapter = new BlurObjectAdapter(this, R.layout.listavalori, arrayBlur);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

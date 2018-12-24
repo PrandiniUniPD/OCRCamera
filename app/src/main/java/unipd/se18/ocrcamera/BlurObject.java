@@ -28,5 +28,10 @@ public class BlurObject {
         return blur;
     }
 
+    public String toString()
+    {
+        return Double.toString(blur);
+    }
+
 
 }
