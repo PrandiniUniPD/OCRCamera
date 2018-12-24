@@ -9,6 +9,8 @@
 
     <!-- Permissions for using the camera - author Pietro Prandini (g2) -->
     <uses-permission android:name="android.permission.CAMERA" />
+    
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -50,15 +52,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TestResultActivity" />
-        <activity
-            android:name=".TestAlterationsActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
         <activity android:name=".DownloadDbActivity" />
-        <activity android:name=".GalleryActivity"></activity>
+        <activity android:name=".GalleryActivity" />
         <activity android:name=".TestsListActivity" />
-        <activity android:name=".TestDetailsActivity"></activity>
+        <activity android:name=".TestDetailsActivity" />
+        <activity android:name=".IngredientDetailsActivity"></activity>
     </application>
 
 </manifest>

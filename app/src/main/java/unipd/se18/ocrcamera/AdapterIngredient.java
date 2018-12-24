@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,18 +50,36 @@ public class AdapterIngredient extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.ingredient_element, parent, false);
         }
 
+        final String inciName = ingredients.get(position).getInciName();
+        final String description = ingredients.get(position).getDescription();
+        final String function = ingredients.get(position).getFunction();
+
         // Set the inci name
         TextView nameText = convertView.findViewById(R.id.inci_name_view);
-        nameText.setText(ingredients.get(position).getInciName());
+        nameText.setText(inciName);
 
         // Set description
-        TextView description = convertView.findViewById(R.id.description_view);
-        description.setText(ingredients.get(position).getDescription());
+        TextView descriptionView = convertView.findViewById(R.id.description_view);
+        descriptionView.setText(description);
 
         // Set function
-        TextView function = convertView.findViewById(R.id.function_view);
-        function.setText(ingredients.get(position).getFunction());
+        TextView functionView = convertView.findViewById(R.id.function_view);
+        functionView.setText(function);
+
+        // On click launches IngredientDetailsActivity to show more information about the ingredient
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(context, IngredientDetailsActivity.class);
+                i.putExtra("NAME", inciName);
+                i.putExtra("DESCRIPTION", description);
+                i.putExtra("FUNCTION", function);
+                context.startActivity(i);
+            }
+        });
 
         return convertView;
     }
+
+
 }

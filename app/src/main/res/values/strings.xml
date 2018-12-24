@@ -50,4 +50,8 @@
     <string name="tested">Tested:</string>
     <string name="of">of</string>
     <string name="confidence">confidence</string>
+    <string name="wikipedia">Wikipedia:</string>
+    <string name="wikipediaSearching">Searching on wikipedia...</string>
+    <string name="wikipediaNotFound">Could not find any wikipedia pages.</string>
+    <string name="wikipediaFailedRequest">Could not send request to wikipedia.</string>
 </resources>
