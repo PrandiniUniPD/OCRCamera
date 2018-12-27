@@ -1,5 +1,7 @@
 package unipd.se18.ocrcamera;
 
+import android.app.ActionBar;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -41,21 +44,24 @@ import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
  */
 public class ResultActivity extends AppCompatActivity {
 
+    private final String TAG = "ResultActivity";
+
     /**
      * listview used to show the ingredients extracted according with the INCI database
      */
     private ListView ingredientsListView;
 
     /**
-     * progress bar used to show the progress on the ingredients extraction from the photo taken
-     */
-    private ProgressBar progressBar;
-    /**
      * view used to show progress messages
      */
     private TextView emptyTextView;
 
-    private final String TAG = "ResultActivity";
+    /**
+     * progress bar used to show the progress on the ingredients extraction from the photo taken
+     */
+    private ProgressBar progressBar;
+
+    private ActionBar actionBar;
 
     /**
      * Contains the last photo taken by the user
@@ -66,11 +72,11 @@ public class ResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
-
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
         progressBar = findViewById(R.id.progress_bar);
+        actionBar = getActionBar();
 
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
@@ -149,6 +155,18 @@ public class ResultActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.result_menu, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+        //searchView.setSuggestionsAdapter();
+        searchView.setSubmitButtonEnabled(true);
+
         return true;
     }
 
