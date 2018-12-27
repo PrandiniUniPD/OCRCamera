@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.app.ActionBar;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -61,8 +60,6 @@ public class ResultActivity extends AppCompatActivity {
      */
     private ProgressBar progressBar;
 
-    private ActionBar actionBar;
-
     /**
      * Contains the last photo taken by the user
      */
@@ -76,7 +73,6 @@ public class ResultActivity extends AppCompatActivity {
         ImageView mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
         progressBar = findViewById(R.id.progress_bar);
-        actionBar = getActionBar();
 
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
@@ -163,9 +159,6 @@ public class ResultActivity extends AppCompatActivity {
                 (SearchView) menu.findItem(R.id.search).getActionView();
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
-
-        //searchView.setSuggestionsAdapter();
-        searchView.setSubmitButtonEnabled(true);
 
         return true;
     }

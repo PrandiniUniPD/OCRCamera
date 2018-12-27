@@ -4,7 +4,8 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -59,20 +60,21 @@ public class SearchResultsActivity extends AppCompatActivity {
                         new AdapterIngredient(getApplicationContext(), ingredientsFound);
                 mIngredientsListView.setAdapter(adapter);
 
+                mIngredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
+                        Intent webSearchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                        webSearchIntent.putExtra(SearchManager.QUERY, selectedIngredient.getInciName());
+                        startActivity(webSearchIntent);
+                    }
+                });
             } else {
                 //message that nothing has been found
                 mMessageTextView.setText("Nothing found");
             }
 
         }
-    }
-
-    @Override
-    public boolean onSearchRequested() {
-
-        Log.d(TAG, "search triggered");
-
-        return false;  // don't go ahead and show the search box
     }
 
 }

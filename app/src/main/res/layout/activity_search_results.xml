@@ -10,14 +10,19 @@
         android:id="@+id/ingredients_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="20dp"
+
         android:scrollbars="vertical">
     </ListView>
     <TextView
         android:id="@+id/message_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginTop="50dp"
+        android:paddingTop="20dp"
+        android:textSize="16sp"
+        android:textColor="#cc0c04"
+        android:textAlignment="center"
         android:scrollbars="vertical">
     </TextView>
 
