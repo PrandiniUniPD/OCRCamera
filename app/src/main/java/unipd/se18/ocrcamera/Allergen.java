@@ -9,22 +9,11 @@ class Allergen {
 
     private String commonName;
 
-    private boolean selected;  //keeps track if this allergen was selected by the user
-
-    //standard constructor, sets default empty parameters
     Allergen() {
         commonName = "";
-        selected = false;
     }
 
-    //constructor that sets name and selection parameters
-    Allergen(String name, Boolean sel){
-        commonName= name;
-        selected= sel;
-    }
-
-
-    //setters methods for allergen variables
+    //setters
 
     void setCommonName(String commonNames) {
         this.commonName = commonNames;
@@ -34,11 +23,7 @@ class Allergen {
         this.inciNames = inciName;
     }
 
-    void setSelection(boolean selection) {
-        this.selected = selection;
-    }
-
-    //getters methods for
+    //getters
 
     public String getCommonName() {
         return commonName;
@@ -48,15 +33,24 @@ class Allergen {
         return inciNames;
     }
 
-    public boolean isSelected() { return selected; }
-
     @Override
     public String toString() {
 
         String str = commonName;
         for (String s :inciNames) {
-            str = str + ", " + s + ", " + Boolean.toString(selected);
+            str = str + ", " + s + ", ";
         }
         return (str);
+    }
+
+    public String inciNamesString() {
+
+        String namesString = "";
+
+        for (String name : inciNames) {
+            namesString = namesString + ", " + name;
+        }
+
+        return namesString;
     }
 }

@@ -1,15 +1,17 @@
 package unipd.se18.ocrcamera;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+
 import com.opencsv.CSVReader;
 
-import org.apache.commons.collections.ArrayStack;
+import unipd.se18.ocrcamera.inci.Ingredient;
 
-import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 
 
 /**
@@ -20,44 +22,55 @@ class AllergensManager {
 
     private static final int COMMON_NAME = 0;
     private static final int INCI_NAMES = 1;
-    private static final int SELECTION = 2;
 
-    static ArrayList<Allergen> allergensList = new ArrayList<>();
+    private static ArrayList<Allergen> allergensList = new ArrayList<>();
+    private static ArrayList<Allergen> selectedAllergensList = new ArrayList<>();
+
+    private Context context;
+    private static SharedPreferences sp = null;
+
+    /**
+     * constructor
+     * @param cntx context of the app/calling activity
+     */
+    AllergensManager(Context cntx) {
+
+        context = cntx;
+        sp = context.getSharedPreferences("selected_allergens", Context.MODE_PRIVATE);
+        getAllergensList();
+        getSelectedAllergensList();
+
+    }
 
     /**
      * This method returns an list of Allergen objects from allergendb.csv
-     * @param allergenDbStream, an InputStream containing the list of allergens from allergendb.csv
      * @return allergensList, the converted ArrayList of Allergen objects
      * @modify allergensList by putting all allergens in it
      * @author Cervo Nicolò
-     * @author Balzan Pietro
      */
-    public static ArrayList<Allergen> getAllergensList(InputStream allergenDbStream) {
+    public ArrayList<Allergen> getAllergensList() {
 
-        List<Allergen> allergenList = new ArrayList<>();
-
-        InputStreamReader allergenDbReader = new InputStreamReader(allergenDbStream);
-
+        InputStream inputStream = context.getResources().openRawResource(R.raw.allergendb);
+        InputStreamReader allergenDbReader = new InputStreamReader(inputStream);
         CSVReader csvReader = new CSVReader(allergenDbReader);
 
         String line[];
         String inciNames[];
         String commonName;
-        boolean selection;
 
         try {
             while ((line = csvReader.readNext()) != null) {
                 Allergen allergen = new Allergen();
 
+                // get the Allergen fields from line[]
                 commonName = line[COMMON_NAME].replace("\"", "");
                 inciNames = line[INCI_NAMES].replace("\"", "").split(", ");
-                selection = (line[SELECTION] == "selected");
 
+                // set the fields
                 allergen.setCommonName(commonName);
                 allergen.setInciNames(inciNames);
-                allergen.setSelection(selection);
 
-                allergenList.add(allergen);
+                allergensList.add(allergen);
             }
 
         } catch(IOException e){
@@ -68,16 +81,101 @@ class AllergensManager {
     }
 
     /**
-     * this method compares the list of allergens to the list of recognized ingredients
-     * @param ingredients a List of the ingredients (recognized form the Ocr text)
-     *                    to be compared to the allergens
-     * @return refNoList, ArrayList<String> of cosingRefNo of the ingredients containing allergens
+     * parses through selected_allergens to return the list of selected allergens
+     * @return selectedAllergensList, ArrayList<Allergen> of selected allergens
+     */
+    public ArrayList<Allergen> getSelectedAllergensList() {
+
+        Map<String, ?> selectedAllergens = sp.getAll();
+
+        for(Map.Entry<String, ?> entry : selectedAllergens.entrySet()) {
+
+            Allergen allergen = new Allergen();
+            allergen.setCommonName(entry.getKey());
+            allergen.setInciNames(entry.getValue().toString().split(", "));
+            selectedAllergensList.add(allergen);
+
+        }
+        return  selectedAllergensList;
+    }
+
+    /**
+     * compares the list of allergens to the ingredient ingr
+     * @param ingr, a List of the ingredients (recognized form the Ocr text)
+     *        to be compared to the allergens
+     * @return foundAllergens, ArrayList<Allergen> containing the allergens found in the inciName or
+     *         in the description of ingr, empty list if none is found
      * @author Cervo Nicolò
      * @author Balzan Pietro
      */
-    public static ArrayList<String> findAllergens(List ingredients) {
-        ArrayList<String> refNoList= new ArrayList<>();
+    public ArrayList<Allergen> checkForAllergens(Ingredient ingr) {
+        ArrayList<Allergen> foundAllergens = new ArrayList<>();
 
-        return refNoList;
+        for(Allergen allergen : allergensList) {
+
+            // for every inciName associated with this allergen
+            for(String allergenInciName : allergen.getInciNames()) {
+
+                // if the allergen commonName or inciName appears in the ingredient inciName or
+                // description respectively
+                if(ingr.getInciName().contains(allergenInciName) ||
+                        ingr.getDescription().contains(allergen.getCommonName())) {
+
+                    // add the allergen to foundAllergens
+                    foundAllergens.add(allergen);
+
+                    // if the allergen is found go to the next one
+                    break;
+                }
+            }
+        }
+        return foundAllergens;
+    }
+
+    /**
+     * Check if an ingredient contains a selected allergen common name or inci name
+     * @param ingr, ingredient to check for allergens
+     * @return the allergen found in the ingredient, null if no allergen is found
+     */
+    public Allergen checkForSelectedAllergens(Ingredient ingr) {
+
+        Map<String, ?> selectedAllergens = sp.getAll();
+        Allergen allergen = new Allergen();
+
+        for(Map.Entry<String, ?> entry : selectedAllergens.entrySet()) {
+            for(String inciName : entry.getValue().toString().split(", ")) {
+                if(ingr.getInciName().contains(inciName) ||
+                        ingr.getDescription().contains(entry.getKey())) {
+
+                    allergen.setInciNames(entry.getValue().toString().split(", "));
+                    allergen.setCommonName(entry.getKey());
+                }
+            }
+        }
+        return allergen;
+    }
+
+    /**
+     * adds allergen to the SharedPreferences file selected_allergens
+     * @param allergen, the Allergen to add
+     * @modify selected_allergens
+     */
+    public void selectAllergen(Allergen allergen) {
+
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(allergen.getCommonName(), allergen.inciNamesString());
+        editor.apply();
+    }
+
+    /**
+     * removes an allergen from the SharedPreferences file selected_allergens
+     * @param allergen, the Allergen to remove
+     * @modify selected_allergens
+     */
+    public void deselectAllergen(Allergen allergen) {
+
+        SharedPreferences.Editor editor = sp.edit();
+        editor.remove(allergen.getCommonName());
+        editor.apply();
     }
 }
