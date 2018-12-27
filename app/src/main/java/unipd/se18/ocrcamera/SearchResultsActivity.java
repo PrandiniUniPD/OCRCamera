@@ -48,18 +48,27 @@ public class SearchResultsActivity extends AppCompatActivity {
         handleIntent(intent);
     }
 
+    /**
+     * Given an action search intent, create a list view of similar ingredients retrieved
+     * from INCI database
+     * @param intent action search intent
+     */
     private void handleIntent(Intent intent) {
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
 
+            //get query text
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            //find similar ingredients list
             List<Ingredient> ingredientsFound = ingredientsExtractor.findListIngredients(query);
+
             if(ingredientsFound != null && ingredientsFound.size() > 0) {
                 //show ingredients list if any
                 AdapterIngredient adapter =
                         new AdapterIngredient(getApplicationContext(), ingredientsFound);
                 mIngredientsListView.setAdapter(adapter);
 
+                //launch a websearch on item click
                 mIngredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
