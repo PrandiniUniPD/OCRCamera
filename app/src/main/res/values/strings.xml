@@ -50,4 +50,9 @@
     <string name="tested">Tested:</string>
     <string name="of">of</string>
     <string name="confidence">confidence</string>
+
+    <!--List of strings for AllergensActivity-->
+    <string name="allergens_search_bar">Type an allergen name in</string>
+    <string name="togglebutton_add_allergen">add</string>
+    <string name="togglebutton_remove_allergen">remove</string>
 </resources>
