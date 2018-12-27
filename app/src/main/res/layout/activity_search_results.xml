@@ -5,25 +5,56 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SearchResultsActivity">
-
-    <ListView
-        android:id="@+id/ingredients_list"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-        android:scrollbars="vertical">
-    </ListView>
-    <TextView
-        android:id="@+id/message_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:paddingTop="20dp"
-        android:textSize="16sp"
-        android:textColor="#cc0c04"
-        android:textAlignment="center"
-        android:scrollbars="vertical">
-    </TextView>
+            <AutoCompleteTextView
+                android:id="@+id/ingredients_auto_complete_text_view"
+                android:layout_width="wrap_content"
+                android:minWidth="250dp"
+                android:layout_height="wrap_content"
+                android:hint="Enter ingredient name"
+                android:layout_marginLeft="20dp">
 
+                <requestFocus />
+            </AutoCompleteTextView>
+
+            <Button
+                android:id="@+id/auto_complete_text_view_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_search"
+
+                 />
+        </LinearLayout>
+
+
+
+
+        <ListView
+            android:id="@+id/ingredients_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+
+            android:scrollbars="vertical">
+        </ListView>
+        <TextView
+            android:id="@+id/message_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:paddingTop="20dp"
+            android:textSize="16sp"
+            android:textColor="#cc0c04"
+            android:textAlignment="center"
+            android:scrollbars="vertical">
+        </TextView>
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

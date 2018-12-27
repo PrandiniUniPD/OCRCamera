@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,6 +27,8 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private TextView mMessageTextView;
 
+    private AutoCompleteTextView mAutoCompleteTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,12 +37,23 @@ public class SearchResultsActivity extends AppCompatActivity {
         //layout components
         mIngredientsListView = findViewById(R.id.ingredients_list);
         mMessageTextView = findViewById(R.id.message_text_view);
+        mAutoCompleteTextView = findViewById(R.id.ingredients_auto_complete_text_view);
 
         //mMessageTextView is used to show messages
         mIngredientsListView.setEmptyView(mMessageTextView);
 
         //inci db ingredients finder
         ingredientsExtractor = IngredExtractorSingleton.getInstance(getApplicationContext());
+
+        String[] test = {"elem1", "elem2", "test2", "prova", "testaggio"};
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>
+                (this, android.R.layout.select_dialog_item, test);
+        mAutoCompleteTextView.setThreshold(1);
+        mAutoCompleteTextView.setAdapter(adapter);
+
+
+
 
         handleIntent(getIntent());
     }
@@ -56,9 +71,13 @@ public class SearchResultsActivity extends AppCompatActivity {
     private void handleIntent(Intent intent) {
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-
             //get query text
             String query = intent.getStringExtra(SearchManager.QUERY);
+
+            //update textview text and set cursor to the end
+            mAutoCompleteTextView.setText(query);
+            mAutoCompleteTextView.setSelection(query.length());
+
             //find similar ingredients list
             List<Ingredient> ingredientsFound = ingredientsExtractor.findListIngredients(query);
 
