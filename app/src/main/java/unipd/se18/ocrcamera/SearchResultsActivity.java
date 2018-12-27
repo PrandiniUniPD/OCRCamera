@@ -11,8 +11,11 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
+import unipd.se18.ocrcamera.inci.Inci;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 
@@ -31,6 +34,10 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //TODO: disable on create focus on AutoCompleteTextView
+        //TODO: add button to do the ingredient web search rather than doing it on item click
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_results);
 
@@ -45,15 +52,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         //inci db ingredients finder
         ingredientsExtractor = IngredExtractorSingleton.getInstance(getApplicationContext());
 
-        String[] test = {"elem1", "elem2", "test2", "prova", "testaggio"};
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>
-                (this, android.R.layout.select_dialog_item, test);
-        mAutoCompleteTextView.setThreshold(1);
-        mAutoCompleteTextView.setAdapter(adapter);
-
-
-
+        new LoadSuggestions().run();
 
         handleIntent(getIntent());
     }
@@ -104,5 +103,60 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         }
     }
+
+
+    /**
+     * Load all INCI names, set them as suggestions for the AutoCompleteTextView and set a
+     * suggestion click listener
+     */
+    private class LoadSuggestions implements Runnable {
+        @Override
+        public void run() {
+
+
+            //read INCI database
+            InputStream inciDbStream = getResources().openRawResource(R.raw.incidb);
+            List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
+
+            //create an arraylist with all ingredient names
+            ArrayList<String> ingredientNamesList = new ArrayList<>();
+            for(Ingredient ingredient : listInciIngredients)
+                ingredientNamesList.add(ingredient.getInciName());
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            getApplicationContext(),
+                            android.R.layout.simple_list_item_1,
+                            ingredientNamesList
+                    );
+
+            //start suggesting with more that 2 chars typed
+            mAutoCompleteTextView.setThreshold(2);
+            mAutoCompleteTextView.setAdapter(adapter);
+
+
+            //on suggestion click: update ingredients listview
+            mAutoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    String ingredientClicked = parent.getItemAtPosition(position).toString();
+
+                    //update TextView and set cursor at the end of the text
+                    mAutoCompleteTextView.setText(ingredientClicked);
+                    mAutoCompleteTextView.setSelection(ingredientClicked.length());
+
+                    //find similar ingredients (will retrieve one result)
+                    List<Ingredient> ingredientsFound =
+                            ingredientsExtractor.findListIngredients(ingredientClicked);
+
+                    AdapterIngredient adapterIngredientsFound =
+                            new AdapterIngredient(getApplicationContext(), ingredientsFound);
+                    mIngredientsListView.setAdapter(adapterIngredientsFound);
+
+                }
+            });
+        }
+    }
+
 
 }
