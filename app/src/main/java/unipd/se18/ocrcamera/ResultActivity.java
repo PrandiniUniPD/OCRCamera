@@ -5,11 +5,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +30,7 @@ import java.util.List;
 
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
+import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 import unipd.se18.textrecognizer.OCR;
 import unipd.se18.textrecognizer.OCRListener;
 import unipd.se18.textrecognizer.TextRecognizer;
@@ -188,6 +192,7 @@ public class ResultActivity extends AppCompatActivity {
     private static class AsyncIngredientsExtraction extends AsyncTask<String, Void, List<Ingredient>> {
 
         private WeakReference<ResultActivity> activityReference;
+        private String correctedText;
 
         AsyncIngredientsExtraction(ResultActivity context){
             activityReference = new WeakReference<>(context);
@@ -215,14 +220,18 @@ public class ResultActivity extends AppCompatActivity {
 
             ResultActivity activity = activityReference.get();
             if (activity == null || activity.isFinishing()) return null;
-            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance(activity);
+            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance(activity).getIngredientsExtractor();
+            TextAutoCorrection corrector = IngredExtractorSingleton.getInstance(activity).getTextCorrector();
 
             //check if text is empty or null
             if(ocrText == null || ocrText.equals(""))
                 return null;
 
+            //correct text
+            correctedText = corrector.correctText(ocrText);
+
             //extract ingredients
-            List<Ingredient> ingredientList = extractor.findListIngredients(ocrText);
+            List<Ingredient> ingredientList = extractor.findListIngredients(correctedText);
 
             //if the list is empty then return null
             if(ingredientList.size() == 0)
@@ -247,6 +256,16 @@ public class ResultActivity extends AppCompatActivity {
                                 ingredients
                         );
                 activity.ingredientsListView.setAdapter(adapter);
+
+                //print analyzed text highlighting the recognized ingredients
+                SpannableString analyzedText = new SpannableString(this.correctedText);
+                for(Ingredient ingred : ingredients){
+                    analyzedText.setSpan(new BackgroundColorSpan(Color.YELLOW),
+                            ingred.getStartPositionFound(), ingred.getEndPositionFound()+1, 0);
+                }
+                TextView headerView = new TextView(activity);
+                headerView.setText(analyzedText);
+                activity.ingredientsListView.addHeaderView(headerView);
             } else
                 activity.emptyTextView.setText(R.string.no_ingredient_found);
         }

@@ -7,7 +7,7 @@ import java.util.List;
 import unipd.se18.ocrcamera.inci.Inci;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
-import unipd.se18.ocrcamera.inci.PrecorrectionIngredientsExtractor;
+import unipd.se18.ocrcamera.inci.nameMatchIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 
 /**
@@ -15,36 +15,41 @@ import unipd.se18.ocrcamera.inci.TextAutoCorrection;
  * @author Francesco Pham
  */
 class IngredExtractorSingleton {
+    private static volatile IngredExtractorSingleton ourInstance;
 
-    private static volatile IngredientsExtractor ingredientsExtractor;
+    private IngredientsExtractor ingredientsExtractor;
+    private TextAutoCorrection textCorrector;
 
-    static IngredientsExtractor getInstance(Context context) {
-        if (ingredientsExtractor == null) {
+    static IngredExtractorSingleton getInstance(Context context) {
+        if (ourInstance == null) {
             synchronized (IngredExtractorSingleton.class) {
-                if (ingredientsExtractor == null) ingredientsExtractor = load(context);
+                if (ourInstance == null) ourInstance = new IngredExtractorSingleton(context);
             }
         }
-        return ingredientsExtractor;
+        return ourInstance;
     }
 
-    private IngredExtractorSingleton() {
-        if (ingredientsExtractor != null){
-            throw new RuntimeException("Use getInstance() method to get ingredientExtractor.");
+    private IngredExtractorSingleton(Context context) {
+        if (ourInstance != null){
+            throw new RuntimeException("Use getInstance() method to get the single instance of this class.");
         }
-    }
 
-    /**
-     * Load list of ingredients from INCI DB and initialize ingredients extractor.
-     * @param context
-     */
-    private static IngredientsExtractor load(Context context){
-        //load inci db and initialize ingredient extractor
+        //Load list of ingredients from INCI DB and initialize ingredients extractor
         InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
         List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
+        this.ingredientsExtractor = new nameMatchIngredientsExtractor(listInciIngredients);
 
+        //Load wordlist and initialize text corrector
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
-        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
-
-        return new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+        this.textCorrector = new TextAutoCorrection(wordListStream);
     }
+
+    IngredientsExtractor getIngredientsExtractor(){
+        return this.ingredientsExtractor;
+    }
+
+    TextAutoCorrection getTextCorrector(){
+        return this.textCorrector;
+    }
+
 }

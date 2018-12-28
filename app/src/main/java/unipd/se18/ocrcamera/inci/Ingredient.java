@@ -30,7 +30,9 @@ public class Ingredient implements Comparable<String> {
 
     private String strippedInciName;
 
-    private int positionFound;
+    private int startPositionFound;
+
+    private int endPositionFound;
 
 
     Ingredient() {
@@ -44,7 +46,7 @@ public class Ingredient implements Comparable<String> {
         this.restriction = "";
         this.function = "";
         this.updateDate = "";
-        positionFound = -1;
+        startPositionFound = -1;
     }
 
     //GETTERS
@@ -92,8 +94,12 @@ public class Ingredient implements Comparable<String> {
         return strippedInciName;
     }
 
-    public int getPositionFound() {
-        return positionFound;
+    public int getStartPositionFound() {
+        return startPositionFound;
+    }
+
+    public int getEndPositionFound() {
+        return endPositionFound;
     }
 
     //SETTERS
@@ -102,7 +108,7 @@ public class Ingredient implements Comparable<String> {
     }
 
     public void setInciName(String inciName) {
-        setStrippedInciName(inciName);
+        this.strippedInciName = stripString(inciName);
         this.inciName = inciName;
     }
 
@@ -138,8 +144,12 @@ public class Ingredient implements Comparable<String> {
         this.updateDate = updateDate;
     }
 
-    public void setPositionFound(int positionFound) {
-        this.positionFound = positionFound;
+    public void setStartPositionFound(int startPositionFound) {
+        this.startPositionFound = startPositionFound;
+    }
+
+    public void setEndPositionFound(int endPositionFound) {
+        this.endPositionFound = endPositionFound;
     }
 
     @Override
@@ -148,7 +158,7 @@ public class Ingredient implements Comparable<String> {
     }
 
     //this method removes all non alphanumeric characters
-    private void setStrippedInciName(String name){
-        this.strippedInciName = name.replaceAll("[^A-Za-z0-9]", "");
+    private String stripString(String name){
+        return name.replaceAll("[^A-Za-z0-9]", "");
     }
 }
