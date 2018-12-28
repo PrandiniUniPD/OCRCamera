@@ -16,12 +16,17 @@
 
             <AutoCompleteTextView
                 android:id="@+id/ingredients_auto_complete_text_view"
-                android:layout_width="wrap_content"
                 android:minWidth="250dp"
                 android:layout_height="wrap_content"
                 android:maxHeight="100dp"
                 android:hint="Enter ingredient name"
-                android:layout_marginLeft="20dp">
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_toLeftOf="@+id/auto_complete_text_view_button"
+                android:layout_alignParentLeft="true"
+
+                >
 
                 <requestFocus />
             </AutoCompleteTextView>
@@ -31,8 +36,8 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@drawable/ic_search"
-
-                 />
+                android:layout_weight="0"
+                android:layout_alignParentRight="true"/>
         </LinearLayout>
 
 

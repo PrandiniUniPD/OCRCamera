@@ -1,15 +1,18 @@
 package unipd.se18.ocrcamera;
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -35,7 +38,6 @@ public class SearchResultsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        //TODO: disable on create focus on AutoCompleteTextView
         //TODO: add button to do the ingredient web search rather than doing it on item click
 
         super.onCreate(savedInstanceState);
@@ -48,6 +50,19 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         //mMessageTextView is used to show messages
         mIngredientsListView.setEmptyView(mMessageTextView);
+
+        //add listener to launch a websearch on item click
+        mIngredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
+                Intent webSearchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                webSearchIntent.putExtra(SearchManager.QUERY, selectedIngredient.getInciName());
+                startActivity(webSearchIntent);
+            }
+        });
+
+
 
         //inci db ingredients finder
         ingredientsExtractor = IngredExtractorSingleton.getInstance(getApplicationContext());
@@ -77,6 +92,7 @@ public class SearchResultsActivity extends AppCompatActivity {
             mAutoCompleteTextView.setText(query);
             mAutoCompleteTextView.setSelection(query.length());
 
+
             //find similar ingredients list
             List<Ingredient> ingredientsFound = ingredientsExtractor.findListIngredients(query);
 
@@ -86,21 +102,17 @@ public class SearchResultsActivity extends AppCompatActivity {
                         new AdapterIngredient(getApplicationContext(), ingredientsFound);
                 mIngredientsListView.setAdapter(adapter);
 
-                //launch a websearch on item click
-                mIngredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
-                        Intent webSearchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
-                        webSearchIntent.putExtra(SearchManager.QUERY, selectedIngredient.getInciName());
-                        startActivity(webSearchIntent);
-                    }
-                });
             } else {
                 //message that nothing has been found
                 mMessageTextView.setText("Nothing found");
             }
 
+        } else {
+            //if the intent action is not an ACTION_SEARCH then close the activity and display an error
+
+            Log.e(TAG, "Activity called without ACTION_SEARCH intent");
+            Toast.makeText(getApplicationContext(), "Error doing search", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
