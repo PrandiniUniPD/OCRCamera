@@ -50,13 +50,19 @@ public class Inci {
      * Load every Inci ingredients to arrayList
      */
     private void loadDB(InputStream inputStream){
+        //define 0 the name of the ingredients
+        int name=0;
+        //define 1 the description of the ingredients
+        int description=1;
+        //open Buffer Reader for read the database
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
         String ingredient;
         try {
+            //slide every line of the database and add in the appropriate list
             while ((ingredient = reader.readLine()) != null) {
                 String[] inci=ingredient.split(";");
-                listInci.add(inci[0].trim());
-                //listInciDescription.add(inci[1].trim());
+                listInci.add(inci[name].trim());
+                //listInciDescription.add(inci[description].trim());
             }
             Log.d("inci", "create listInci");
         }catch (Exception e){
@@ -84,8 +90,10 @@ public class Inci {
      * @param text String in which you have to find the ingredients
      * loads all the ingredients inci found in the ArrayList listIngredientFound
      */
-    public void findIngredientsList(String text) {
+    public void findIngredientsList_old(String text) {
         listIngredientFound = new ArrayList<String>();
+        //remove every \n
+        //split by Ingredients to reduce the number of words to be analyzed
         String noEnd = text.replaceAll("\n", " ");
         String [] word = noEnd.split(",");
         for (int i = 0; i < word.length; i++) {
@@ -96,6 +104,44 @@ public class Inci {
             }
         }
 
+    }
+
+
+    /**
+     * @author Giovanni Fasan(g1)
+     * @param text String in which you have to find the ingredients
+     * loads all the ingredients inci found in the ArrayList listIngredientFound
+     */
+    public void findIngredientsList(String text) {
+        listIngredientFound = new ArrayList<String>();
+        //remove every \n and every :
+        //split by Ingredients to reduce the number of words to be analyzed
+        String[] noEnd = text.replaceAll("\n", " ").replaceAll(":", " ").split("Ingredients");
+        if (noEnd.length<=2){
+            //use 1 because if I have a length of the vector <= 2, I take the second part of the vector, that is the one where there is the list of ingredients
+            String [] word = noEnd[1].split(",");
+            Log.d("inci", "<=2");
+            for (String w : word) {
+                for (int j=0; j<this.listInci.size(); j++){
+                    if (w.trim().toUpperCase().equals(listInci.get(j))) {
+                        listIngredientFound.add(listInci.get(j));
+                    }
+                }
+            }
+        }else{
+            //in case there are more words Ingredients are forced to scroll and search all vectors to see if I find more lists of ingredients
+            Log.d("inci", ">2");
+            for (String par : noEnd){
+                String [] word = par.split(",");
+                for (String w : word) {
+                    for (int j=0; j<this.listInci.size(); j++){
+                        if (w.trim().toUpperCase().equals(listInci.get(j))) {
+                            listIngredientFound.add(listInci.get(j));
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }
