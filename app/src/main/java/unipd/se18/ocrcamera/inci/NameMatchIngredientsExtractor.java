@@ -53,13 +53,13 @@ public class NameMatchIngredientsExtractor implements IngredientsExtractor {
         List<Ingredient> foundIngredients = new ArrayList<>();
 
         //remove non alphanumeric characters from text
-        //in mapPositions we store for each character in the stripped text, the original position
-        int[] mapPositions = new int[text.length()];
+        //in mapIndexes we store for each character in the stripped text, the original position
+        int[] mapIndexes = new int[text.length()];
         StringBuilder strippedTextBuilder = new StringBuilder();
         for(int i=0; i<text.length(); i++) {
             char currentChar = text.charAt(i);
             if(Character.isLetter(currentChar) || Character.isDigit(currentChar)) {
-                mapPositions[strippedTextBuilder.length()] = i;
+                mapIndexes[strippedTextBuilder.length()] = i;
                 strippedTextBuilder.append(currentChar);
             }
         }
@@ -71,8 +71,8 @@ public class NameMatchIngredientsExtractor implements IngredientsExtractor {
             int indexOf = strippedText.indexOf(strippedName);
             if(indexOf >= 0){
                 //found the ingredient
-                ingredient.setStartPositionFound(mapPositions[indexOf]);
-                ingredient.setEndPositionFound(mapPositions[indexOf+strippedName.length()-1]);
+                ingredient.setStartPositionFound(mapIndexes[indexOf]);
+                ingredient.setEndPositionFound(mapIndexes[indexOf+strippedName.length()-1]);
                 foundIngredients.add(ingredient);
 
                 Log.d(TAG, "found "+ingredient.getInciName()+" at pos "+indexOf);
