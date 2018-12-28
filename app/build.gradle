@@ -45,6 +45,5 @@ dependencies {
     //FTP dependencies
     implementation 'commons-net:commons-net:3.6'
     implementation project(':imageprocessing')
-    implementation project(':openCVLibrary344')
 }
 apply plugin: 'com.google.gms.google-services'

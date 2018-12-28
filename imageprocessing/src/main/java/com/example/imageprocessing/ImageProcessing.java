@@ -13,6 +13,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt4;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -306,9 +307,12 @@ public class ImageProcessing implements DetectTheText {
         try {
             img = IPUtils.conversionBitmapToMat(image);
         } catch (ConversionFailedException e){
-            RotatedRect fullImage = new RotatedRect();
+            int centerHeight = image.getHeight()/2;
+            int centerWidth = image.getWidth()/2;
+            Point center = new Point(centerWidth, centerHeight);
+            Size imageDimensions = new Size(image.getHeight(), image.getWidth());
+            RotatedRect fullImage = new RotatedRect(center, imageDimensions, 0);
             textContainer.addRegion(fullImage);
-            //TODO setup the lines above
             return textContainer;
         }
         //Do the image Processing
@@ -327,7 +331,7 @@ public class ImageProcessing implements DetectTheText {
         return textContainer;
     }
 
-    
+
     @Override
     public List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions textContainer) {
         List<Bitmap> imgTextContainer = new ArrayList<>();

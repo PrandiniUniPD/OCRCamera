@@ -77,7 +77,7 @@ public class ResultActivity extends AppCompatActivity {
         TextRegions regions = processing.detectTextRegions(lastPhoto,
                 DetectTheTextMethods.DETECT_MAX_TEXT_AREA);
         List<Bitmap> bitmaps = processing.extractTextFromBitmap
-                (lastPhoto.copy(Bitmap.Config.ARGB_8888, true), regions);
+                (copyBitmap(lastPhoto), regions);
         Iterator imageIterator = bitmaps.iterator();
         lastPhoto = (Bitmap)imageIterator.next();
 
@@ -202,6 +202,25 @@ public class ResultActivity extends AppCompatActivity {
                     progressMessage,
                     "");
         }
+    }
+
+
+
+
+    /**
+     * Copies the original image giving a copy.
+     * @param image the Bitmap you want to copy
+     * @return the copied image (could be null)
+     * @author Thomas Porro (g1)
+     */
+    static Bitmap copyBitmap(Bitmap image){
+        Bitmap copied = null;
+        try{
+            copied = image.copy(Bitmap.Config.ARGB_8888, true);
+        } catch (NullPointerException e) {
+            Log.e("COPYING BITMAP", "Image not copied");
+        }
+        return copied;
     }
 }
 

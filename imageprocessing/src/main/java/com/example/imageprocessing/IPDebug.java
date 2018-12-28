@@ -3,6 +3,7 @@ package com.example.imageprocessing;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
+import com.example.imageprocessing.exceptions.ConversionFailedException;
 import org.opencv.core.Mat;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,7 +44,14 @@ class IPDebug {
      * @param name The path where we want to save the image
      */
     static void saveMatrix (Mat matrix, String name){
-        Bitmap image = IPUtils.conversionMatToBitmap(matrix);
+        Bitmap image;
+        try{
+            image = IPUtils.conversionMatToBitmap(matrix);
+        } catch (ConversionFailedException e){
+            Log.e(TAG, e.getErrorMessage());
+            Log.e(TAG, "Matrix not saved");
+            return;
+        }
         saveImage(image, DIRECTORY+name);
     }
 
