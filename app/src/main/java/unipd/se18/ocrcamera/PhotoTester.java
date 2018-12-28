@@ -28,7 +28,7 @@ import unipd.se18.ocrcamera.inci.Inci;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
-import unipd.se18.ocrcamera.inci.PrecorrectionIngredientsExtractor;
+import unipd.se18.ocrcamera.inci.nameMatchIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 import unipd.se18.ocrcamera.inci.TextSplitIngredientsExtractor;
 
@@ -36,7 +36,6 @@ import unipd.se18.ocrcamera.inci.TextSplitIngredientsExtractor;
 import unipd.se18.textrecognizer.OCR;
 import unipd.se18.textrecognizer.OCRListener;
 import unipd.se18.textrecognizer.TextRecognizer;
-import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
 
 /**
  * Class built to test the application's OCR comparing the goal text with the recognized text and
@@ -78,6 +77,7 @@ public class PhotoTester {
     private Context context;
     private IngredientsExtractor ocrIngredientsExtractor;
     private IngredientsExtractor correctIngredientsExtractor;
+    private TextAutoCorrection textCorrector;
 
 
 
@@ -185,8 +185,8 @@ public class PhotoTester {
         InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
         List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
-        TextAutoCorrection textCorrector = new TextAutoCorrection(wordListStream);
-        ocrIngredientsExtractor = new PrecorrectionIngredientsExtractor(listInciIngredients, textCorrector);
+        textCorrector = new TextAutoCorrection(wordListStream);
+        ocrIngredientsExtractor = new nameMatchIngredientsExtractor(listInciIngredients);
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
 
 
@@ -515,7 +515,8 @@ public class PhotoTester {
          */
         private String buildIngredientsExtractionReport(String recognizedText, String correctIngredientsText){
             //extract ingredients from ocr text and from correctIngredientsText
-            List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(recognizedText);
+            String correctedRecognizedText = textCorrector.correctText(recognizedText);
+            List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(correctedRecognizedText);
             List<Ingredient> correctListIngredients = correctIngredientsExtractor.findListIngredients(correctIngredientsText);
 
             //sort alphabetically (Francesco Pham)
