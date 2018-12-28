@@ -7,7 +7,7 @@ import java.util.List;
 import unipd.se18.ocrcamera.inci.Inci;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
-import unipd.se18.ocrcamera.inci.nameMatchIngredientsExtractor;
+import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 
 /**
@@ -37,7 +37,7 @@ class IngredExtractorSingleton {
         //Load list of ingredients from INCI DB and initialize ingredients extractor
         InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
         List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
-        this.ingredientsExtractor = new nameMatchIngredientsExtractor(listInciIngredients);
+        this.ingredientsExtractor = new NameMatchIngredientsExtractor(listInciIngredients);
 
         //Load wordlist and initialize text corrector
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);

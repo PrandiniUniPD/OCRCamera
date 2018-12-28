@@ -15,7 +15,7 @@ import java.util.List;
  * inside the text. Non alphanumeric characters are ignored.
  * @author Francesco Pham
  */
-public class nameMatchIngredientsExtractor implements IngredientsExtractor {
+public class NameMatchIngredientsExtractor implements IngredientsExtractor {
 
     //list of recognized ingredients where are stored informations about ingredients
     private List<Ingredient> listIngredients;
@@ -27,7 +27,7 @@ public class nameMatchIngredientsExtractor implements IngredientsExtractor {
      * Constructor initializes the ingredients extractor
      * @param listIngredients Total list of ingredients from the INCI DB
      */
-    public nameMatchIngredientsExtractor(List<Ingredient> listIngredients) {
+    public NameMatchIngredientsExtractor(List<Ingredient> listIngredients) {
         //copying list so that sorting doesn't affect original list
         this.listIngredients = new ArrayList<>(listIngredients);
 

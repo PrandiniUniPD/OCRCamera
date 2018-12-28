@@ -12,7 +12,7 @@ import unipd.se18.ocrcamera.inci.Inci;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
-import unipd.se18.ocrcamera.inci.nameMatchIngredientsExtractor;
+import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 
 import static org.junit.Assert.*;
@@ -85,7 +85,7 @@ public class IngredientsExtractionTest {
             return;
         }
         List<Ingredient> totIngredients = Inci.getListIngredients(inciStream);
-        IngredientsExtractor extractor = new nameMatchIngredientsExtractor(totIngredients);
+        IngredientsExtractor extractor = new NameMatchIngredientsExtractor(totIngredients);
 
         //single word ingredients name
         String text = "CHOLETH-10";
