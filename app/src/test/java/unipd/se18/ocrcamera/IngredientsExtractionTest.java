@@ -52,7 +52,7 @@ public class IngredientsExtractionTest {
         assertEquals("ACYLLARES", corrector.correctText("ACYLLARES")); //original word is "ACRYLATES"
 
         //multiple words correction
-        assertEquals("COCOYL HYDROLYZED COLLAGEN", corrector.correctText("CQCOYL HYROLYZED COLLGEN"));
+        assertEquals("COCOYL  HYDROLYZED   COLLAGEN", corrector.correctText("CQCOYL  HYROLYZED   COLLGEN"));
 
         //multiple words correction separated by symbols
         assertEquals("COCOYL$HYDROLYZED:COLLAGEN", corrector.correctText("CQCOYL$HYROLYZED:COLLGEN"));
