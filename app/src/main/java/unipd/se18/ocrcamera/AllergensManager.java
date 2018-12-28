@@ -20,14 +20,14 @@ import unipd.se18.ocrcamera.inci.Ingredient;
  */
 class AllergensManager {
 
-    private static final int COMMON_NAME = 0;
-    private static final int INCI_NAMES = 1;
+    private final int COMMON_NAME = 0;
+    private final int INCI_NAMES = 1;
 
-    private static ArrayList<Allergen> allergensList = new ArrayList<>();
-    private static ArrayList<Allergen> selectedAllergensList = new ArrayList<>();
+    private ArrayList<Allergen> allergensList = new ArrayList<>();
+    private ArrayList<Allergen> selectedAllergensList = new ArrayList<>();
 
     private Context context;
-    private static SharedPreferences sp = null;
+    private SharedPreferences sp = null;
 
     /**
      * constructor
@@ -37,18 +37,11 @@ class AllergensManager {
 
         context = cntx;
         sp = context.getSharedPreferences("unipd.se18.ocrcamera.SELECTED_ALLERGENS", Context.MODE_PRIVATE);
-        getAllergensList();
-        getSelectedAllergensList();
+        readAllergensdb();
 
     }
 
-    /**
-     * This method returns an list of Allergen objects from allergendb.csv
-     * @return allergensList, the converted ArrayList of Allergen objects
-     * @modify allergensList by putting all allergens in it
-     * @author Cervo Nicolò
-     */
-    public ArrayList<Allergen> getAllergensList() {
+    private  void readAllergensdb() {
 
         InputStream inputStream = context.getResources().openRawResource(R.raw.allergendb);
         InputStreamReader allergenDbReader = new InputStreamReader(inputStream);
@@ -76,6 +69,15 @@ class AllergensManager {
         } catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    /**
+     * This method returns an list of Allergen objects from allergendb.csv
+     * @return allergensList, the converted ArrayList of Allergen objects
+     * @modify allergensList by putting all allergens in it
+     * @author Cervo Nicolò
+     */
+    public ArrayList<Allergen> getAllergensList() {
 
         return allergensList;
     }
@@ -137,10 +139,11 @@ class AllergensManager {
      * @param ingr, ingredient to check for allergens
      * @return the allergen found in the ingredient, null if no allergen is found
      */
-    public Allergen checkForSelectedAllergens(Ingredient ingr) {
+    public ArrayList<Allergen> checkForSelectedAllergens(Ingredient ingr) {
 
         Map<String, ?> selectedAllergens = sp.getAll();
         Allergen allergen = new Allergen();
+        ArrayList<Allergen> foundSelectedAllergens = new ArrayList<>();
 
         for(Map.Entry<String, ?> entry : selectedAllergens.entrySet()) {
             for(String inciName : entry.getValue().toString().split(", ")) {
@@ -149,17 +152,18 @@ class AllergensManager {
 
                     allergen.setInciNames(entry.getValue().toString().split(", "));
                     allergen.setCommonName(entry.getKey());
+                    foundSelectedAllergens.add(allergen);
                 }
             }
         }
-        return allergen;
+        return foundSelectedAllergens;
     }
-/*
+
     /**
      * adds allergen to the SharedPreferences file selected_allergens
      * @param allergen, the Allergen to add
      * @modify selected_allergens
-     *
+     */
     public void selectAllergen(Allergen allergen) {
 
         SharedPreferences.Editor editor = sp.edit();
@@ -171,14 +175,14 @@ class AllergensManager {
      * removes an allergen from the SharedPreferences file selected_allergens
      * @param allergen, the Allergen to remove
      * @modify selected_allergens
-     *
+     */
     public void deselectAllergen(Allergen allergen) {
 
         SharedPreferences.Editor editor = sp.edit();
         editor.remove(allergen.getCommonName());
         editor.apply();
     }
-*/
+
     /**
      * updates the sharedpreferences file selected_allergens with the new allergen list newSelectedAllergens
      * @param newSelectdAllergens, new list of selected allergens
