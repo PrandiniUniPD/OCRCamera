@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,12 +14,18 @@ import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 
-
+/*
+ * This class is used to initiate the listView in AllergensActivity
+ * Also defined here are the instructions performed when a user selects a new allergen from the list
+ * @author Pietro Balzan
+ */
 public class AllergenListAdapter extends ArrayAdapter<Allergen> {
 
     private static final String TAG = "AllergenListAdapter";
     private Context mContext;
     private int mResource;
+    private AllergensManager mAllergensManager;
+    private ArrayList<Allergen> selectedAllergens;
 
     /**
      * Default constructor for an AllergensListAdapter
@@ -26,32 +33,33 @@ public class AllergenListAdapter extends ArrayAdapter<Allergen> {
      * @param resource int of the resource of the view to adapt
      * @param objects an arraylist of objects to be adapted
      */
-    public AllergenListAdapter(Context context, int resource, ArrayList<Allergen> objects) {
+    AllergenListAdapter(Context context, int resource, ArrayList<Allergen> objects) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;
+        //set an AllergenManager used to modify users' allergens list
+        mAllergensManager= new AllergensManager(mContext);
+        selectedAllergens = mAllergensManager.getSelectedAllergensList();
     }
 
     /**
      * this method deals with the adaptation of the single allergen view
      * to the ListView of AllergensActivity
-     * @param position
+     * @param position of the Allergen
      * @param convertView the view to be adapted
-     * @param parent
+     * @param parent viewGroup
      * @return convertView the adapted View
      */
     @NonNull
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        //Allergen information
-        final String name;
-        final Boolean selected;
         try {
-            name = getItem(position).getCommonName();
-            selected = getItem(position).isSelected();
+            //Allergen information
+            final Allergen mAllergen= getItem(position);
+            String name = mAllergen.getCommonName();
+            boolean selected = selectedAllergens.contains(mAllergen);
 
-
-            //create Allergen object with the information
+            //create Allergen in the layout
             LayoutInflater inflater = LayoutInflater.from(mContext);
             convertView = inflater.inflate(mResource, parent, false);
 
@@ -60,23 +68,33 @@ public class AllergenListAdapter extends ArrayAdapter<Allergen> {
             TextView allergenTv = convertView.findViewById(R.id.singleAllergenTv);
             allergenTv.setText(name);
 
-            //set ToggleButton to toggled or not depending on the boolean value "selected"
+            //set ToggleButton to checked or not depending on the boolean value "selected"
             ToggleButton allergenToggleButton = convertView.findViewById(R.id.toggleButton);
             Log.i(TAG, "Set button state");
             allergenToggleButton.setChecked(selected);
 
-            //change allergen selected state and remove from/add to user's list if the button is clicked
+            //change allergen selection state and remove from/add to user's list if the button is clicked
             allergenToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    //change the value of "selected" for the Allergen
-                    Log.i(TAG, "change allergen selected state and remove from/add to user's list");
-                    getItem(position).setSelection(!selected);
+                    //check if it is still selected or not (user may press the button multiple times
+                    boolean isSelected= selectedAllergens.contains(mAllergen);
+                    //add or remove the one chosen by the user
+                    if (isSelected){
+                        Log.i(TAG, "remove allergen from user's list");
+                        selectedAllergens.remove(mAllergen);
+                    }
+                    else {
+                        Log.i(TAG, "add allergen to user's list");
+                        selectedAllergens.add(mAllergen);
+                    }
+                    mAllergensManager.updateSelectedAllergens(selectedAllergens);
                 }
             });
         }
         catch (NullPointerException npe){
             Log.e(TAG, "Missing Parameters");
+            npe.printStackTrace();
         }
         return convertView;
     }

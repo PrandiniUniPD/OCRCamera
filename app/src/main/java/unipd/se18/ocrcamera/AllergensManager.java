@@ -36,7 +36,7 @@ class AllergensManager {
     AllergensManager(Context cntx) {
 
         context = cntx;
-        sp = context.getSharedPreferences("selected_allergens", Context.MODE_PRIVATE);
+        sp = context.getSharedPreferences("unipd.se18.ocrcamera.SELECTED_ALLERGENS", Context.MODE_PRIVATE);
         getAllergensList();
         getSelectedAllergensList();
 
