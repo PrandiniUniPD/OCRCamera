@@ -12,7 +12,7 @@ import unipd.se18.ocrcamera.inci.Inci;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
-import unipd.se18.ocrcamera.inci.nameMatchIngredientsExtractor;
+import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 
 import static org.junit.Assert.*;
@@ -49,7 +49,7 @@ public class IngredientsExtractionTest {
         assertEquals("CHOLESTEROL", corrector.correctText("CNOLSTEROL"));
 
         //more than maxDistance is not corrected
-        assertEquals("ACYLLARES", corrector.correctText("ACYLLARES"));
+        assertEquals("ACYLLARES", corrector.correctText("ACYLLARES")); //original word is "ACRYLATES"
 
         //multiple words correction
         assertEquals("COCOYL HYDROLYZED COLLAGEN", corrector.correctText("CQCOYL HYROLYZED COLLGEN"));
@@ -85,7 +85,7 @@ public class IngredientsExtractionTest {
             return;
         }
         List<Ingredient> totIngredients = Inci.getListIngredients(inciStream);
-        IngredientsExtractor extractor = new nameMatchIngredientsExtractor(totIngredients,corrector);
+        IngredientsExtractor extractor = new NameMatchIngredientsExtractor(totIngredients);
 
         //single word ingredients name
         String text = "CHOLETH-10";
@@ -107,14 +107,15 @@ public class IngredientsExtractionTest {
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("75006", extractedIngredients.get(0).getCosingRefNo());
 
-        //test of a difficult text
-        text = "some more text...DiSsODLUM TEtraMETH -  \n  YLHEADECENVL  \nSUOCINOYL\nCYSTEINEblabla";
-        extractedIngredients = extractor.findListIngredients(text);
-        assertEquals("92137", extractedIngredients.get(0).getCosingRefNo());
-
         //test of whitespaces before and after slash
         text = "ALPINIA SPECIOSA FLOWER   /  LEAF   /SEED/   STEM EXTRACT";
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("89745", extractedIngredients.get(0).getCosingRefNo());
+
+        //test of an alterated text using text correction
+        text = "some more text...DiSsODLUM TEtraMETH -  \n  YLHEADECENVL  \nSUOCINOYL\nCYSTEINEblabla";
+        text = corrector.correctText(text);
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals("92137", extractedIngredients.get(0).getCosingRefNo());
     }
 }

@@ -28,7 +28,7 @@ import unipd.se18.ocrcamera.inci.Inci;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
-import unipd.se18.ocrcamera.inci.nameMatchIngredientsExtractor;
+import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 import unipd.se18.ocrcamera.inci.TextSplitIngredientsExtractor;
 
@@ -186,7 +186,7 @@ public class PhotoTester {
         List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
         textCorrector = new TextAutoCorrection(wordListStream);
-        ocrIngredientsExtractor = new nameMatchIngredientsExtractor(listInciIngredients);
+        ocrIngredientsExtractor = new NameMatchIngredientsExtractor(listInciIngredients);
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
 
 
