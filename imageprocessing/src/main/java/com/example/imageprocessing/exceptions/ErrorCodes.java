@@ -6,7 +6,9 @@ package com.example.imageprocessing.exceptions;
  */
 public enum ErrorCodes{
     //List of all the error with their messages
-    INVALID_METHOD_USED(0, "Invalid method used, the image will be not modified");
+    MATRIX_EMPTY(0, "The matrix is empty, conversion failed"),
+    CONVERSION_FAILED(1, "Conversion failed"),
+    FAILED_TO_SAVE(2, "Failed to save the image");
 
     //Variables of the class
     private int errorCode;

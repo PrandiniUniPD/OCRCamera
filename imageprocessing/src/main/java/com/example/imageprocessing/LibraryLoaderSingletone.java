@@ -6,9 +6,9 @@ import android.util.Log;
  * Singletone used to avoid more than one library load
  * @author Thomas Porro (g1)
  */
-public class LibraryLoaderSingletone {
+class LibraryLoaderSingletone {
 
-    final static String TAG = "openCV";
+    private final static String TAG = "openCV";
     private static LibraryLoaderSingletone myLibrary;
 
     /**

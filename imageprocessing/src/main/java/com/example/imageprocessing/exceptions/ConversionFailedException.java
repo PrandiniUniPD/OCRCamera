@@ -4,7 +4,7 @@ package com.example.imageprocessing.exceptions;
  * Exception threw in case that detectTextAreas have an invalid method as parameter
  * @author Thomas Porro (g1)
  */
-public class InvalidMethodUsedException extends Exception {
+public class ConversionFailedException extends Exception {
 
     private int errorCode;
     private String errorMessage;
@@ -14,7 +14,7 @@ public class InvalidMethodUsedException extends Exception {
      * Constructor of the exceptions
      * @param code The code of the error
      */
-    public InvalidMethodUsedException(ErrorCodes code){
+    public ConversionFailedException(ErrorCodes code){
         super();
         this.errorCode = code.getErrorCode();
         this.errorMessage = code.getErrorMessage();

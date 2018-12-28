@@ -16,7 +16,7 @@ class TextAreas implements TextRegions{
     /**
      * Constructor that initialize the arraylist
      */
-    public TextAreas(){
+    TextAreas(){
         detectedText = new ArrayList<>();
         counter = 0;
     }
@@ -26,7 +26,7 @@ class TextAreas implements TextRegions{
      * Add a text's region to the list
      * @param region The region we want to add
      */
-    public void addRegion(RotatedRect region){
+    void addRegion(RotatedRect region){
         detectedText.add(region);
     }
 

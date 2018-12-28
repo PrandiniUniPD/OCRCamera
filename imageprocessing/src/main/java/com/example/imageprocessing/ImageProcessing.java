@@ -3,8 +3,8 @@ package com.example.imageprocessing;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.example.imageprocessing.exceptions.ErrorCodes;
-import com.example.imageprocessing.exceptions.InvalidMethodUsedException;
+import com.example.imageprocessing.exceptions.ConversionFailedException;
+import com.example.imageprocessing.exceptions.MatrixEmptyException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +65,8 @@ public class ImageProcessing implements DetectTheText {
      * @return the angle between the text and the horizontal
      * @author Thomas Porro (g1)
      */
-    private double computeSkew(Bitmap image){
+    private double computeSkew(Bitmap image)
+            throws ConversionFailedException, MatrixEmptyException {
 
         //Turns the image into a matrix
         Mat img = IPUtils.conversionBitmapToMat(image);
@@ -229,7 +230,6 @@ public class ImageProcessing implements DetectTheText {
     private List<RotatedRect> detectMaxTextArea(Mat filteredMat){
         List<RotatedRect> rectanglesList = new ArrayList<>();
 
-
         //Saves the contours in a list of MatOfPoint (multidimensional vector)
         List<MatOfPoint> contours = new ArrayList<>();
         Imgproc.findContours(filteredMat, contours, new Mat(), Imgproc.RETR_EXTERNAL,
@@ -298,21 +298,28 @@ public class ImageProcessing implements DetectTheText {
     }
 
     @Override
-    public TextRegions detectTextRegions(Bitmap image, int modeCode)
-            throws InvalidMethodUsedException{
+    public TextRegions detectTextRegions(Bitmap image, DetectTheTextMethods method) {
         TextAreas textContainer = new TextAreas();
-        //Put the image into a matrix
-        Mat img = IPUtils.conversionBitmapToMat(image);
+        //Put the image into a matrix, if the conversion fails it return a textContainer
+        //with the full image
+        Mat img;
+        try {
+            img = IPUtils.conversionBitmapToMat(image);
+        } catch (ConversionFailedException e){
+            RotatedRect fullImage = new RotatedRect();
+            textContainer.addRegion(fullImage);
+            //TODO setup the lines above
+            return textContainer;
+        }
         //Do the image Processing
         Mat filteredMat = applyFilters(img);
         //Add each element to the TextAreas's object
-        List<RotatedRect> rectanglesList;
-        switch(modeCode){
-            case 0: rectanglesList = detectMaxTextArea(filteredMat);
+        List<RotatedRect> rectanglesList = new ArrayList<>();
+        switch(method){
+            case DETECT_MAX_TEXT_AREA: rectanglesList = detectMaxTextArea(filteredMat);
                     break;
-            case 1: rectanglesList = detectTextAreas(filteredMat);
+            case DETECT_ALL_TEXT_AREAS: rectanglesList = detectTextAreas(filteredMat);
                     break;
-            default: throw new InvalidMethodUsedException(ErrorCodes.INVALID_METHOD_USED);
         }
         for(RotatedRect rectangle :  rectanglesList){
             textContainer.addRegion(rectangle);
@@ -320,11 +327,21 @@ public class ImageProcessing implements DetectTheText {
         return textContainer;
     }
 
+    
     @Override
     public List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions textContainer) {
         List<Bitmap> imgTextContainer = new ArrayList<>();
-        //Put the image into a matrix
-        Mat img = IPUtils.conversionBitmapToMat(image);
+        //Put the image into a matrix, if fails it returns the list
+        //with only the original image in it
+        Mat img;
+        try {
+            img = IPUtils.conversionBitmapToMat(image);
+        } catch (ConversionFailedException e){
+            Log.e("ExtractTextFromBitmap", e.getErrorMessage());
+            imgTextContainer.add(image);
+            return imgTextContainer;
+        }
+
         /*Modifies the number of channel of the image so the Imgproc.getRectSubPix method
           doesn't throw an exception*/
         Imgproc.cvtColor(img, img, Imgproc.COLOR_BGRA2BGR);
@@ -334,8 +351,12 @@ public class ImageProcessing implements DetectTheText {
         while(textContainer.hasNext()){
             rectangle = (RotatedRect)textContainer.next();
             Mat croppedMat = crop(rectangle, img);
-            Bitmap croppedBitmap = IPUtils.conversionMatToBitmap(croppedMat);
-            imgTextContainer.add(croppedBitmap);
+            try {
+                Bitmap croppedBitmap = IPUtils.conversionMatToBitmap(croppedMat);
+                imgTextContainer.add(croppedBitmap);
+            } catch (ConversionFailedException e){
+                Log.e("ExtractTextFromBitmap", e.getErrorMessage());
+            }
         }
         IPDebug.saveBitmapList(imgTextContainer);
         return imgTextContainer;
