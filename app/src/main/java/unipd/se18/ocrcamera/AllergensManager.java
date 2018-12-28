@@ -154,12 +154,12 @@ class AllergensManager {
         }
         return allergen;
     }
-
+/*
     /**
      * adds allergen to the SharedPreferences file selected_allergens
      * @param allergen, the Allergen to add
      * @modify selected_allergens
-     */
+     *
     public void selectAllergen(Allergen allergen) {
 
         SharedPreferences.Editor editor = sp.edit();
@@ -171,11 +171,25 @@ class AllergensManager {
      * removes an allergen from the SharedPreferences file selected_allergens
      * @param allergen, the Allergen to remove
      * @modify selected_allergens
-     */
+     *
     public void deselectAllergen(Allergen allergen) {
 
         SharedPreferences.Editor editor = sp.edit();
         editor.remove(allergen.getCommonName());
+        editor.apply();
+    }
+*/
+    /**
+     * updates the sharedpreferences file selected_allergens with the new allergen list newSelectedAllergens
+     * @param newSelectdAllergens, new list of selected allergens
+     */
+    public void updateSelectedAllergens(ArrayList<Allergen> newSelectdAllergens) {
+
+        SharedPreferences.Editor editor = sp.edit();
+        editor.clear();
+        for (Allergen allergen : newSelectdAllergens) {
+            editor.putString(allergen.getCommonName(), allergen.inciNamesString());
+        }
         editor.apply();
     }
 }
