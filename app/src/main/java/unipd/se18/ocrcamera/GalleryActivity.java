@@ -38,7 +38,7 @@ import java.util.ArrayList;
 public class GalleryActivity extends AppCompatActivity {
 
     //Code for internet permission
-    private final int REQUEST_PERMISSION_CODE = 500;
+    private static final int REQUEST_PERMISSION_CODE = 500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -230,6 +230,7 @@ public class GalleryActivity extends AppCompatActivity {
                 case android.R.id.home: closeDetailFragment(); break;
                 //Delete the current photo and close the detailsFragment
                 case R.id.galleryDelete: deleteCurrentPhoto(); break;
+                default: break;
             }
             return super.onOptionsItemSelected(item);
         }
@@ -284,7 +285,9 @@ public class GalleryActivity extends AppCompatActivity {
                 builder.setTitle("Error")
                         .setMessage("Error while deleting the photo. Retry")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) { }
+                            public void onClick(DialogInterface dialog, int which) {
+                                //I'm not performing any action because this allert is just for provide information
+                            }
                         })
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
@@ -310,19 +313,17 @@ public class GalleryActivity extends AppCompatActivity {
      * Verify if the user granted the permission
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_PERMISSION_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    // permission denied
-                    showPermissionErrorDialog();
-                }
-                else
-                {
-                    loadHomeFragment();
-                }
-                break;
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(requestCode==REQUEST_PERMISSION_CODE)
+        {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                // permission denied
+                showPermissionErrorDialog();
+            }
+            else
+            {
+                loadHomeFragment();
             }
         }
     }
