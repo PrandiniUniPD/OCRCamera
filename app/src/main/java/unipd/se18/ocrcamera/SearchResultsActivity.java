@@ -65,7 +65,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
 
         //inci db ingredients finder
-        ingredientsExtractor = IngredExtractorSingleton.getInstance(getApplicationContext());
+        ingredientsExtractor = IngredExtractorSingleton.getInstance(getApplicationContext()).getIngredientsExtractor();
 
         new LoadSuggestions().run();
 
@@ -127,8 +127,8 @@ public class SearchResultsActivity extends AppCompatActivity {
 
 
             //read INCI database
-            InputStream inciDbStream = getResources().openRawResource(R.raw.incidb);
-            List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
+            List<Ingredient> listInciIngredients = IngredExtractorSingleton.
+                    getInstance(getApplicationContext()).getListInciIngredients();
 
             //create an arraylist with all ingredient names
             ArrayList<String> ingredientNamesList = new ArrayList<>();

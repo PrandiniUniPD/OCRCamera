@@ -19,6 +19,7 @@ class IngredExtractorSingleton {
 
     private IngredientsExtractor ingredientsExtractor;
     private TextAutoCorrection textCorrector;
+    private List<Ingredient> listInciIngredients;
 
     static IngredExtractorSingleton getInstance(Context context) {
         if (ourInstance == null) {
@@ -34,9 +35,11 @@ class IngredExtractorSingleton {
             throw new RuntimeException("Use getInstance() method to get the single instance of this class.");
         }
 
-        //Load list of ingredients from INCI DB and initialize ingredients extractor
+        //Load list of ingredients from INCI DB
         InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
-        List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
+        this.listInciIngredients = Inci.getListIngredients(inciDbStream);
+
+        //initialize ingredients extractor
         this.ingredientsExtractor = new NameMatchIngredientsExtractor(listInciIngredients);
 
         //Load wordlist and initialize text corrector
@@ -50,6 +53,10 @@ class IngredExtractorSingleton {
 
     TextAutoCorrection getTextCorrector(){
         return this.textCorrector;
+    }
+
+    List<Ingredient> getListInciIngredients() {
+        return this.listInciIngredients;
     }
 
 }
