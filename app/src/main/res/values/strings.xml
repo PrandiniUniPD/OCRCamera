@@ -54,4 +54,6 @@
     <string name="wikipediaSearching">Searching on wikipedia...</string>
     <string name="wikipediaNotFound">Could not find any wikipedia pages.</string>
     <string name="wikipediaFailedRequest">Could not send request to wikipedia.</string>
+    <string name="search_title">Search an ingredient</string>
+    <string name="search_hint">Search an ingredient</string>
 </resources>
