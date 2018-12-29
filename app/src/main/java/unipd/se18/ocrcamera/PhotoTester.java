@@ -179,18 +179,11 @@ public class PhotoTester {
 
         final JSONObject fullJsonReport = new JSONObject();
 
-
-
         //load inci db and initialize ingredient extractor (Francesco Pham)
-        InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
-        List<Ingredient> listInciIngredients = Inci.getListIngredients(inciDbStream);
-        InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
-        textCorrector = new TextAutoCorrection(wordListStream);
-        ocrIngredientsExtractor = new NameMatchIngredientsExtractor(listInciIngredients);
+        textCorrector = InciSingleton.getInstance(context).getTextCorrector();
+        ocrIngredientsExtractor = InciSingleton.getInstance(context).getIngredientsExtractor();
+        List<Ingredient> listInciIngredients = InciSingleton.getInstance(context).getListInciIngredients();
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
-
-
-
 
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(testElements.size());
