@@ -53,9 +53,11 @@ public class SearchResultsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
-                Intent webSearchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
-                webSearchIntent.putExtra(SearchManager.QUERY, selectedIngredient.getInciName());
-                startActivity(webSearchIntent);
+                Intent i = new Intent(SearchResultsActivity.this, IngredientDetailsActivity.class);
+                i.putExtra("NAME", selectedIngredient.getInciName());
+                i.putExtra("DESCRIPTION", selectedIngredient.getDescription());
+                i.putExtra("FUNCTION", selectedIngredient.getFunction());
+                startActivity(i);
             }
         });
 

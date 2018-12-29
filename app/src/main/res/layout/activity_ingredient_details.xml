@@ -81,11 +81,21 @@
                 android:textSize="15sp"
                 android:paddingStart="10sp"
                 android:paddingEnd="10sp"
-                android:text="@string/wikipediaSearching"/>
+                android:text="@string/wikipedia_searching"/>
 
         </LinearLayout>
 
 
     </ScrollView>
+
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/details_search_button"
+        android:layout_margin="20dp"/>
 
 </android.support.constraint.ConstraintLayout>

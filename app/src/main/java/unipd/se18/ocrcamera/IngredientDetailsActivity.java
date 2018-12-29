@@ -1,9 +1,12 @@
 package unipd.se18.ocrcamera;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -34,6 +37,18 @@ public class IngredientDetailsActivity extends AppCompatActivity {
         final String inciName = intent.getStringExtra("NAME");
         final String description = intent.getStringExtra("DESCRIPTION");
         final String function = intent.getStringExtra("FUNCTION");
+
+        //set on click listener on search button
+        final Button searchButton = findViewById(R.id.search_button);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //credit to Luca Moroldo
+                Intent webSearchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                webSearchIntent.putExtra(SearchManager.QUERY, inciName);
+                startActivity(webSearchIntent);
+            }
+        });
 
         // show ingredient information
         TextView nameView = findViewById(R.id.inci_name_view);
@@ -73,13 +88,13 @@ public class IngredientDetailsActivity extends AppCompatActivity {
                                     wikipediaView.setText(wikipediaExtract);
                                 } else {
                                     //wikipedia page not found
-                                    wikipediaView.setText(R.string.wikipediaNotFound);
+                                    wikipediaView.setText(R.string.wikipedia_not_found);
                                 }
                             }
 
                         } catch (JSONException e) {
                             Log.e(TAG, "invalid response from wikipedia");
-                            wikipediaView.setText(R.string.wikipediaFailedRequest);
+                            wikipediaView.setText(R.string.wikipedia_failed_request);
                         }
 
                     }
@@ -88,7 +103,7 @@ public class IngredientDetailsActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.e(TAG, "Could not send request to wikipedia");
-                        wikipediaView.setText(R.string.wikipediaFailedRequest);
+                        wikipediaView.setText(R.string.wikipedia_failed_request);
                     }
                 });
 
