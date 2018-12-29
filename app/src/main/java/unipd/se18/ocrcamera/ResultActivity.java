@@ -245,8 +245,8 @@ public class ResultActivity extends AppCompatActivity {
 
             ResultActivity activity = activityReference.get();
             if (activity == null || activity.isFinishing()) return null;
-            IngredientsExtractor extractor = IngredExtractorSingleton.getInstance(activity).getIngredientsExtractor();
-            TextAutoCorrection corrector = IngredExtractorSingleton.getInstance(activity).getTextCorrector();
+            IngredientsExtractor extractor = InciSingleton.getInstance(activity).getIngredientsExtractor();
+            TextAutoCorrection corrector = InciSingleton.getInstance(activity).getTextCorrector();
 
             //check if text is empty or null
             if(ocrText == null || ocrText.equals(""))

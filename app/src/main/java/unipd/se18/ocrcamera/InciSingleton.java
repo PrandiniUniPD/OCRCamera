@@ -11,26 +11,26 @@ import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 
 /**
- * Using singleton design pattern for single time inci db loading and text extractor initialization.
+ * Using singleton design pattern for single time inci db loading and ingredients extractor initialization.
  * @author Francesco Pham
  */
-class IngredExtractorSingleton {
-    private static volatile IngredExtractorSingleton ourInstance;
+class InciSingleton {
+    private static volatile InciSingleton ourInstance;
 
     private IngredientsExtractor ingredientsExtractor;
     private TextAutoCorrection textCorrector;
     private List<Ingredient> listInciIngredients;
 
-    static IngredExtractorSingleton getInstance(Context context) {
+    static InciSingleton getInstance(Context context) {
         if (ourInstance == null) {
-            synchronized (IngredExtractorSingleton.class) {
-                if (ourInstance == null) ourInstance = new IngredExtractorSingleton(context);
+            synchronized (InciSingleton.class) {
+                if (ourInstance == null) ourInstance = new InciSingleton(context);
             }
         }
         return ourInstance;
     }
 
-    private IngredExtractorSingleton(Context context) {
+    private InciSingleton(Context context) {
         if (ourInstance != null){
             throw new RuntimeException("Use getInstance() method to get the single instance of this class.");
         }

@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera;
 
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,11 +13,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import unipd.se18.ocrcamera.inci.Inci;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 
@@ -65,7 +62,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
 
         //inci db ingredients finder
-        ingredientsExtractor = IngredExtractorSingleton.getInstance(getApplicationContext()).getIngredientsExtractor();
+        ingredientsExtractor = InciSingleton.getInstance(getApplicationContext()).getIngredientsExtractor();
 
         new LoadSuggestions().run();
 
@@ -127,7 +124,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
 
             //read INCI database
-            List<Ingredient> listInciIngredients = IngredExtractorSingleton.
+            List<Ingredient> listInciIngredients = InciSingleton.
                     getInstance(getApplicationContext()).getListInciIngredients();
 
             //create an arraylist with all ingredient names
