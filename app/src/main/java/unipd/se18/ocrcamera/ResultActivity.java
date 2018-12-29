@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -78,11 +79,6 @@ public class ResultActivity extends AppCompatActivity {
         ingredientsListView = findViewById(R.id.ingredients_list);
         progressBar = findViewById(R.id.progress_bar);
 
-        //set on empty list view
-        emptyTextView= findViewById(R.id.empty_list);
-        emptyTextView.setText(R.string.finding_text);
-        ingredientsListView.setEmptyView(emptyTextView);
-
         // Floating action buttons listeners (Francesco Pham)
         FloatingActionButton fabNewPic = findViewById(R.id.newPictureFab);
         fabNewPic.setOnClickListener(new View.OnClickListener() {
@@ -91,6 +87,25 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
             }
         });
+
+        //set on empty list view
+        emptyTextView= findViewById(R.id.empty_list);
+        emptyTextView.setText(R.string.finding_text);
+        ingredientsListView.setEmptyView(emptyTextView);
+
+        //set on click on ingredient launching IngredientDetailsActivity
+        ingredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
+                Intent i = new Intent(ResultActivity.this, IngredientDetailsActivity.class);
+                i.putExtra("NAME", selectedIngredient.getInciName());
+                i.putExtra("DESCRIPTION", selectedIngredient.getDescription());
+                i.putExtra("FUNCTION", selectedIngredient.getFunction());
+                startActivity(i);
+            }
+        });
+
 
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         //load the path to the last taken picture, can be null if the user didn't take any picture

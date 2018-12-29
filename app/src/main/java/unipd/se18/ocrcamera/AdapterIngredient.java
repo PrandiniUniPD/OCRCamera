@@ -66,18 +66,6 @@ public class AdapterIngredient extends BaseAdapter {
         TextView functionView = convertView.findViewById(R.id.function_view);
         functionView.setText(function);
 
-        // On click launches IngredientDetailsActivity to show more information about the ingredient
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(context, IngredientDetailsActivity.class);
-                i.putExtra("NAME", inciName);
-                i.putExtra("DESCRIPTION", description);
-                i.putExtra("FUNCTION", function);
-                context.startActivity(i);
-            }
-        });
-
         return convertView;
     }
 
