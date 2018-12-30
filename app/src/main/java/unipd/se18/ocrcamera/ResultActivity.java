@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -165,10 +164,7 @@ public class ResultActivity extends AppCompatActivity {
 
 
             // Analyze the brightness of the taken photo  @author Balzan Pietro
-            // handler to use in the BrightnessRecognition thread
-            final Handler handler = new Handler(getApplicationContext().getMainLooper());
-            Thread imgBrightnessThread = new BrightnessRecognitionThread(handler, lastPhoto);
-            imgBrightnessThread.start();
+            new ASyncBrightnessRecognition(ResultActivity.this).execute(lastPhoto);
         }
     }
 
@@ -220,8 +216,8 @@ public class ResultActivity extends AppCompatActivity {
 
 
     /**
-     * Class used to run extract ingredients from INCI db and update the UI setting a list view with
-     * the recognized ingredients list
+     * Asynctask for INCI db loading, ingredients extraction from ocr text, list ingredients display
+     * and progress bar update
      * @author Francesco Pham
      */
     private static class AsyncIngredientsExtraction extends AsyncTask<String, Void, List<Ingredient>> {
@@ -245,7 +241,7 @@ public class ResultActivity extends AppCompatActivity {
 
         /**
          *
-         * @param strings text scanned for ingredients
+         * @param strings ocr text scanned for ingredients
          * @return a list of ingredients, null if the list is empty or the param is null or empty
          */
         @Override
@@ -335,42 +331,42 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     /**
-     * TODO Pietro Balzan, scrivi qui i commenti
+     * ASyncTask for brightness recognition and toast message display when image is too bright or too dark
+     * @author Pietro Balzan (g3) - Francesco Pham (g3)
      */
-    private class BrightnessRecognitionThread extends Thread {
-        final Handler handler;
-        final Bitmap photo;
+    private static class ASyncBrightnessRecognition extends AsyncTask<Bitmap, Void, Integer> {
 
-        BrightnessRecognitionThread(final Handler handler, final Bitmap photo){
-            this.handler = handler;
-            this.photo = photo;
+        private final String tooBright;
+        private final String tooDark;
+
+        private WeakReference<ResultActivity> activityReference;
+
+        ASyncBrightnessRecognition(ResultActivity context){
+
+            activityReference = new WeakReference<>(context);
+
+            //get toast messages
+            tooBright = context.getString(R.string.too_bright_picture);
+            tooDark = context.getString(R.string.too_dark_picture);
         }
 
-        public void run() {
-            //get strings from res to support localization
-            final String tooBright = getString(R.string.too_bright_picture);
-            final String tooDark = getString(R.string.too_dark_picture);
+        @Override
+        protected Integer doInBackground(Bitmap... photos) {
+            Bitmap photo = photos[0];
 
             //Values in the method are set according to the ones that we found to give more consistent results during tests
-            int brightnessResult= BrightnessRecognition.imgBrightness(photo, 190,80,5);
+            return BrightnessRecognition.imgBrightness(photo, 190,80,5);
+        }
+
+        @Override
+        protected void onPostExecute(Integer brightnessResult) {
+            ResultActivity activity = activityReference.get();
 
             //show messages to the user via Toasts
-            if (brightnessResult == 1){
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), tooBright, Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-            else if (brightnessResult== -1){
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), tooDark, Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
+            if (brightnessResult == 1)
+                Toast.makeText(activity, tooBright, Toast.LENGTH_LONG).show();
+            else if (brightnessResult== -1)
+                Toast.makeText(activity, tooDark, Toast.LENGTH_LONG).show();
         }
     }
 }
