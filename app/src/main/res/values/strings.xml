@@ -57,4 +57,6 @@
     <string name="search_title">Search an ingredient</string>
     <string name="search_hint">Search an ingredient</string>
     <string name="details_search_button">Search more</string>
+    <string name="too_bright_picture">The picture might be too bright</string>
+    <string name="too_dark_picture">The picture might be too dark</string>
 </resources>

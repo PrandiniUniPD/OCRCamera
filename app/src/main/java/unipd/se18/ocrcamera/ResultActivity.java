@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -25,6 +26,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -74,6 +76,7 @@ public class ResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
+
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
@@ -159,6 +162,13 @@ public class ResultActivity extends AppCompatActivity {
             //extract text
             textRecognizer.getTextFromImg(lastPhoto);
             progressBar.setVisibility(ProgressBar.VISIBLE);
+
+
+            // Analyze the brightness of the taken photo  @author Balzan Pietro
+            // handler to use in the BrightnessRecognition thread
+            final Handler handler = new Handler(getApplicationContext().getMainLooper());
+            Thread imgBrightnessThread = new BrightnessRecognitionThread(handler, lastPhoto);
+            imgBrightnessThread.start();
         }
     }
 
@@ -323,5 +333,44 @@ public class ResultActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-}
 
+    /**
+     * TODO Pietro Balzan, scrivi qui i commenti
+     */
+    class BrightnessRecognitionThread extends Thread {
+        final Handler handler;
+        final Bitmap photo;
+
+        BrightnessRecognitionThread(final Handler handler, final Bitmap photo){
+            this.handler = handler;
+            this.photo = photo;
+        }
+
+        public void run() {
+            //get strings from res to support localization
+            final String tooBright = getString(R.string.too_bright_picture);
+            final String tooDark = getString(R.string.too_dark_picture);
+
+            //Values in the method are set according to the ones that we found to give more consistent results during tests
+            int brightnessResult= BrightnessRecognition.imgBrightness(photo, 190,80,5);
+
+            //show messages to the user via Toasts
+            if (brightnessResult == 1){
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), tooBright, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+            else if (brightnessResult== -1){
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), tooDark, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }
+    }
+}
