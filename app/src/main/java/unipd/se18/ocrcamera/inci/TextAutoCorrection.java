@@ -89,14 +89,13 @@ public class TextAutoCorrection {
         Pattern pattern = Pattern.compile("[a-zA-Z0-9-]+");
         Matcher matcher = pattern.matcher(text);
 
-        //in this array we store the mapping between indexes of original text and the corrected text.
-        int[] mapIndexes = new int[text.length()];
-        for(int i=0; i<text.length(); i++) mapIndexes[i] = i;
-        String correctedText = text;
-
         //try to correct each word
-        while (matcher.find()) {
+        int findFromIndex = 0; //index after which we look for the next match
+        while (matcher.find(findFromIndex)) {
+            
             String word = matcher.group();
+            findFromIndex = matcher.end();
+
             if(word.length()>=minChars) {
                 String corrected = correctWord(word);
                 if (!corrected.equals(word)) {
@@ -104,27 +103,19 @@ public class TextAutoCorrection {
                     Log.d(TAG, "word " + word + " corrected with " + corrected);
 
                     //substitute with the word found
-                    String newText;
-                    if(matcher.start() > 0) newText = correctedText.substring(0, mapIndexes[matcher.start()]);
-                    else newText = "";
+                    text = text.substring(0, matcher.start()) + corrected + text.substring(matcher.end());
 
-                    newText = newText + corrected;
-
-                    if (matcher.end() < text.length() - 1)
-                        newText = newText + correctedText.substring(mapIndexes[matcher.end()]);
-
-                    correctedText = newText;
-
-                    //shift map indexes by the difference of length between the old word and corrected word
-                    int shift = corrected.length() - word.length();
-                    int from = matcher.start() + Math.min(corrected.length(), word.length());
-                    for (int i = from; i < text.length(); i++)
-                        mapIndexes[i] += shift;
+                    //take into account difference in length between original and corrected word
+                    if(corrected.length() != word.length()) {
+                        matcher = pattern.matcher(text);
+                        findFromIndex += corrected.length() - word.length();
+                    }
                 }
             }
+
         }
 
-        return correctedText;
+        return text;
     }
 
 
