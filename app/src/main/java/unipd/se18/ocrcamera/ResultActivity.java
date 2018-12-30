@@ -337,7 +337,7 @@ public class ResultActivity extends AppCompatActivity {
     /**
      * TODO Pietro Balzan, scrivi qui i commenti
      */
-    class BrightnessRecognitionThread extends Thread {
+    private class BrightnessRecognitionThread extends Thread {
         final Handler handler;
         final Bitmap photo;
 
