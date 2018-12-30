@@ -29,6 +29,9 @@ public class IngredientsExtractionTest {
         double similarity = lsc.getNormalizedSimilarity("cavallo", "cavallo");
         assertTrue(0.99 < similarity && similarity < 1.01);
 
+        similarity = lsc.getNormalizedDistance("terallo", "cavallo");
+        assertTrue(0.42 < similarity && similarity < 0.43);
+
         similarity = lsc.getNormalizedSimilarity("abcd", "efgh");
         assertTrue(-0.01 < similarity && similarity < 0.01);
     }
