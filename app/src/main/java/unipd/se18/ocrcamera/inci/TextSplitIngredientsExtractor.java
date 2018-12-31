@@ -11,6 +11,7 @@ import java.util.Set;
 import edu.gatech.gtri.bktree.BkTreeSearcher;
 import edu.gatech.gtri.bktree.Metric;
 import edu.gatech.gtri.bktree.MutableBkTree;
+import edu.gatech.gtri.bktree.BkTreeSearcher.Match;
 
 /**
  * IngredientsExtractor implementation that splits the ocr text and for each block of text search
@@ -89,7 +90,7 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
         for (String str : splittedText) {
 
             //Searches the tree for elements whose distance satisfy maxDistance
-            Set<BkTreeSearcher.Match<? extends String>> matches =
+            Set<Match<? extends String>> matches =
                     inciNameSearcher.search(str, (int) (str.length()*maxDistance));
 
             //find the ingredient name with minimum distance
@@ -107,14 +108,57 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
             //search ingredient by its name and add it to list
             if(found) {
                 Log.d(TAG, "found "+ingredientName+" in "+str+". Distance="+minDistance);
-                int indexBestIngredient = Collections.binarySearch(listIngredients, ingredientName);
-                if(indexBestIngredient >= 0)
-                    foundIngredients.add(listIngredients.get(indexBestIngredient));
-                else
-                    Log.e(TAG, "Couldn't find ingredient, this is strange.");
+                Ingredient ingred = searchIngredientByName(ingredientName);
+                if(ingred!=null) foundIngredients.add(ingred);
             }
         }
 
         return foundIngredients;
+    }
+
+    /**
+     * Search ingredients with minimum distance from query
+     * @param query Ingredient name query
+     * @param maxDistance levenshtein max distance from query
+     * @return Ingredients which name distance is less than maxDistance.
+     */
+    public ArrayList<Ingredient> findMostSimilarIngredients(String query, int maxDistance){
+        query = query.toUpperCase();
+        ArrayList<Ingredient> resultIngredients = new ArrayList<>();
+
+        //Searches the tree for elements whose distance satisfy maxDistance
+        Set<BkTreeSearcher.Match<? extends String>> matches = inciNameSearcher.search(query, maxDistance);
+
+        //sort by distance
+        ArrayList<Match<? extends  String>> matchesList = new ArrayList<>(matches);
+        Collections.sort(matchesList, new Comparator<Match<? extends String>>() {
+            @Override
+            public int compare(Match<? extends String> o1, Match<? extends String> o2) {
+                return o1.getDistance()-o2.getDistance();
+            }
+        });
+
+        //make result list
+        for (BkTreeSearcher.Match<? extends String> match : matchesList){
+            Ingredient ingred = searchIngredientByName(match.getMatch());
+            if(ingred!=null) resultIngredients.add(ingred);
+        }
+
+        return resultIngredients;
+    }
+
+    /**
+     * Search for Ingredient by name
+     * @param ingredientName Inci name of the ingredient to search
+     * @return Ingredient corresponding to the name if found, null otherwise.
+     */
+    private Ingredient searchIngredientByName(String ingredientName){
+
+        int indexBestIngredient = Collections.binarySearch(listIngredients, ingredientName);
+
+        if(indexBestIngredient >= 0)
+            return listIngredients.get(indexBestIngredient);
+
+        return null;
     }
 }
