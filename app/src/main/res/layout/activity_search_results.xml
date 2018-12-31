@@ -25,9 +25,8 @@
                 android:layout_width="fill_parent"
                 android:layout_toLeftOf="@+id/auto_complete_text_view_button"
                 android:layout_alignParentLeft="true"
-
-                >
-
+                android:singleLine="true" >
+                <!--  Set singleLine=true so on Enter Key we can run a search -->
                 <requestFocus />
             </AutoCompleteTextView>
 

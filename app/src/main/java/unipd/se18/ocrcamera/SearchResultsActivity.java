@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,10 +35,13 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private AutoCompleteTextView mAutoCompleteTextView;
 
+    private Button mSearchButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         //TODO: add button to do the ingredient web search rather than doing it on item click
+        //TODO: filter autocompletetextview hints
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_results);
@@ -45,6 +50,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         mIngredientsListView = findViewById(R.id.ingredients_list);
         mMessageTextView = findViewById(R.id.message_text_view);
         mAutoCompleteTextView = findViewById(R.id.ingredients_auto_complete_text_view);
+        mSearchButton = findViewById(R.id.auto_complete_text_view_button);
 
         //mMessageTextView is used to show messages
         mIngredientsListView.setEmptyView(mMessageTextView);
@@ -64,10 +70,33 @@ public class SearchResultsActivity extends AppCompatActivity {
         });
 
 
+        //set button click listener - get text from AutoCompleteTextView and search for ingredients
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String query = mAutoCompleteTextView.getText().toString();
+
+                //find similar ingredients list
+                List<Ingredient> ingredientsFound = ingredientsExtractor.findListIngredients(query.toUpperCase());
+
+                //show ingredients list if any
+                AdapterIngredient adapter =
+                        new AdapterIngredient(getApplicationContext(), ingredientsFound);
+                mIngredientsListView.setAdapter(adapter);
+
+                if(ingredientsFound.size() == 0)
+                    mMessageTextView.setText("Nothing found");
+
+                //hide dropdown hints to make ingredients list visible
+                mAutoCompleteTextView.dismissDropDown();
+            }
+        });
 
         //inci db ingredients finder
         ingredientsExtractor = InciSingleton.getInstance(getApplicationContext()).getIngredientsExtractor();
 
+        //read ingredient names and set them as suggestion for the AutoCompleteTextView
         new LoadSuggestions().run();
 
         handleIntent(getIntent());
@@ -95,7 +124,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
 
             //find similar ingredients list
-            List<Ingredient> ingredientsFound = ingredientsExtractor.findListIngredients(query);
+            List<Ingredient> ingredientsFound = ingredientsExtractor.findListIngredients(query.toUpperCase());
 
             if(ingredientsFound != null && ingredientsFound.size() > 0) {
                 //show ingredients list if any
@@ -168,8 +197,22 @@ public class SearchResultsActivity extends AppCompatActivity {
 
                 }
             });
+
+
+            //if user press enter key then run a search
+            mAutoCompleteTextView.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if(KeyEvent.KEYCODE_ENTER == keyCode) {
+                        mSearchButton.performClick();
+                        return true;
+                    }
+                    return false;
+                }
+            });
         }
     }
+
 
 
 }
