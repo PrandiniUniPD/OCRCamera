@@ -3,6 +3,7 @@ package unipd.se18.ocrcamera;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -53,11 +54,12 @@ public class SearchResultsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
-                Intent i = new Intent(SearchResultsActivity.this, IngredientDetailsActivity.class);
-                i.putExtra("NAME", selectedIngredient.getInciName());
-                i.putExtra("DESCRIPTION", selectedIngredient.getDescription());
-                i.putExtra("FUNCTION", selectedIngredient.getFunction());
-                startActivity(i);
+                String inciName = selectedIngredient.getInciName();
+                String description = selectedIngredient.getDescription();
+                String function = selectedIngredient.getFunction();
+                FragmentManager fm = getSupportFragmentManager();
+                IngredientDetailsFragment detailsFragment = IngredientDetailsFragment.newInstance(inciName, description, function);
+                detailsFragment.show(fm, "fragment_ingredient_details");
             }
         });
 
