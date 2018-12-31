@@ -101,12 +101,17 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
-                String inciName = selectedIngredient.getInciName();
-                String description = selectedIngredient.getDescription();
-                String function = selectedIngredient.getFunction();
-                FragmentManager fm = getSupportFragmentManager();
-                IngredientDetailsFragment detailsFragment = IngredientDetailsFragment.newInstance(inciName, description, function);
-                detailsFragment.show(fm, "fragment_ingredient_details");
+
+                //performing a click on OCR recognized text causes a crash (because selectedIngredient is null)
+                if(selectedIngredient != null) {
+                    String inciName = selectedIngredient.getInciName();
+                    String description = selectedIngredient.getDescription();
+                    String function = selectedIngredient.getFunction();
+                    FragmentManager fm = getSupportFragmentManager();
+                    IngredientDetailsFragment detailsFragment = IngredientDetailsFragment.newInstance(inciName, description, function);
+                    detailsFragment.show(fm, "fragment_ingredient_details");
+                }
+
             }
         });
 
