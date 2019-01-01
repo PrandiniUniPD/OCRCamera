@@ -11,11 +11,11 @@ import java.util.List;
 
 
 /**
- * IngredientsExtractor implementation which tries to correct the text before, then for each INCI
- * ingredient check if it is contained inside the corrected text
+ * IngredientsExtractor implementation that for each INCI ingredient check if it is contained
+ * inside the text. Non alphanumeric characters are ignored.
  * @author Francesco Pham
  */
-public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
+public class NameMatchIngredientsExtractor implements IngredientsExtractor {
 
     //list of recognized ingredients where are stored informations about ingredients
     private List<Ingredient> listIngredients;
@@ -23,14 +23,11 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
     //Tag for logs
     private static final String TAG = "IngredientsExtractor";
 
-    private TextAutoCorrection corrector;
-
     /**
      * Constructor initializes the ingredients extractor
      * @param listIngredients Total list of ingredients from the INCI DB
-     * @param corrector Text Corrector which has to be correctly pre initialized
      */
-    public PrecorrectionIngredientsExtractor(List<Ingredient> listIngredients, TextAutoCorrection corrector) {
+    public NameMatchIngredientsExtractor(List<Ingredient> listIngredients) {
         //copying list so that sorting doesn't affect original list
         this.listIngredients = new ArrayList<>(listIngredients);
 
@@ -41,7 +38,6 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
                 return o2.getInciName().length() - o1.getInciName().length();
             }
         });
-        this.corrector = corrector;
     }
 
 
@@ -56,19 +52,27 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
 
         List<Ingredient> foundIngredients = new ArrayList<>();
 
-        //text correction
-        text = corrector.correctText(text);
-
-        //ignore non alphanumeric characters from text
-        String strippedText = text.replaceAll("[^A-Za-z0-9]", "");
+        //remove non alphanumeric characters from text
+        //in mapIndexes we store for each character in the stripped text, the original position
+        int[] mapIndexes = new int[text.length()];
+        StringBuilder strippedTextBuilder = new StringBuilder();
+        for(int i=0; i<text.length(); i++) {
+            char currentChar = text.charAt(i);
+            if(Character.isLetter(currentChar) || Character.isDigit(currentChar)) {
+                mapIndexes[strippedTextBuilder.length()] = i;
+                strippedTextBuilder.append(currentChar);
+            }
+        }
+        String strippedText = strippedTextBuilder.toString();
 
         //for each inci ingredient check if it is contained in the text
-        for(Ingredient ingredient : listIngredients){
+        for(Ingredient ingredient : listIngredients) {
             String strippedName = ingredient.getStrippedInciName();
             int indexOf = strippedText.indexOf(strippedName);
             if(indexOf >= 0){
                 //found the ingredient
-                ingredient.setPositionFound(indexOf);
+                ingredient.setStartPositionFound(mapIndexes[indexOf]);
+                ingredient.setEndPositionFound(mapIndexes[indexOf+strippedName.length()-1]);
                 foundIngredients.add(ingredient);
 
                 Log.d(TAG, "found "+ingredient.getInciName()+" at pos "+indexOf);
@@ -83,7 +87,7 @@ public class PrecorrectionIngredientsExtractor implements IngredientsExtractor {
         Collections.sort(foundIngredients, new Comparator<Ingredient>() {
             @Override
             public int compare(Ingredient o1, Ingredient o2) {
-                return o1.getPositionFound() - o2.getPositionFound();
+                return o1.getStartPositionFound() - o2.getStartPositionFound();
             }
         });
 

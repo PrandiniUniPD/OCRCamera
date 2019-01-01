@@ -56,4 +56,13 @@
     <string name="togglebutton_add_allergen">add</string>
     <string name="togglebutton_remove_allergen">remove</string>
     <string name="allergens_search_button">Search</string>
+    <string name="wikipedia">Wikipedia:</string>
+    <string name="wikipedia_searching">Searching on wikipedia&#8230;</string>
+    <string name="wikipedia_not_found">Could not find any wikipedia pages.</string>
+    <string name="wikipedia_failed_request">Could not send request to wikipedia.</string>
+    <string name="search_title">Search an ingredient</string>
+    <string name="search_hint">Search an ingredient</string>
+    <string name="details_search_button">Search more</string>
+    <string name="too_bright_picture">The picture might be too bright</string>
+    <string name="too_dark_picture">The picture might be too dark</string>
 </resources>

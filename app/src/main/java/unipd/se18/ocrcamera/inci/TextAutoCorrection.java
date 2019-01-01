@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.gatech.gtri.bktree.BkTreeSearcher;
 import edu.gatech.gtri.bktree.Metric;
@@ -83,45 +85,34 @@ public class TextAutoCorrection {
 
         text = formatText(text);
 
-        //split the text into each word containing only letters or numbers with more than minChars characters
-        int lastNonAlphanumIndex = -1;
-        for(int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if(!Character.isLetter(c) && !Character.isDigit(c)){
-                if(i > lastNonAlphanumIndex+minChars){
+        //search all words composed by alphanumeric or hyphen characters
+        Pattern pattern = Pattern.compile("[a-zA-Z0-9-]+");
+        Matcher matcher = pattern.matcher(text);
 
-                    String word = text.substring(lastNonAlphanumIndex+1,i);
-                    String corrected = correctWord(word);
+        //try to correct each word
+        int findFromIndex = 0; //index after which we look for the next match
+        while (matcher.find(findFromIndex)) {
+            
+            String word = matcher.group();
+            findFromIndex = matcher.end();
 
-                    if(!corrected.equals(word)){
+            if(word.length()>=minChars) {
+                String corrected = correctWord(word);
+                if (!corrected.equals(word)) {
 
-                        Log.d(TAG,"word "+word+" corrected with "+corrected);
+                    Log.d(TAG, "word " + word + " corrected with " + corrected);
 
-                        //substitute with the word found
-                        text = text.substring(0, lastNonAlphanumIndex+1) + corrected + text.substring(i);
+                    //substitute with the word found
+                    text = text.substring(0, matcher.start()) + corrected + text.substring(matcher.end());
 
-                        //take into account the difference of length between the words
-                        i += corrected.length()-word.length();
+                    //take into account difference in length between original and corrected word
+                    if(corrected.length() != word.length()) {
+                        matcher = pattern.matcher(text);
+                        findFromIndex += corrected.length() - word.length();
                     }
                 }
-
-                lastNonAlphanumIndex = i;
             }
-        }
 
-        //check last word
-        if(text.length() > lastNonAlphanumIndex+minChars){
-
-            String word = text.substring(lastNonAlphanumIndex+1);
-            String corrected = correctWord(word);
-
-            if(!corrected.equals(word)){
-
-                Log.d(TAG,"word "+word+" corrected with "+corrected);
-
-                //substitute with the word found
-                text = text.substring(0, lastNonAlphanumIndex+1) + corrected;
-            }
         }
 
         return text;

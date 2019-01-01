@@ -23,7 +23,7 @@ public class LauncherActivity extends AppCompatActivity {
         //load inci db and initialize ingredients extractor
         Thread loadExtractorThread = new Thread() {
             public void run() {
-                IngredExtractorSingleton.getInstance(getApplicationContext());
+                InciSingleton.getInstance(getApplicationContext());
             }
         };
         loadExtractorThread.start();

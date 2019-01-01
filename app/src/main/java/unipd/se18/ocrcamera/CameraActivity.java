@@ -6,16 +6,20 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Camera;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import com.camerakit.CameraKitView;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,7 +47,6 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-
         cameraKitView = findViewById(R.id.cameraKitView);
 
         //Load sensor for understand the orientation of the phone
@@ -134,7 +137,7 @@ public class CameraActivity extends AppCompatActivity {
      * Takes a photo, saves it inside internal storage and resets the last extracted text
      *
      * @modify SharedPreferences
-     * @author Romanello Stefano - modified by Leonardo Rossi
+     * @author Romanello Stefano - modified by Leonardo Rossi and Balzan Pietro
      */
     private void takePhoto() {
         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
@@ -165,7 +168,6 @@ public class CameraActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
     }
 
 
@@ -242,12 +244,4 @@ public class CameraActivity extends AppCompatActivity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
-
-
-
-
-
-
 }
-
-
