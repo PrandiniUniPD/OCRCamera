@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -22,6 +23,7 @@ public class AllergensActivity extends AppCompatActivity {
     ListView allergensView;
     AllergenListAdapter adapter;
     ArrayList<Allergen> wholeList;
+    private Button mSearchButton;
 
     private AllergensManager mAllergensManager;
 
@@ -36,7 +38,7 @@ public class AllergensActivity extends AppCompatActivity {
 
         //Activity components
         allergensView = findViewById(R.id.allergens_list_view);
-        Button searchButton= findViewById(R.id.allergens_search_button);
+        mSearchButton= findViewById(R.id.allergens_search_button);
         mAllergensAutoCompleteTextView = findViewById(R.id.allergen_auto_complete_text_view);
 
         //initialize values used to show the list of allergens
@@ -51,7 +53,7 @@ public class AllergensActivity extends AppCompatActivity {
         adapter= new AllergenListAdapter(this, R.layout.allergen_single, userList);
         allergensView.setAdapter(adapter);
 
-        searchButton.setOnClickListener(new View.OnClickListener() {
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                String searchedIngredient= mAllergensAutoCompleteTextView.getText().toString();
@@ -63,6 +65,9 @@ public class AllergensActivity extends AppCompatActivity {
                adapter= new AllergenListAdapter(AllergensActivity.this,
                        R.layout.allergen_single, searchResultList);
                 allergensView.setAdapter(adapter);
+
+                //after a click hide dropdown suggestions
+                mAllergensAutoCompleteTextView.dismissDropDown();
             }
         });
 
@@ -91,6 +96,7 @@ public class AllergensActivity extends AppCompatActivity {
     /**
      * Runnable used to load the suggestions and setup the auto complete text view
      * On suggestion click: update the activity listview
+     * On enter-key press: perform button click
      * Author: Luca Moroldo (g3)
      */
     private class prepareAllergenAutoTextView implements Runnable {
@@ -131,6 +137,19 @@ public class AllergensActivity extends AppCompatActivity {
                     adapter= new AllergenListAdapter(AllergensActivity.this,
                             R.layout.allergen_single, searchResultList);
                     allergensView.setAdapter(adapter);
+                }
+            });
+
+
+            //if user press enter key then run a search
+            mAllergensAutoCompleteTextView.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if(KeyEvent.KEYCODE_ENTER == keyCode) {
+                        mSearchButton.performClick();
+                        return true;
+                    }
+                    return false;
                 }
             });
 

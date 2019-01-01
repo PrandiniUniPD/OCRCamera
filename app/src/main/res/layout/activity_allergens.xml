@@ -30,15 +30,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/allergenText" />
+        app:layout_constraintTop_toBottomOf="@+id/allergen_auto_complete_text_view" />
 
     <Button
         android:id="@+id/allergens_search_button"
-        android:layout_width="72dp"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/ic_search"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/allergens_search_button"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
