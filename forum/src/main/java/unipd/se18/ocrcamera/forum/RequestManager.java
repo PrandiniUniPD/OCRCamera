@@ -12,6 +12,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
+/**
+ * Describes an object that will be used to send network requests
+ * @author Leonardo Rossi g2
+ */
 public class RequestManager
 {
     /**
