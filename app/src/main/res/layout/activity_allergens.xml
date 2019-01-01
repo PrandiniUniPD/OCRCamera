@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".AllergensActivity">
 
-    <EditText
-        android:id="@+id/allergenText"
+    <AutoCompleteTextView
+        android:id="@+id/allergen_auto_complete_text_view"
         android:layout_width="261dp"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"

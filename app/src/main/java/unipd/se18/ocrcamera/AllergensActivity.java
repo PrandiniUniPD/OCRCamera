@@ -6,7 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -21,14 +23,24 @@ public class AllergensActivity extends AppCompatActivity {
     AllergenListAdapter adapter;
     ArrayList<Allergen> wholeList;
 
+    private AllergensManager mAllergensManager;
+
+    private AutoCompleteTextView mAllergensAutoCompleteTextView;
+    //show the suggestions dropdown list with at leas 2 chars typed
+    private int SUGGESTION_THRESHOLD = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_allergens);
 
-        //initialize values used to show the list of allergens
+        //Activity components
         allergensView = findViewById(R.id.allergens_list_view);
-        AllergensManager mAllergensManager= new AllergensManager(this);
+        Button searchButton= findViewById(R.id.allergens_search_button);
+        mAllergensAutoCompleteTextView = findViewById(R.id.allergen_auto_complete_text_view);
+
+        //initialize values used to show the list of allergens
+        mAllergensManager= new AllergensManager(this);
 
         //initialize the whole list of allergens
         wholeList= mAllergensManager.getAllergensList();
@@ -39,15 +51,10 @@ public class AllergensActivity extends AppCompatActivity {
         adapter= new AllergenListAdapter(this, R.layout.allergen_single, userList);
         allergensView.setAdapter(adapter);
 
-        //create EditText View
-        final EditText searchBar= findViewById(R.id.allergenText);
-
-        //create button and set listener
-        Button searchButton= findViewById(R.id.allergens_search_button);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               String searchedIngredient= searchBar.getText().toString();
+               String searchedIngredient= mAllergensAutoCompleteTextView.getText().toString();
                Log.i(TAG, "The typed string is "+searchedIngredient);
                //list of all allergens shown as result of the search
                ArrayList<Allergen> searchResultList= search(searchedIngredient);
@@ -58,6 +65,9 @@ public class AllergensActivity extends AppCompatActivity {
                 allergensView.setAdapter(adapter);
             }
         });
+
+        //setup allergens AutoCompleteTextView
+        new prepareAllergenAutoTextView().run();
     }
 
     /**
@@ -76,5 +86,54 @@ public class AllergensActivity extends AppCompatActivity {
             }
         }
         return resultList;
+    }
+
+    /**
+     * Runnable used to load the suggestions and setup the auto complete text view
+     * On suggestion click: update the activity listview
+     * Author: Luca Moroldo (g3)
+     */
+    private class prepareAllergenAutoTextView implements Runnable {
+        @Override
+        public void run() {
+
+            //show dropdown suggestions if there are at least SUGGESTION_THRESHOLD chars
+            mAllergensAutoCompleteTextView.setThreshold(SUGGESTION_THRESHOLD);
+
+            //get the list of allergens
+            ArrayList<Allergen> allergensList = mAllergensManager.getAllergensList();
+
+            //create a list of allergens names
+            ArrayList<String> allergenNamesList = new ArrayList<>();
+            for(Allergen allergen : allergensList)
+                allergenNamesList.add(allergen.getCommonName());
+
+            //create and set an adapter for allergen names for the autoCompleteTextView
+            ArrayAdapter<String> allergenNamesAdapter = new ArrayAdapter<>(
+                    getApplicationContext(),
+                    android.R.layout.simple_list_item_1,
+                    allergenNamesList
+            );
+            mAllergensAutoCompleteTextView.setAdapter(allergenNamesAdapter);
+
+            //on suggestion click: update the view
+            mAllergensAutoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String allergenClicked = parent.getItemAtPosition(position).toString();
+
+                    //update the textbox and set cursor at the end
+                    mAllergensAutoCompleteTextView.setText(allergenClicked);
+                    mAllergensAutoCompleteTextView.setSelection(allergenClicked.length());
+
+                    //search for allergens with that name and update view
+                    ArrayList<Allergen> searchResultList= search(allergenClicked);
+                    adapter= new AllergenListAdapter(AllergensActivity.this,
+                            R.layout.allergen_single, searchResultList);
+                    allergensView.setAdapter(adapter);
+                }
+            });
+
+        }
     }
 }
