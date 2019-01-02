@@ -1,5 +1,8 @@
 package unipd.se18.ocrcamera.forum.viewmodels;
 
+/**
+ * @author Leonardo Rosi g2
+ */
 public interface AddPostsMethods
 {
     /**

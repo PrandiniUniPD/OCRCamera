@@ -10,6 +10,7 @@
     <string name="jPostDateField">date</string>
     <string name="jPostCommentsField">comments</string>
     <string name="jPostLikesField">likes</string>
+    <string name="jPostAuthorField">author</string>
     <string name="requestFailedMessage">An error occurred while getting the posts. Please retry by refreshing the page</string>
 
 </resources>

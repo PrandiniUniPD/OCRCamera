@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 /**
+ * A model that describes a post with all its data
  * @author Leonardo Rossi g2
  */
 public class Post
@@ -13,6 +14,7 @@ public class Post
     int ID;
     String title;
     String message;
+    String author;
     Date date;
     int likes;
     int comments;
@@ -25,8 +27,9 @@ public class Post
      * @param date The post's date
      * @param likes The post's number of likes
      * @param comments The post's number of comments
+     * @param author The person who has written the post
      */
-    public Post(int ID, String title, String message, Date date, int likes, int comments)
+    public Post(int ID, String title, String message, Date date, int likes, int comments, String author)
     {
         this.ID = ID;
         this.title = title;
@@ -34,6 +37,7 @@ public class Post
         this.date = date;
         this.likes = likes;
         this.comments = comments;
+        this.author = author;
     }
 
     /**
@@ -79,6 +83,12 @@ public class Post
     public int getLikes() { return likes; }
 
     /**
+     * Returns the post's author
+     * @return The post's author
+     */
+    public String getAuthor() { return author; }
+
+    /**
      * Sets the post's title to the specified value
      * @param title The specified value
      */
@@ -95,5 +105,11 @@ public class Post
      * @param date The specified value
      */
     public void setDate(Date date) { this.date = date; }
+
+    /**
+     * Sets the post's author to the specified value
+     * @param author The specified author
+     */
+    public void setAuthor(String author) { this.author = author; }
 
 }

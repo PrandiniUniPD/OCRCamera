@@ -18,6 +18,11 @@ import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
 import unipd.se18.ocrcamera.forum.models.Post;
 
+
+/**
+ * View model that contains all the logic needed to retrieve posts from the database
+ * @author Leonardo Rossi g2
+ */
 public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
 {
 
@@ -66,11 +71,12 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
                         String message = jPost.getString(context.getString(R.string.jPostMessageField));
                         int likes = jPost.getInt(context.getString(R.string.jPostLikesField));
                         int comments = jPost.getInt(context.getString(R.string.jPostCommentsField));
+                        String author = jPost.getString(context.getString(R.string.jPostAuthorField));
                         SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
                         Date date = format.parse(jPost.getString(context.getString(R.string.jPostDateField)));
 
                         //Add the converted post to the temporary array
-                        posts.add(new Post(ID, title, message, date, likes, comments));
+                        posts.add(new Post(ID, title, message, date, likes, comments, author));
                     }
 
                     //The live data is triggered so that the UI can be correctly update

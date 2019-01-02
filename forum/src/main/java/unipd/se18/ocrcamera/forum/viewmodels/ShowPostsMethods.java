@@ -2,6 +2,9 @@ package unipd.se18.ocrcamera.forum.viewmodels;
 
 import android.content.Context;
 
+/**
+ * @author Leonardo Rossi g2
+ */
 public interface ShowPostsMethods
 {
     /**
