@@ -141,6 +141,7 @@ public class AllergensActivity extends AppCompatActivity {
             });
 
 
+
             //if user press enter key then run a search
             mAllergensAutoCompleteTextView.setOnKeyListener(new View.OnKeyListener() {
                 @Override
@@ -153,6 +154,14 @@ public class AllergensActivity extends AppCompatActivity {
                 }
             });
 
+
+            //Show the allergens when the textView is clicked
+            mAllergensAutoCompleteTextView.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    // Perform action on click
+                    mAllergensAutoCompleteTextView.showDropDown();
+                }
+            });
         }
     }
 }
