@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.example.imageprocessing.exceptions.ConversionFailedException;
-import com.example.imageprocessing.exceptions.MatrixEmptyException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,8 +65,7 @@ public class ImageProcessing implements DetectTheText {
      * @return the angle between the text and the horizontal
      * @author Thomas Porro (g1)
      */
-    private double computeSkew(Bitmap image)
-            throws ConversionFailedException, MatrixEmptyException {
+    private double computeSkew(Bitmap image) throws ConversionFailedException{
 
         //Turns the image into a matrix
         Mat img = IPUtils.conversionBitmapToMat(image);
