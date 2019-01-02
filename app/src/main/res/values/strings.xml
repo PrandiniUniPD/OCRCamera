@@ -50,4 +50,5 @@
     <string name="tested">Tested:</string>
     <string name="of">of</string>
     <string name="confidence">confidence</string>
+    <string name="download_test_pics">No test pics fond, download them please.</string>
 </resources>
