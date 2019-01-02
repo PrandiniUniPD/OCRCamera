@@ -2,6 +2,9 @@ package unipd.se18.ocrcamera.forum.models;
 
 import java.util.Date;
 
+/**
+ * @author Leonardo Rossi g2
+ */
 public class Post
 {
     int ID;
