@@ -34,7 +34,7 @@ public class RequestManager
         ADD_POST("adPost"),
         ANSWER_POST("awPost");
 
-        String value;
+        public String value;
 
         /**
          * Defines an object of type RequestType
@@ -47,7 +47,7 @@ public class RequestManager
     /**
      * Defines the object that is used to compose a network request
      */
-    public class Parameter
+    public static class Parameter
     {
         String key;
         String value;
@@ -56,7 +56,7 @@ public class RequestManager
          * @param key The key that identifies the parameter into the network request url
          * @param value The value of the specified parameters
          */
-        Parameter(String key, String value)
+        public Parameter(String key, String value)
         {
             this.key = key;
             this.value = value;
@@ -145,11 +145,11 @@ public class RequestManager
             }
             catch (MalformedURLException e)
             {
-                listener.onConnectionFailed(e.getMessage());
+                if (listener != null) { listener.onConnectionFailed(e.getMessage()); }
             }
             catch (IOException e)
             {
-                listener.onParametersSendingFailed(e.getMessage());
+                if (listener != null) { listener.onParametersSendingFailed(e.getMessage()); }
             }
 
             return null;

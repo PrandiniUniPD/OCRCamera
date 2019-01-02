@@ -3,4 +3,13 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="jPostIDField">ID</string>
+    <string name="jPostTitleField">title</string>
+    <string name="jPostMessageField">message</string>
+    <string name="jPostDateField">date</string>
+    <string name="jPostCommentsField">comments</string>
+    <string name="jPostLikesField">likes</string>
+    <string name="requestFailedMessage">An error occurred while getting the posts. Please retry by refreshing the page</string>
+
 </resources>

@@ -1,16 +1,21 @@
 package unipd.se18.ocrcamera.forum.models;
 
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * @author Leonardo Rossi g2
  */
 public class Post
 {
+    public static final String DATE_FORMAT = "dd/MM/yyyy";
+
     int ID;
     String title;
     String message;
     Date date;
+    int likes;
+    int comments;
 
     /**
      * Constructs an object of type Post
@@ -18,13 +23,17 @@ public class Post
      * @param title The post's title
      * @param message The post's message
      * @param date The post's date
+     * @param likes The post's number of likes
+     * @param comments The post's number of comments
      */
-    public Post(int ID, String title, String message, Date date)
+    public Post(int ID, String title, String message, Date date, int likes, int comments)
     {
         this.ID = ID;
         this.title = title;
         this.message = message;
         this.date = date;
+        this.likes = likes;
+        this.comments = comments;
     }
 
     /**
@@ -58,6 +67,18 @@ public class Post
     public Date getDate() { return date; }
 
     /**
+     * Returns the post's number of comments
+     * @return The post's number of comments
+     */
+    public int getComments() { return comments; }
+
+    /**
+     * Returns the post's number of likes
+     * @return The post's number of likes
+     */
+    public int getLikes() { return likes; }
+
+    /**
      * Sets the post's title to the specified value
      * @param title The specified value
      */
@@ -74,4 +95,5 @@ public class Post
      * @param date The specified value
      */
     public void setDate(Date date) { this.date = date; }
+
 }
