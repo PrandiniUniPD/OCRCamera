@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -18,17 +17,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.imageprocessing.DetectTheTextMethods;
 import com.example.imageprocessing.ImageProcessing;
-import com.example.imageprocessing.TextRegions;
-
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -69,22 +61,23 @@ public class ResultActivity extends AppCompatActivity {
         String pathImage = prefs.getString("imagePath", null);
         String OCRText = prefs.getString("text", null);
 
-
-
         lastPhoto = BitmapFactory.decodeFile(pathImage);
-
-
-
 
         if (lastPhoto != null) {
             //Try to do the image processing
             ImageProcessing processing = new ImageProcessing();
-            TextRegions regions = processing.detectTextRegions(lastPhoto,
+            Boolean blurred = processing.isBlurred(lastPhoto);
+            if(blurred){
+                Log.d("Blur", "IS BLURRED");
+            } else {
+                Log.d("Blur", "IS NOT BLURRED");
+            }
+            /*TextRegions regions = processing.detectTextRegions(lastPhoto,
                     DetectTheTextMethods.DETECT_MAX_TEXT_AREA);
             List<Bitmap> bitmaps = processing.extractTextFromBitmap
                     (lastPhoto.copy(Bitmap.Config.ARGB_8888, true), regions);
             Iterator imageIterator = bitmaps.iterator();
-            lastPhoto = (Bitmap)imageIterator.next();
+            lastPhoto = (Bitmap)imageIterator.next();*/
 
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
         } else {

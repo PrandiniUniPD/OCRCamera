@@ -14,5 +14,5 @@ public interface ImageProcessingMethods {
      * @return True if the image is blurred. False otherwise or if the detection failed
      * @author Thomas Porro (g1)
      */
-    boolean blurDetection(Bitmap image);
+    boolean isBlurred(Bitmap image);
 }
