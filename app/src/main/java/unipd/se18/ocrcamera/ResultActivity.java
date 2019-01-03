@@ -216,7 +216,7 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(gallery_intent);
                 return true;
             case R.id.allergens_selection:
-                Intent allergensAct= new Intent(ResultActivity.this, AllergensActivity.class);
+                Intent allergensAct= new Intent(ResultActivity.this, MainAllergensActivity.class);
                 startActivity(allergensAct);
                 return true;
             default:

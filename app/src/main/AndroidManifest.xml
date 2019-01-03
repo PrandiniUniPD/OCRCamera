@@ -66,7 +66,7 @@
         <activity android:name=".GalleryActivity" />
         <activity android:name=".TestsListActivity" />
         <activity android:name=".TestDetailsActivity" />
-        <activity android:name=".AllergensActivity"
+        <activity android:name=".MainAllergensActivity"
             android:parentActivityName=".ResultActivity"
             android:windowSoftInputMode="adjustNothing">
         </activity>

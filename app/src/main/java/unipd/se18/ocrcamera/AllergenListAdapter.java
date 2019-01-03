@@ -15,7 +15,7 @@ import android.widget.ToggleButton;
 import java.util.ArrayList;
 
 /*
- * This class is used to initiate the listView in AllergensActivity
+ * This class is used to initiate the listViews in MainAllergensActivity
  * Also defined here are the instructions performed when a user selects a new allergen from the list
  * @author Pietro Balzan
  */
@@ -44,7 +44,7 @@ public class AllergenListAdapter extends ArrayAdapter<Allergen> {
 
     /**
      * this method deals with the adaptation of the single allergen view
-     * to the ListView of AllergensActivity
+     * to the ListView of AllergensSearchFragment
      * @param position of the Allergen
      * @param convertView the view to be adapted
      * @param parent viewGroup

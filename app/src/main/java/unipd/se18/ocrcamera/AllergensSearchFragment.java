@@ -1,28 +1,33 @@
 package unipd.se18.ocrcamera;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
-import java.util.List;
 
-public class AllergensActivity extends AppCompatActivity {
+/*
+ * @author Luca Moroldo
+ * @auhor Pietro Balzan
+ */
+public class AllergensSearchFragment extends Fragment {
 
-    private final String TAG = "AllergensActivity";
-    ListView allergensView;
-    AllergenListAdapter adapter;
+    private final String TAG = "AllergensSearchFragment";
     ArrayList<Allergen> wholeList;
+    private ListView allergensView;
+    private AllergenListAdapter adapter;
     private Button mSearchButton;
 
     private AllergensManager mAllergensManager;
@@ -31,27 +36,30 @@ public class AllergensActivity extends AppCompatActivity {
     //show the suggestions dropdown list with at leas 2 chars typed
     private int SUGGESTION_THRESHOLD = 2;
 
+    /**
+     * This method is used to get the View that will make the fragment' layout in the Activity
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return fragmentView
+     * @author Pietro Balzan
+     */
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_allergens);
+    public View onCreateView(@NonNull LayoutInflater inflater, @android.support.annotation.Nullable ViewGroup container, @android.support.annotation.Nullable Bundle savedInstanceState) {
+        View fragmentView= inflater.inflate(R.layout.fragment_allergens_search, container,  false);
 
-        //Activity components
-        allergensView = findViewById(R.id.allergens_list_view);
-        mSearchButton= findViewById(R.id.allergens_search_button);
-        mAllergensAutoCompleteTextView = findViewById(R.id.allergen_auto_complete_text_view);
+        //Fragments Layout components
+        allergensView = (ListView) fragmentView.findViewById(R.id.allergens_list_view);
+        mSearchButton= (Button) fragmentView.findViewById(R.id.allergens_search_button);
+        mAllergensAutoCompleteTextView = (AutoCompleteTextView)
+                fragmentView.findViewById(R.id.allergen_auto_complete_text_view);
 
-        //initialize values used to show the list of allergens
-        mAllergensManager= new AllergensManager(this);
+        //initialize the manager used to manipulate the list of allergens
+        mAllergensManager= new AllergensManager(getActivity());
 
         //initialize the whole list of allergens
         wholeList= mAllergensManager.getAllergensList();
-        //initislize user's own list
-        ArrayList<Allergen> userList= mAllergensManager.getSelectedAllergensList();
-
-        //create adapter with the list of the users' allergens
-        adapter= new AllergenListAdapter(this, R.layout.allergen_single, userList);
-        allergensView.setAdapter(adapter);
 
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +70,7 @@ public class AllergensActivity extends AppCompatActivity {
                ArrayList<Allergen> searchResultList= search(searchedIngredient);
 
                //show list to user
-               adapter= new AllergenListAdapter(AllergensActivity.this,
+               adapter= new AllergenListAdapter(getActivity(),
                        R.layout.allergen_single, searchResultList);
                 allergensView.setAdapter(adapter);
 
@@ -73,6 +81,8 @@ public class AllergensActivity extends AppCompatActivity {
 
         //setup allergens AutoCompleteTextView
         new prepareAllergenAutoTextView().run();
+
+        return fragmentView;
     }
 
     /**
@@ -116,7 +126,7 @@ public class AllergensActivity extends AppCompatActivity {
 
             //create and set an adapter for allergen names for the autoCompleteTextView
             ArrayAdapter<String> allergenNamesAdapter = new ArrayAdapter<>(
-                    getApplicationContext(),
+                    getActivity().getApplicationContext(),
                     android.R.layout.simple_list_item_1,
                     allergenNamesList
             );
@@ -134,7 +144,7 @@ public class AllergensActivity extends AppCompatActivity {
 
                     //search for allergens with that name and update view
                     ArrayList<Allergen> searchResultList= search(allergenClicked);
-                    adapter= new AllergenListAdapter(AllergensActivity.this,
+                    adapter= new AllergenListAdapter(getActivity(),
                             R.layout.allergen_single, searchResultList);
                     allergensView.setAdapter(adapter);
                 }
