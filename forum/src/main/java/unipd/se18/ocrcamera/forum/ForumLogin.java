@@ -11,6 +11,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 import unipd.se18.ocrcamera.forum.viewmodels.Login_VM;
 
@@ -21,6 +23,9 @@ import unipd.se18.ocrcamera.forum.viewmodels.Login_VM;
 public class ForumLogin extends Fragment {
 
     private OnFragmentInteractionListener mListener;
+    private EditText emailEditText;
+    private EditText pwdEditText;
+    private Button loginButton;
     private Login_VM viewModel;
 
     public ForumLogin() {
@@ -45,6 +50,9 @@ public class ForumLogin extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         //UI object initialization
+        emailEditText = view.findViewById(R.id.eMailEditText);
+        pwdEditText = view.findViewById(R.id.pwdEditText);
+        loginButton = view.findViewById(R.id.loginButton);
     }
 
     public interface OnFragmentInteractionListener
