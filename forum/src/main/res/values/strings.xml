@@ -12,6 +12,7 @@
     <string name="jPostLikesField">likes</string>
     <string name="jPostAuthorField">author</string>
     <string name="requestFailedMessage">An error occurred while getting the posts. Please retry by refreshing the page</string>
+    <string name="loginFailedMessage">A login error occurred. Please check your credentials</string>
     <string name="loginButton">Login</string>
     <string name="insertEmail">Insert your email</string>
     <string name="insertPassword">Insert your password</string>
