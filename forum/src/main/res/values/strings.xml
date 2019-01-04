@@ -15,5 +15,7 @@
     <string name="loginButton">Login</string>
     <string name="insertEmail">Insert your email</string>
     <string name="insertPassword">Insert your password</string>
+    <string name="post_added">Post added successfully</string>
+    <string name="connection_failed">Connection failed. Try to check your internet connection please.</string>
 
 </resources>

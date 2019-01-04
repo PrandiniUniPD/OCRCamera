@@ -1,13 +1,167 @@
 package unipd.se18.ocrcamera.forum.viewmodels;
 
 import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
 
-public class AddPost_VM implements AddPostsMethods
-{
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Date;
+
+import unipd.se18.ocrcamera.forum.R;
+import unipd.se18.ocrcamera.forum.RequestManager;
+import unipd.se18.ocrcamera.forum.models.Post;
+
+/**
+ * ViewModel class for adding a post to the forum
+ * (architecture used: Model - View - ViewModel)
+ * @author Pietro Prandini (g2)
+ */
+public class AddPost_VM implements AddPostsMethods {
+    /**
+     * String used for logs
+     */
+    private String TAG = "AddPost_VM -> ";
+
+    /**
+     * Key for requesting to add a new post
+     * (used by the server that hosts the forum)
+     */
+    private final String KEY_ADD_POST_REQUEST = "c";
+
+    /**
+     * Key for indicating the content of the post
+     * (used by the server that hosts the forum)
+     */
+    private final String KEY_JSON_POST_CONTENT = "jPost";
+
+    /**
+     * Keys of the JSON strings value for a post
+     */
+    public enum JSONPostKey {
+        ID("ID"),
+        TITLE("title"),
+        MESSAGE("message"),
+        DATE("date"),
+        LIKES("likes"),
+        COMMENTS("comments"),
+        AUTHOR("author");
+
+        public String value;
+
+        /**
+         * Defines an object of type JSONPostKey
+         * @param value The value of the key for the JSON format of the post
+         */
+        JSONPostKey(String value){ this.value = value; }
+    }
+
+    /**
+     * Adds a post to the forum
+     * @param context The reference of the activity/fragment that calls this method
+     * @param title The new post's title
+     * @param message The new post's message
+     * @author Pietro Prandini (g2)
+     */
     @Override
-    public void addPostToForum(Context context, String title, String message)
-    {
-        //TODO("Implement this method to add a new post to the forum")
+    public void addPostToForum(final Context context, String title, String message) {
+        Log.i(TAG,"addPostToForum");
+
+        // Sets up the manager useful for adding posts
+        RequestManager postManager = new RequestManager();
+        ArrayList<RequestManager.Parameter> postManagerParameters = new ArrayList<>();
+
+        // Sets up the add post request parameter
+        RequestManager.Parameter addPostParameter =
+                new RequestManager.Parameter(
+                        KEY_ADD_POST_REQUEST,
+                        RequestManager.RequestType.ADD_POST.value
+                );
+        postManagerParameters.add(addPostParameter);
+
+        // Formats the post in JSON format
+        String JSONPostContent = getJSONPost(title, message);
+
+        // Sets up the post content parameter
+        RequestManager.Parameter postContentParameter =
+                new RequestManager.Parameter(
+                        KEY_JSON_POST_CONTENT,
+                        JSONPostContent
+                );
+        postManagerParameters.add(postContentParameter);
+
+        // Sets up the manager worker listener
+        postManager.setOnRequestFinishedListener(new RequestManager.RequestManagerListener() {
+            @Override
+            public void onRequestFinished(String response) {
+                // Post added
+                Log.d(TAG,"onRequestFinished -> response: " + response);
+                Toast.makeText(context, R.string.post_added,Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onConnectionFailed(String message) {
+                // Connection problem
+                Log.d(TAG,"onConnectionFailed -> message: " + message);
+                Toast.makeText(context, R.string.connection_failed,Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onParametersSendingFailed(String message) {
+                // Parameters not sent correctly
+                Log.d(TAG,"onParametersSendingFailed -> message: " + message);
+            }
+        });
+
+        // Sends the request
+        postManager.sendRequest(context,postManagerParameters);
+    }
+
+    /**
+     * Get a JSON string having the title and the message
+     * @param title The title of the post
+     * @param message The message of the post
+     * @return The JSON string that represents the forum posts
+     * @author Pietro Prandini (g2)
+     */
+    private String getJSONPost(String title, String message) {
+        // Creates a post
+        Post newPost = createNewPost(title, message);
+        JSONObject JSONPost = new JSONObject();
+
+        // Puts the values of the post in the JSON object
+        try {
+            JSONPost.put(JSONPostKey.ID.value, newPost.getID());
+            JSONPost.put(JSONPostKey.TITLE.value, newPost.getTitle());
+            JSONPost.put(JSONPostKey.MESSAGE.value, newPost.getMessage());
+            JSONPost.put(JSONPostKey.DATE.value, newPost.getDate());
+            JSONPost.put(JSONPostKey.LIKES.value, newPost.getLikes());
+            JSONPost.put(JSONPostKey.COMMENTS.value, newPost.getComments());
+            JSONPost.put(JSONPostKey.AUTHOR.value, newPost.getAuthor());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return newPost.toString();
+    }
+
+    private Post createNewPost(String title, String message) {
+        // Assigns a random ID
+        // (max number for an int has 10 digits, so it is used only 9 ones)
+        int ID = (int) (Math.random()*1e9);
+
+        // Date of today
+        Date date = new Date();
+
+        // Initial value of likes and comments
+        int likes = 0;
+        int comments = 0;
+
+        // Retrieves the author from the login
+        String author = "Anon"; //TODO Retrieves the author from the login
+
+        return new Post(ID, title, message, date, likes, comments, author);
     }
 }
