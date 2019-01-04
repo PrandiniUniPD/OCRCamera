@@ -147,6 +147,13 @@ public class AddPost_VM implements AddPostsMethods {
         return newPost.toString();
     }
 
+    /**
+     * Creates a post object
+     * @param title The title of the post
+     * @param message The message of the post
+     * @return The Post object generated
+     * @author Pietro Prandini (g2)
+     */
     private Post createNewPost(String title, String message) {
         // Assigns a random ID
         // (max number for an int has 10 digits, so it is used only 9 ones)
