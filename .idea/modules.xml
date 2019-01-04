@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/OCRCamera.iml" filepath="$PROJECT_DIR$/OCRCamera.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/barcodeModule/barcodeModule.iml" filepath="$PROJECT_DIR$/barcodeModule/barcodeModule.iml" />
     </modules>
   </component>
 </project>

@@ -22,4 +22,6 @@
     <string name="extrected_text">Extracted text:</string>
     <string name="alterations">Alterations:</string>
     <string name="view_alterations">View alterations</string>
+    <string name="title_barcode_feature">Barcode</string>
+    <string name="title_barcode">Barcode</string>
 </resources>

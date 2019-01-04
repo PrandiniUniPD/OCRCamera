@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -22,6 +23,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+
+import unipd.se18.barcodemodule.BarcodeReader;
+import unipd.se18.barcodemodule.BarcodeRecognizer;
+import unipd.se18.barcodemodule.BarcodeInterface;
+
+import static unipd.se18.barcodemodule.BarcodeRecognizer.barcodeDecoder;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -38,10 +46,14 @@ public class ResultActivity extends AppCompatActivity {
      */
     private Bitmap lastPhoto;
 
+    private Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
+
+        context = getApplicationContext();
 
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
@@ -70,20 +82,13 @@ public class ResultActivity extends AppCompatActivity {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-        //Displaying the text, from OCR or preferences
-        if(OCRText != null) {
-            // Text in preferences
-            if(OCRText.equals("")) {
-                mOCRTextView.setText(R.string.no_text_found);
-            } else {
-                //Show the text of the last image
-                mOCRTextView.setText(OCRText);
-            }
-        } else{
-            // text from OCR
-            AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
-            ocrTask.execute(lastPhoto);
-        }
+
+
+        //Displaying the barcode
+
+        AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+        ocrTask.execute(lastPhoto);
+
     }
 
     /**
@@ -120,7 +125,7 @@ public class ResultActivity extends AppCompatActivity {
 
     /**
      * Execute a task and post the result on the TextView given on construction
-     * (g3) - modified by Rossi Leonardo
+     * (g3) - modified by Rossi Leonardo - modified by Andrea Ton (barcode)
      */
     @SuppressLint("StaticFieldLeak")
     private class AsyncLoad extends AsyncTask<Bitmap, Void, String> {
@@ -139,7 +144,13 @@ public class ResultActivity extends AppCompatActivity {
             TextExtractor ocr = new TextExtractor();
             String textRecognized = "";
             if(lastPhoto != null) {
-                textRecognized = ocr.getTextFromImg(lastPhoto);
+
+                //failed trial to get the value from shared preferences
+                BarcodeReader barcodeReader = barcodeDecoder(BarcodeRecognizer.API.mlkit);
+                barcodeReader.decodeBarcode(context, lastPhoto);
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+                textRecognized = pref.getString("BARCODE", "NO TEXT");
+
                 if(textRecognized.equals(""))
                 {
                     textRecognized = getString(R.string.no_text_found);
