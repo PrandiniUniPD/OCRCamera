@@ -14,9 +14,16 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import static org.opencv.core.CvType.CV_16S;
+import static org.opencv.core.CvType.CV_16U;
+import static org.opencv.core.CvType.CV_32F;
+import static org.opencv.core.CvType.CV_32S;
+import static org.opencv.core.CvType.CV_64F;
+import static org.opencv.core.CvType.CV_8S;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.core.CvType.CV_8UC1;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
@@ -420,5 +427,73 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
             }
         }
         return maxLap < threshold;
+    }
+
+    /**
+     * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
+     * See ImageProcessingMethods.java
+     */
+    @Override
+    public boolean isBright(Bitmap image){
+      Mat temp;
+      try{
+        temp = IPUtils.conversionBitmapToMat(image);
+      } catch (ConversionFailedException error){
+        Log.e(TAG, error.getErrorMessage());
+        return false;
+      }
+
+      Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGBA2RGB);
+
+      List<Mat> color = new ArrayList<>();
+      Core.split(temp, color);
+      Mat lumRed = new Mat();
+      Core.multiply(color.get(0), new Scalar(0.2126), lumRed);
+      Mat lumGreen = new Mat();
+      Core.multiply(color.get(1), new Scalar(0.7152), lumGreen);
+      Mat lumBlue = new Mat();
+      Core.multiply(color.get(2), new Scalar(0,0722), lumBlue);
+
+      Mat lumTemp = new Mat();
+      Mat lum = new Mat();
+
+      Core.add(lumRed , lumGreen , lumTemp);
+      Core.add(lumTemp , lumBlue , lum);
+
+      Scalar sum = Core.sumElems(lum);
+
+      int pow;
+      switch ( temp.depth() ) {
+        case CV_8U:  pow = 8; break;
+        case CV_8S:  pow = 8; break;
+        case CV_16U: pow = 16; break;
+        case CV_16S: pow = 16; break;
+        case CV_32S: pow = 32; break;
+        case CV_32F: pow = 32; break;
+        case CV_64F: pow = 64; break;
+        default: return false;
+      }
+      //brightness = summ[0]/((pow(2,8)-1)*frame.rows * frame.cols) * 2;
+
+      double brightness = sum.val[0]/((Math.pow(2,pow)-1)*temp.rows()*temp.cols())*2;
+
+      Log.d(TAG, "bit:"+pow);
+      Log.d(TAG, "Bright:"+brightness);
+      double upperBound=1.9;
+      double lowerBound=0.8;
+
+      if (brightness > upperBound){             // image is too bright
+          Log.d(TAG, "too bright image");
+          return true;
+      }
+      else if (brightness < lowerBound){        //image is too dark
+          Log.d(TAG, "too dark image");
+          //TODO modificare i true e false 
+          return true;
+      }
+      else {
+          Log.d(TAG, "good image");     // image is neither too bright nor too dark
+          return false;
+      }
     }
 }

@@ -72,6 +72,7 @@ public class ResultActivity extends AppCompatActivity {
             } else {
                 Log.d("Blur", "IS NOT BLURRED");
             }
+            processing.isBright(lastPhoto);
             /*TextRegions regions = processing.detectTextRegions(lastPhoto,
                     DetectTheTextMethods.DETECT_MAX_TEXT_AREA);
             List<Bitmap> bitmaps = processing.extractTextFromBitmap
