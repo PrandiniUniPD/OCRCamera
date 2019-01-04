@@ -8,11 +8,10 @@ import java.util.ArrayList;
 
 import unipd.se18.ocrcamera.forum.RequestManager;
 
-public class Login_VM extends ViewModel implements LoginMethods
-{
+public class Login_VM extends ViewModel implements LoginMethods {
 
     @Override
-    public void loginToForum(String username, String password) {
+    public void loginToForum(Context context, String username, String password) {
 
         //Definition of the network request parameters
         ArrayList<RequestManager.Parameter> parameters = new ArrayList<>();
@@ -41,6 +40,6 @@ public class Login_VM extends ViewModel implements LoginMethods
 
         //Sending of a netword request to check if the provided credentials are correct
 
-        // manager.sendRequest(context, parameters);
+        manager.sendRequest(context, parameters);
     }
 }
