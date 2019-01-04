@@ -149,7 +149,7 @@ public class ResultActivity extends AppCompatActivity {
                 BarcodeReader barcodeReader = barcodeDecoder(BarcodeRecognizer.API.mlkit);
                 barcodeReader.decodeBarcode(context, lastPhoto);
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-                textRecognized = pref.getString("BARCODE", "NO TEXT");
+                textRecognized = pref.getString("BARCODE", "");
 
                 if(textRecognized.equals(""))
                 {

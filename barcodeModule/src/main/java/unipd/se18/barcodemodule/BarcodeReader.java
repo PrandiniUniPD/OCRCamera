@@ -53,8 +53,7 @@ public class BarcodeReader implements BarcodeInterface{
                             String code = barcode.getRawValue();
                             //check if the barcode is effectively read
                             Log.i("CODE!!!", code);
-                            //put the barcode value in the shared preferences as a String (seems not to be retrieved)
-                            //TODO fix barcode value not retrieved from main app but only from log
+                            //put the barcode value in the shared preferences as a String
                             editor.putString("BARCODE", code);
                             editor.commit();
                         }
