@@ -1,6 +1,8 @@
 package unipd.se18.ocrcamera.forum.viewmodels;
 
-public class Login_VM implements LoginMethods
+import android.arch.lifecycle.ViewModel;
+
+public class Login_VM extends ViewModel implements LoginMethods
 {
 
     @Override
