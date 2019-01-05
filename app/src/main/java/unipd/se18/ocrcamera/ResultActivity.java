@@ -9,9 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.preference.PreferenceManager;
-import android.support.annotation.IntDef;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -23,14 +20,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-
-import unipd.se18.barcodemodule.BarcodeReader;
+import unipd.se18.barcodemodule.Barcode;
 import unipd.se18.barcodemodule.BarcodeRecognizer;
-import unipd.se18.barcodemodule.BarcodeInterface;
 
-import static unipd.se18.barcodemodule.BarcodeRecognizer.barcodeDecoder;
+
+import static unipd.se18.barcodemodule.BarcodeRecognizer.barcodeRecognizer;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -157,8 +152,8 @@ public class ResultActivity extends AppCompatActivity {
 
             if(lastPhoto != null) {
 
-                BarcodeReader barcodeReader = barcodeDecoder(BarcodeRecognizer.API.mlkit);
-                barcodeRecognized = barcodeReader.decodeBarcode(lastPhoto);
+                Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit);
+                barcodeRecognized = barcodeRecognizer.decodeBarcode(lastPhoto);
                 //Toast toast = Toast.makeText(getApplicationContext(), "ERRORE!!", Toast.LENGTH_LONG);
                 //toast.show();
                 if(barcodeRecognized.equals("") || barcodeRecognized.equals("No code")){

@@ -19,10 +19,10 @@ public class BarcodeRecognizer {
      * @return the object relative to the choosen type
      * @author Andrea Ton
      */
-    public static BarcodeReader barcodeDecoder(API type){
+    public static Barcode barcodeRecognizer(API type){
         switch (type){
-            case mlkit: return new BarcodeReader();
-            default: return new BarcodeReader();
+            case mlkit: return new MLKitBarcode();
+            default: return new MLKitBarcode();
         }
     }
 }

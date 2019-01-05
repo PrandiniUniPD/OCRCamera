@@ -17,7 +17,7 @@ import java.util.concurrent.CountDownLatch;
  * This class implements the MLKit Api for barcode recognition
  */
 
-public class BarcodeReader implements BarcodeInterface{
+public class MLKitBarcode implements Barcode{
 
     private String code = "";
 
@@ -56,7 +56,6 @@ public class BarcodeReader implements BarcodeInterface{
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         latch.countDown();
-                            //TODO se non trova un barcode da errore, fixare
                         Log.e("SGAIO", e.getMessage());
                     }
                 });
