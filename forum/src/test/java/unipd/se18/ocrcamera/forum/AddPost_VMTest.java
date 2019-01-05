@@ -20,11 +20,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AddPost_VMTest {
     /**
-     * Context of the app
-     */
-    private Context context = ApplicationProvider.getApplicationContext();
-
-    /**
      * Trivial test of the enum JSON post keys
      */
     @Test
@@ -37,33 +32,5 @@ public class AddPost_VMTest {
         assertEquals("likes", AddPost_VM.JSONPostKey.LIKES.value);
         assertEquals("comments", AddPost_VM.JSONPostKey.COMMENTS.value);
         assertEquals("author", AddPost_VM.JSONPostKey.AUTHOR.value);
-    }
-
-    @Test
-    public void JSONPostValidate() {
-        // Create a new instance of the AddPost ViewModel
-        AddPost_VM addPostViewModel = new AddPost_VM();
-
-        // addPostToForum needs the context, the title and the message of the post
-        addPostViewModel.addPostToForum(context,"Test", "Test message");
-
-        AddPost_VM.addPostListener listener = new AddPost_VM.addPostListener() {
-            @Override
-            public void onPostAdded(String response) {
-
-            }
-
-            @Override
-            public void onConnectionFailed(String error) {
-
-            }
-
-            @Override
-            public void onParametersSendingFailed(String error) {
-
-            }
-        };
-
-        addPostViewModel.setAddPostListener(listener);
     }
 }
