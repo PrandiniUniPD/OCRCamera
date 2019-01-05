@@ -15,6 +15,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+
+import unipd.se18.ocrcamera.forum.models.Post;
 import unipd.se18.ocrcamera.forum.viewmodels.Login_VM;
 
 
@@ -53,6 +56,7 @@ public class ForumLogin extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
         super.onViewCreated(view, savedInstanceState);
 
         //UI object initialization
@@ -73,6 +77,24 @@ public class ForumLogin extends Fragment {
                 viewModel.loginToForum(getContext(), userName, userPwd);
             }
         });
+
+        /**
+         * Login_VM viewmodel observer definition
+         *
+         * The method of the observer is triggered when liveLoginResponse variable inside the
+         * viewmodel is initialized with a value, that is the server response to the login request
+         */
+        Observer<String> obsLogin = new Observer<String>() {
+
+            @Override
+            public void onChanged(@Nullable String response) {
+                if(response != null) {
+                    // TODO: how to launch ShowPost fragment from here? (and close the current one?)
+                }
+            }
+        };
+        viewModel.liveLoginResponse.observe(getActivity(), obsLogin);
+
     }
 
     public interface OnFragmentInteractionListener

@@ -18,7 +18,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
      * **   GLOBAL VARIABLES    **
      * ***************************
      */
-    public MutableLiveData<ArrayList<Post>> livePosts = new MutableLiveData<>();
+    public MutableLiveData<String> liveLoginResponse = new MutableLiveData<>();
     public MutableLiveData<String> liveError = new MutableLiveData<>();
 
     /**
@@ -90,12 +90,8 @@ public class Login_VM extends ViewModel implements LoginMethods {
              */
             @Override
             public void onRequestFinished(String response) {
-                if(response.equals("true")) {
-
-                }
-                else {
-
-                }
+                //The live data is triggered so that the UI can be correctly updated
+                liveLoginResponse.setValue(response);
             }
 
             @Override
