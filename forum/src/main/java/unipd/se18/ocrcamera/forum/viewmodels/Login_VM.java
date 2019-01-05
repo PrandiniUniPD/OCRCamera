@@ -3,16 +3,22 @@ package unipd.se18.ocrcamera.forum.viewmodels;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
-import android.content.MutableContextWrapper;
 import android.util.Log;
 
 import java.util.ArrayList;
 
 import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
+import unipd.se18.ocrcamera.forum.models.Post;
 
 public class Login_VM extends ViewModel implements LoginMethods {
 
+    /**
+     * ***************************
+     * **   GLOBAL VARIABLES    **
+     * ***************************
+     */
+    public MutableLiveData<ArrayList<Post>> livePosts = new MutableLiveData<>();
     public MutableLiveData<String> liveError = new MutableLiveData<>();
 
     /**
@@ -76,14 +82,19 @@ public class Login_VM extends ViewModel implements LoginMethods {
         //Implementation of the RequestManager listener
         loginManager.setOnRequestFinishedListener(new RequestManager.RequestManagerListener() {
 
+            /**
+             * If the user successfully logs in, the ShowPost is loaded
+             * so that the user is allowed to access the forum content.
+             * If not, the user is shown an error message for incorrect credentials.
+             * @param response The network request's response
+             */
             @Override
             public void onRequestFinished(String response) {
                 if(response.equals("true")) {
-                    //the user has logged in
-                    // TODO: what to do when the user has succesfully logged in
+
                 }
                 else {
-                    //login failed
+
                 }
             }
 

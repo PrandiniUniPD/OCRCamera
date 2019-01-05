@@ -25,11 +25,11 @@ public class ForumLogin extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    private EditText emailEditText;
+    private EditText usernameEditText;
     private EditText pwdEditText;
     private Button loginButton;
 
-    String userEmail;
+    String userName;
     String userPwd;
 
     private Login_VM viewModel;
@@ -56,7 +56,7 @@ public class ForumLogin extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         //UI object initialization
-        emailEditText = view.findViewById(R.id.eMailEditText);
+        usernameEditText = view.findViewById(R.id.usernameEditText);
         pwdEditText = view.findViewById(R.id.pwdEditText);
         loginButton = view.findViewById(R.id.loginButton);
 
@@ -64,12 +64,13 @@ public class ForumLogin extends Fragment {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //The email and password inserted are gathered from the EditText objects
-                userEmail = emailEditText.getText().toString();
+
+                //The username and password inserted are gathered from the EditText objects
+                userName = usernameEditText.getText().toString();
                 userPwd = pwdEditText.getText().toString();
 
                 //Then the credentials are handed to the viewmodel method to be checked
-                viewModel.loginToForum(getContext(), userEmail, userPwd);
+                viewModel.loginToForum(getContext(), userName, userPwd);
             }
         });
     }
