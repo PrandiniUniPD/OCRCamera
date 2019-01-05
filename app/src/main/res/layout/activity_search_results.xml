@@ -34,7 +34,7 @@
                 android:id="@+id/auto_complete_text_view_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@drawable/ic_search"
+                android:background="@drawable/ic_icon_search"
                 android:layout_weight="0"
                 android:layout_alignParentRight="true"/>
         </LinearLayout>
