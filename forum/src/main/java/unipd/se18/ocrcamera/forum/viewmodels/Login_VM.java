@@ -30,7 +30,8 @@ public class Login_VM extends ViewModel implements LoginMethods {
         manager.setOnRequestFinishedListener(new RequestManager.RequestManagerListener() {
 
             @Override
-            public void onRequestFinished(String response) {
+            public void onRequestFinished(String response)
+            {
 
             }
 

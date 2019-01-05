@@ -30,7 +30,7 @@ public class RequestManager
     public enum RequestType
     {
         LOGIN("l"),
-        GET_POSTS("gPost"),
+        GET_POSTS("gPosts"),
         ADD_POST("adPost"),
         ANSWER_POST("awPost");
 
