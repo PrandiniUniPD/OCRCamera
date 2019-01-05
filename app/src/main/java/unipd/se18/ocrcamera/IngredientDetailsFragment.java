@@ -79,6 +79,15 @@ public class IngredientDetailsFragment extends DialogFragment {
                 }
             });
 
+            //set close button listener
+            final Button closeButton = view.findViewById(R.id.close_button);
+            closeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                }
+            });
+
             // show ingredient information
             TextView nameView = view.findViewById(R.id.inci_name_view);
             nameView.setText(inciName);
