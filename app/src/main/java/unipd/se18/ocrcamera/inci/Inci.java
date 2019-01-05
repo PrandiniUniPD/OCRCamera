@@ -22,6 +22,11 @@ public class Inci {
 
     private static final String TAG = "Inci";
 
+    private static final int COL_COSING_REF_NO = 0;
+    private static final int COL_INCI_NAME = 1;
+    private static final int COL_DESCRIPTION = 6;
+    private static final int COL_FUNCTION = 8;
+
     /**
      * Load inci database and return list of Ingredient objects
      * @param inciDbStream InputStream from inci db csv file
@@ -47,12 +52,12 @@ public class Inci {
         //for each line in the csv add an Ingredient object to the list
         try {
             while ((line = csvReader.readNext()) != null) {
-                if(line.length > 8) {
+                if(line.length > COL_FUNCTION) {
                     Ingredient element = new Ingredient();
-                    element.setCosingRefNo(line[0]);
-                    element.setInciName(line[1]);
-                    element.setDescription(line[6]);
-                    element.setFunction(line[8]);
+                    element.setCosingRefNo(line[COL_COSING_REF_NO]);
+                    element.setInciName(line[COL_INCI_NAME]);
+                    element.setDescription(line[COL_DESCRIPTION]);
+                    element.setFunction(line[COL_FUNCTION]);
                     listIngredients.add(element);
                 }
                 else Log.d(TAG, "There is an empty line in the database file, line "+csvReader.getLinesRead());
