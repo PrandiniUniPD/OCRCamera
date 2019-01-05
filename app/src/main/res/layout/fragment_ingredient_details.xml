@@ -8,6 +8,14 @@
     android:layout_height="match_parent"
     tools:context=".IngredientDetailsFragment">
 
+    <Button
+        android:id="@+id/close_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/ic_close"
+        android:layout_height="40dp"
+        android:layout_width="40dp"/>
+
     <!-- Name -->
     <TextView
         android:id="@+id/inci_name_view"
