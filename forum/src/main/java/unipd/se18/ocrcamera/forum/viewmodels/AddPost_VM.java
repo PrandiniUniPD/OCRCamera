@@ -168,9 +168,9 @@ public class AddPost_VM implements AddPostsMethods {
 
         // Creates a post
         Post newPost = new Post(title, message, today, author);
-        JSONObject JSONPost = new JSONObject();
 
-        // Puts the values of the post in the JSON object
+        // Puts the values of the post in a JSON object that represents the post
+        JSONObject JSONPost = new JSONObject();
         try {
             JSONPost.put(JSONPostKey.ID.value, newPost.getID());
             JSONPost.put(JSONPostKey.TITLE.value, newPost.getTitle());
