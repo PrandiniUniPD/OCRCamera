@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -158,8 +159,9 @@ public class ResultActivity extends AppCompatActivity {
 
                 BarcodeReader barcodeReader = barcodeDecoder(BarcodeRecognizer.API.mlkit);
                 barcodeRecognized = barcodeReader.decodeBarcode(lastPhoto);
-
-                if(barcodeRecognized.equals("z")){
+                //Toast toast = Toast.makeText(getApplicationContext(), "ERRORE!!", Toast.LENGTH_LONG);
+                //toast.show();
+                if(barcodeRecognized.equals("") || barcodeRecognized.equals("No code")){
 
                     textRecognized = ocr.getTextFromImg(lastPhoto);
 
@@ -195,7 +197,6 @@ public class ResultActivity extends AppCompatActivity {
                 return textRecognized;
             }
             else{
-                Log.i("ZIO", textRecognized);
                 return barcodeRecognized;
             }
 
