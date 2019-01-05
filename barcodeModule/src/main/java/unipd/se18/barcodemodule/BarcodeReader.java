@@ -18,6 +18,7 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOption
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * This classe implements the MLKit Api per barcode recognition
@@ -25,19 +26,19 @@ import java.util.List;
 
 public class BarcodeReader implements BarcodeInterface{
 
+    private String code = "z";
 
     /**
      * implementation of the decodeBarcode method, that would detect the barcode from the given image
-     * @param context Context of the resultActivity, used to use the shared preferences to retrieve barcode value
-     *                //TODO delete this and find another way
      * @param bitmap photo taken from the camera, to be analyzed.
      */
-
     @Override
-    public void decodeBarcode(Context context, Bitmap bitmap) {
+    public String decodeBarcode(Bitmap bitmap) {
 
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        final SharedPreferences.Editor editor = pref.edit();
+        //SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        //final SharedPreferences.Editor editor = pref.edit();
+
+        final CountDownLatch latch = new CountDownLatch(1);
         //get the firebase image from the bitmap
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
         //get the detector
@@ -47,24 +48,29 @@ public class BarcodeReader implements BarcodeInterface{
                 .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
                     @Override
                     public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
-                            //this can be replaced with barcodes.get(0).getRawValue();
-                        for (FirebaseVisionBarcode barcode: barcodes) {
-                            //get the
-                            String code = barcode.getRawValue();
+                            code = barcodes.get(0).getRawValue();
                             //check if the barcode is effectively read
-                            Log.i("CODE!!!", code);
-                            //put the barcode value in the shared preferences as a String
-                            editor.putString("BARCODE", code);
-                            editor.commit();
-                        }
+
+                            latch.countDown();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                            //TODO se non trova un barcode da errore, fixare
                         Log.e("Barcode Fail", "Detecting barcode failed");
                     }
                 });
 
+
+
+        try {
+            latch.await();
+        }catch(InterruptedException e){
+            //TODO gestire l'eccezione
+            Log.e("ERROR", e.getMessage());
+        }
+
+        return code;
     }
 }

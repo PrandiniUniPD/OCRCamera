@@ -46,14 +46,14 @@ public class ResultActivity extends AppCompatActivity {
      */
     private Bitmap lastPhoto;
 
-    private Context context;
+    //private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        context = getApplicationContext();
+        //context = getApplicationContext();
 
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
@@ -72,7 +72,9 @@ public class ResultActivity extends AppCompatActivity {
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
-        String OCRText = prefs.getString("text", null);
+        //String OCRText = prefs.getString("text", null);
+        //String barcode = prefs.getString("barcode", null);
+        String result = prefs.getString("result", null);
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
 
@@ -83,12 +85,19 @@ public class ResultActivity extends AppCompatActivity {
         }
 
 
+        /*if (result != null) {
+            if (result.equals("")) {
+                mOCRTextView.setText(R.string.no_text_found);
+            } else {
+                mOCRTextView.setText(result);
+            }
+        } else {
+            AsyncLoad ocrTask = new AsyncLoad(mOCRTextView, getString(R.string.processing));
+            ocrTask.execute(lastPhoto);
+        }*/
 
-        //Displaying the barcode
-
-        AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+        AsyncLoad ocrTask = new AsyncLoad(mOCRTextView, getString(R.string.processing));
         ocrTask.execute(lastPhoto);
-
     }
 
     /**
@@ -143,39 +152,53 @@ public class ResultActivity extends AppCompatActivity {
         protected String doInBackground(Bitmap... bitmaps) {
             TextExtractor ocr = new TextExtractor();
             String textRecognized = "";
+            String barcodeRecognized = "";
+
             if(lastPhoto != null) {
 
-                //failed trial to get the value from shared preferences
                 BarcodeReader barcodeReader = barcodeDecoder(BarcodeRecognizer.API.mlkit);
-                barcodeReader.decodeBarcode(context, lastPhoto);
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-                textRecognized = pref.getString("BARCODE", "");
+                barcodeRecognized = barcodeReader.decodeBarcode(lastPhoto);
 
-                if(textRecognized.equals(""))
-                {
+                if(barcodeRecognized.equals("z")){
+
+                    textRecognized = ocr.getTextFromImg(lastPhoto);
+
+                    if(textRecognized.equals(""))
+                    {
                     textRecognized = getString(R.string.no_text_found);
                     final String finalTextRecognized = textRecognized;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                    runOnUiThread(() -> {
                             mOCRTextView.setText(finalTextRecognized);
-                        }
-                    });
+                        });
+                    }
+                    else
+                    {
+                        final String finalTextRecognized = textRecognized;
+
+                        runOnUiThread(() -> {
+                            mOCRTextView.setText(finalTextRecognized);
+                        });
+                    }
                 }
                 else
                 {
-                    final String finalTextRecognized = textRecognized;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mOCRTextView.setText(finalTextRecognized);
-                        }
+                    final String finalTextRecognized = barcodeRecognized;
+
+                    runOnUiThread(() -> {
+                        mOCRTextView.setText(finalTextRecognized);
                     });
                 }
             } else {
                 Log.e("NOT_FOUND", "photo not found");
             }
-            return textRecognized;
+            if(barcodeRecognized.equals("")) {
+                return textRecognized;
+            }
+            else{
+                Log.i("ZIO", textRecognized);
+                return barcodeRecognized;
+            }
+
         }
 
         @Override
@@ -184,7 +207,7 @@ public class ResultActivity extends AppCompatActivity {
             // Saving in the preferences
             SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("text", s);
+            editor.putString("result", s);
             editor.apply();
         }
 

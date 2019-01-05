@@ -9,5 +9,5 @@ import android.graphics.Bitmap;
 
 public interface BarcodeInterface {
         //TODO change by deleting context that could be inconvenient.
-    void decodeBarcode(Context context, Bitmap image);
+    String decodeBarcode(Bitmap image);
 }
