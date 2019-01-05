@@ -60,7 +60,7 @@ public class AddPost_VM implements AddPostsMethods {
         /**
          * Notifies a failure in the creation of a JSONPost
          */
-        void onJSONPostCreationFailed();
+        void onJSONPostCreationFailed(String error);
     }
 
     /**
@@ -204,7 +204,7 @@ public class AddPost_VM implements AddPostsMethods {
         } catch (JSONException e) {
             // JSON Post creation failed
             e.printStackTrace();
-            operationListener.onJSONPostCreationFailed();
+            operationListener.onJSONPostCreationFailed(e.toString());
         }
 
         return newPost.toString();
