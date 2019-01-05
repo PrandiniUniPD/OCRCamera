@@ -484,23 +484,17 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
       //Calculate the percentage of the brightness
       double brightness = sum.val[0]/((Math.pow(2,bit)-1)*brightnessMat.rows()*brightnessMat.cols())*2;
 
-      Log.d(TAG, "bit:"+bit);
-      Log.d(TAG, "Bright:"+brightness);
+      Log.d(TAG, "Brightness:"+brightness);
 
       //Bounds to define if the image is dark or bright
       double upperBound = 0.9;
       double lowerBound = 0.4;
 
       if (brightness > upperBound){             // image is too bright
-          Log.d(TAG, "too bright image");
           return 1;
-      }
-      else if (brightness < lowerBound){        //image is too dark
-          Log.d(TAG, "too dark image");
+      } else if (brightness < lowerBound){        //image is too dark
           return 2;
-      }
-      else {
-          Log.d(TAG, "good image");     // image is neither too bright nor too dark
+      } else {      // image is neither too bright nor too dark
           return 0;
       }
     }
@@ -521,21 +515,10 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
         return image;
       }
 
-
-      /* GioF
-      Mat modifiedMat = new Mat();
-      for(int i=0; i!=240; i+=15){
-        changeBrightness=i;
-        bright.convertTo(modifiedMat, -1, 1, changeBrightness);
-        if(isBright(modifiedMat)==0){
-          return IPUtils.conversionMatToBitmap(modifiedMat);
-        }
-      }
-      return image;
-      */
       Mat modifiedMat = new Mat();
       switch (isBright(bright)) {
         case 1: //changeBrightness = -50;
+          Log.d(TAG, "Case==1 ==> Too bright");
           for(double changeBrightness=0; changeBrightness!=-240; changeBrightness-=15){
             bright.convertTo(modifiedMat, -1, 1, changeBrightness);
             if(isBright(modifiedMat)==0){
@@ -549,6 +532,7 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
           }
         break;
         case 2: //changeBrightness = 50;
+          Log.d(TAG, "Case==2 ==> Too dark");
           for(double changeBrightness=0; changeBrightness!=240; changeBrightness+=15){
             bright.convertTo(modifiedMat, -1, 1, changeBrightness);
             if(isBright(modifiedMat)==0){
@@ -561,22 +545,13 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
             }
           }
         break;
-        case 0: return image;
-        default: return image;
+        case 0:
+          Log.d(TAG, "Case==0 ==> Perfect image");
+          return image;
       }
 
       return image;
-      /*Mat modifiedMat = new Mat();
-      bright.convertTo(modifiedMat, -1, 1, changeBrightness);
-
-      try{
-        return IPUtils.conversionMatToBitmap(modifiedMat);
-      } catch (ConversionFailedException error){
-        Log.e(TAG, error.getErrorMessage());
-        return image;
-      }*/
 
     }
-
 
 }
