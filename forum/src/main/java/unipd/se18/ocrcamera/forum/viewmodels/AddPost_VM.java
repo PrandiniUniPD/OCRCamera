@@ -52,10 +52,15 @@ public class AddPost_VM implements AddPostsMethods {
         void onConnectionFailed(String error);
 
         /**
-         * Notifies a fail of a sending parameters process addressed to the server
+         * Notifies a failure of a sending parameters process addressed to the server
          * @param error The error parsed
          */
         void onParametersSendingFailed(String error);
+
+        /**
+         * Notifies a failure in the creation of a JSONPost
+         */
+        void onJSONPostCreationFailed();
     }
 
     /**
@@ -197,7 +202,9 @@ public class AddPost_VM implements AddPostsMethods {
             JSONPost.put(JSONPostKey.COMMENTS.value, newPost.getComments());
             JSONPost.put(JSONPostKey.AUTHOR.value, newPost.getAuthor());
         } catch (JSONException e) {
+            // JSON Post creation failed
             e.printStackTrace();
+            operationListener.onJSONPostCreationFailed();
         }
 
         return newPost.toString();
