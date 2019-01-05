@@ -1,19 +1,23 @@
 package unipd.se18.ocrcamera.forum;
 
 import android.content.Context;
-
 import androidx.test.core.app.ApplicationProvider;
 import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 /**
  * AddPost_VM unit test, which will execute on the development machine (host).
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  * @author Pietro Prandini (g2)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class AddPost_VMTest {
     /**
      * Context of the app
@@ -43,7 +47,7 @@ public class AddPost_VMTest {
         // addPostToForum needs the context, the title and the message of the post
         addPostViewModel.addPostToForum(context,"Test", "Test message");
 
-        addPostViewModel.setAddPostListener(new AddPost_VM.addPostListener() {
+        AddPost_VM.addPostListener listener = new AddPost_VM.addPostListener() {
             @Override
             public void onPostAdded(String response) {
 
@@ -58,6 +62,8 @@ public class AddPost_VMTest {
             public void onParametersSendingFailed(String error) {
 
             }
-        });
+        };
+
+        addPostViewModel.setAddPostListener(listener);
     }
 }
