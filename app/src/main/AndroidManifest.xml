@@ -56,7 +56,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity android:name=".DownloadDbActivity" />
-        <activity android:name=".GalleryActivity"></activity>
+        <activity android:name=".GalleryActivity" />
     </application>
 
 </manifest>
