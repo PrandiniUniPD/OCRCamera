@@ -67,12 +67,7 @@ public class ResultActivity extends AppCompatActivity {
             //Try to do the image processing
             ImageProcessing processing = new ImageProcessing();
             Boolean blurred = processing.isBlurred(lastPhoto);
-            if(blurred){
-                Log.d("Blur", "IS BLURRED");
-            } else {
-                Log.d("Blur", "IS NOT BLURRED");
-            }
-            processing.isBright(lastPhoto);
+            lastPhoto = processing.editBright(lastPhoto);
             /*TextRegions regions = processing.detectTextRegions(lastPhoto,
                     DetectTheTextMethods.DETECT_MAX_TEXT_AREA);
             List<Bitmap> bitmaps = processing.extractTextFromBitmap

@@ -2,6 +2,8 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 
+import org.opencv.core.Mat;
+
 /**
  * Interface used to call the processing methods
  * @author Thomas Porro (g1)
@@ -22,5 +24,5 @@ public interface ImageProcessingMethods {
      * @return True if the image is bright. False othwerwise or if the detection failed
      * @author Thomas Porro (g1)
      */
-    boolean isBright(Bitmap image);
+    int isBright(Mat image);
 }

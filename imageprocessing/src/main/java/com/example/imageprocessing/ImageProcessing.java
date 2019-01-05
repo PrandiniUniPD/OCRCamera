@@ -426,74 +426,157 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
                 maxLap = pixel;
             }
         }
+
+        if(maxLap < threshold){
+                Log.d("Blur", "IS BLURRED");
+            } else {
+                Log.d("Blur", "IS NOT BLURRED");
+            }
         return maxLap < threshold;
     }
 
     /**
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
      * See ImageProcessingMethods.java
+     * return 0 if image is neither too bright nor too dark
+     * return 1 if image is too bright
+     * return 2 if image is too dark
      */
     @Override
-    public boolean isBright(Bitmap image){
-      Mat temp;
-      try{
-        temp = IPUtils.conversionBitmapToMat(image);
-      } catch (ConversionFailedException error){
-        Log.e(TAG, error.getErrorMessage());
-        return false;
-      }
+    public int isBright(Mat image){
+      //Converts the image into a matrix
+      Mat brightnessMat = new Mat();
+      //Changes the format of the matrix
+      Imgproc.cvtColor(image, brightnessMat, Imgproc.COLOR_RGBA2RGB);
 
-      Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGBA2RGB);
-
+      //Obtain 3 different matrix with the 3 elemental colors
       List<Mat> color = new ArrayList<>();
-      Core.split(temp, color);
+      Core.split(brightnessMat, color);
+      //Each color is multiplied with his luminance
       Mat lumRed = new Mat();
       Core.multiply(color.get(0), new Scalar(0.2126), lumRed);
       Mat lumGreen = new Mat();
       Core.multiply(color.get(1), new Scalar(0.7152), lumGreen);
       Mat lumBlue = new Mat();
-      Core.multiply(color.get(2), new Scalar(0,0722), lumBlue);
+      Core.multiply(color.get(2), new Scalar(0.0722), lumBlue);
 
+      //Sums the matrix of the colors into a single one
       Mat lumTemp = new Mat();
       Mat lum = new Mat();
+      Core.add(lumRed , lumGreen , lumTemp); //lumRed+lumGreen=lumTemp
+      Core.add(lumTemp , lumBlue , lum); //lumBlue+lumTemp=lum
 
-      Core.add(lumRed , lumGreen , lumTemp);
-      Core.add(lumTemp , lumBlue , lum);
-
+      //Calculate the sum of the values of all pixels
       Scalar sum = Core.sumElems(lum);
 
-      int pow;
-      switch ( temp.depth() ) {
-        case CV_8U:  pow = 8; break;
-        case CV_8S:  pow = 8; break;
-        case CV_16U: pow = 16; break;
-        case CV_16S: pow = 16; break;
-        case CV_32S: pow = 32; break;
-        case CV_32F: pow = 32; break;
-        case CV_64F: pow = 64; break;
-        default: return false;
+      //Image's bit
+      int bit;
+      switch ( brightnessMat.depth() ) {
+        case CV_8U:  bit = 8; break;
+        case CV_8S:  bit = 8; break;
+        case CV_16U: bit = 16; break;
+        case CV_16S: bit = 16; break;
+        case CV_32S: bit = 32; break;
+        case CV_32F: bit = 32; break;
+        case CV_64F: bit = 64; break;
+        default: return 0;
       }
-      //brightness = summ[0]/((pow(2,8)-1)*frame.rows * frame.cols) * 2;
+      //Calculate the percentage of the brightness
+      double brightness = sum.val[0]/((Math.pow(2,bit)-1)*brightnessMat.rows()*brightnessMat.cols())*2;
 
-      double brightness = sum.val[0]/((Math.pow(2,pow)-1)*temp.rows()*temp.cols())*2;
-
-      Log.d(TAG, "bit:"+pow);
+      Log.d(TAG, "bit:"+bit);
       Log.d(TAG, "Bright:"+brightness);
-      double upperBound=1.9;
-      double lowerBound=0.8;
+
+      //Bounds to define if the image is dark or bright
+      double upperBound = 0.9;
+      double lowerBound = 0.4;
 
       if (brightness > upperBound){             // image is too bright
           Log.d(TAG, "too bright image");
-          return true;
+          return 1;
       }
       else if (brightness < lowerBound){        //image is too dark
           Log.d(TAG, "too dark image");
-          //TODO modificare i true e false 
-          return true;
+          return 2;
       }
       else {
           Log.d(TAG, "good image");     // image is neither too bright nor too dark
-          return false;
+          return 0;
       }
     }
+
+
+    /**
+     * @author Thomas Porro(g1), Giovanni Fasan(g1), Oscar Garrido(g1)
+     * See ImageProcessingMethods.java
+     * Change the brightness of the image
+     */
+    public Bitmap editBright(Bitmap image){
+
+      Mat bright = new Mat();
+      try{
+        bright = IPUtils.conversionBitmapToMat(image);
+      } catch (ConversionFailedException error){
+        Log.e(TAG, error.getErrorMessage());
+        return image;
+      }
+
+
+      /* GioF
+      Mat modifiedMat = new Mat();
+      for(int i=0; i!=240; i+=15){
+        changeBrightness=i;
+        bright.convertTo(modifiedMat, -1, 1, changeBrightness);
+        if(isBright(modifiedMat)==0){
+          return IPUtils.conversionMatToBitmap(modifiedMat);
+        }
+      }
+      return image;
+      */
+      Mat modifiedMat = new Mat();
+      switch (isBright(bright)) {
+        case 1: //changeBrightness = -50;
+          for(double changeBrightness=0; changeBrightness!=-240; changeBrightness-=15){
+            bright.convertTo(modifiedMat, -1, 1, changeBrightness);
+            if(isBright(modifiedMat)==0){
+              try{
+                return IPUtils.conversionMatToBitmap(modifiedMat);
+              } catch (ConversionFailedException error){
+                Log.e(TAG, error.getErrorMessage());
+                return image;
+              }
+            }
+          }
+        break;
+        case 2: //changeBrightness = 50;
+          for(double changeBrightness=0; changeBrightness!=240; changeBrightness+=15){
+            bright.convertTo(modifiedMat, -1, 1, changeBrightness);
+            if(isBright(modifiedMat)==0){
+              try{
+                return IPUtils.conversionMatToBitmap(modifiedMat);
+              } catch (ConversionFailedException error){
+                Log.e(TAG, error.getErrorMessage());
+                return image;
+              }
+            }
+          }
+        break;
+        case 0: return image;
+        default: return image;
+      }
+
+      return image;
+      /*Mat modifiedMat = new Mat();
+      bright.convertTo(modifiedMat, -1, 1, changeBrightness);
+
+      try{
+        return IPUtils.conversionMatToBitmap(modifiedMat);
+      } catch (ConversionFailedException error){
+        Log.e(TAG, error.getErrorMessage());
+        return image;
+      }*/
+
+    }
+
+
 }
