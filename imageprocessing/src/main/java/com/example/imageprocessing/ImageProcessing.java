@@ -436,18 +436,18 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
     }
 
     /**
+     * Detect if the image is bright
+     * @param imageMat the image we want to detect the brightness
+     * @return 0 if image is neither too bright nor too dark,
+     *         1 if image is too bright,
+     *         2 if image is too dark.
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
-     * See ImageProcessingMethods.java
-     * return 0 if image is neither too bright nor too dark
-     * return 1 if image is too bright
-     * return 2 if image is too dark
      */
-    @Override
-    public int isBright(Mat image){
+    private int isBright(Mat imageMat){
       //Converts the image into a matrix
       Mat brightnessMat = new Mat();
       //Changes the format of the matrix
-      Imgproc.cvtColor(image, brightnessMat, Imgproc.COLOR_RGBA2RGB);
+      Imgproc.cvtColor(imageMat, brightnessMat, Imgproc.COLOR_RGBA2RGB);
 
       //Obtain 3 different matrix with the 3 elemental colors
       List<Mat> color = new ArrayList<>();
@@ -505,9 +505,10 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
      * See ImageProcessingMethods.java
      * Change the brightness of the image
      */
+    @Override
     public Bitmap editBright(Bitmap image){
-
-      Mat bright = new Mat();
+      //Converts the image into a matrix
+      Mat bright;
       try{
         bright = IPUtils.conversionBitmapToMat(image);
       } catch (ConversionFailedException error){
@@ -515,11 +516,15 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
         return image;
       }
 
+      //Call the internal method isBright to detect if the image is bright or dark
+      //and change the brightness according to the number obtained
       Mat modifiedMat = new Mat();
       switch (isBright(bright)) {
-        case 1: //changeBrightness = -50;
+        case 1: //If the image is too bright
           Log.d(TAG, "Case==1 ==> Too bright");
+          //Darkens the colour's brightness until it's in an optimal value
           for(double changeBrightness=0; changeBrightness!=-240; changeBrightness-=15){
+            //Converts an array to another data type with optional scaling.
             bright.convertTo(modifiedMat, -1, 1, changeBrightness);
             if(isBright(modifiedMat)==0){
               try{
@@ -531,9 +536,12 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
             }
           }
         break;
-        case 2: //changeBrightness = 50;
+
+        case 2: //If the image is too dark
           Log.d(TAG, "Case==2 ==> Too dark");
+          //Lightens the colour's brightness until it's in an optimal value
           for(double changeBrightness=0; changeBrightness!=240; changeBrightness+=15){
+            //Converts an array to another data type with optional scaling.
             bright.convertTo(modifiedMat, -1, 1, changeBrightness);
             if(isBright(modifiedMat)==0){
               try{
@@ -545,13 +553,12 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
             }
           }
         break;
-        case 0:
+
+        case 0: //Image is neither too bright nor too dark
           Log.d(TAG, "Case==0 ==> Perfect image");
           return image;
+
       }
-
       return image;
-
     }
-
 }

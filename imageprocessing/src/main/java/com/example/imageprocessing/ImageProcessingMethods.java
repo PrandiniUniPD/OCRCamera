@@ -19,10 +19,10 @@ public interface ImageProcessingMethods {
     boolean isBlurred(Bitmap image);
 
     /**
-     * Detect if the image is bright
-     * @param image the image we want to detect the brightness
-     * @return True if the image is bright. False othwerwise or if the detection failed
+     * Change the brightness of the image into an optimal one
+     * @param image the image we want to modify the brightness
+     * @return the image with the modified brightness
      * @author Thomas Porro (g1)
      */
-    int isBright(Mat image);
+    public Bitmap editBright(Bitmap image);
 }
