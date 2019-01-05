@@ -2,7 +2,6 @@ package unipd.se18.ocrcamera.forum.viewmodels;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,7 +9,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 
-import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
 import unipd.se18.ocrcamera.forum.models.Post;
 
@@ -36,6 +34,42 @@ public class AddPost_VM implements AddPostsMethods {
      * (used by the server that hosts the forum)
      */
     private final String KEY_JSON_POST_CONTENT = "jPost";
+
+    /**
+     * Listener useful for communicating with the View
+     */
+    public interface addPostListener {
+        /**
+         * Notifies when a post is correctly added
+         * @param response The response of the server
+         */
+        void onPostAdded(String response);
+
+        /**
+         * Notifies a connection problem to the network
+         * @param error The error parsed
+         */
+        void onConnectionFailed(String error);
+
+        /**
+         * Notifies a fail of a sending parameters process addressed to the server
+         * @param error The error parsed
+         */
+        void onParametersSendingFailed(String error);
+    }
+
+    /**
+     * Sets The listener useful for communicating with the View
+     * @param operationListener The instance of the listener useful for communicating with the view
+     */
+    public void setAddPostListener(AddPost_VM.addPostListener operationListener) {
+        this.operationListener = operationListener;
+    }
+
+    /**
+     * The instance of the listener useful for communicating with the view
+     */
+    private addPostListener operationListener;
 
     /**
      * Keys of the JSON strings value for a post
@@ -98,20 +132,21 @@ public class AddPost_VM implements AddPostsMethods {
             public void onRequestFinished(String response) {
                 // Post added
                 Log.d(TAG,"onRequestFinished -> response: " + response);
-                Toast.makeText(context, R.string.post_added,Toast.LENGTH_LONG).show();
+                operationListener.onPostAdded(response);
             }
 
             @Override
             public void onConnectionFailed(String message) {
                 // Connection problem
                 Log.d(TAG,"onConnectionFailed -> message: " + message);
-                Toast.makeText(context, R.string.connection_failed,Toast.LENGTH_LONG).show();
+                operationListener.onConnectionFailed(message);
             }
 
             @Override
             public void onParametersSendingFailed(String message) {
                 // Parameters not sent correctly
                 Log.d(TAG,"onParametersSendingFailed -> message: " + message);
+                operationListener.onParametersSendingFailed(message);
             }
         });
 
@@ -127,8 +162,12 @@ public class AddPost_VM implements AddPostsMethods {
      * @author Pietro Prandini (g2)
      */
     private String getJSONPost(String title, String message) {
+        // Prepares the post's data
+        Date today = new Date();
+        String author = "Anon"; //TODO Retrieves the author from the login
+
         // Creates a post
-        Post newPost = createNewPost(title, message);
+        Post newPost = new Post(title, message, today, author);
         JSONObject JSONPost = new JSONObject();
 
         // Puts the values of the post in the JSON object
@@ -145,30 +184,5 @@ public class AddPost_VM implements AddPostsMethods {
         }
 
         return newPost.toString();
-    }
-
-    /**
-     * Creates a post object
-     * @param title The title of the post
-     * @param message The message of the post
-     * @return The Post object generated
-     * @author Pietro Prandini (g2)
-     */
-    private Post createNewPost(String title, String message) {
-        // Assigns a random ID
-        // (max number for an int has 10 digits, so it is used only 9 ones)
-        int ID = (int) (Math.random()*1e9);
-
-        // Date of today
-        Date date = new Date();
-
-        // Initial value of likes and comments
-        int likes = 0;
-        int comments = 0;
-
-        // Retrieves the author from the login
-        String author = "Anon"; //TODO Retrieves the author from the login
-
-        return new Post(ID, title, message, date, likes, comments, author);
     }
 }
