@@ -105,26 +105,6 @@ public class AddPost_VM implements AddPostsMethods {
 
         // Sets up the manager useful for adding posts
         RequestManager postManager = new RequestManager();
-        ArrayList<RequestManager.Parameter> postManagerParameters = new ArrayList<>();
-
-        // Sets up the add post request parameter
-        RequestManager.Parameter addPostParameter =
-                new RequestManager.Parameter(
-                        KEY_ADD_POST_REQUEST,
-                        RequestManager.RequestType.ADD_POST.value
-                );
-        postManagerParameters.add(addPostParameter);
-
-        // Formats the post in JSON format
-        String JSONPostContent = getJSONPost(title, message);
-
-        // Sets up the post content parameter
-        RequestManager.Parameter postContentParameter =
-                new RequestManager.Parameter(
-                        KEY_JSON_POST_CONTENT,
-                        JSONPostContent
-                );
-        postManagerParameters.add(postContentParameter);
 
         // Sets up the manager worker listener
         postManager.setOnRequestFinishedListener(new RequestManager.RequestManagerListener() {
@@ -150,21 +130,58 @@ public class AddPost_VM implements AddPostsMethods {
             }
         });
 
+        // Sets up the parameters for the adding post request
+        ArrayList<RequestManager.Parameter> postManagerParameters =
+                getAddPostParameters(title, message);
+
         // Sends the request
         postManager.sendRequest(context,postManagerParameters);
     }
 
     /**
+     * Sets up the parameters for sending the post adding request
+     * @param title The new post's title
+     * @param message The new post's message
+     * @return The ArrayList of the parameters required
+     */
+    private ArrayList<RequestManager.Parameter> getAddPostParameters(String title, String message) {
+        // Sets up the add post request parameter
+        RequestManager.Parameter addPostParameter =
+                new RequestManager.Parameter(
+                        KEY_ADD_POST_REQUEST,
+                        RequestManager.RequestType.ADD_POST.value
+                );
+
+        // Formats the post in JSON format
+        String JSONPostContent = getJSONPost(title, message);
+
+        // Sets up the post content parameter
+        RequestManager.Parameter postContentParameter =
+                new RequestManager.Parameter(
+                        KEY_JSON_POST_CONTENT,
+                        JSONPostContent
+                );
+
+        // Adds the parameters to an ArrayList
+        ArrayList<RequestManager.Parameter> postManagerParameters = new ArrayList<>();
+        postManagerParameters.add(addPostParameter);
+        postManagerParameters.add(postContentParameter);
+
+        // Returns the ArrayList of the parameters required
+        return postManagerParameters;
+    }
+
+    /**
      * Get a JSON string having the title and the message
-     * @param title The title of the post
-     * @param message The message of the post
+     * @param title The new post's title
+     * @param message The new post's message
      * @return The JSON string that represents the forum posts
      * @author Pietro Prandini (g2)
      */
     private String getJSONPost(String title, String message) {
         // Prepares the post's data
         Date today = new Date();
-        String author = "Anon"; //TODO Retrieves the author from the login
+        String author = "Anon"; //TODO retrieve the author
 
         // Creates a post
         Post newPost = new Post(title, message, today, author);
