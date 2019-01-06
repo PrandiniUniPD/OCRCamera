@@ -71,16 +71,16 @@ public class AddPost_VM implements AddPostsMethods {
 
     /**
      * Sets The listener useful for communicating with the View
-     * @param operationListener The instance of the listener useful for communicating with the view
+     * @param addPostVMListener The instance of the listener useful for communicating with the view
      */
-    public void setAddPostListener(AddPost_VM.addPostListener operationListener) {
-        this.operationListener = operationListener;
+    public void setAddPostListener(AddPost_VM.addPostListener addPostVMListener) {
+        this.notifier = addPostVMListener;
     }
 
     /**
      * The instance of the listener useful for communicating with the view
      */
-    private addPostListener operationListener;
+    private addPostListener notifier;
 
     /**
      * Keys of the JSON strings value for a post
@@ -118,7 +118,7 @@ public class AddPost_VM implements AddPostsMethods {
         public void onRequestFinished(String response) {
             // Post added
             Log.d(TAG,"onRequestFinished -> response: " + response);
-            operationListener.onPostAdded(response);
+            notifier.onPostAdded(response);
         }
 
         /**
@@ -129,7 +129,7 @@ public class AddPost_VM implements AddPostsMethods {
         public void onConnectionFailed(String message) {
             // Connection problem
             Log.d(TAG,"onConnectionFailed -> message: " + message);
-            operationListener.onConnectionFailed(message);
+            notifier.onConnectionFailed(message);
         }
 
         /**
@@ -140,7 +140,7 @@ public class AddPost_VM implements AddPostsMethods {
         public void onParametersSendingFailed(String message) {
             // Parameters not sent correctly
             Log.d(TAG,"onParametersSendingFailed -> message: " + message);
-            operationListener.onParametersSendingFailed(message);
+            notifier.onParametersSendingFailed(message);
         }
     };
 
@@ -182,7 +182,7 @@ public class AddPost_VM implements AddPostsMethods {
             e.printStackTrace();
             // Notifies the error
             Log.d(TAG, "addPostToForum -> JSON creation problem");
-            operationListener.onJSONPostCreationFailed(e.toString());
+            notifier.onJSONPostCreationFailed(e.toString());
         }
     }
 
