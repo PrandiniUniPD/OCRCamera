@@ -24,11 +24,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+import unipd.se18.ocrcamera.inci.Ingredient;
+import unipd.se18.ocrcamera.inci.IngredientsExtractor;
+import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 
 
 /**
@@ -247,24 +254,39 @@ public class GalleryActivity extends AppCompatActivity {
                 photoInfos = (GalleryManager.PhotoStructure)bundle.getSerializable(getString(R.string.serializableObjectName));
             }
 
-            TextView txtIngredients = ((GalleryActivity) getActivity()).findViewById(R.id.textViewGalleryDetailIngredients);
-            TextView txtPercentage = ((GalleryActivity) getActivity()).findViewById(R.id.textViewGalleryDetailPercentage);
+            ListView ingredientsListView = ((GalleryActivity) getActivity()).findViewById(R.id.ingredients_list_gallery);
             ImageView imageView = ((GalleryActivity) getActivity()).findViewById(R.id.imageViewGalleryDetailPhoto);
 
             //Fill the detailed page with informations
+            //Get a single string with all ingredients fount from the ocr
             String formattedIngredients = photoInfos.ingredients.toString()
                     .replace("[", "")  //remove the right bracket
                     .replace("]", "")  //remove the left bracket
                     .trim();
-            txtIngredients.setText(formattedIngredients);
 
-            String allergensCommaSeparated="";
-            for (String allergenName:photoInfos.allergensFound) {
-                allergensCommaSeparated+=allergenName+", ";
-            }
+            IngredientsExtractor extractor = InciSingleton.getInstance(((GalleryActivity) getActivity())).getIngredientsExtractor();
+            List<Ingredient> ingredientsToPrint = extractor.findListIngredients(formattedIngredients);
 
-            //Print allergens removing the last comma
-            txtPercentage.setText(allergensCommaSeparated.substring(0,allergensCommaSeparated.length()-2));
+            AdapterIngredient adapter = new AdapterIngredient(((GalleryActivity) getActivity()), ingredientsToPrint);
+            ingredientsListView.setAdapter(adapter);
+
+            ingredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
+
+                    //performing a click on OCR recognized text causes a crash (because selectedIngredient is null)
+                    if(selectedIngredient != null) {
+                        String inciName = selectedIngredient.getInciName();
+                        String description = selectedIngredient.getDescription();
+                        String function = selectedIngredient.getFunction();
+                        FragmentManager fm = getFragmentManager();
+                        IngredientDetailsFragment detailsFragment = IngredientDetailsFragment.newInstance(inciName, description, function);
+                        detailsFragment.show(fm, "fragment_ingredient_details");
+                    }
+                }
+            });
+
             imageView.setImageBitmap(photoInfos.photo);
         }
 

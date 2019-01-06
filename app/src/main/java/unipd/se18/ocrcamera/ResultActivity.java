@@ -143,6 +143,7 @@ public class ResultActivity extends AppCompatActivity {
                 @Override
                 public void onTextRecognized(String text) {
                     //search for ingredients in the INCI db and update the UI
+
                     new AsyncIngredientsExtraction(ResultActivity.this).execute(text);
 
                     //save photo in the gallery and the last recognized text
@@ -227,7 +228,7 @@ public class ResultActivity extends AppCompatActivity {
      * and progress bar update
      * @author Francesco Pham
      */
-    private static class AsyncIngredientsExtraction extends AsyncTask<String, Void, List<Ingredient>> {
+    private class AsyncIngredientsExtraction extends AsyncTask<String, Void, List<Ingredient>> {
 
         private WeakReference<ResultActivity> activityReference;
         private String correctedText;
@@ -304,13 +305,34 @@ public class ResultActivity extends AppCompatActivity {
                 TextView headerView = new TextView(activity);
                 headerView.setText(analyzedText);
                 activity.ingredientsListView.addHeaderView(headerView);
-            } else
+
+                //At this point I can save the currentImage with the extracted and correct text
+                saveResultToGallery(ingredients);
+            }
+            else
                 activity.emptyTextView.setText(R.string.no_ingredient_found);
         }
+}
+
+
+    /**
+     * Save the photo using the correct extracted ingredients
+     * @param ingredients List of ingredients extracted using AsyncIngredientsExtraction
+     * @author Romanello Stefano
+     */
+    public void saveResultToGallery(List<Ingredient> ingredients)
+    {
+        ArrayList<String>ingredientsToSave = new ArrayList<>();
+        for (Ingredient ingredient : ingredients) {
+            ingredientsToSave.add(ingredient.getInciName());
+        }
+
+        try {
+            GalleryManager.storeImage(lastPhoto,ingredientsToSave);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
-
-
 
     /**
      * Saves the result obtained in the "prefs" preferences (Context.MODE_PRIVATE)
@@ -330,11 +352,7 @@ public class ResultActivity extends AppCompatActivity {
         ArrayList<String> txt = new ArrayList<>();
         String formattedText=String.valueOf(Html.fromHtml(text));
         txt.add(formattedText);
-        try {
-            GalleryManager.storeImage(lastPhoto,txt);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     /**

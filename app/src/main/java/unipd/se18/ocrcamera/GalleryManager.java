@@ -166,13 +166,6 @@ public class GalleryManager
             structure.photo = BitmapFactory.decodeFile(image.getAbsolutePath());
             structure.fileImagePath = image.getPath();
 
-
-            //Todo: find the allergens that are in the ingredients from the allergens list selected by the user. This value can't be saved into the metaData because the user can change the allergens
-            structure.allergensFound.add("test1");
-            structure.allergensFound.add("test2");
-            structure.allergensFound.add("test3");
-            structure.allergensFound.add("test4");
-
             return structure;
         }
         catch (IOException e)
@@ -236,7 +229,6 @@ public class GalleryManager
         public Bitmap photo;
         public String fileImagePath;
         public ArrayList<String> ingredients = new ArrayList();
-        public ArrayList<String> allergensFound = new ArrayList();
     }
 
 
@@ -330,7 +322,9 @@ public class GalleryManager
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             //Set txtView properties with the number of allergens found
-            holder.txtTitle.setText(currentPhoto.allergensFound.size() + " allergens found");
+
+            //Todo: get the number of allergens from the arrayList<String> of ingredients currentPhoto.ingredients
+            holder.txtTitle.setText("??? allergens found");
         }
 
         /**
