@@ -53,6 +53,11 @@ public class ForumLogin extends Fragment {
      */
     private final String LOG_NULL_ERROR_MESSAGE = "A NULL error message passed through liveError";
 
+    /**
+     * Key to identify the username passed to ShowPosts instance
+     */
+    private final String KEY_USERNAME = "username";
+
     private EditText usernameEditText;
     private EditText pwdEditText;
     private Button loginButton;
@@ -119,7 +124,16 @@ public class ForumLogin extends Fragment {
             public void onChanged(@Nullable String username) {
 
                 if(username != null) {
-                    Fragment showPosts = new Fragment();
+                    //creates the username bundle
+                    Bundle bundle = new Bundle();
+                    bundle.putString(KEY_USERNAME, username);
+
+                    //creates an instance of the fragment to be launched
+                    ShowPosts showPosts = new ShowPosts();
+                    //passes the bundle to the fragment as an argument
+                    showPosts.setArguments(bundle);
+
+                    //performs the fragment transaction
                     getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
