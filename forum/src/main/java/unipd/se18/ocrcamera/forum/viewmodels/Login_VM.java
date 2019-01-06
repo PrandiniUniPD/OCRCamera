@@ -11,6 +11,10 @@ import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
 import unipd.se18.ocrcamera.forum.models.Post;
 
+/**
+ * View model that contains all the logic needed to perform a login by querying the database
+ * @author Leonardo Rossi (g2), Alberto Valente (g2)
+ */
 public class Login_VM extends ViewModel implements LoginMethods {
 
     /**
@@ -18,13 +22,19 @@ public class Login_VM extends ViewModel implements LoginMethods {
      * **   GLOBAL VARIABLES    **
      * ***************************
      */
+
     public MutableLiveData<String> liveLoginResponse = new MutableLiveData<>();
     public MutableLiveData<String> liveError = new MutableLiveData<>();
 
     /**
-     * String used for logs to identify the viewmodel throwing it
+     * String used for debug logs to identify the viewmodel throwing it
      */
     private final String LOG_TAG = "@@Login_VM";
+
+    /**
+     * Sring used to identify the error given by incorrect credentials
+     */
+    private final String LOG_INCORRECT_CREDENTIALS = "Connection established. Credentials refused.";
 
     /**
      * Key for requesting to perform a login
@@ -45,7 +55,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
     private final String KEY_LOGIN_PASSWORD = "pwd";
 
     @Override
-    public void loginToForum(final Context context, String username, String password) {
+    public void loginToForum(final Context context, final String username, String password) {
 
         // Sets up the manager to perform login
         RequestManager loginManager = new RequestManager();
@@ -86,12 +96,22 @@ public class Login_VM extends ViewModel implements LoginMethods {
              * If the user successfully logs in, the ShowPost is loaded
              * so that the user is allowed to access the forum content.
              * If not, the user is shown an error message for incorrect credentials.
+             *
              * @param response The network request's response
+             * @author Alberto Valente (g2)
              */
             @Override
             public void onRequestFinished(String response) {
+
                 //The live data is triggered so that the UI can be correctly updated
-                liveLoginResponse.setValue(response);
+                if(response.equals("true")) {
+                    //If credentials are correct, the username is passed to the login fragment
+                    liveLoginResponse.setValue(username);
+                }
+                else {
+                    Log.d(LOG_TAG, LOG_INCORRECT_CREDENTIALS);
+                    liveError.setValue(context.getString(R.string.loginFailedMessage));
+                }
             }
 
             @Override
