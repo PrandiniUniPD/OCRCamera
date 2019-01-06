@@ -257,19 +257,21 @@ public class GalleryActivity extends AppCompatActivity {
             ListView ingredientsListView = ((GalleryActivity) getActivity()).findViewById(R.id.ingredients_list_gallery);
             ImageView imageView = ((GalleryActivity) getActivity()).findViewById(R.id.imageViewGalleryDetailPhoto);
 
-            //Fill the detailed page with informations
+            //Convert the arrayList<String> of ingredients obtained from the metadata to List<Ingredient>
+
             //Get a single string with all ingredients fount from the ocr
             String formattedIngredients = photoInfos.ingredients.toString()
                     .replace("[", "")  //remove the right bracket
                     .replace("]", "")  //remove the left bracket
                     .trim();
-
             IngredientsExtractor extractor = InciSingleton.getInstance(((GalleryActivity) getActivity())).getIngredientsExtractor();
             List<Ingredient> ingredientsToPrint = extractor.findListIngredients(formattedIngredients);
 
+            //Use tha adapter to display the ingredients
             AdapterIngredient adapter = new AdapterIngredient(((GalleryActivity) getActivity()), ingredientsToPrint);
             ingredientsListView.setAdapter(adapter);
 
+            //event onClick for display the details of the ingredients
             ingredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

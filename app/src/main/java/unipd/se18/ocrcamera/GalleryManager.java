@@ -275,10 +275,12 @@ public class GalleryManager
             View view = LayoutInflater.from(parent.getContext()) .inflate(R.layout.cardlayoutgallery, parent, false);
             final CardViewHolder cardViewHolder = new CardViewHolder(view);
 
+            //setOnClickListener of the desired card
             //Load the fragment of the deailed photo
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //Understand which image ive clicked
                     int position = cardViewHolder.getAdapterPosition();
 
                     FragmentManager fm = ((GalleryActivity)mainActivity).getSupportFragmentManager();
@@ -287,6 +289,7 @@ public class GalleryManager
                     //Create fragment and pass the parameters as bundle
                     GalleryActivity.DetailFragment detailedFragment = new GalleryActivity.DetailFragment();
                     Bundle bundle = new Bundle();
+                    //Obtain the object PhotoStructure from the list using the position.
                     bundle.putSerializable(mainActivity.getString(R.string.serializableObjectName),photosList.get(position));
                     detailedFragment.setArguments(bundle);
 
