@@ -1,14 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AddPost">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/TitleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Inserire il titolo e il messaggio del nuovo post"
+        android:gravity="center"
+        android:textColor="#000000"
+        android:textSize="28dp"
+        android:textStyle="bold"
+        android:layout_marginTop="30dp"
+        android:layout_alignParentStart="true"
+         />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="85dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/TitleView"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:text="Titolo:"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/TitleView"
+        />
+
+    <TextView
+        android:id="@+id/messageText"
+        android:layout_width="85dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titleText"
+        android:layout_alignParentStart="true"
+        android:text="Messaggio:"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@id/button"
+        app:layout_constraintTop_toBottomOf="@+id/titleText" />
+
+    <EditText
+        android:id="@+id/titleEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="100dp"
+        android:layout_marginTop="20dp"
+        android:inputType="text"
+        app:layout_constraintStart_toEndOf="@id/titleText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/TitleView"/>
+
+    <EditText
+        android:id="@+id/messageEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="100dp"
+        android:inputType="text"
+        app:layout_constraintStart_toEndOf="@id/messageText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/button"
+        app:layout_constraintTop_toBottomOf="@+id/titleText"/>
+
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Conferma"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/messageText" />
+
+
+</android.support.constraint.ConstraintLayout>
