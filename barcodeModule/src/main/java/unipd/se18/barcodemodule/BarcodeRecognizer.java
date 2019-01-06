@@ -10,7 +10,8 @@ public class BarcodeRecognizer {
      * Ids of the different barcode api
      */
     public enum API {
-        mlkit
+        mlkit,
+        zxing
     }
 
     /**
@@ -22,6 +23,7 @@ public class BarcodeRecognizer {
     public static Barcode barcodeRecognizer(API type){
         switch (type){
             case mlkit: return new MLKitBarcode();
+            case zxing: return new ZXingBarcode();
             default: return new MLKitBarcode();
         }
     }
