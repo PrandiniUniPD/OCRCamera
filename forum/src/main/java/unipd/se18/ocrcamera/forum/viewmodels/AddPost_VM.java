@@ -64,6 +64,7 @@ public class AddPost_VM implements AddPostsMethods {
 
         /**
          * Notifies a failure in the creation of a JSONPost
+         * @param  error The error String
          */
         void onJSONPostCreationFailed(String error);
     }
