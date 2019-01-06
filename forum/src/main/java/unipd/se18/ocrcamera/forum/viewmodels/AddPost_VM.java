@@ -15,6 +15,8 @@ import unipd.se18.ocrcamera.forum.models.Post;
 /**
  * ViewModel class for adding a post to the forum
  * (architecture used: Model - View - ViewModel)
+ * @see <a href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel">
+ *     Model–view–viewmodel</a>
  * @author Pietro Prandini (g2)
  */
 public class AddPost_VM implements AddPostsMethods {
@@ -37,6 +39,9 @@ public class AddPost_VM implements AddPostsMethods {
 
     /**
      * Listener useful for communicating with the View
+     * @see <a href="https://docs.oracle.com/javase/tutorial/uiswing/events/index.html">
+     *     Writing Event Listeners</a>
+     * @author Pietro Prandini (g2)
      */
     public interface addPostListener {
         /**
@@ -78,6 +83,7 @@ public class AddPost_VM implements AddPostsMethods {
 
     /**
      * Keys of the JSON strings value for a post
+     * @see <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/enum.html">Enum Types</a>
      */
     public enum JSONPostKey {
         ID("ID"),
@@ -98,7 +104,49 @@ public class AddPost_VM implements AddPostsMethods {
     }
 
     /**
+     * Listener useful to receive notification from the requests manager
+     * More details at: {@link RequestManager.RequestManagerListener}
+     */
+    private RequestManager.RequestManagerListener requestManagerListener =
+            new RequestManager.RequestManagerListener() {
+        /**
+         * Notifies that a post was added correctly
+         * @param response The network request's response
+         */
+        @Override
+        public void onRequestFinished(String response) {
+            // Post added
+            Log.d(TAG,"onRequestFinished -> response: " + response);
+            operationListener.onPostAdded(response);
+        }
+
+        /**
+         * Notifies a connection problem to the network
+         * @param message The error message
+         */
+        @Override
+        public void onConnectionFailed(String message) {
+            // Connection problem
+            Log.d(TAG,"onConnectionFailed -> message: " + message);
+            operationListener.onConnectionFailed(message);
+        }
+
+        /**
+         * Notifies a failure of a sending parameters process addressed to the server
+         * @param message The error message
+         */
+        @Override
+        public void onParametersSendingFailed(String message) {
+            // Parameters not sent correctly
+            Log.d(TAG,"onParametersSendingFailed -> message: " + message);
+            operationListener.onParametersSendingFailed(message);
+        }
+    };
+
+    /**
      * Adds a post to the forum
+     * More details at: {@link RequestManager},
+     * {@link RequestManager#sendRequest(Context, ArrayList)}.
      * @param context The reference of the activity/fragment that calls this method
      * @param title The new post's title
      * @param message The new post's message
@@ -113,28 +161,7 @@ public class AddPost_VM implements AddPostsMethods {
         RequestManager postManager = new RequestManager();
 
         // Sets up the manager worker listener
-        postManager.setOnRequestFinishedListener(new RequestManager.RequestManagerListener() {
-            @Override
-            public void onRequestFinished(String response) {
-                // Post added
-                Log.d(TAG,"onRequestFinished -> response: " + response);
-                operationListener.onPostAdded(response);
-            }
-
-            @Override
-            public void onConnectionFailed(String message) {
-                // Connection problem
-                Log.d(TAG,"onConnectionFailed -> message: " + message);
-                operationListener.onConnectionFailed(message);
-            }
-
-            @Override
-            public void onParametersSendingFailed(String message) {
-                // Parameters not sent correctly
-                Log.d(TAG,"onParametersSendingFailed -> message: " + message);
-                operationListener.onParametersSendingFailed(message);
-            }
-        });
+        postManager.setOnRequestFinishedListener(requestManagerListener);
 
         // Sets up the parameters for the adding post request
         ArrayList<RequestManager.Parameter> postManagerParameters =
@@ -146,6 +173,9 @@ public class AddPost_VM implements AddPostsMethods {
 
     /**
      * Sets up the parameters for sending the post adding request
+     * More details at: {@link RequestManager.Parameter},
+     * {@link RequestManager.RequestManagerListener},
+     * {@link RequestManager#setOnRequestFinishedListener(RequestManager.RequestManagerListener)}.
      * @param title The new post's title
      * @param message The new post's message
      * @param author The new post's author
@@ -182,6 +212,7 @@ public class AddPost_VM implements AddPostsMethods {
 
     /**
      * Get a JSON string having the title and the message
+     * More details at: {@link Post}, {@link JSONObject}, {@link JSONObject#put(String, Object)}.
      * @param title The new post's title
      * @param message The new post's message
      * @param author The new post's author
@@ -211,6 +242,6 @@ public class AddPost_VM implements AddPostsMethods {
             operationListener.onJSONPostCreationFailed(e.toString());
         }
 
-        return newPost.toString();
+        return JSONPost.toString();
     }
 }
