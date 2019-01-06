@@ -20,7 +20,7 @@ import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
  */
 public class AddPost extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
+    /**
      * ***************************
      * **   GLOBAL VARIABLES    **
      * ***************************
