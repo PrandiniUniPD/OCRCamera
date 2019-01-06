@@ -228,7 +228,7 @@ public class ResultActivity extends AppCompatActivity {
      * and progress bar update
      * @author Francesco Pham
      */
-    private class AsyncIngredientsExtraction extends AsyncTask<String, Void, List<Ingredient>> {
+    private static class AsyncIngredientsExtraction extends AsyncTask<String, Void, List<Ingredient>> {
 
         private WeakReference<ResultActivity> activityReference;
         private String correctedText;
@@ -306,8 +306,8 @@ public class ResultActivity extends AppCompatActivity {
                 headerView.setText(analyzedText);
                 activity.ingredientsListView.addHeaderView(headerView);
 
-                //At this point I can save the currentImage with the extracted and correct text
-                saveResultToGallery(ingredients);
+                //save image and ingredients extracted in the gallery
+                activity.saveResultToGallery(ingredients);
             }
             else
                 activity.emptyTextView.setText(R.string.no_ingredient_found);
@@ -320,7 +320,7 @@ public class ResultActivity extends AppCompatActivity {
      * @param ingredients List of ingredients extracted using AsyncIngredientsExtraction
      * @author Romanello Stefano
      */
-    public void saveResultToGallery(List<Ingredient> ingredients)
+    private void saveResultToGallery(List<Ingredient> ingredients)
     {
         ArrayList<String>ingredientsToSave = new ArrayList<>();
         for (Ingredient ingredient : ingredients) {
@@ -347,12 +347,6 @@ public class ResultActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("text", text);
         editor.apply();
-
-        //I cant understand the ingredients yet, for now I put everything as one ingredient
-        ArrayList<String> txt = new ArrayList<>();
-        String formattedText=String.valueOf(Html.fromHtml(text));
-        txt.add(formattedText);
-
     }
 
     /**
