@@ -41,6 +41,9 @@ class AllergensManager {
 
     }
 
+    /**
+     * loads the allergens contained in raw resource file allergendb.csv into allergensList
+     */
     private  void readAllergensdb() {
 
         InputStream inputStream = context.getResources().openRawResource(R.raw.allergendb);
@@ -48,12 +51,13 @@ class AllergensManager {
         CSVReader csvReader = new CSVReader(allergenDbReader);
 
         String line[];
-        String inciNames[];
         String commonName;
 
         try {
             while ((line = csvReader.readNext()) != null) {
+
                 Allergen allergen = new Allergen();
+                String inciNames[];
 
                 // get the Allergen fields from line[]
                 commonName = line[COMMON_NAME].replace("\"", "");
@@ -107,8 +111,6 @@ class AllergensManager {
      *        to be compared to the allergens
      * @return foundAllergens, ArrayList<Allergen> containing the allergens found in the inciName or
      *         in the description of ingr, empty list if none is found
-     * @author Cervo Nicolò
-     * @author Balzan Pietro
      */
     public ArrayList<Allergen> checkForAllergens(Ingredient ingr) {
         ArrayList<Allergen> foundAllergens = new ArrayList<>();
