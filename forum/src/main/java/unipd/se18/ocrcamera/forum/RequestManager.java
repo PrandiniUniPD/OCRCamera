@@ -30,7 +30,7 @@ public class RequestManager
     public enum RequestType
     {
         LOGIN("l"),
-        GET_POSTS("gPost"),
+        GET_POSTS("gPosts"),
         ADD_POST("adPost"),
         ANSWER_POST("awPost");
 
@@ -104,8 +104,8 @@ public class RequestManager
     private class Task extends AsyncTask<TaskObj, Void, String>
     {
 
-        private final String SERVER = "";
-        private final String REQUEST_URL = "";
+        private final String SERVER = "elementiunipd.rf.gd";
+        private final String REQUEST_URL = "http://" + SERVER + "/Forum/index.php?";
 
         @Override
         protected String doInBackground(TaskObj... params)

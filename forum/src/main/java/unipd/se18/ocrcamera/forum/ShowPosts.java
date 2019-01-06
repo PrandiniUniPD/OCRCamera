@@ -43,7 +43,6 @@ public class ShowPosts extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
@@ -68,6 +67,8 @@ public class ShowPosts extends Fragment {
         forumPosts = view.findViewById(R.id.forumPosts);
 
         //View model posts observer definition
+        //The method of this observer is triggered when livePosts variable inside the view model
+        //is initialized with a value that in our case will be the list of posts
         Observer<ArrayList<Post>> obsPosts = new Observer<ArrayList<Post>>()
         {
             @Override
@@ -84,6 +85,8 @@ public class ShowPosts extends Fragment {
         viewModel.livePosts.observe(getActivity(), obsPosts);
 
         //View model error observer definition
+        //The method of this observer is triggered when an error happens while getting the forum's
+        //posts with a network request. The error message is shown to the user
         Observer<String> obsError = new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s)

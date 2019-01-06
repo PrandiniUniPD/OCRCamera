@@ -40,6 +40,11 @@ public class Post
         this.author = author;
     }
 
+    public Post(String title, String message, Date date, String author)
+    {
+        this(0, title, message, date, 0, 0, author);
+    }
+
     /**
      * *************************
      * ** GETTER AND SETTERS  **
