@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="unipd.se18.ocrcamera">
 
     <!-- Permissions for using the external storage  - author (g3) -->
@@ -9,6 +10,8 @@
 
     <!-- Permissions for using the camera - author Pietro Prandini (g2) -->
     <uses-permission android:name="android.permission.CAMERA" />
+    
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -16,7 +19,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+
+
 
         <!-- Content Provider configurations - author (g3) -->
         <provider
@@ -37,26 +43,42 @@
             android:name=".ResultActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:value=".CameraActivity" />
+            android:value=".CameraActivity">
+
+            <!-- Search item meta-data  -  Luca Moroldo -->
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
         <!-- Useful for automatic upgrades of the ocr models - author Pietro Prandini (g2) -->
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
         <!-- To use multiple models: android:value="ocr,model2,model3" -->
-        <activity android:name=".NavigatorActivity">
+        <activity android:name=".LauncherActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TestResultActivity" />
-        <activity
-            android:name=".TestAlterationsActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
         <activity android:name=".DownloadDbActivity" />
-        <activity android:name=".GalleryActivity"></activity>
+        <activity android:name=".GalleryActivity" />
+        <activity android:name=".TestsListActivity" />
+        <activity android:name=".TestDetailsActivity" />
+        <activity android:name=".IngredientDetailsActivity" />
+
+        <!-- Activity launched to search for an ingredient -->
+        <activity android:name=".SearchResultsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
+        </activity>
+        <!-- Declare searchable (ingredient) -->
+        <meta-data android:name="android.app.default_searchable" android:value=".SearchResultsActivity"/>
+
     </application>
 
 </manifest>
