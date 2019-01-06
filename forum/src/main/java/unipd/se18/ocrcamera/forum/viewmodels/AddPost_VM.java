@@ -102,10 +102,11 @@ public class AddPost_VM implements AddPostsMethods {
      * @param context The reference of the activity/fragment that calls this method
      * @param title The new post's title
      * @param message The new post's message
+     * @param author The new post's author
      * @author Pietro Prandini (g2)
      */
     @Override
-    public void addPostToForum(final Context context, String title, String message) {
+    public void addPostToForum(final Context context, String title, String message, String author) {
         Log.i(TAG,"addPostToForum");
 
         // Sets up the manager useful for adding posts
@@ -137,7 +138,7 @@ public class AddPost_VM implements AddPostsMethods {
 
         // Sets up the parameters for the adding post request
         ArrayList<RequestManager.Parameter> postManagerParameters =
-                getAddPostParameters(title, message);
+                getAddPostParameters(title, message, author);
 
         // Sends the request
         postManager.sendRequest(context,postManagerParameters);
@@ -147,9 +148,12 @@ public class AddPost_VM implements AddPostsMethods {
      * Sets up the parameters for sending the post adding request
      * @param title The new post's title
      * @param message The new post's message
+     * @param author The new post's author
      * @return The ArrayList of the parameters required
      */
-    private ArrayList<RequestManager.Parameter> getAddPostParameters(String title, String message) {
+    private ArrayList<RequestManager.Parameter> getAddPostParameters(String title,
+                                                                     String message,
+                                                                     String author) {
         // Sets up the add post request parameter
         RequestManager.Parameter addPostParameter =
                 new RequestManager.Parameter(
@@ -158,7 +162,7 @@ public class AddPost_VM implements AddPostsMethods {
                 );
 
         // Formats the post in JSON format
-        String JSONPostContent = getJSONPost(title, message);
+        String JSONPostContent = getJSONPost(title, message, author);
 
         // Sets up the post content parameter
         RequestManager.Parameter postContentParameter =
@@ -180,13 +184,13 @@ public class AddPost_VM implements AddPostsMethods {
      * Get a JSON string having the title and the message
      * @param title The new post's title
      * @param message The new post's message
+     * @param author The new post's author
      * @return The JSON string that represents the forum posts
      * @author Pietro Prandini (g2)
      */
-    private String getJSONPost(String title, String message) {
+    private String getJSONPost(String title, String message, String author) {
         // Prepares the post's data
         Date today = new Date();
-        String author = "Anon"; //TODO retrieve the author
 
         // Creates a post
         Post newPost = new Post(title, message, today, author);
