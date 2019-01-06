@@ -15,6 +15,8 @@ import unipd.se18.ocrcamera.forum.models.Post;
 /**
  * ViewModel class for adding a post to the forum
  * (architecture used: Model - View - ViewModel)
+ * @see <a href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel">
+ *     Model–view–viewmodel</a>
  * @author Pietro Prandini (g2)
  */
 public class AddPost_VM implements AddPostsMethods {
@@ -37,6 +39,9 @@ public class AddPost_VM implements AddPostsMethods {
 
     /**
      * Listener useful for communicating with the View
+     * @see <a href="https://docs.oracle.com/javase/tutorial/uiswing/events/index.html">
+     *     Writing Event Listeners</a>
+     * @author Pietro Prandini (g2)
      */
     public interface addPostListener {
         /**
@@ -78,6 +83,7 @@ public class AddPost_VM implements AddPostsMethods {
 
     /**
      * Keys of the JSON strings value for a post
+     * @see <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/enum.html">Enum Types</a>
      */
     public enum JSONPostKey {
         ID("ID"),
@@ -98,58 +104,95 @@ public class AddPost_VM implements AddPostsMethods {
     }
 
     /**
+     * Listener useful to receive notification from the requests manager
+     * More details at: {@link RequestManager.RequestManagerListener}
+     */
+    private RequestManager.RequestManagerListener requestManagerListener =
+            new RequestManager.RequestManagerListener() {
+        /**
+         * Notifies that a post was added correctly
+         * @param response The network request's response
+         */
+        @Override
+        public void onRequestFinished(String response) {
+            // Post added
+            Log.d(TAG,"onRequestFinished -> response: " + response);
+            operationListener.onPostAdded(response);
+        }
+
+        /**
+         * Notifies a connection problem to the network
+         * @param message The error message
+         */
+        @Override
+        public void onConnectionFailed(String message) {
+            // Connection problem
+            Log.d(TAG,"onConnectionFailed -> message: " + message);
+            operationListener.onConnectionFailed(message);
+        }
+
+        /**
+         * Notifies a failure of a sending parameters process addressed to the server
+         * @param message The error message
+         */
+        @Override
+        public void onParametersSendingFailed(String message) {
+            // Parameters not sent correctly
+            Log.d(TAG,"onParametersSendingFailed -> message: " + message);
+            operationListener.onParametersSendingFailed(message);
+        }
+    };
+
+    /**
      * Adds a post to the forum
+     * More details at: {@link RequestManager},
+     * {@link RequestManager#sendRequest(Context, ArrayList)}.
      * @param context The reference of the activity/fragment that calls this method
      * @param title The new post's title
      * @param message The new post's message
+     * @param author The new post's author
      * @author Pietro Prandini (g2)
      */
     @Override
-    public void addPostToForum(final Context context, String title, String message) {
+    public void addPostToForum(final Context context, String title, String message, String author) {
         Log.i(TAG,"addPostToForum");
 
         // Sets up the manager useful for adding posts
         RequestManager postManager = new RequestManager();
 
         // Sets up the manager worker listener
-        postManager.setOnRequestFinishedListener(new RequestManager.RequestManagerListener() {
-            @Override
-            public void onRequestFinished(String response) {
-                // Post added
-                Log.d(TAG,"onRequestFinished -> response: " + response);
-                operationListener.onPostAdded(response);
-            }
-
-            @Override
-            public void onConnectionFailed(String message) {
-                // Connection problem
-                Log.d(TAG,"onConnectionFailed -> message: " + message);
-                operationListener.onConnectionFailed(message);
-            }
-
-            @Override
-            public void onParametersSendingFailed(String message) {
-                // Parameters not sent correctly
-                Log.d(TAG,"onParametersSendingFailed -> message: " + message);
-                operationListener.onParametersSendingFailed(message);
-            }
-        });
+        postManager.setOnRequestFinishedListener(requestManagerListener);
 
         // Sets up the parameters for the adding post request
         ArrayList<RequestManager.Parameter> postManagerParameters =
-                getAddPostParameters(title, message);
+                getAddPostParameters(title, message, author);
 
-        // Sends the request
-        postManager.sendRequest(context,postManagerParameters);
+        if(postManagerParameters != null) {
+            // Sends the request
+            Log.i(TAG,"addPostToForum -> Sending the request");
+            postManager.sendRequest(context, postManagerParameters);
+        } else {
+            // JSON was not build successfully
+            // (the view is already notified by the getJSONPost method)
+            Log.d(TAG,"addPostToForum -> Parameters not valid (JSON problem)");
+        }
     }
 
     /**
      * Sets up the parameters for sending the post adding request
+     * More details at: {@link RequestManager.Parameter},
+     * {@link RequestManager.RequestManagerListener},
+     * {@link RequestManager#setOnRequestFinishedListener(RequestManager.RequestManagerListener)}.
      * @param title The new post's title
      * @param message The new post's message
-     * @return The ArrayList of the parameters required
+     * @param author The new post's author
+     * @return The ArrayList of the parameters required,
+     * null if the JSON has not been created successfully.
+     * @author Pietro Prandini
      */
-    private ArrayList<RequestManager.Parameter> getAddPostParameters(String title, String message) {
+    private ArrayList<RequestManager.Parameter> getAddPostParameters(String title,
+                                                                     String message,
+                                                                     String author) {
         // Sets up the add post request parameter
         RequestManager.Parameter addPostParameter =
                 new RequestManager.Parameter(
@@ -158,8 +201,18 @@ public class AddPost_VM implements AddPostsMethods {
                 );
 
         // Formats the post in JSON format
-        String JSONPostContent = getJSONPost(title, message);
+        String JSONPostContent = getJSONPost(title, message, author);
 
+        // Check the validity of the JSON creation process
+        if(JSONPostContent == null) {
+            // JSON is not created successfully
+            // (the view is already notified, returns a not valid value
+            // and terminates this method's execution)
+            Log.d(TAG, "getAddPostParameters -> JSON is not created successfully");
+            return null;
+        }
+        // Valid JSON -> the method can continue its execution
+        Log.i(TAG,"getAddPostParameters -> JSON was correctly built");
         // Sets up the post content parameter
         RequestManager.Parameter postContentParameter =
                 new RequestManager.Parameter(
@@ -177,16 +230,18 @@ public class AddPost_VM implements AddPostsMethods {
     }
 
     /**
-     * Get a JSON string having the title and the message
+     * Get a JSON string that represents a new post
+     * More details at: {@link Post}, {@link JSONObject}, {@link JSONObject#put(String, Object)}.
      * @param title The new post's title
      * @param message The new post's message
-     * @return The JSON string that represents the forum posts
+     * @param author The new post's author
+     * @return The JSON string that represents the forum posts,
+     * null if the JSON has not been created successfully.
      * @author Pietro Prandini (g2)
      */
-    private String getJSONPost(String title, String message) {
+    private String getJSONPost(String title, String message, String author) {
         // Prepares the post's data
         Date today = new Date();
-        String author = "Anon"; //TODO retrieve the author
 
         // Creates a post
         Post newPost = new Post(title, message, today, author);
@@ -204,9 +259,19 @@ public class AddPost_VM implements AddPostsMethods {
         } catch (JSONException e) {
             // JSON Post creation failed
             e.printStackTrace();
+            // Notifies the error
+            Log.d(TAG, "getJSONPost -> JSON creation problem");
             operationListener.onJSONPostCreationFailed(e.toString());
+            // returns a not valid value
+            return null;
         }
 
-        return newPost.toString();
+        // JSONPost is correctly built
+        Log.i(TAG, "getJSONPost -> JSONPost is correctly built\n"
+                + "-----      NEW JSON POST       -----"
+                + "\n" +   JSONPost.toString()    + "\n"
+                + "----- END OF THE NEW JSON POST -----"
+        );
+        return JSONPost.toString();
     }
 }
