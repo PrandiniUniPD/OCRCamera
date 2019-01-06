@@ -257,7 +257,14 @@ public class GalleryActivity extends AppCompatActivity {
                     .replace("]", "")  //remove the left bracket
                     .trim();
             txtIngredients.setText(formattedIngredients);
-            txtPercentage.setText(photoInfos.reliability);
+
+            String allergensCommaSeparated="";
+            for (String allergenName:photoInfos.allergensFound) {
+                allergensCommaSeparated+=allergenName+", ";
+            }
+
+            //Print allergens removing the last comma
+            txtPercentage.setText(allergensCommaSeparated.substring(0,allergensCommaSeparated.length()-2));
             imageView.setImageBitmap(photoInfos.photo);
         }
 

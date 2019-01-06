@@ -89,14 +89,12 @@ public class GalleryManager
 
     /**
      * Stores image and metadata
-     * @param context The reference to the activity where the gallery is displayed
      * @param toStore The image with the corresponding ingredients that has to be stored
      * @param ingredients The ingredients that has to be stored with the image
-     * @param reliability The OCR reliability on the photo
      * @throws IOException if an error occurs during image saving or metadata writing
      * @author Leonardo Rossi
      */
-    public static void storeImage(Context context, Bitmap toStore, ArrayList<String> ingredients, String reliability) throws IOException
+    public static void storeImage(Bitmap toStore, ArrayList<String> ingredients) throws IOException
     {
         //Images directory reference set up
         setupImageDirectoryInfo();
@@ -116,7 +114,7 @@ public class GalleryManager
         //Storing the given image into a file
         String filePath = saveToFile(toStore, imageName);
         //Metadata writing
-        writeMetadata(filePath, ingredients, reliability);
+        writeMetadata(filePath, ingredients);
     }
 
 
@@ -162,13 +160,19 @@ public class GalleryManager
             //Ingredients are read from image metadata
             ExifInterface metadataReader = new ExifInterface(image.getAbsolutePath());
             String ingredients = metadataReader.getAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION);
-            String reliability = metadataReader.getAttribute(ExifInterface.TAG_USER_COMMENT);
             //A PhotoStructure object is built so that it can contain all image's information
             PhotoStructure structure = new PhotoStructure();
             structure.ingredients.add(ingredients);
             structure.photo = BitmapFactory.decodeFile(image.getAbsolutePath());
-            structure.reliability = reliability;
             structure.fileImagePath = image.getPath();
+
+
+            //Todo: find the allergens that are in the ingredients from the allergens list selected by the user. This value can't be saved into the metaData because the user can change the allergens
+            structure.allergensFound.add("test1");
+            structure.allergensFound.add("test2");
+            structure.allergensFound.add("test3");
+            structure.allergensFound.add("test4");
+
             return structure;
         }
         catch (IOException e)
@@ -204,11 +208,10 @@ public class GalleryManager
      * Writes the specified metadata to the image
      * @param path The path of the image to which the metadata have to be written
      * @param ingredients The information that has to be stored with the image
-     * @param  reliability The OCR reliability on the photo
      * @throws IOException if it's impossible to reach the file at the specified path
      * @author Leonardo Rossi
      */
-    private static void writeMetadata(String path, ArrayList<String> ingredients, String reliability) throws IOException
+    private static void writeMetadata(String path, ArrayList<String> ingredients) throws IOException
     {
         ExifInterface metadataWriter = new ExifInterface(path);
 
@@ -218,7 +221,7 @@ public class GalleryManager
                 .trim();
 
         metadataWriter.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, ingredientsString);
-        metadataWriter.setAttribute(ExifInterface.TAG_USER_COMMENT, reliability);
+        //Another field to use could be ExifInterface.TAG_USER_COMMENT
 
         //Saves metadata to the image
         metadataWriter.saveAttributes();
@@ -231,14 +234,14 @@ public class GalleryManager
     public static class PhotoStructure implements Serializable
     {
         public Bitmap photo;
-        public String reliability;
         public String fileImagePath;
         public ArrayList<String> ingredients = new ArrayList();
+        public ArrayList<String> allergensFound = new ArrayList();
     }
 
 
     /**
-     * Adapter for the cardView in the UI. Load the cards with images and reliability inside the recycler view
+     * Adapter for the cardView in the UI. Load the cards with images inside the recycler view
      * @author Romanello Stefano
      * @request need the activity context and ArrayList<PhotoStructure> of photos to load.
      */
@@ -326,8 +329,8 @@ public class GalleryManager
             holder.imageView.setImageBitmap(resize(lastPhoto,WIDTHSIZECARD,HEIGHTSIZECARD));
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            //Set txtView properties with reliability
-            holder.txtTitle.setText("Reliability: "+currentPhoto.reliability);
+            //Set txtView properties with the number of allergens found
+            holder.txtTitle.setText(currentPhoto.allergensFound.size() + " allergens found");
         }
 
         /**

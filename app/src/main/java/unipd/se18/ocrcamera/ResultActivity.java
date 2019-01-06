@@ -331,7 +331,7 @@ public class ResultActivity extends AppCompatActivity {
         String formattedText=String.valueOf(Html.fromHtml(text));
         txt.add(formattedText);
         try {
-            GalleryManager.storeImage(getBaseContext(),lastPhoto,txt,"0%");
+            GalleryManager.storeImage(lastPhoto,txt);
         } catch (IOException e) {
             e.printStackTrace();
         }
