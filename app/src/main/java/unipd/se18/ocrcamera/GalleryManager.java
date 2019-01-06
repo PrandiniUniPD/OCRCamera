@@ -368,7 +368,7 @@ public class GalleryManager
          * @return the resized image
          * @author Romanello Stefano
          */
-        private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
+        public static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
             if (maxHeight > 0 && maxWidth > 0) {
                 int width = image.getWidth();
                 int height = image.getHeight();
