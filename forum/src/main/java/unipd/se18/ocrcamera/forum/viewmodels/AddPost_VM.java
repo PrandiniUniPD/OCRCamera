@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 
+import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
 import unipd.se18.ocrcamera.forum.models.Post;
 
@@ -61,6 +62,13 @@ public class AddPost_VM implements AddPostsMethods {
          * @param error The error parsed
          */
         void onParametersSendingFailed(String error);
+
+        /**
+         * Notifies the VM has received some not valid parameters
+         * (title, message and author null or empty String)
+         * @param error The String that describes the error
+         */
+        void onNotValidParameters(String error);
 
         /**
          * Notifies a failure in the creation of a JSONPost
@@ -158,6 +166,15 @@ public class AddPost_VM implements AddPostsMethods {
     public void addPostToForum(final Context context, String title, String message, String author) {
         Log.i(TAG,"addPostToForum");
 
+        // Checks the validity of the parameters
+        if(!checkParametersValidity(title, message, author)) {
+            // The parameters are not valid
+            notifier.onNotValidParameters(context.getString(R.string.not_valid_parameters));
+
+            // Ends the method
+            return;
+        }
+
         // Sets up the manager useful for adding posts
         RequestManager postManager = new RequestManager();
 
@@ -184,6 +201,21 @@ public class AddPost_VM implements AddPostsMethods {
             Log.d(TAG, "addPostToForum -> JSON creation problem");
             notifier.onJSONPostCreationFailed(e.toString());
         }
+    }
+
+    /**
+     * Checks the validity of the parameters received
+     * @param title The new post's title
+     * @param message The new post's message
+     * @param author The new post's author
+     * @return TRUE if the parameters are valid, FALSE otherwise
+     * @author Pietro Prandini (g2)
+     */
+    private Boolean checkParametersValidity(String title, String message, String author) {
+        // Checks if the Strings are not null and not empty ones
+        return (title != null && !title.equals(""))
+                && (message != null && !message.equals(""))
+                && (author != null && !author.equals(""));
     }
 
     /**
