@@ -163,18 +163,25 @@ public class AddPost_VM implements AddPostsMethods {
         // Sets up the manager worker listener
         postManager.setOnRequestFinishedListener(requestManagerListener);
 
-        // Sets up the parameters for the adding post request
-        ArrayList<RequestManager.Parameter> postManagerParameters =
-                getAddPostParameters(title, message, author);
+        /*
+        The next try catch handles a possible failure on the creation
+        of the JSON object that represents a new post.
+         */
 
-        if(postManagerParameters != null) {
+        try {
+            // Sets up the parameters for the adding post request
+            ArrayList<RequestManager.Parameter> postManagerParameters =
+                    getAddPostParameters(title, message, author);
+
             // Sends the request
             Log.i(TAG,"addPostToForum -> Sending the request");
             postManager.sendRequest(context, postManagerParameters);
-        } else {
-            // JSON was not build successfully
-            // (the view is already notified by the getJSONPost method)
-            Log.d(TAG,"addPostToForum -> Parameters not valid (JSON problem)");
+        } catch (JSONException e) {
+            // JSON Post creation failed
+            e.printStackTrace();
+            // Notifies the error
+            Log.d(TAG, "addPostToForum -> JSON creation problem");
+            operationListener.onJSONPostCreationFailed(e.toString());
         }
     }
 
@@ -188,11 +195,11 @@ public class AddPost_VM implements AddPostsMethods {
      * @param author The new post's author
      * @return The ArrayList of the parameters required,
      * null if the JSON has not been created successfully.
+     * @throws JSONException If the JSON post is not correctly built
      * @author Pietro Prandini
      */
-    private ArrayList<RequestManager.Parameter> getAddPostParameters(String title,
-                                                                     String message,
-                                                                     String author) {
+    private ArrayList<RequestManager.Parameter> getAddPostParameters
+    (String title, String message, String author) throws JSONException {
         // Sets up the add post request parameter
         RequestManager.Parameter addPostParameter =
                 new RequestManager.Parameter(
@@ -203,16 +210,6 @@ public class AddPost_VM implements AddPostsMethods {
         // Formats the post in JSON format
         String JSONPostContent = getJSONPost(title, message, author);
 
-        // Check the validity of the JSON creation process
-        if(JSONPostContent == null) {
-            // JSON is not created successfully
-            // (the view is already notified, returns a not valid value
-            // and terminates this method's execution)
-            Log.d(TAG, "getAddPostParameters -> JSON is not created successfully");
-            return null;
-        }
-        // Valid JSON -> the method can continue its execution
-        Log.i(TAG,"getAddPostParameters -> JSON was correctly built");
         // Sets up the post content parameter
         RequestManager.Parameter postContentParameter =
                 new RequestManager.Parameter(
@@ -237,9 +234,10 @@ public class AddPost_VM implements AddPostsMethods {
      * @param author The new post's author
      * @return The JSON string that represents the forum posts,
      * null if the JSON has not been created successfully.
+     * @throws JSONException If the JSON post is not correctly built
      * @author Pietro Prandini (g2)
      */
-    private String getJSONPost(String title, String message, String author) {
+    private String getJSONPost(String title, String message, String author) throws JSONException {
         // Prepares the post's data
         Date today = new Date();
 
@@ -248,23 +246,14 @@ public class AddPost_VM implements AddPostsMethods {
 
         // Puts the values of the post in a JSON object that represents the post
         JSONObject JSONPost = new JSONObject();
-        try {
-            JSONPost.put(JSONPostKey.ID.value, newPost.getID());
-            JSONPost.put(JSONPostKey.TITLE.value, newPost.getTitle());
-            JSONPost.put(JSONPostKey.MESSAGE.value, newPost.getMessage());
-            JSONPost.put(JSONPostKey.DATE.value, newPost.getDate());
-            JSONPost.put(JSONPostKey.LIKES.value, newPost.getLikes());
-            JSONPost.put(JSONPostKey.COMMENTS.value, newPost.getComments());
-            JSONPost.put(JSONPostKey.AUTHOR.value, newPost.getAuthor());
-        } catch (JSONException e) {
-            // JSON Post creation failed
-            e.printStackTrace();
-            // Notifies the error
-            Log.d(TAG, "getJSONPost -> JSON creation problem");
-            operationListener.onJSONPostCreationFailed(e.toString());
-            // returns a not valid value
-            return null;
-        }
+
+        JSONPost.put(JSONPostKey.ID.value, newPost.getID());
+        JSONPost.put(JSONPostKey.TITLE.value, newPost.getTitle());
+        JSONPost.put(JSONPostKey.MESSAGE.value, newPost.getMessage());
+        JSONPost.put(JSONPostKey.DATE.value, newPost.getDate());
+        JSONPost.put(JSONPostKey.LIKES.value, newPost.getLikes());
+        JSONPost.put(JSONPostKey.COMMENTS.value, newPost.getComments());
+        JSONPost.put(JSONPostKey.AUTHOR.value, newPost.getAuthor());
 
         // JSONPost is correctly built
         Log.i(TAG, "getJSONPost -> JSONPost is correctly built\n"
