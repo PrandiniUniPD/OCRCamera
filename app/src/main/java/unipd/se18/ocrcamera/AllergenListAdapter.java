@@ -1,7 +1,6 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,13 +28,14 @@ public class AllergenListAdapter extends ArrayAdapter<Allergen> {
 
     /**
      * Default constructor for an AllergensListAdapter
-     * @param context of the activity
-     * @param resource int of the resource of the view to adapt
+     * @param context of the calling activity
+     * @param resource int of the resource layout file of the view to adapt
      * @param objects an arraylist of objects to be adapted
      */
     AllergenListAdapter(Context context, int resource, ArrayList<Allergen> objects) {
         super(context, resource, objects);
         mContext = context;
+        //in this case we will be using allergen_single.xml
         mResource = resource;
         //set an AllergenManager used to modify users' allergens list
         mAllergensManager= new AllergensManager(mContext);
@@ -64,13 +64,13 @@ public class AllergenListAdapter extends ArrayAdapter<Allergen> {
             convertView = inflater.inflate(mResource, parent, false);
 
             //set TextView to name of the Allergen
-            Log.i(TAG, "Set allergen name");
+            Log.i(TAG, "Set allergen name to "+name);
             TextView allergenTv = convertView.findViewById(R.id.singleAllergenTv);
             allergenTv.setText(name);
 
             //set ToggleButton to checked or not depending on the boolean value "selected"
             ToggleButton allergenToggleButton = convertView.findViewById(R.id.toggleButton);
-            Log.i(TAG, "Set button state");
+            Log.i(TAG, "Set button state to "+selected);
             allergenToggleButton.setChecked(selected);
 
             //change allergen selection state and remove from/add to user's list if the button is clicked
@@ -88,6 +88,7 @@ public class AllergenListAdapter extends ArrayAdapter<Allergen> {
                         Log.i(TAG, "add allergen to user's list");
                         selectedAllergens.add(mAllergen);
                     }
+                    Log.i(TAG, "Lista degli allergeni: "+selectedAllergens.toString());
                     mAllergensManager.updateSelectedAllergens(selectedAllergens);
                 }
             });
