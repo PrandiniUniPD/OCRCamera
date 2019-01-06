@@ -168,6 +168,8 @@ public class AddPost_VM implements AddPostsMethods {
 
         // Checks the validity of the parameters
         if(!checkParametersValidity(title, message, author)) {
+            Log.d(TAG,"addPostToForum -> The parameters are not valid");
+
             // The parameters are not valid
             notifier.onNotValidParameters(context.getString(R.string.not_valid_parameters));
 
