@@ -167,8 +167,15 @@ public class AddPost_VM implements AddPostsMethods {
         ArrayList<RequestManager.Parameter> postManagerParameters =
                 getAddPostParameters(title, message, author);
 
-        // Sends the request
-        postManager.sendRequest(context,postManagerParameters);
+        if(postManagerParameters != null) {
+            // Sends the request
+            Log.i(TAG,"addPostToForum -> Sending the request");
+            postManager.sendRequest(context, postManagerParameters);
+        } else {
+            // JSON was not build successfully
+            // (the view is already notified by the getJSONPost method)
+            Log.d(TAG,"addPostToForum -> Parameters not valid (JSON problem)");
+        }
     }
 
     /**
@@ -179,7 +186,9 @@ public class AddPost_VM implements AddPostsMethods {
      * @param title The new post's title
      * @param message The new post's message
      * @param author The new post's author
-     * @return The ArrayList of the parameters required
+     * @return The ArrayList of the parameters required,
+     * null if the JSON has not been created successfully.
+     * @author Pietro Prandini
      */
     private ArrayList<RequestManager.Parameter> getAddPostParameters(String title,
                                                                      String message,
@@ -194,6 +203,16 @@ public class AddPost_VM implements AddPostsMethods {
         // Formats the post in JSON format
         String JSONPostContent = getJSONPost(title, message, author);
 
+        // Check the validity of the JSON creation process
+        if(JSONPostContent == null) {
+            // JSON is not created successfully
+            // (the view is already notified, returns a not valid value
+            // and terminates this method's execution)
+            Log.d(TAG, "getAddPostParameters -> JSON is not created successfully");
+            return null;
+        }
+        // Valid JSON -> the method can continue its execution
+        Log.i(TAG,"getAddPostParameters -> JSON was correctly built");
         // Sets up the post content parameter
         RequestManager.Parameter postContentParameter =
                 new RequestManager.Parameter(
@@ -211,12 +230,13 @@ public class AddPost_VM implements AddPostsMethods {
     }
 
     /**
-     * Get a JSON string having the title and the message
+     * Get a JSON string that represents a new post
      * More details at: {@link Post}, {@link JSONObject}, {@link JSONObject#put(String, Object)}.
      * @param title The new post's title
      * @param message The new post's message
      * @param author The new post's author
-     * @return The JSON string that represents the forum posts
+     * @return The JSON string that represents the forum posts,
+     * null if the JSON has not been created successfully.
      * @author Pietro Prandini (g2)
      */
     private String getJSONPost(String title, String message, String author) {
@@ -239,9 +259,19 @@ public class AddPost_VM implements AddPostsMethods {
         } catch (JSONException e) {
             // JSON Post creation failed
             e.printStackTrace();
+            // Notifies the error
+            Log.d(TAG, "getJSONPost -> JSON creation problem");
             operationListener.onJSONPostCreationFailed(e.toString());
+            // returns a not valid value
+            return null;
         }
 
+        // JSONPost is correctly built
+        Log.i(TAG, "getJSONPost -> JSONPost is correctly built\n"
+                + "-----      NEW JSON POST       -----"
+                + "\n" +   JSONPost.toString()    + "\n"
+                + "----- END OF THE NEW JSON POST -----"
+        );
         return JSONPost.toString();
     }
 }
