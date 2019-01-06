@@ -9,11 +9,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -23,17 +25,40 @@ import unipd.se18.ocrcamera.forum.viewmodels.Login_VM;
 
 /**
  * A fragment where a user can login to the forum service
+ *
+ * @author Leonardo Rossi (g2), Alberto Valente (g2)
  */
 public class ForumLogin extends Fragment {
 
+    /**
+     * ***************************
+     * **   GLOBAL VARIABLES    **
+     * ***************************
+     */
+
     private OnFragmentInteractionListener mListener;
+
+    /**
+     * String used for logs to identify the fragment throwing it
+     */
+    private final String LOG_TAG = "@@ForumLogin";
+
+    /**
+     * String used to indicate that no username has been passed
+     */
+    private final String LOG_NULL_USERNAME = "A NULL username passed through liveLoginResponse";
+
+    /**
+     * String used to indicate that no error message has been passed
+     */
+    private final String LOG_NULL_ERROR_MESSAGE = "A NULL error message passed through liveError";
 
     private EditText usernameEditText;
     private EditText pwdEditText;
     private Button loginButton;
 
-    String userName;
-    String userPwd;
+    private String userName;
+    private String userPwd;
 
     private Login_VM viewModel;
 
@@ -79,21 +104,62 @@ public class ForumLogin extends Fragment {
         });
 
         /**
-         * Login_VM viewmodel observer definition
+         * Login_VM viewmodel liveLoginResponse observer definition
          *
          * The method of the observer is triggered when liveLoginResponse variable inside the
-         * viewmodel is initialized with a value, that is the server response to the login request
+         * viewmodel is initialized with a value, that is the username of the login request
+         *
+         * The observer itself is required to update the UI after receiving the username
+         *
+         * @author Alberto Valente (g2)
          */
         Observer<String> obsLogin = new Observer<String>() {
 
             @Override
-            public void onChanged(@Nullable String response) {
-                if(response != null) {
-                    // TODO: how to launch ShowPost fragment from here? (and close the current one?)
+            public void onChanged(@Nullable String username) {
+
+                if(username != null) {
+                    Fragment showPosts = new Fragment();
+                    getActivity()
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(
+                                    R.id.fragmentContainer,
+                                    showPosts
+                            )
+                            .addToBackStack(null)
+                            .commit();
+                }
+                else {
+                    Log.d(LOG_TAG, LOG_NULL_USERNAME);
                 }
             }
         };
         viewModel.liveLoginResponse.observe(getActivity(), obsLogin);
+
+        /**
+         * Login_VM viewmodel liveError observer definition
+         *
+         * The method of this observer is triggered when liveError variable inside the
+         * viewmodel is initialized with a value, that is the type of error occurred
+         *
+         * The error message is shown to the user through a toast
+         *
+         * @author Alberto Valente (g2)
+         */
+        Observer<String> obsError = new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String message) {
+
+                if (message != null) {
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Log.d(LOG_TAG, LOG_NULL_ERROR_MESSAGE);
+                }
+            }
+        };
+        viewModel.liveError.observe(getActivity(), obsError);
 
     }
 
