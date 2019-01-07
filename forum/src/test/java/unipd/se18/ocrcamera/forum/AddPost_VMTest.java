@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 
 /**
  * AddPost_VM unit test, which will execute on the development machine (host).
+ * (See also the instrumented test about the AddPost_VM class)
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  * @author Pietro Prandini (g2)
  */

@@ -13,8 +13,7 @@ import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 import static org.junit.Assert.*;
 
 /**
- * Forum instrumented test, which will execute on an Android device.
- *
+ * AddPost_VM instrumented test, which will execute on an Android device.
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
@@ -115,7 +114,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for title
+     * Test the method addPostToForum with an empty title String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -124,7 +123,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for message
+     * Test the method addPostToForum with an empty message String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -133,7 +132,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for author
+     * Test the method addPostToForum with an empty author String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -142,8 +141,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for title
-     * and an empty String for message
+     * Test the method addPostToForum with an empty title String and an empty message String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -152,8 +150,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for title
-     * and an empty String for author
+     * Test the method addPostToForum with an empty title String and an empty author String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -162,8 +159,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for message
-     * and an empty String for author
+     * Test the method addPostToForum with an empty message String and an empty author String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -172,8 +168,8 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for title
-     * and an empty String for message and an empty String for author
+     * Test the method addPostToForum with an empty title String and an empty message String
+     * and an empty author String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -182,8 +178,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with a null title String
-     * and an empty String for message
+     * Test the method addPostToForum with a null title String and an empty message String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -192,8 +187,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with a null title String
-     * and an empty String for author
+     * Test the method addPostToForum with a null title String and an empty author String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -202,18 +196,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with a null title String
-     * and an empty String for message and an empty String for author
-     * @author Pietro Prandini (g2)
-     */
-    @Test
-    public void addPostToForumNullTitleAndEmptyMessageAndEmptyAuthor() {
-        addPostToForumWithInvalidParameters(null, "","");
-    }
-
-    /**
-     * Test the method addPostToForum with an empty String for title
-     * and a null message String
+     * Test the method addPostToForum with an empty title String and a null message String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -222,8 +205,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with a null message String
-     * and an empty String for author
+     * Test the method addPostToForum with a null message String and an empty author String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -232,18 +214,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for title
-     * and a null message String and an empty String for author
-     * @author Pietro Prandini (g2)
-     */
-    @Test
-    public void addPostToForumEmptyTitleAndNullMessageAndEmptyAuthor() {
-        addPostToForumWithInvalidParameters("", null, "");
-    }
-
-    /**
-     * Test the method addPostToForum with an empty String for title
-     * and a null author String
+     * Test the method addPostToForum with an empty title String and a null author String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -252,8 +223,7 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for message
-     * and a null author String
+     * Test the method addPostToForum with a null message String and a null author String
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -262,13 +232,63 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /**
-     * Test the method addPostToForum with an empty String for title
-     * and an empty String for message and a null author String
+     * Test the method addPostToForum with a null title String and a null message String
+     * and an empty author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullTitleAndNullMessageAndEmptyAuthor() {
+        addPostToForumWithInvalidParameters(null, null, "");
+    }
+
+    /**
+     * Test the method addPostToForum with an empty title String and a null message String
+     * and a null author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyTitleAndNullMessageAndNullAuthor() {
+        addPostToForumWithInvalidParameters("", null, null);
+    }
+
+    /**
+     * Test the method addPostToForum with a null title String and an empty message String
+     * and a null author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullTitleAndEmptyMessageAndNullAuthor() {
+        addPostToForumWithInvalidParameters(null, "", null);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty title String and an empty message String
+     * and a null author String
      * @author Pietro Prandini (g2)
      */
     @Test
     public void addPostToForumEmptyTitleAndEmptyMessageAndNullAuthor() {
         addPostToForumWithInvalidParameters("", "", null);
+    }
+
+    /**
+     * Test the method addPostToForum with a null title String and an empty message String
+     * and an empty author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullTitleAndEmptyMessageAndEmptyAuthor() {
+        addPostToForumWithInvalidParameters(null, "", "");
+    }
+
+    /**
+     * Test the method addPostToForum with an empty title String and a null message String
+     * and an empty author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyTitleAndNullMessageAndEmptyAuthor() {
+        addPostToForumWithInvalidParameters("", null, "");
     }
 
     /**
