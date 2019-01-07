@@ -33,9 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import unipd.se18.ocrcamera.inci.Ingredient;
-import unipd.se18.ocrcamera.inci.IngredientsExtractor;
-import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
+import unipd.se18.ingredientsextractor.*;
 
 
 /**

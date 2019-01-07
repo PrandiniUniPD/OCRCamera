@@ -1,7 +1,6 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import unipd.se18.ocrcamera.inci.Ingredient;
+import unipd.se18.ingredientsextractor.Ingredient;
 
 /**
  * Adapter for list view of ingredients after processing with incidb

@@ -1,1 +1,1 @@
-include ':app', ':textrecognizer'
+include ':app', ':textrecognizer', ':ingredientsextractor'

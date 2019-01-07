@@ -1,6 +1,8 @@
-package unipd.se18.ocrcamera.inci;
+package unipd.se18.ingredientsextractor;
 
 import android.util.Log;
+
+import com.opencsv.CSVReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,8 +10,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-
-import com.opencsv.CSVReader;
 
 /**
  * Class for Inci database management

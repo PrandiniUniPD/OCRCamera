@@ -1,6 +1,7 @@
-package unipd.se18.ocrcamera.inci;
+package unipd.se18.ingredientsextractor;
 
-import info.debatty.java.stringsimilarity.*;
+import info.debatty.java.stringsimilarity.CharacterSubstitutionInterface;
+import info.debatty.java.stringsimilarity.WeightedLevenshtein;
 
 /**
  * This class compares strings using weighted levenshtein algorithm
@@ -8,7 +9,7 @@ import info.debatty.java.stringsimilarity.*;
  * https://github.com/tdebatty/java-string-similarity
  * @author Francesco Pham
  */
-public class LevenshteinStringDistance extends WeightedLevenshtein  {
+public class LevenshteinStringDistance extends WeightedLevenshtein {
 
     /**
      * Constructor defines different substitution cost functions based on characters similarity.

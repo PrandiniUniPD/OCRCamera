@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera.inci;
+package unipd.se18.ingredientsextractor;
 
 import java.util.List;
 
