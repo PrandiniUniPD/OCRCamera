@@ -44,12 +44,60 @@ public class AddPost_VMInstrumentedTest {
     }
 
     /*
-    The next tests use the
+    The next 26 tests use the
     addPostToForumWithInvalidParameters(String title, String message, String author) method
     of this class.
     It's considered 3 cases (valid, null, empty) for each parameter (title, message, author).
     So there is 27 (3*3*3) possible cases, 26 invalid cases and only 1 valid case.
      */
+
+    /**
+     * Test the method addPostToForum with invalid parameters
+     * @param title The new post's title
+     * @param message The new post's message
+     * @param author The new post's author
+     * @author Pietro Prandini (g2)
+     */
+    private void addPostToForumWithInvalidParameters(String title, String message, String author) {
+        // Events listener of the AddPost ViewModel
+        AddPost_VM.addPostListener addPostViewModelListener = new AddPost_VM.addPostListener() {
+            @Override
+            public void onPostAdded(String response) {
+                // With invalid parameters the post shouldn't be added
+                assertNotNull(response);
+            }
+
+            @Override
+            public void onConnectionFailed(String error) {
+                // With invalid parameters the connection shouldn't be established
+                assertNull(error);
+            }
+
+            @Override
+            public void onParametersSendingFailed(String error) {
+                // With invalid parameters the parameters shouldn't be sent
+                assertNull(error);
+            }
+
+            @Override
+            public void onNotValidParameters(String error) {
+                // With invalid parameters this method should be launched with an error String
+                assertNotNull(error);
+            }
+
+            @Override
+            public void onJSONPostCreationFailed(String error) {
+                // With invalid parameters the JSON process shouldn't be started
+                assertNull(error);
+            }
+        };
+
+        // Sets the listener to the ViewModel
+        addPostViewModel.setAddPostListener(addPostViewModelListener);
+
+        // Tries to add an invalid post
+        addPostViewModel.addPostToForum(context,title,message,author);
+    }
 
     /**
      * Test the method addPostToForum with a null title String
@@ -291,53 +339,5 @@ public class AddPost_VMInstrumentedTest {
     @Test
     public void addPostToForumEmptyTitleAndNullMessageAndEmptyAuthor() {
         addPostToForumWithInvalidParameters("", null, "");
-    }
-
-    /**
-     * Test the method addPostToForum with invalid parameters
-     * @param title The new post's title
-     * @param message The new post's message
-     * @param author The new post's author
-     * @author Pietro Prandini (g2)
-     */
-    private void addPostToForumWithInvalidParameters(String title, String message, String author) {
-        // Events listener of the AddPost ViewModel
-        AddPost_VM.addPostListener addPostViewModelListener = new AddPost_VM.addPostListener() {
-            @Override
-            public void onPostAdded(String response) {
-                // With invalid parameters the post shouldn't be added
-                assertNotNull(response);
-            }
-
-            @Override
-            public void onConnectionFailed(String error) {
-                // With invalid parameters the connection shouldn't be established
-                assertNull(error);
-            }
-
-            @Override
-            public void onParametersSendingFailed(String error) {
-                // With invalid parameters the parameters shouldn't be sent
-                assertNull(error);
-            }
-
-            @Override
-            public void onNotValidParameters(String error) {
-                // With invalid parameters this method should be launched with an error String
-                assertNotNull(error);
-            }
-
-            @Override
-            public void onJSONPostCreationFailed(String error) {
-                // With invalid parameters the JSON process shouldn't be started
-                assertNull(error);
-            }
-        };
-
-        // Sets the listener to the ViewModel
-        addPostViewModel.setAddPostListener(addPostViewModelListener);
-
-        // Tries to add an invalid post
-        addPostViewModel.addPostToForum(context,title,message,author);
     }
 }
