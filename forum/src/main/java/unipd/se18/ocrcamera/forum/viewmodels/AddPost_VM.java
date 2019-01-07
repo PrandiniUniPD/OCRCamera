@@ -231,7 +231,7 @@ public class AddPost_VM implements AddPostsMethods {
      * @return The ArrayList of the parameters required,
      * null if the JSON has not been created successfully.
      * @throws JSONException If the JSON post is not correctly built
-     * @author Pietro Prandini
+     * @author Pietro Prandini (g2)
      */
     private ArrayList<RequestManager.Parameter> getAddPostParameters
     (String title, String message, String author) throws JSONException {

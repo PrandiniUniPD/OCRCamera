@@ -9,9 +9,10 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
- * AddPost_VM unit test, which will execute on the development machine (host).
+ * Forum unit test, which will execute on the development machine (host).
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  * @author Pietro Prandini (g2)
  */
@@ -172,7 +173,8 @@ public class ForumTest {
      * @author Pietro Prandini (g2)
      */
     @Before
-    public void setUpJSONKeys() {
+    public void setUpAddPostVMEnvironment() {
+        // Initialization of the variables
         IDJSONKey = "ID";
         titleJSONKey = "title";
         messageJSONKey = "message";
