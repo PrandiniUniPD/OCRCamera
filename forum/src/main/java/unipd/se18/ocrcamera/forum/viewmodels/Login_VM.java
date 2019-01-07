@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
+import unipd.se18.ocrcamera.forum.models.Post;
 
 /**
  * View model that contains all the logic needed to perform a login by querying the database
@@ -31,7 +32,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
     private final String LOG_TAG = "@@Login_VM";
 
     /**
-     * Sring used to identify the error given by incorrect credentials
+     * String used to identify the error given by incorrect credentials
      */
     private final String LOG_INCORRECT_CREDENTIALS = "Connection established. Credentials refused.";
 
@@ -54,12 +55,68 @@ public class Login_VM extends ViewModel implements LoginMethods {
     private final String KEY_LOGIN_PASSWORD = "pwd";
 
     /**
-     *
-     * @param context The reference of the activity/fragment that calls this method
-     * @param username The user's nickname
-     * @param password The user's password
-     * @author Leonardo Rossi (g2), Alberto Valente (g2)
+     * Listener useful for communicating with the View
+     * @see <a href="https://docs.oracle.com/javase/tutorial/uiswing/events/index.html">
+     *     Writing Event Listeners</a>
+     * @author Taulant Bullaku (g2)
      */
+    public interface forumLoginListener {
+
+        /**
+         * if the login was successful
+         */
+        void onLoginSuccess(String username);
+
+        /**
+         * if the login wasn't successful
+         */
+        void onLoginInsuccess(String message);
+
+
+    }
+
+
+    /**
+     * Sets The listener useful for communicating with the View
+     * @param operationListener The instance of the listener useful for communicating with the view
+     * @author Taulant Bullaku (g2)
+     */
+    public void setforumLoginListener(Login_VM.forumLoginListener operationListener) {
+
+        this.operationListener = operationListener;
+    }
+
+    private forumLoginListener operationListener;
+
+    /**
+     * @author Taulant Bullaku (g2)
+     */
+    private RequestManager.RequestManagerListener requestManagerListener =
+            new RequestManager.RequestManagerListener() {
+                /**
+                 * Notifies that the login was successful
+                 * @param username The network request's response
+                 */
+                @Override
+                public void onLoginSuccess(String username) {
+                    // success login
+                    // TODO
+                    operationListener.onLoginSuccess(username);
+                }
+
+                /**
+                 * Notifies that a post was added correctly
+                 * @param response The network request's response
+                 */
+                @Override
+                public void onLoginInsuccess(String message) {
+                    // success login
+                    // TODO
+                    operationListener.onLoginInsuccess(message);
+                }
+
+            };
+
     @Override
     public void loginToForum(final Context context, final String username, String password) {
 
