@@ -33,6 +33,10 @@ public class ForumInstrumentedTest {
     private final int messageIndex = 1;
     private final int authorIndex = 2;
 
+    private final String validTitle = "Valid test title";
+    private final String validMessage = "Valid test message";
+    private final String validAuthor = "Valid test author";
+
     /**
      * Sets up the environment for testing
      * @author Pietro Prandini (g2)
@@ -54,8 +58,105 @@ public class ForumInstrumentedTest {
         // Preparing the title, the message and the author Strings
         String[] parameters = new String[3];
         parameters[titleIndex] = null;
-        parameters[messageIndex] = "Valid test message";
-        parameters[authorIndex] = "Valid author";
+        parameters[messageIndex] = validMessage;
+        parameters[authorIndex] = validAuthor;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null message String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullMessage() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = validTitle;
+        parameters[messageIndex] = null;
+        parameters[authorIndex] = validAuthor;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = validTitle;
+        parameters[messageIndex] = validMessage;
+        parameters[authorIndex] = null;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null title String and a null message String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullTitleAndNullMessage() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = null;
+        parameters[messageIndex] = null;
+        parameters[authorIndex] = validAuthor;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null title String and a null author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullTitleAndNullAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = null;
+        parameters[messageIndex] = validMessage;
+        parameters[authorIndex] = null;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null message and a null author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullMessageAndNullAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = validTitle;
+        parameters[messageIndex] = null;
+        parameters[authorIndex] = null;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null title String and a null message
+     * and a null author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullTitleAndNullMessageAndNullAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = null;
+        parameters[messageIndex] = null;
+        parameters[authorIndex] = null;
 
         // Test the functionality
         addPostToForumWithInvalidParameters(parameters);
@@ -70,24 +171,8 @@ public class ForumInstrumentedTest {
         // Preparing the title, the message and the author Strings
         String[] parameters = new String[3];
         parameters[titleIndex] = "";
-        parameters[messageIndex] = "Valid test message";
-        parameters[authorIndex] = "Valid author";
-
-        // Test the functionality
-        addPostToForumWithInvalidParameters(parameters);
-    }
-
-    /**
-     * Test the method addPostToForum with a null message String
-     * @author Pietro Prandini (g2)
-     */
-    @Test
-    public void addPostToForumNullMessage() {
-        // Preparing the title, the message and the author Strings
-        String[] parameters = new String[3];
-        parameters[titleIndex] = "Valid title";
-        parameters[messageIndex] = null;
-        parameters[authorIndex] = "Valid author";
+        parameters[messageIndex] = validMessage;
+        parameters[authorIndex] = validAuthor;
 
         // Test the functionality
         addPostToForumWithInvalidParameters(parameters);
@@ -101,25 +186,9 @@ public class ForumInstrumentedTest {
     public void addPostToForumEmptyMessage() {
         // Preparing the title, the message and the author Strings
         String[] parameters = new String[3];
-        parameters[titleIndex] = "Valid title";
+        parameters[titleIndex] = validTitle;
         parameters[messageIndex] = "";
-        parameters[authorIndex] = "Valid author";
-
-        // Test the functionality
-        addPostToForumWithInvalidParameters(parameters);
-    }
-
-    /**
-     * Test the method addPostToForum with a null author String
-     * @author Pietro Prandini (g2)
-     */
-    @Test
-    public void addPostToForumNullAuthor() {
-        // Preparing the title, the message and the author Strings
-        String[] parameters = new String[3];
-        parameters[titleIndex] = "Valid title";
-        parameters[messageIndex] = "Valid test message";
-        parameters[authorIndex] = null;
+        parameters[authorIndex] = validAuthor;
 
         // Test the functionality
         addPostToForumWithInvalidParameters(parameters);
@@ -133,9 +202,230 @@ public class ForumInstrumentedTest {
     public void addPostToForumEmptyAuthor() {
         // Preparing the title, the message and the author Strings
         String[] parameters = new String[3];
-        parameters[titleIndex] = "Valid title";
-        parameters[messageIndex] = "Valid test message";
+        parameters[titleIndex] = validTitle;
+        parameters[messageIndex] = validMessage;
         parameters[authorIndex] = "";
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty String for title
+     * and an empty String for message
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyTitleAndEmptyMessage() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = "";
+        parameters[messageIndex] = "";
+        parameters[authorIndex] = validAuthor;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty String for title
+     * and an empty String for author
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyTitleAndEmptyAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = "";
+        parameters[messageIndex] = validMessage;
+        parameters[authorIndex] = "";
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty String for message
+     * and an empty String for author
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumAndEmptyMessageAndEmptyAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = validTitle;
+        parameters[messageIndex] = "";
+        parameters[authorIndex] = "";
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty String for title
+     * and an empty String for message and an empty String for author
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyTitleAndEmptyMessageAndEmptyAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = "";
+        parameters[messageIndex] = "";
+        parameters[authorIndex] = "";
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null title String
+     * and an empty String for message
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullTitleAndEmptyMessage() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = null;
+        parameters[messageIndex] = "";
+        parameters[authorIndex] = validAuthor;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null title String
+     * and an empty String for author
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullTitleAndEmptyAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = null;
+        parameters[messageIndex] = validMessage;
+        parameters[authorIndex] = "";
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null title String
+     * and an empty String for message and an empty String for author
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullTitleAndEmptyMessageAndEmptyAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = null;
+        parameters[messageIndex] = "";
+        parameters[authorIndex] = "";
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty String for title
+     * and a null message String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyTitleAndNullMessage() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = "";
+        parameters[messageIndex] = null;
+        parameters[authorIndex] = validAuthor;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with a null message String
+     * and an empty String for author
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumNullMessageAndEmptyAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = validTitle;
+        parameters[messageIndex] = null;
+        parameters[authorIndex] = "";
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty String for title
+     * and a null message String and an empty String for author
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyTitleAndNullMessageAndEmptyAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = "";
+        parameters[messageIndex] = null;
+        parameters[authorIndex] = "";
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty String for title
+     * and a null author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyTitleAndNullAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = "";
+        parameters[messageIndex] = validMessage;
+        parameters[authorIndex] = null;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty String for message
+     * and a null author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyMessageAndNullAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = validMessage;
+        parameters[messageIndex] = "";
+        parameters[authorIndex] = null;
+
+        // Test the functionality
+        addPostToForumWithInvalidParameters(parameters);
+    }
+
+    /**
+     * Test the method addPostToForum with an empty String for title
+     * and an empty String for message and a null author String
+     * @author Pietro Prandini (g2)
+     */
+    @Test
+    public void addPostToForumEmptyTitleAndEmptyMessageAndNullAuthor() {
+        // Preparing the title, the message and the author Strings
+        String[] parameters = new String[3];
+        parameters[titleIndex] = "";
+        parameters[messageIndex] = "";
+        parameters[authorIndex] = null;
 
         // Test the functionality
         addPostToForumWithInvalidParameters(parameters);
