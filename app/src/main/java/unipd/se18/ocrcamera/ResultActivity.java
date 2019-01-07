@@ -65,8 +65,6 @@ public class ResultActivity extends AppCompatActivity {
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
-        //String OCRText = prefs.getString("text", null);
-        //String barcode = prefs.getString("barcode", null);
         String result = prefs.getString("result", null);
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
@@ -160,6 +158,7 @@ public class ResultActivity extends AppCompatActivity {
                     {
                     textRecognized = getString(R.string.no_text_found);
                     final String finalTextRecognized = textRecognized;
+
                     runOnUiThread(() -> {
                             mOCRTextView.setText(finalTextRecognized);
                         });
@@ -184,13 +183,13 @@ public class ResultActivity extends AppCompatActivity {
             } else {
                 Log.e("NOT_FOUND", "photo not found");
             }
+
             if(barcodeRecognized.equals("")) {
                 return textRecognized;
             }
             else{
                 return barcodeRecognized;
             }
-
         }
 
         @Override
