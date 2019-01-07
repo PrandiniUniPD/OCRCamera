@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -23,6 +24,11 @@ import org.json.JSONObject;
 import java.util.Iterator;
 
 
+/**
+ * Dialog Fragment that shows details about the ingredient selected such as name, description,
+ * function and an extract from wikipedia.
+ * @author Francesco Pham
+ */
 public class IngredientDetailsFragment extends DialogFragment {
 
     private static final String TAG = "IngredDetailsFragment";
@@ -73,11 +79,18 @@ public class IngredientDetailsFragment extends DialogFragment {
                 }
             });
 
+            //set close button listener
+            final Button closeButton = view.findViewById(R.id.close_button);
+            closeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                }
+            });
+
             // show ingredient information
-            getDialog().setTitle(inciName);
             TextView nameView = view.findViewById(R.id.inci_name_view);
             nameView.setText(inciName);
-            getDialog().getWindow().setLayout(800, 800);
 
             TextView descriptionView = view.findViewById(R.id.description_view);
             descriptionView.setText(description);
@@ -141,6 +154,9 @@ public class IngredientDetailsFragment extends DialogFragment {
     @Override
     public void onResume() {
         super.onResume();
-        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        Window window = getDialog().getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
     }
 }

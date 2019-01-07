@@ -10,11 +10,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,12 +58,28 @@ public class TestsListActivity extends AppCompatActivity {
             return;
         }
 
-        // Sets the view of the list
-        ListView listEntriesView = findViewById(R.id.test_entries_list);
 
-        // Sets the elements of the list as AsyncTask
-        AsyncReport report = new AsyncReport(listEntriesView);
-        report.execute();
+        // Checks if some test pics is downloaded
+        File testsDir = new File(PhotoDownloadTask.PHOTOS_FOLDER);
+        if(testsDir.exists() && testsDir.list() != null && testsDir.list().length > 0) {
+            // The tests directory exist, it's a directory and it's not empty
+            // -> Launches the analyzing process
+            Log.v(TAG, "Checks about tests existence passed");
+
+            // Sets the view of the list
+            ListView listEntriesView = findViewById(R.id.test_entries_list);
+
+            // Sets the elements of the list as AsyncTask
+            AsyncReport report = new AsyncReport(listEntriesView);
+            report.execute();
+        } else {
+            // Needs downloading tests pics
+            Log.v(TAG, "Checks about tests existence not passed");
+            TextView title = findViewById(R.id.progress_testing_text);
+            title.setText(R.string.download_test_pics);
+            Toast.makeText(TestsListActivity.this,
+                    R.string.download_test_pics, Toast.LENGTH_LONG).show();
+        }
     }
 
     /**

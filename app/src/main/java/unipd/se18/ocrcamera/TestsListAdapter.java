@@ -90,6 +90,7 @@ public class TestsListAdapter extends BaseAdapter {
         }
         tags.setText(assignedTags.toString());
 
+        /* Commented because it doesn't work properly
         // Sets the alterations view
         TestUtils.setAlterationsView(
                 convertView.getContext(),
@@ -98,6 +99,7 @@ public class TestsListAdapter extends BaseAdapter {
                 entries[position],
                 false
         );
+        */
 
         // Sets the button that launches the details activity
         Button viewDetailsButton = convertView.findViewById(R.id.view_details_button);

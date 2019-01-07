@@ -22,24 +22,7 @@ android:padding="5dp">
         android:layout_height="0dp"
         android:layout_weight="0.6"
         android:orientation="vertical">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="Reliability"
-            android:gravity="center"
-            android:textSize="25dp"
-            android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/textViewGalleryDetailPercentage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:textSize="20dp"
-            android:gravity="center"
-            android:textStyle="italic"
-            android:text="Percentage" />
 
         <TextView
             android:layout_width="match_parent"
@@ -50,7 +33,7 @@ android:padding="5dp">
             android:textSize="25dp"
             android:textStyle="bold"/>
 
-        <ScrollView
+        <!--<ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="5dp">
@@ -65,7 +48,14 @@ android:padding="5dp">
                 android:text="Ingredients"
                  />
 
-        </ScrollView>
+        </ScrollView>-->
+        <ListView
+            android:id="@+id/ingredients_list_gallery"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:scrollbars="vertical">
+        </ListView>
 
     </LinearLayout>
 
