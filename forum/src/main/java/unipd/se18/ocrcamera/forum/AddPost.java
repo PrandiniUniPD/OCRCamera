@@ -29,23 +29,27 @@ public class AddPost extends Fragment {
      */
 
     private AddPost_VM viewModel;
-
-    private Button confirmBotton;
-    private EditText titleEditText;
-    private EditText messageEditText;
     private String titleText;
     private String messageText;
     private String username;
     private String Tag;
 
     /**
+     * Ui initialization
+     */
+    private Button confirmBotton;
+    private EditText titleEditText;
+    private EditText messageEditText;
+
+    /**
      * Error messages
      */
-    private final String messageNullCamps ="Titolo o messaggio non inseriti, riprovare";
+    private final String messageNullCamps ="Inserimento di parametri non validi, riprovare";
     private final String messagePostAdded ="Post inserito correttamente";
     private final String messagePostNotAdded ="Post non inserito, riprovare";
     private final String messageWrongParameters ="Parametri non corretti, riprovare";
-    private final String messageWrongJSON ="Errore nella creazione del JSON";
+    private final String logWrongJSON ="Errore nella creazione del JSON";
+    private final String messageWrongJSON ="Errore nella creazione del post, riprovare";
 
 
 
@@ -77,28 +81,12 @@ public class AddPost extends Fragment {
             {
                 titleText =  titleEditText.getText().toString();
                 messageText =  messageEditText.getText().toString();
+                //Username passed with the fragment
                 username = getArguments().getString("username");
 
-                if(messageText==null || titleText==null)
-                {
-                    Toast.makeText(getActivity(), messageNullCamps, Toast.LENGTH_LONG).show();
+                //Call to the AddPost_VM
+                viewModel.addPostToForum(view.getContext(), titleText,messageText,username);
 
-                    //Restart fragment
-                    Fragment addPostFragment = new AddPost();
-                    getActivity()
-                            .getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(
-                                    R.id.fragmentContainer,
-                                    addPostFragment
-                            )
-                            .addToBackStack(null)
-                            .commit();
-
-                }
-                else{
-                    viewModel.addPostToForum(view.getContext(), titleText,messageText,username);
-                }
 
                 /**
                  * Listener of AddPost_VM
@@ -157,7 +145,25 @@ public class AddPost extends Fragment {
 
                     @Override
                     public void onJSONPostCreationFailed(String error) {
-                        Log.e(Tag, messageWrongJSON);
+                        Log.e(Tag, logWrongJSON);
+                        Toast.makeText(getActivity(), messageWrongJSON, Toast.LENGTH_LONG).show();
+
+                        //Restart fragment
+                        Fragment addPostFragment = new AddPost();
+                        getActivity()
+                                .getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(
+                                        R.id.fragmentContainer,
+                                        addPostFragment
+                                )
+                                .addToBackStack(null)
+                                .commit();
+                    }
+
+                    @Override
+                    public void onNotValidParameters(String error){
+                        Toast.makeText(getActivity(), messageNullCamps, Toast.LENGTH_LONG).show();
 
                         //Restart fragment
                         Fragment addPostFragment = new AddPost();
@@ -174,12 +180,6 @@ public class AddPost extends Fragment {
                 });
             }
         });
-    }
-
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
 }
