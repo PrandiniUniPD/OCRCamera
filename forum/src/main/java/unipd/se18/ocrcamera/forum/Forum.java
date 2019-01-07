@@ -11,10 +11,8 @@ public class Forum extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forum);
 
-        /*
-        Uncomment this part and initialize your fragment
-        ShowPosts f = new ShowPosts();
+        ForumLogin f = new ForumLogin();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, f).commit();
-        */
+
     }
 }
