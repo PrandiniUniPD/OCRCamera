@@ -47,6 +47,8 @@ public class AddPost_VMInstrumentedTest {
     The next tests use the
     addPostToForumWithInvalidParameters(String title, String message, String author) method
     of this class.
+    It's considered 3 cases (valid, null, empty) for each parameter (title, message, author).
+    So there is 27 (3*3*3) possible cases, 26 invalid cases and only 1 valid case.
      */
 
     /**
