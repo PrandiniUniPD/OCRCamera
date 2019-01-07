@@ -105,7 +105,7 @@ public class RequestManager
     {
 
         private final String SERVER = "elementiunipd.rf.gd";
-        private final String REQUEST_URL = "http://" + SERVER + "/Forum/index.php?";
+        private final String REQUEST_URL = "http://" + SERVER + "/forum/index.php?";
 
         @Override
         protected String doInBackground(TaskObj... params)

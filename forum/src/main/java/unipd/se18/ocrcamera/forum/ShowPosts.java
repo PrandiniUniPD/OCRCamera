@@ -66,38 +66,21 @@ public class ShowPosts extends Fragment {
         //UI object initialization
         forumPosts = view.findViewById(R.id.forumPosts);
 
-        //View model posts observer definition
-        //The method of this observer is triggered when livePosts variable inside the view model
-        //is initialized with a value that in our case will be the list of posts
-        Observer<ArrayList<Post>> obsPosts = new Observer<ArrayList<Post>>()
-        {
+        //Definition of view model listener
+        viewModel.setUIComunicatorListener(new ShowPosts_VM.UIComunicator() {
             @Override
-            public void onChanged(@Nullable ArrayList<Post> posts)
+            public void onGetPostsSuccess(ArrayList<Post> posts)
             {
-                if (posts != null)
-                {
-                    //Population of the recycler view with the posts retrieved from the network request
-                    PostsAdapter adapter = new PostsAdapter(view.getContext(), posts);
-                    forumPosts.setAdapter(adapter);
-                }
+                PostsAdapter adapter = new PostsAdapter(view.getContext(), posts);
+                forumPosts.setAdapter(adapter);
             }
-        };
-        viewModel.livePosts.observe(getActivity(), obsPosts);
 
-        //View model error observer definition
-        //The method of this observer is triggered when an error happens while getting the forum's
-        //posts with a network request. The error message is shown to the user
-        Observer<String> obsError = new Observer<String>() {
             @Override
-            public void onChanged(@Nullable String s)
+            public void onGetPostFailure(String message)
             {
-                if (s != null)
-                {
-                    Toast.makeText(view.getContext(), s, Toast.LENGTH_LONG).show();
-                }
+                Toast.makeText(view.getContext(), message, Toast.LENGTH_LONG).show();
             }
-        };
-        viewModel.liveError.observe(getActivity(), obsError);
+        });
 
         //Invoke the method of the view model to get the forum's posts
         viewModel.getPosts(view.getContext());

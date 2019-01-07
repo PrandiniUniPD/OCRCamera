@@ -10,5 +10,9 @@ public class Forum extends AppCompatActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forum);
+
+        ForumLogin f = new ForumLogin();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, f).commit();
+
     }
 }

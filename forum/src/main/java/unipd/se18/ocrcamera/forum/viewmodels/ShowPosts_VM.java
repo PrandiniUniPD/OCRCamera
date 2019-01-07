@@ -27,13 +27,31 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
 {
 
     /**
+     * *******************
+     * **   LISTENER    **
+     * *******************
+     */
+    public interface UIComunicator
+    {
+        /**
+         * Triggered when after the network response all the posts are correctly parsed
+         * @param posts The list of posts
+         */
+        void onGetPostsSuccess(ArrayList<Post> posts);
+
+        /**
+         * Triggered when after the network response an error occurs while parsing the posts
+         * @param message The error message
+         */
+        void onGetPostFailure(String message);
+    }
+
+    /**
      * ***************************
      * **   GLOBAL VARIABLES    **
      * ***************************
      */
-    public MutableLiveData<ArrayList<Post>> livePosts = new MutableLiveData<>();
-    public MutableLiveData<String> liveError = new MutableLiveData<>();
-
+    private UIComunicator listener;
     private final String LOG_TAG = "@@ShowPosts_VM";
 
     @Override
@@ -80,15 +98,15 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
                     }
 
                     //The live data is triggered so that the UI can be correctly update
-                    livePosts.setValue(posts);
+                    if (listener != null) { listener.onGetPostsSuccess(posts); }
                 }
                 catch (JSONException e)
                 {
-                    liveError.setValue(e.getMessage());
+                    if (listener != null) { listener.onGetPostFailure(e.getMessage()); }
                 }
                 catch (ParseException e)
                 {
-                    liveError.setValue(e.getMessage());
+                    if (listener != null) { listener.onGetPostFailure(e.getMessage()); }
                 }
             }
 
@@ -96,14 +114,14 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
             public void onConnectionFailed(String message)
             {
                 Log.d(LOG_TAG, message);
-                liveError.setValue(context.getString(R.string.requestFailedMessage));
+                if (listener != null) { listener.onGetPostFailure(context.getString(R.string.requestFailedMessage)); }
             }
 
             @Override
             public void onParametersSendingFailed(String message)
             {
                 Log.d(LOG_TAG, message);
-                liveError.setValue(context.getString(R.string.requestFailedMessage));
+                if (listener != null) { listener.onGetPostFailure(context.getString(R.string.requestFailedMessage)); }
             }
         });
 
@@ -111,4 +129,10 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
         manager.sendRequest(context, parameters);
 
     }
+
+    /**
+     * Adds the specified listener to the view model
+     * @param listener The specified listener that has to be added to the view model
+     */
+    public void setUIComunicatorListener(UIComunicator listener) { this.listener = listener; }
 }

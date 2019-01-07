@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 
+import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
 import unipd.se18.ocrcamera.forum.models.Post;
 
@@ -63,6 +64,13 @@ public class AddPost_VM implements AddPostsMethods {
         void onParametersSendingFailed(String error);
 
         /**
+         * Notifies the VM has received some not valid parameters
+         * (title, message and author null or empty String)
+         * @param error The String that describes the error
+         */
+        void onNotValidParameters(String error);
+
+        /**
          * Notifies a failure in the creation of a JSONPost
          * @param  error The error String
          */
@@ -71,16 +79,16 @@ public class AddPost_VM implements AddPostsMethods {
 
     /**
      * Sets The listener useful for communicating with the View
-     * @param operationListener The instance of the listener useful for communicating with the view
+     * @param addPostVMListener The instance of the listener useful for communicating with the view
      */
-    public void setAddPostListener(AddPost_VM.addPostListener operationListener) {
-        this.operationListener = operationListener;
+    public void setAddPostListener(AddPost_VM.addPostListener addPostVMListener) {
+        this.notifier = addPostVMListener;
     }
 
     /**
      * The instance of the listener useful for communicating with the view
      */
-    private addPostListener operationListener;
+    private addPostListener notifier;
 
     /**
      * Keys of the JSON strings value for a post
@@ -118,7 +126,7 @@ public class AddPost_VM implements AddPostsMethods {
         public void onRequestFinished(String response) {
             // Post added
             Log.d(TAG,"onRequestFinished -> response: " + response);
-            operationListener.onPostAdded(response);
+            notifier.onPostAdded(response);
         }
 
         /**
@@ -129,7 +137,7 @@ public class AddPost_VM implements AddPostsMethods {
         public void onConnectionFailed(String message) {
             // Connection problem
             Log.d(TAG,"onConnectionFailed -> message: " + message);
-            operationListener.onConnectionFailed(message);
+            notifier.onConnectionFailed(message);
         }
 
         /**
@@ -140,7 +148,7 @@ public class AddPost_VM implements AddPostsMethods {
         public void onParametersSendingFailed(String message) {
             // Parameters not sent correctly
             Log.d(TAG,"onParametersSendingFailed -> message: " + message);
-            operationListener.onParametersSendingFailed(message);
+            notifier.onParametersSendingFailed(message);
         }
     };
 
@@ -157,6 +165,17 @@ public class AddPost_VM implements AddPostsMethods {
     @Override
     public void addPostToForum(final Context context, String title, String message, String author) {
         Log.i(TAG,"addPostToForum");
+
+        // Checks the validity of the parameters
+        if(!checkParametersValidity(title, message, author)) {
+            Log.d(TAG,"addPostToForum -> The parameters are not valid");
+
+            // The parameters are not valid
+            notifier.onNotValidParameters(context.getString(R.string.not_valid_parameters));
+
+            // Ends the method
+            return;
+        }
 
         // Sets up the manager useful for adding posts
         RequestManager postManager = new RequestManager();
@@ -182,8 +201,23 @@ public class AddPost_VM implements AddPostsMethods {
             e.printStackTrace();
             // Notifies the error
             Log.d(TAG, "addPostToForum -> JSON creation problem");
-            operationListener.onJSONPostCreationFailed(e.toString());
+            notifier.onJSONPostCreationFailed(e.toString());
         }
+    }
+
+    /**
+     * Checks the validity of the parameters received
+     * @param title The new post's title
+     * @param message The new post's message
+     * @param author The new post's author
+     * @return TRUE if the parameters are valid, FALSE otherwise
+     * @author Pietro Prandini (g2)
+     */
+    private Boolean checkParametersValidity(String title, String message, String author) {
+        // Checks if the Strings are not null and not empty ones
+        return (title != null && !title.equals(""))
+                && (message != null && !message.equals(""))
+                && (author != null && !author.equals(""));
     }
 
     /**
@@ -197,7 +231,7 @@ public class AddPost_VM implements AddPostsMethods {
      * @return The ArrayList of the parameters required,
      * null if the JSON has not been created successfully.
      * @throws JSONException If the JSON post is not correctly built
-     * @author Pietro Prandini
+     * @author Pietro Prandini (g2)
      */
     private ArrayList<RequestManager.Parameter> getAddPostParameters
     (String title, String message, String author) throws JSONException {

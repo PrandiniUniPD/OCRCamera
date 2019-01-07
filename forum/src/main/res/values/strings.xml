@@ -18,5 +18,6 @@
     <string name="insertPassword">Insert your password</string>
     <string name="post_added">Post added successfully</string>
     <string name="connection_failed">Connection failed. Try to check your internet connection please.</string>
+    <string name="not_valid_parameters">Title, message or author are not valid</string>
 
 </resources>

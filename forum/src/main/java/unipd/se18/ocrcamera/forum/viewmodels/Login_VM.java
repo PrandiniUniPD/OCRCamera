@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
-import unipd.se18.ocrcamera.forum.models.Post;
 
 /**
  * View model that contains all the logic needed to perform a login by querying the database
@@ -54,6 +53,13 @@ public class Login_VM extends ViewModel implements LoginMethods {
      */
     private final String KEY_LOGIN_PASSWORD = "pwd";
 
+    /**
+     *
+     * @param context The reference of the activity/fragment that calls this method
+     * @param username The user's nickname
+     * @param password The user's password
+     * @author Leonardo Rossi (g2), Alberto Valente (g2)
+     */
     @Override
     public void loginToForum(final Context context, final String username, String password) {
 
