@@ -452,6 +452,7 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
       //Obtain 3 different matrix with the 3 elemental colors
       List<Mat> color = new ArrayList<>();
       Core.split(brightnessMat, color);
+      
       //Each color is multiplied with his luminance
       Mat lumRed = new Mat();
       Core.multiply(color.get(0), new Scalar(0.2126), lumRed);
@@ -463,8 +464,8 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
       //Sums the matrix of the colors into a single one
       Mat lumTemp = new Mat();
       Mat lum = new Mat();
-      Core.add(lumRed , lumGreen , lumTemp); //lumRed+lumGreen=lumTemp
-      Core.add(lumTemp , lumBlue , lum); //lumBlue+lumTemp=lum
+      Core.add(lumRed , lumGreen , lumTemp); //lumRed + lumGreen = lumTemp
+      Core.add(lumTemp , lumBlue , lum); //lumBlue + lumTemp = lum
 
       //Calculate the sum of the values of all pixels
       Scalar sum = Core.sumElems(lum);
@@ -521,7 +522,7 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
       Mat modifiedMat = new Mat();
       switch (isBright(bright)) {
         case 1: //If the image is too bright
-          Log.d(TAG, "Case==1 ==> Too bright");
+          Log.d(TAG, "Case == 1 ==> Too bright");
           //Darkens the colour's brightness until it's in an optimal value
           for(double changeBrightness=0; changeBrightness!=-240; changeBrightness-=15){
             //Converts an array to another data type with optional scaling.
@@ -538,7 +539,7 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
         break;
 
         case 2: //If the image is too dark
-          Log.d(TAG, "Case==2 ==> Too dark");
+          Log.d(TAG, "Case == 2 ==> Too dark");
           //Lightens the colour's brightness until it's in an optimal value
           for(double changeBrightness=0; changeBrightness!=240; changeBrightness+=15){
             //Converts an array to another data type with optional scaling.
@@ -555,7 +556,7 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
         break;
 
         case 0: //Image is neither too bright nor too dark
-          Log.d(TAG, "Case==0 ==> Perfect image");
+          Log.d(TAG, "Case == 0 ==> Perfect image");
           return image;
 
       }
