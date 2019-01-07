@@ -3,6 +3,8 @@ package unipd.se18.barcodemodule;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -20,7 +22,6 @@ import java.util.concurrent.CountDownLatch;
 public class MLKitBarcode implements Barcode{
 
     private String code = "";
-
     /**
      * implementation of the decodeBarcode method, that would detect the barcode from the given image
      * @param bitmap photo taken from the camera, to be analyzed.
@@ -28,11 +29,9 @@ public class MLKitBarcode implements Barcode{
     @Override
     public String decodeBarcode(Bitmap bitmap) {
 
-
         final CountDownLatch latch = new CountDownLatch(1);
+
         //get the firebase image from the bitmap
-
-
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
         //get the detector
         final FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector();
@@ -56,7 +55,8 @@ public class MLKitBarcode implements Barcode{
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         latch.countDown();
-                        Log.e("SGAIO", e.getMessage());
+                        code="ERROR: Barcode not retrieved";
+                        Log.e("Error Barcode", e.getMessage());
                     }
                 });
 

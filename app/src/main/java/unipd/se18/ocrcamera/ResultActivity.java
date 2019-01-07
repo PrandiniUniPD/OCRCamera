@@ -42,14 +42,11 @@ public class ResultActivity extends AppCompatActivity {
      */
     private Bitmap lastPhoto;
 
-    //private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
-
-        //context = getApplicationContext();
 
         // UI components
         ImageView mImageView = findViewById(R.id.img_captured_view);
@@ -154,9 +151,8 @@ public class ResultActivity extends AppCompatActivity {
 
                 Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit);
                 barcodeRecognized = barcodeRecognizer.decodeBarcode(lastPhoto);
-                //Toast toast = Toast.makeText(getApplicationContext(), "ERRORE!!", Toast.LENGTH_LONG);
-                //toast.show();
-                if(barcodeRecognized.equals("") || barcodeRecognized.equals("No code")){
+
+                if(barcodeRecognized.equals("")){
 
                     textRecognized = ocr.getTextFromImg(lastPhoto);
 
@@ -179,7 +175,7 @@ public class ResultActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    final String finalTextRecognized = barcodeRecognized;
+                    final String finalTextRecognized = "Barcode " + barcodeRecognized;
 
                     runOnUiThread(() -> {
                         mOCRTextView.setText(finalTextRecognized);
