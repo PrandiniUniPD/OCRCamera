@@ -1,7 +1,6 @@
 package unipd.se18.ocrcamera.forum;
 
 import unipd.se18.ocrcamera.forum.models.Post;
-import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +8,6 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  * Post unit test, which will execute on the development machine (host).
