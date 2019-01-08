@@ -24,7 +24,6 @@ class AllergensManager {
     private final int INCI_NAMES = 1;
 
     private ArrayList<Allergen> allergensList = new ArrayList<>();
-    private ArrayList<Allergen> selectedAllergensList = new ArrayList<>();
 
     private Context context;
     private SharedPreferences sp = null;
@@ -93,6 +92,7 @@ class AllergensManager {
     public ArrayList<Allergen> getSelectedAllergensList() {
 
         Map<String, ?> selectedAllergens = sp.getAll();
+        ArrayList<Allergen> selectedAllergensList = new ArrayList<>();
 
         for(Map.Entry<String, ?> entry : selectedAllergens.entrySet()) {
 
@@ -122,7 +122,6 @@ class AllergensManager {
 
                 // if the allergen commonName or inciName appears in the ingredient inciName or
                 // description respectively
-                allergenInciName = allergenInciName.toUpperCase();
                 if(ingr.getInciName().contains(allergenInciName) ||
                         ingr.getDescription().contains(allergen.getCommonName())) {
 
