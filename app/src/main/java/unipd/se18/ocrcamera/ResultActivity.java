@@ -270,11 +270,21 @@ public class ResultActivity extends AppCompatActivity {
             if(ocrText == null || ocrText.equals(""))
                 return null;
 
+            long startTime = System.currentTimeMillis();
+
             //correct text
             correctedText = corrector.correctText(ocrText);
 
+            long endCorrectionTime = System.currentTimeMillis();
+
             //extract ingredients
             List<Ingredient> ingredientList = extractor.findListIngredients(correctedText);
+
+            long endExtractionTime = System.currentTimeMillis();
+
+            //log execution time
+            Log.d("IngredientsExtraction", "correction time: "+(endCorrectionTime-startTime)+" ms");
+            Log.d("IngredientsExtraction", "ingredients extraction time: "+(endExtractionTime-endCorrectionTime)+" ms");
 
             //if the list is empty then return null
             if(ingredientList.size() == 0)
