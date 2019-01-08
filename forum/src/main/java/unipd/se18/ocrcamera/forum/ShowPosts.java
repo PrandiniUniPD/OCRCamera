@@ -181,7 +181,7 @@ public class ShowPosts extends Fragment {
             postHolder.lblPostMessage.setText(currentPost.getMessage());
             postHolder.lblPostLikes.setText("Likes: " + currentPost.getLikes());
             postHolder.lblPostComments.setText("Comments: " + currentPost.getComments());
-            postHolder.lblPostAuthor.setText(currentPost.getAuthor());
+            postHolder.lblPostAuthor.setText("Author: " + currentPost.getAuthor());
 
             SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
             postHolder.lblPostDate.setText(format.format(currentPost.getDate()));
