@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera.forum;
 
+import unipd.se18.ocrcamera.forum.models.Post;
 import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
 import org.json.JSONException;
@@ -8,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import static org.junit.Assert.*;
 
@@ -192,7 +192,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Checks if the message of the JSON is the same as the message
+     * Checks if the message is the same as the message
      * that is in the JSON generated post
      * @throws JSONException Exception of the JSON package {@link JSONException}
      */
@@ -203,12 +203,51 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Checks if the author of the JSON is the same as the author that is in the JSON generated post
+     * Checks if the author is the same as the author that is in the JSON generated post
      * @throws JSONException Exception of the JSON package {@link JSONException}
      */
     @Test
     public void checkJSONAuthor() throws JSONException {
         JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
         assertEquals(validAuthor, JSONPost.getString(AddPost_VM.JSONPostKey.AUTHOR.value));
+    }
+
+    /**
+     * Checks if the ID of the JSON Post is set to the default value
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONID() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(
+                String.valueOf(defaultID),
+                String.valueOf(JSONPost.get(AddPost_VM.JSONPostKey.ID.value))
+        );
+    }
+
+    /**
+     * Checks if the likes of the JSON Post is set to the default value
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONLikes() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(
+                String.valueOf(defaultLikes),
+                String.valueOf(JSONPost.get(AddPost_VM.JSONPostKey.LIKES.value))
+        );
+    }
+
+    /**
+     * Checks if the comments of the JSON Post is set to the default value
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONComments() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(
+                String.valueOf(defaultComments),
+                String.valueOf(JSONPost.get(AddPost_VM.JSONPostKey.COMMENTS.value))
+        );
     }
 }
