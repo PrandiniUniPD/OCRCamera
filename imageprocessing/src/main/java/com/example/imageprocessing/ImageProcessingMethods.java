@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 
 /**
  * Interface used to call the processing methods
- * @author Thomas Porro (g1)
+ * @author Thomas Porro (g1), Giovanni Fasan(g1), OScar Garrido(g1)
  */
 public interface ImageProcessingMethods {
 
@@ -17,10 +17,14 @@ public interface ImageProcessingMethods {
     boolean isBlurred(Bitmap image);
 
     /**
-     * Change the brightness of the image into an optimal one
-     * @param image the image we want to modify the brightness
-     * @return the image with the modified brightness
-     * @author Thomas Porro (g1)
+     * Do all the image processing, like brightness adjustment, auto cropping the image and the likes
+     * @param image The image to modify
+     * @return a Bitmap with adjustment, auto cropping the image and the likes
+     * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
+<<<<<<< Updated upstream
     Bitmap editBright(Bitmap image);
+=======
+     Bitmap doImageProcessing(Bitmap image);
+>>>>>>> Stashed changes
 }

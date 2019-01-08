@@ -1,10 +1,10 @@
 package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.util.Log;
-
 import com.example.imageprocessing.exceptions.ConversionFailedException;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.Core;
@@ -36,7 +36,7 @@ import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
  * @author Thomas Porro (g1), Oscar Garrido (g1)
  * Reviewed by Pietro Prandini (g2), Francesco Pham (g3), Pietro Balzan (g3), Vlad Iosif (g4)
  */
-public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
+public class ImageProcessing implements DetectTheText{
 
     /*
         Documentation of the Imgproc class available at:
@@ -71,13 +71,20 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
     /**
      * Calculate the angle between the text and the horizontal
      * @param image The image you want to analyze
-     * @return the angle between the text and the horizontal
+     * @return the angle between the text and the horizontal. 0 if it fails
      * @author Thomas Porro (g1)
      */
-    private double computeSkew(Bitmap image) throws ConversionFailedException{
+    private double computeSkew(Bitmap image){
 
         //Turns the image into a matrix
-        Mat img = IPUtils.conversionBitmapToMat(image);
+        Mat img;
+        try{
+          img = IPUtils.conversionBitmapToMat(image);
+        } catch (ConversionFailedException error){
+          Log.e(TAG, error.getErrorMessage());
+          return 0;
+        }
+
 
         Mat grayscale = new Mat();
         Imgproc.cvtColor(img, grayscale, Imgproc.COLOR_RGB2GRAY);
@@ -105,7 +112,7 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
         int threshold = 50;
         double minLineLenght = 50;
         double maxLineGap = 10;
-        Imgproc.HoughLinesP(img, lines, rho, theta, threshold, minLineLenght, maxLineGap);
+        Imgproc.HoughLinesP(grayscale, lines, rho, theta, threshold, minLineLenght, maxLineGap);
 
         double meanAngle = 0;
         Log.d(TAG, "rows = " + lines.cols() + "\ncols = " + lines.cols());
@@ -135,6 +142,49 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
         Log.i(TAG, "Mean angle=" + degreesAngle);
         return degreesAngle;
     }
+
+    /**
+     * Rotate the given bitmap with the given angle
+     * @param original The image that we want to corrected
+     * @param degrees The degrees of the angle we want to rotate
+     * @return the rotatedImage. If the image is null return the original image
+     * @author Thomas Porro(g1), Giovanni Fasan (g1), Oscar Garrido (g1)
+     */
+    private static Bitmap rotateBitmap(Bitmap original, double degrees) {
+
+        if(original == null){
+          return original;
+        }
+
+        //Obtain the dimen of the image
+        int width = original.getWidth();
+        int height = original.getHeight();
+
+        //Prepare the rotation matrix. The minus before degrees allows us to rotate the
+        //image in the right way
+        Matrix matrix = new Matrix();
+        matrix.preRotate((float)-degrees);
+
+        //Rotate the Bitmap
+        Bitmap rotatedBitmap = Bitmap.createBitmap(original, 0, 0, width, height, matrix, true);
+        /*Bitmap mutableBitmap = rotatedBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(mutableBitmap);
+        canvas.drawBitmap(original, 5.0f, 0.0f, null);*/
+
+        return rotatedBitmap;
+    }
+
+
+    /**
+     * Performs the skew correction
+     * @param image The image that I want to rotate
+     * @return The image corrected
+     * @author Thomas Porro(g1), Giovanni Fasan (g1), Oscar Garrido (g1)
+     */
+     Bitmap editSkew(Bitmap image){
+       double angle = computeSkew(image);
+       return rotateBitmap(image, angle);
+     }
 
 
     /**
@@ -375,67 +425,6 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
 
 
     /**
-     * @author Thomas Porro(g1), Oscar Garrido (g1), Giovanni Fasan(g1).
-     * See ImageProcessingMethods.java
-     */
-    @Override
-    public boolean isBlurred(Bitmap image) {
-
-        //Total number of color
-        int maxLap = -16777216;
-
-        //Threshold above which the color is out of focus
-        final int threshold = -6118750;
-
-        //Converts the image into a matrix
-        Mat imageMat;
-        try {
-            imageMat = IPUtils.conversionBitmapToMat(image);
-        } catch (ConversionFailedException error){
-            Log.e(TAG, error.getErrorMessage());
-            return false;
-        }
-
-        //Turn the colored matrix into a grayscale matrix
-        Mat grayImageMat = new Mat();
-        Imgproc.cvtColor(imageMat, grayImageMat, Imgproc.COLOR_BGR2GRAY);
-
-        /*Use the openCV's Laplacian methods to apply a transformation that allow us to detect
-          the image blurriness*/
-        Mat laplacianMat = new Mat();
-        Imgproc.Laplacian(grayImageMat, laplacianMat, CV_8U);
-        Mat laplacianMat8Bit = new Mat();
-        laplacianMat.convertTo(laplacianMat8Bit, CV_8UC1);
-
-        //Create a Bitmap with the given matrix, and obtain all the pixels from it
-        Bitmap laplacianImage;
-        try{
-          laplacianImage = IPUtils.conversionMatToBitmap(laplacianMat8Bit);
-        } catch (ConversionFailedException error){
-          Log.e(TAG, error.getErrorMessage());
-          return false;
-        }
-
-        int[] pixels = new int[laplacianImage.getHeight() * laplacianImage.getWidth()];
-        laplacianImage.getPixels(pixels, 0, laplacianImage.getWidth(), 0, 0,
-                laplacianImage.getWidth(), laplacianImage.getHeight());
-
-        //Searches the pixel that has the highest colour range in the RGB format
-        for(int pixel : pixels){
-            if(pixel > maxLap){
-                maxLap = pixel;
-            }
-        }
-
-        if(maxLap < threshold){
-                Log.d("Blur", "IS BLURRED");
-            } else {
-                Log.d("Blur", "IS NOT BLURRED");
-            }
-        return maxLap < threshold;
-    }
-
-    /**
      * Detect if the image is bright
      * @param imageMat the image we want to detect the brightness
      * @return 0 if image is neither too bright nor too dark,
@@ -444,6 +433,7 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
      */
     private int isBright(Mat imageMat){
+<<<<<<< Updated upstream
       //Converts the image into a matrix
       Mat brightnessMat = new Mat();
       //Changes the format of the matrix
@@ -498,14 +488,71 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
       } else {      // image is neither too bright nor too dark
           return 0;
       }
+=======
+        //Converts the image into a matrix
+        Mat brightnessMat = new Mat();
+        //Changes the format of the matrix
+        Imgproc.cvtColor(imageMat, brightnessMat, Imgproc.COLOR_RGBA2RGB);
+
+        //Obtain 3 different matrix with the 3 elemental colors
+        List<Mat> color = new ArrayList<>();
+        Core.split(brightnessMat, color);
+        //Each color is multiplied with his luminance
+        Mat lumRed = new Mat();
+        Core.multiply(color.get(0), new Scalar(0.2126), lumRed);
+        Mat lumGreen = new Mat();
+        Core.multiply(color.get(1), new Scalar(0.7152), lumGreen);
+        Mat lumBlue = new Mat();
+        Core.multiply(color.get(2), new Scalar(0.0722), lumBlue);
+
+        //Sums the matrix of the colors into a single one
+        Mat lumTemp = new Mat();
+        Mat lum = new Mat();
+        Core.add(lumRed , lumGreen , lumTemp); //lumRed+lumGreen=lumTemp
+        Core.add(lumTemp , lumBlue , lum); //lumBlue+lumTemp=lum
+
+        //Calculate the sum of the values of all pixels
+        Scalar sum = Core.sumElems(lum);
+
+        //Image's bit
+        int bit;
+        switch ( brightnessMat.depth() ) {
+            case CV_8U:  bit = 8; break;
+            case CV_8S:  bit = 8; break;
+            case CV_16U: bit = 16; break;
+            case CV_16S: bit = 16; break;
+            case CV_32S: bit = 32; break;
+            case CV_32F: bit = 32; break;
+            case CV_64F: bit = 64; break;
+            default: return 0;
+        }
+        //Calculate the percentage of the brightness
+        double brightness = sum.val[0]/((Math.pow(2,bit)-1)*brightnessMat.rows()*brightnessMat.cols())*2;
+
+        Log.d(TAG, "Brightness:"+brightness);
+
+        //Bounds to define if the image is dark or bright
+        double upperBound = 0.9;
+        double lowerBound = 0.4;
+
+        if (brightness > upperBound){             // image is too bright
+            return 1;
+        } else if (brightness < lowerBound){        //image is too dark
+            return 2;
+        } else {      // image is neither too bright nor too dark
+            return 0;
+        }
+>>>>>>> Stashed changes
     }
 
 
     /**
+     * Change the brightness of the image into an optimal one
+     * @param image the image we want to modify the brightness
+     * @return the image with the modified brightness
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Oscar Garrido(g1)
-     * See ImageProcessingMethods.java
-     * Change the brightness of the image
      */
+<<<<<<< Updated upstream
     @Override
     public Bitmap editBright(Bitmap image){
       //Converts the image into a matrix
@@ -558,8 +605,61 @@ public class ImageProcessing implements DetectTheText, ImageProcessingMethods {
         case 0: //Image is neither too bright nor too dark
           Log.d(TAG, "Case == 0 ==> Perfect image");
           return image;
+=======
+    Bitmap editBright(Bitmap image){
+        //Converts the image into a matrix
+        Mat bright;
+        try{
+            bright = IPUtils.conversionBitmapToMat(image);
+        } catch (ConversionFailedException error){
+            Log.e(TAG, error.getErrorMessage());
+            return image;
+        }
 
-      }
-      return image;
+        //Call the internal method isBright to detect if the image is bright or dark
+        //and change the brightness according to the number obtained
+        Mat modifiedMat = new Mat();
+        switch (isBright(bright)) {
+            case 1: //If the image is too bright
+                Log.d(TAG, "Case==1 ==> Too bright");
+                //Darkens the colour's brightness until it's in an optimal value
+                for(double changeBrightness=0; changeBrightness!=-240; changeBrightness-=15){
+                    //Converts an array to another data type with optional scaling.
+                    bright.convertTo(modifiedMat, -1, 1, changeBrightness);
+                    if(isBright(modifiedMat)==0){
+                        try{
+                            return IPUtils.conversionMatToBitmap(modifiedMat);
+                        } catch (ConversionFailedException error){
+                            Log.e(TAG, error.getErrorMessage());
+                            return image;
+                        }
+                    }
+                }
+                break;
+
+            case 2: //If the image is too dark
+                Log.d(TAG, "Case==2 ==> Too dark");
+                //Lightens the colour's brightness until it's in an optimal value
+                for(double changeBrightness=0; changeBrightness!=240; changeBrightness+=15){
+                    //Converts an array to another data type with optional scaling.
+                    bright.convertTo(modifiedMat, -1, 1, changeBrightness);
+                    if(isBright(modifiedMat)==0){
+                        try{
+                            return IPUtils.conversionMatToBitmap(modifiedMat);
+                        } catch (ConversionFailedException error){
+                            Log.e(TAG, error.getErrorMessage());
+                            return image;
+                        }
+                    }
+                }
+                break;
+
+            case 0: //Image is neither too bright nor too dark
+                Log.d(TAG, "Case==0 ==> Perfect image");
+                return image;
+>>>>>>> Stashed changes
+
+        }
+        return image;
     }
 }
