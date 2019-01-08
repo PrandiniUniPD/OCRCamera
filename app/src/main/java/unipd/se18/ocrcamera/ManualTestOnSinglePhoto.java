@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import info.debatty.java.stringsimilarity.Damerau;
 import unipd.se18.ocrcamera.recognizer.OCR;
 import unipd.se18.ocrcamera.recognizer.OCRListener;
 import unipd.se18.ocrcamera.recognizer.TextRecognizer;
@@ -28,24 +29,22 @@ import static unipd.se18.ocrcamera.recognizer.TextRecognizer.getTextRecognizer;
 public class ManualTestOnSinglePhoto extends AppCompatActivity {
 
     private String startingOCRText;
+    private String Tag;
     private final String errorLog1 = "No filePath preferences found";
 
     /**
-     * Set default value in modify variable
+     * Modification variable
      */
     private int angleRotation;
-    private int illuminationValue;
-    private int tiltValue;
 
     /**
-     * Ui Initialization
+     * UI
      */
-    private EditText degreeText;
-    private EditText illuminationText;
-    private EditText tiltText;
-    private TextView textView;
-
-
+    private EditText degreeEditText;
+    private TextView degreeTextView;
+    private TextView confidenceTextView;
+    private TextView warningTextView;
+    private TextView foundTextView;
 
     /**
      * Listener used by the extraction process to notify results
@@ -55,10 +54,15 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
         public void onTextRecognized(String text) {
             /*
              Text correctly recognized
-             -> prints it on the screen and saves it in the preferences
+             Initialize Ui
+             Start compare OCRText of the modified photo with the one with no rotation
              */
             setContentView(R.layout.activity_manual_test_result);
-            textView = findViewById(R.id.manualTextView);
+            degreeTextView = findViewById(R.id.degreeTextView);
+            confidenceTextView =findViewById(R.id.confidenceTextView);
+            warningTextView = findViewById(R.id.warningTextView);
+            foundTextView = findViewById(R.id.foundTextView);
+
             SetResult(text);
         }
 
@@ -66,7 +70,7 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
         public void onTextRecognizedError(int code) {
             /*
              Text not correctly recognized
-             -> prints the error on the screen and saves it in the preferences
+             Start CameraActivity to take a new photo
              */
             Intent i = new Intent(ManualTestOnSinglePhoto.this, CameraActivity.class);
             startActivity(i);
@@ -79,9 +83,8 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //UI initialization
         setContentView(R.layout.activity_manual_test);
-        degreeText = findViewById(R.id.editText1);
-        illuminationText = findViewById(R.id.editText2);
-        tiltText = findViewById(R.id.editText3);
+        degreeEditText = findViewById(R.id.editText1);
+
 
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = this.getSharedPreferences("prefs", MODE_PRIVATE);
@@ -96,9 +99,7 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
             public void onClick(View view) {
 
                 try {
-                    angleRotation = Integer.parseInt(degreeText.getText().toString());
-                    illuminationValue = Integer.parseInt(degreeText.getText().toString());
-                    tiltValue = Integer.parseInt(degreeText.getText().toString());
+                    angleRotation = Integer.parseInt(degreeEditText.getText().toString());
 
                     if (photo == null)
                         throw new PhotoNullException();
@@ -115,7 +116,6 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
 
 
                 } catch (PhotoNullException e) {
-                    String Tag="";
                     Log.e(Tag, errorLog1);
                     Intent takeANewPhoto = new Intent(ManualTestOnSinglePhoto.this, CameraActivity.class);
                     startActivity(takeANewPhoto);
@@ -124,25 +124,19 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
         });
     }
 
-    /**Based on the text received and startingOCRTText, analise informations like confidence
+    /**Based on the text received and startingOCRTText, analise information like confidence
      * and show them on textView
      * @param text string got from OCR
-     * @modify show on textView the result
+     * @modify degreeTextView, confidenceTextView, warningTextView and foundTextView
      */
     private void SetResult(String text){
-
-        final String firstPart = "Per la foto con rotazione di ";
-        final String secondPart = " gradi: \nPercentuale di testo comune: ";
-        final String thirdPart = "% \n Testo trovato: ";
-
-        //Add information in defaultEntry
         String warning = findWarning(text, startingOCRText.length());
-        int confidence = compareString(startingOCRText,text);
+        double confidence = compareStrings(startingOCRText,text);
 
-        String resultString = firstPart + angleRotation + secondPart + confidence
-                +thirdPart + text
-                +"\n"+warning;
-        textView.setText(resultString);
+        degreeTextView.setText(Integer.toString(angleRotation));
+        confidenceTextView.setText(Double.toString(confidence));
+        foundTextView.setText(text);
+        warningTextView.setText(warning);
     }
 
 
@@ -152,7 +146,7 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
      * @param length int of length of starting string
      * @return  warnings
      */
-    public String findWarning(String text, int length) {
+    private String findWarning(java.lang.String text, int length) {
         String warnings = "";
         final String noTextWarning = "OCR found no text in this photo";
         final String lessThen10CharWarning = "Less then 10 chars found by OCR";
@@ -165,7 +159,7 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
             warnings = lessThen10CharWarning;
         } else if (text.length() < 20 && length>26) {
             warnings = lessThen20CharWarning;
-        } else if (text.length() < 30 && length>30) {
+        } else if (text.length() < 30 && length>38) {
             warnings = lessThen30CharWarning;
         }
 
@@ -187,29 +181,21 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
     }
 
 
-    /** Split string1 in patterns and count how many times the patterns is found in in string2
-     * @param stringToSplit string to split and search in string2
-     * @param stringWhereToSearch string where to search
-     * @return Bitmap image decoded
+    /** Calculate Damerau-Levenshtein distance between the strings and return similarity
+     * @param string1 string to split and search in string2
+     * @param string2 string where to search
+     * @return percentage of similarity
+     * see the link for more information {@link <a https://github.com/tdebatty/java-string-similarity/
+     * blob/master/src/main/java/info/debatty/java/stringsimilarity/Damerau.java">link</a>}
      */
-    public static int compareString (String stringToSplit, String stringWhereToSearch) {
-        int counter=0;
-        String[] stringsToSplitArray = stringToSplit.split("\\W");
-        String[] stringsWhereToSearchArray = stringWhereToSearch.split("\\W");
-        for(String string1: stringsToSplitArray) {
-            Boolean check=true;
-            for(String string2: stringsWhereToSearchArray){
-                if(string1.equals(string2) && check && string1.equals("")){
-                    counter++;
-                    check=false;
-                }
-            }
-        }
-        // % of matching
-        return counter*100/stringsWhereToSearchArray.length;
+    public static double compareStrings (String string1, String string2) {
+
+        Damerau damerau = new Damerau();
+        //Percentage of distance based on string1 length
+        double distance = damerau.distance(string1,string2)/string1.length()*100;
+        return Math.round(100-distance);
     }
 }
-
 
 /**
  * New Exception
