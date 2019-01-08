@@ -2,6 +2,12 @@ package unipd.se18.ocrcamera;
 
 import android.graphics.Bitmap;
 
+
+/** Class to merge the information about the images
+ *  Pratesi Leonardo
+ *
+ */
+
 public class BlurObject {
     String name;
     Bitmap image;

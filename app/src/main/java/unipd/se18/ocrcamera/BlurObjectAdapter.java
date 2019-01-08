@@ -32,6 +32,7 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
         super(context, textViewResourceId, items);
     }
 
+    //create the view for each BlurObject
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
