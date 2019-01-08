@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class TestTest {
+/**public class TestTest {
 
     @Test
     public void rotationTest()
@@ -18,3 +18,4 @@ public class TestTest {
         assertEquals(bitmapKK, bitmaprotato);
     }
 }
+*/
