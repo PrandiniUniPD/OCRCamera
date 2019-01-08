@@ -54,7 +54,7 @@
     <!--List of strings for MainAllergensActivity-->
     <string name="allergens_search_bar">Type an allergen name</string>
     <string name="allergens_search_fragment">Allergen Selection</string>
-    <string name="allergens_user_fragment">Your Allergens</string>
+    <string name="allergens_user_fragment">My Allergens</string>
     <string name="togglebutton_add_allergen">add</string>
     <string name="togglebutton_remove_allergen">remove</string>
     <string name="allergens_search_button">Search</string>
@@ -67,6 +67,6 @@
     <string name="details_search_button">Search more</string>
     <string name="too_bright_picture">The picture might be too bright</string>
     <string name="too_dark_picture">The picture might be too dark</string>
-    <string name="download_test_pics">No test pics fond, download them please.</string>
     <string name="empty_ingredients_list_message">Nothing found</string>
+    <string name="download_test_pics">No test pics fond, download them please.</string>
 </resources>

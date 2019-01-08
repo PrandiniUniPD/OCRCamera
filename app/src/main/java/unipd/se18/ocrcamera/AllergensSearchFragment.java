@@ -25,16 +25,16 @@ import java.util.ArrayList;
 public class AllergensSearchFragment extends Fragment {
 
     private final String TAG = "AllergensSearchFragment";
-    ArrayList<Allergen> wholeList;
-    private ListView allergensView;
-    private AllergenListAdapter adapter;
+    private ArrayList<Allergen> allergensFullList;
+    private ListView allergensListView;
+    private AllergenListAdapter mAllergensListAdapter;
     private Button mSearchButton;
 
     private AllergensManager mAllergensManager;
 
     private AutoCompleteTextView mAllergensAutoCompleteTextView;
     //show the suggestions dropdown list with at leas 2 chars typed
-    private int SUGGESTION_THRESHOLD = 2;
+    private static final int SUGGESTION_THRESHOLD = 2;
 
     /**
      * This method is used to get the View that will make the fragment' layout in the Activity
@@ -50,7 +50,7 @@ public class AllergensSearchFragment extends Fragment {
         View fragmentView= inflater.inflate(R.layout.fragment_allergens_search, container,  false);
 
         //Fragments Layout components
-        allergensView = (ListView) fragmentView.findViewById(R.id.allergens_list_view);
+        allergensListView = (ListView) fragmentView.findViewById(R.id.allergens_list_view);
         mSearchButton= (Button) fragmentView.findViewById(R.id.allergens_search_button);
         mAllergensAutoCompleteTextView = (AutoCompleteTextView)
                 fragmentView.findViewById(R.id.allergen_auto_complete_text_view);
@@ -59,7 +59,7 @@ public class AllergensSearchFragment extends Fragment {
         mAllergensManager = InciSingleton.getInstance(getActivity()).getAllergensManager();
 
         //initialize the whole list of allergens
-        wholeList= mAllergensManager.getAllergensList();
+        allergensFullList= mAllergensManager.getAllergensList();
 
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,9 +70,9 @@ public class AllergensSearchFragment extends Fragment {
                ArrayList<Allergen> searchResultList= search(searchedIngredient);
 
                //show list to user
-               adapter= new AllergenListAdapter(getActivity(),
+               mAllergensListAdapter= new AllergenListAdapter(getActivity(),
                        R.layout.allergen_single, searchResultList);
-                allergensView.setAdapter(adapter);
+                allergensListView.setAdapter(mAllergensListAdapter);
 
                 //after a click hide dropdown suggestions
                 mAllergensAutoCompleteTextView.dismissDropDown();
@@ -92,9 +92,9 @@ public class AllergensSearchFragment extends Fragment {
      */
     private ArrayList<Allergen> search (String searchedIngredient) {
         ArrayList<Allergen> resultList= new ArrayList<Allergen>();
-        for (int i=0; i<wholeList.size(); i++){
+        for (int i=0; i<allergensFullList.size(); i++){
             Log.i(TAG, "looking for allergen");
-            Allergen mAllergen= wholeList.get(i);
+            Allergen mAllergen= allergensFullList.get(i);
             if (mAllergen.getCommonName().equals(searchedIngredient)){
                 Log.i(TAG, "Matching allergen Found!");
                 resultList.add(mAllergen);
@@ -144,9 +144,9 @@ public class AllergensSearchFragment extends Fragment {
 
                     //search for allergens with that name and update view
                     ArrayList<Allergen> searchResultList= search(allergenClicked);
-                    adapter= new AllergenListAdapter(getActivity(),
+                    mAllergensListAdapter= new AllergenListAdapter(getActivity(),
                             R.layout.allergen_single, searchResultList);
-                    allergensView.setAdapter(adapter);
+                    allergensListView.setAdapter(mAllergensListAdapter);
                 }
             });
 
