@@ -22,15 +22,34 @@ public class AdapterIngredient extends BaseAdapter {
     //Context of the app
     private Context context;
 
+    //ingredients to be displayed
     private List<Ingredient> ingredients;
 
-    private AllergensManager allergensManager;
+    //type of ingredient ALLERGEN: possible allergen
+    //                   SELECTEDALLERGEN: the user is allergic to the specified ingredient
+    private enum IngredientWarningType {
+        NOTALLERGEN, ALLERGEN, SELECTEDALLERGEN
+    }
+
+    private IngredientWarningType ingredientsLabels[];
 
 
     AdapterIngredient(Context context, List<Ingredient> ingredients) {
         this.ingredients = ingredients;
         this.context = context;
-        this.allergensManager = InciSingleton.getInstance(context).getAllergensManager();
+
+        //set warning label to ingredient if is allergen or selected allergen.
+        AllergensManager allergensManager = InciSingleton.getInstance(context).getAllergensManager();
+        ingredientsLabels = new IngredientWarningType[ingredients.size()];
+        for(int i=0; i<ingredients.size(); i++){
+            Ingredient currectIngred = ingredients.get(i);
+            if(allergensManager.checkForSelectedAllergens(currectIngred).size() > 0)
+                ingredientsLabels[i] = IngredientWarningType.SELECTEDALLERGEN;
+            else if(allergensManager.checkForAllergens(currectIngred).size() > 0)
+                ingredientsLabels[i] = IngredientWarningType.ALLERGEN;
+            else
+                ingredientsLabels[i] = IngredientWarningType.NOTALLERGEN;
+        }
     }
 
     @Override
@@ -72,10 +91,12 @@ public class AdapterIngredient extends BaseAdapter {
         functionView.setText(function);
 
         // Highlight if it is an allergen
-        if(allergensManager.checkForSelectedAllergens(ingredient).size() > 0)
+        if(ingredientsLabels[position] == IngredientWarningType.SELECTEDALLERGEN)
             convertView.setBackgroundColor(Color.RED);
-        else if(allergensManager.checkForAllergens(ingredient).size() > 0)
+        else if(ingredientsLabels[position] == IngredientWarningType.ALLERGEN)
             convertView.setBackgroundColor(Color.YELLOW);
+        else
+            convertView.setBackgroundColor(Color.WHITE);
 
         return convertView;
     }
