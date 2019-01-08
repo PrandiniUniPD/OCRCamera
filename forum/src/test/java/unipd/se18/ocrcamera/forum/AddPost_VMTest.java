@@ -1,8 +1,10 @@
 package unipd.se18.ocrcamera.forum;
 
+import unipd.se18.ocrcamera.forum.models.Post;
 import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,13 +20,18 @@ import static org.junit.Assert.*;
  */
 public class AddPost_VMTest {
     // Post keys for a JSON
-    private String IDJSONKey;
-    private String titleJSONKey;
-    private String messageJSONKey;
-    private String dateJSONKey;
-    private String likesJSONKey;
-    private String commentsJSONKey;
-    private String authorJSONKey;
+    private final String IDJSONKey = "ID";
+    private final String titleJSONKey = "title";
+    private final String messageJSONKey = "message";
+    private final String dateJSONKey = "date";
+    private final String likesJSONKey = "likes";
+    private final String commentsJSONKey = "comments";
+    private final String authorJSONKey = "author";
+
+    // Default value of a post
+    private final int defaultID = 0;
+    private final int defaultLikes = 0;
+    private final int defaultComments = 0;
 
     // Valid Strings for a new post
     private final String validTitle = "Valid test title";
@@ -35,35 +42,24 @@ public class AddPost_VMTest {
     private ArrayList<RequestManager.Parameter> postManagerParameters;
 
     // String generated from getJSONPost method
-    private String JSONPost;
+    private String generatedJSONPostToString;
 
     /**
      * Sets up the environment for testing
      * @author Pietro Prandini (g2)
      */
     @Before
-    public void setUpAddPostVMEnvironment() /*throws JSONException*/ {
-        // Initialization of the variables
-        IDJSONKey = "ID";
-        titleJSONKey = "title";
-        messageJSONKey = "message";
-        dateJSONKey = "date";
-        likesJSONKey = "likes";
-        commentsJSONKey = "comments";
-        authorJSONKey = "author";
-
-        /*
-        // Generating the parameters
+    public void setUpAddPostVMEnvironment() throws JSONException {
+        // Generates the parameters
         postManagerParameters =
                 AddPost_VM.getAddPostParameters(validTitle,validMessage,validAuthor);
 
-        // Generating a JSON post
-        JSONPost = AddPost_VM.getJSONPost(validTitle,validMessage,validAuthor);
-        */
+        // Generates a JSON post
+        generatedJSONPostToString = AddPost_VM.getJSONPost(validTitle,validMessage,validAuthor);
     }
 
     /**
-     * Check enum value, ID
+     * Checks enum value, ID
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -72,7 +68,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Title
+     * Checks enum value, Title
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -81,7 +77,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Message
+     * Checks enum value, Message
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -90,7 +86,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Date
+     * Checks enum value, Date
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -99,7 +95,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Likes
+     * Checks enum value, Likes
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -108,7 +104,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Comments
+     * Checks enum value, Comments
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -117,11 +113,141 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Author
+     * Checks enum value, Author
      * @author Pietro Prandini (g2)
      */
     @Test
     public void enumAuthorCheck() {
         assertEquals(authorJSONKey, AddPost_VM.JSONPostKey.AUTHOR.value);
+    }
+
+    /**
+     * Checks the key of the add Post request
+     */
+    @Test
+    public void checkRequestAddPostKey() {
+        RequestManager.Parameter addPostRequest = postManagerParameters.get(0);
+        assertEquals(AddPost_VM.KEY_ADD_POST_REQUEST,addPostRequest.key);
+    }
+
+    /**
+     * Checks the value of the add Post request
+     */
+    @Test
+    public void checkRequestAddPostValue() {
+        RequestManager.Parameter addPostValue = postManagerParameters.get(0);
+        assertEquals(RequestManager.RequestType.ADD_POST.value,addPostValue.value);
+    }
+
+    /**
+     * Checks the key of the JSON post parameter
+     */
+    @Test
+    public void checkRequestJSONPostKey() {
+        RequestManager.Parameter JSONPostParameter = postManagerParameters.get(1);
+        assertEquals(AddPost_VM.KEY_JSON_POST_CONTENT,JSONPostParameter.key);
+    }
+
+    /**
+     * Checks the title value of the JSON post parameter
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkRequestJSONPostValueTitle() throws JSONException {
+        RequestManager.Parameter JSONPostParameter = postManagerParameters.get(1);
+        JSONObject JSONPost = new JSONObject(JSONPostParameter.value);
+        assertEquals(validTitle, JSONPost.getString(AddPost_VM.JSONPostKey.TITLE.value));
+    }
+
+    /**
+     * Checks the message value of the JSON post parameter
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkRequestJSONPostValueMessage() throws JSONException {
+        RequestManager.Parameter JSONPostParameter = postManagerParameters.get(1);
+        JSONObject JSONPost = new JSONObject(JSONPostParameter.value);
+        assertEquals(validMessage, JSONPost.getString(AddPost_VM.JSONPostKey.MESSAGE.value));
+    }
+
+    /**
+     * Checks the author value of the JSON post parameter
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkRequestJSONPostValueAuthor() throws JSONException {
+        RequestManager.Parameter JSONPostParameter = postManagerParameters.get(1);
+        JSONObject JSONPost = new JSONObject(JSONPostParameter.value);
+        assertEquals(validAuthor, JSONPost.getString(AddPost_VM.JSONPostKey.AUTHOR.value));
+    }
+
+    /**
+     * Checks if the title of the JSON is the same as the title that is in the JSON generated post
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONTitle() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(validTitle, JSONPost.getString(AddPost_VM.JSONPostKey.TITLE.value));
+    }
+
+    /**
+     * Checks if the message is the same as the message
+     * that is in the JSON generated post
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONMessage() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(validMessage, JSONPost.getString(AddPost_VM.JSONPostKey.MESSAGE.value));
+    }
+
+    /**
+     * Checks if the author is the same as the author that is in the JSON generated post
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONAuthor() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(validAuthor, JSONPost.getString(AddPost_VM.JSONPostKey.AUTHOR.value));
+    }
+
+    /**
+     * Checks if the ID of the JSON Post is set to the default value
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONID() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(
+                String.valueOf(defaultID),
+                String.valueOf(JSONPost.get(AddPost_VM.JSONPostKey.ID.value))
+        );
+    }
+
+    /**
+     * Checks if the likes of the JSON Post is set to the default value
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONLikes() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(
+                String.valueOf(defaultLikes),
+                String.valueOf(JSONPost.get(AddPost_VM.JSONPostKey.LIKES.value))
+        );
+    }
+
+    /**
+     * Checks if the comments of the JSON Post is set to the default value
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONComments() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(
+                String.valueOf(defaultComments),
+                String.valueOf(JSONPost.get(AddPost_VM.JSONPostKey.COMMENTS.value))
+        );
     }
 }
