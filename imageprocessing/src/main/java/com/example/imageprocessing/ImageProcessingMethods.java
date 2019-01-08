@@ -2,8 +2,6 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 
-import org.opencv.core.Mat;
-
 /**
  * Interface used to call the processing methods
  * @author Thomas Porro (g1)
@@ -24,5 +22,5 @@ public interface ImageProcessingMethods {
      * @return the image with the modified brightness
      * @author Thomas Porro (g1)
      */
-    public Bitmap editBright(Bitmap image);
+    Bitmap editBright(Bitmap image);
 }
