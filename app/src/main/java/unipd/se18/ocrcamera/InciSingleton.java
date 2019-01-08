@@ -20,6 +20,7 @@ class InciSingleton {
     private IngredientsExtractor ingredientsExtractor;
     private TextAutoCorrection textCorrector;
     private List<Ingredient> listInciIngredients;
+    private AllergensManager allergensManager;
 
     static InciSingleton getInstance(Context context) {
         if (ourInstance == null) {
@@ -45,6 +46,9 @@ class InciSingleton {
         //Load wordlist and initialize text corrector
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
         this.textCorrector = new TextAutoCorrection(wordListStream);
+
+        //Load allergens manager
+        this.allergensManager = new AllergensManager(context);
     }
 
     IngredientsExtractor getIngredientsExtractor(){
@@ -57,6 +61,10 @@ class InciSingleton {
 
     List<Ingredient> getListInciIngredients() {
         return this.listInciIngredients;
+    }
+
+    AllergensManager getAllergensManager() {
+        return this.allergensManager;
     }
 
 }
