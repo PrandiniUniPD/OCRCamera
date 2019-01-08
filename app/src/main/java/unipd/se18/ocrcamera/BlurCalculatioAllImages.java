@@ -67,6 +67,9 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listview);
         BlurObjectAdapter adapter = new BlurObjectAdapter(this, R.layout.listavalori, arrayBlur);
         listView.setAdapter(adapter);
+        //show max blur value
+        TextView maxview = findViewById(R.id.textViewMax);
+        maxview.setText(String.valueOf(findMax(arrayBlur)));
 
 
     }
@@ -107,6 +110,21 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
             conta++; //check how many photos load
             Log.e("check", Integer.toString(conta));
         }
+    }
+
+    public double findMax(ArrayList<BlurObject> list){
+
+        double max=0;
+        double temp=0;
+        for (int i = 0; i < list.size(); i++)
+        {
+            temp=list.get(i).getBlur();
+            if (max<list.get(i).getBlur())
+            {
+                max=temp;
+            }
+        }
+        return max;
     }
 
 }
