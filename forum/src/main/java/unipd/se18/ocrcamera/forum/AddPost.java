@@ -110,43 +110,8 @@ public class AddPost extends Fragment {
                     }
 
                     @Override
-                    public void onConnectionFailed(String error) {
+                    public void onAddingPostFailure(String error) {
                         Toast.makeText(getActivity(), messagePostNotAdded, Toast.LENGTH_LONG).show();
-
-                        //Restart fragment
-                        Fragment addPostFragment = new AddPost();
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(
-                                        R.id.fragmentContainer,
-                                        addPostFragment
-                                )
-                                .addToBackStack(null)
-                                .commit();
-                    }
-
-                    @Override
-                    public void onParametersSendingFailed(String error) {
-                        Toast.makeText(getActivity(), messageWrongParameters, Toast.LENGTH_LONG).show();
-
-                        //Restart fragment
-                        Fragment addPostFragment = new AddPost();
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(
-                                        R.id.fragmentContainer,
-                                        addPostFragment
-                                )
-                                .addToBackStack(null)
-                                .commit();
-                    }
-
-                    @Override
-                    public void onJSONPostCreationFailed(String error) {
-                        Log.e(Tag, logWrongJSON);
-                        Toast.makeText(getActivity(), messageWrongJSON, Toast.LENGTH_LONG).show();
 
                         //Restart fragment
                         Fragment addPostFragment = new AddPost();

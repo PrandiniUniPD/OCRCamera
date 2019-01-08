@@ -1,14 +1,16 @@
 package unipd.se18.ocrcamera.forum.viewmodels;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnFailureListener;
 
 import java.util.ArrayList;
 import java.util.Date;
 
+import unipd.se18.ocrcamera.forum.DatabaseManager;
 import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
 import unipd.se18.ocrcamera.forum.models.Post;
@@ -24,19 +26,7 @@ public class AddPost_VM implements AddPostsMethods {
     /**
      * String used for logs
      */
-    private static String TAG = "AddPost_VM -> ";
-
-    /**
-     * Key for requesting to add a new post
-     * (used by the server that hosts the forum)
-     */
-    public static final String KEY_ADD_POST_REQUEST = "c";
-
-    /**
-     * Key for indicating the content of the post
-     * (used by the server that hosts the forum)
-     */
-    public static final String KEY_JSON_POST_CONTENT = "jPost";
+    private String TAG = "AddPost_VM -> ";
 
     /**
      * Listener useful for communicating with the View
@@ -52,16 +42,10 @@ public class AddPost_VM implements AddPostsMethods {
         void onPostAdded(String response);
 
         /**
-         * Notifies a connection problem to the network
+         * Notifies a problem when trying to add a new post to the database
          * @param error The error parsed
          */
-        void onConnectionFailed(String error);
-
-        /**
-         * Notifies a failure of a sending parameters process addressed to the server
-         * @param error The error parsed
-         */
-        void onParametersSendingFailed(String error);
+        void onAddingPostFailure(String error);
 
         /**
          * Notifies the VM has received some not valid parameters
@@ -69,12 +53,6 @@ public class AddPost_VM implements AddPostsMethods {
          * @param error The String that describes the error
          */
         void onNotValidParameters(String error);
-
-        /**
-         * Notifies a failure in the creation of a JSONPost
-         * @param  error The error String
-         */
-        void onJSONPostCreationFailed(String error);
     }
 
     /**
@@ -89,68 +67,6 @@ public class AddPost_VM implements AddPostsMethods {
      * The instance of the listener useful for communicating with the view
      */
     private addPostListener notifier;
-
-    /**
-     * Keys of the JSON strings value for a post
-     * @see <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/enum.html">Enum Types</a>
-     */
-    public enum JSONPostKey {
-        ID("ID"),
-        TITLE("title"),
-        MESSAGE("message"),
-        DATE("date"),
-        LIKES("likes"),
-        COMMENTS("comments"),
-        AUTHOR("author");
-
-        public String value;
-
-        /**
-         * Defines an object of type JSONPostKey
-         * @param value The value of the key for the JSON format of the post
-         */
-        JSONPostKey(String value){ this.value = value; }
-    }
-
-    /**
-     * Listener useful to receive notification from the requests manager
-     * More details at: {@link RequestManager.RequestManagerListener}
-     */
-    private RequestManager.RequestManagerListener requestManagerListener =
-            new RequestManager.RequestManagerListener() {
-        /**
-         * Notifies that a post was added correctly
-         * @param response The network request's response
-         */
-        @Override
-        public void onRequestFinished(String response) {
-            // Post added
-            Log.d(TAG,"onRequestFinished -> response: " + response);
-            notifier.onPostAdded(response);
-        }
-
-        /**
-         * Notifies a connection problem to the network
-         * @param message The error message
-         */
-        @Override
-        public void onConnectionFailed(String message) {
-            // Connection problem
-            Log.d(TAG,"onConnectionFailed -> message: " + message);
-            notifier.onConnectionFailed(message);
-        }
-
-        /**
-         * Notifies a failure of a sending parameters process addressed to the server
-         * @param message The error message
-         */
-        @Override
-        public void onParametersSendingFailed(String message) {
-            // Parameters not sent correctly
-            Log.d(TAG,"onParametersSendingFailed -> message: " + message);
-            notifier.onParametersSendingFailed(message);
-        }
-    };
 
     /**
      * Adds a post to the forum
@@ -177,32 +93,33 @@ public class AddPost_VM implements AddPostsMethods {
             return;
         }
 
-        // Sets up the manager useful for adding posts
-        RequestManager postManager = new RequestManager();
+        // Sets up the listeners for interaction with the database
+        DatabaseManager.Listeners databaseManagerListener = new DatabaseManager.Listeners();
 
-        // Sets up the manager worker listener
-        postManager.setOnRequestFinishedListener(requestManagerListener);
+        // On added post listener
+        databaseManagerListener.successListener = new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                Log.d(TAG, "addPostToForum -> Post added successfully");
+                notifier.onPostAdded(o.toString());
+            }
+        };
 
-        /*
-        The next try catch handles a possible failure on the creation
-        of the JSON object that represents a new post.
-         */
+        // On failure to add post listener
+        databaseManagerListener.failureListener = new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "addPostToForum -> There was a failure when trying to add a post");
+                notifier.onAddingPostFailure(e.toString());
+            }
+        };
 
-        try {
-            // Sets up the parameters for the adding post request
-            ArrayList<RequestManager.Parameter> postManagerParameters =
-                    getAddPostParameters(title, message, author);
+        // Sets up the new post
+        Date today = new Date();
+        Post newPost = new Post(title,message,today,author);
 
-            // Sends the request
-            Log.i(TAG,"addPostToForum -> Sending the request");
-            postManager.sendRequest(context, postManagerParameters);
-        } catch (JSONException e) {
-            // JSON Post creation failed
-            e.printStackTrace();
-            // Notifies the error
-            Log.d(TAG, "addPostToForum -> JSON creation problem");
-            notifier.onJSONPostCreationFailed(e.toString());
-        }
+        // Sends the new post to the database
+        DatabaseManager.addPost(context,newPost,databaseManagerListener);
     }
 
     /**
@@ -218,88 +135,5 @@ public class AddPost_VM implements AddPostsMethods {
         return (title != null && !title.equals(""))
                 && (message != null && !message.equals(""))
                 && (author != null && !author.equals(""));
-    }
-
-    /*
-    The next two methods are public and static to favourite the testing
-     */
-
-    /**
-     * Sets up the parameters for sending the post adding request
-     * More details at: {@link RequestManager.Parameter},
-     * {@link RequestManager.RequestManagerListener},
-     * {@link RequestManager#setOnRequestFinishedListener(RequestManager.RequestManagerListener)}.
-     * @param title The new post's title
-     * @param message The new post's message
-     * @param author The new post's author
-     * @return The ArrayList of the parameters required (first parameter is the request,
-     * the seconds is the JSON post content)
-     * @throws JSONException If the JSON post is not correctly built {@link JSONException}
-     * @author Pietro Prandini (g2)
-     */
-    public static ArrayList<RequestManager.Parameter> getAddPostParameters
-    (String title, String message, String author) throws JSONException {
-        // Sets up the add post request parameter
-        RequestManager.Parameter addPostParameter =
-                new RequestManager.Parameter(
-                        KEY_ADD_POST_REQUEST,
-                        RequestManager.RequestType.ADD_POST.value
-                );
-
-        // Formats the post in JSON format
-        String JSONPostContent = getJSONPost(title, message, author);
-
-        // Sets up the post content parameter
-        RequestManager.Parameter postContentParameter =
-                new RequestManager.Parameter(
-                        KEY_JSON_POST_CONTENT,
-                        JSONPostContent
-                );
-
-        // Adds the parameters to an ArrayList
-        ArrayList<RequestManager.Parameter> postManagerParameters = new ArrayList<>();
-        postManagerParameters.add(addPostParameter);
-        postManagerParameters.add(postContentParameter);
-
-        // Returns the ArrayList of the parameters required
-        return postManagerParameters;
-    }
-
-    /**
-     * Get a JSON string that represents a new post
-     * More details at: {@link Post}, {@link JSONObject}, {@link JSONObject#put(String, Object)}.
-     * @param title The new post's title
-     * @param message The new post's message
-     * @param author The new post's author
-     * @return The JSON string that represents the forum posts
-     * @throws JSONException If the JSON post is not correctly built {@link JSONException}
-     * @author Pietro Prandini (g2)
-     */
-    public static String getJSONPost(String title, String message, String author)
-            throws JSONException {
-        // Prepares the post's data
-        Date today = new Date();
-
-        // Creates a post
-        Post newPost = new Post(title, message, today, author);
-
-        // Puts the values of the post in a JSON object that represents the post
-        JSONObject JSONPost = new JSONObject();
-
-        JSONPost.put(JSONPostKey.ID.value, newPost.getID());
-        JSONPost.put(JSONPostKey.TITLE.value, newPost.getTitle());
-        JSONPost.put(JSONPostKey.MESSAGE.value, newPost.getMessage());
-        JSONPost.put(JSONPostKey.DATE.value, newPost.getDate());
-        JSONPost.put(JSONPostKey.LIKES.value, newPost.getLikes());
-        JSONPost.put(JSONPostKey.COMMENTS.value, newPost.getComments());
-        JSONPost.put(JSONPostKey.AUTHOR.value, newPost.getAuthor());
-
-        // JSONPost is correctly built
-        Log.i(TAG, "getJSONPost -> JSONPost is correctly built\n"
-                + "-----      NEW JSON POST       -----"
-                + "\n" +   JSONPost.toString()    + "\n"
-                + "----- END OF THE NEW JSON POST -----"
-        );
-        return JSONPost.toString();
     }
 }
