@@ -101,7 +101,7 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
             }
         };
 
-        DatabaseManager.getPosts(listeners);
+        DatabaseManager.getPosts(context, listeners);
     }
 
     /**
