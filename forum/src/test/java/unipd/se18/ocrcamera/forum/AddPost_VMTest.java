@@ -2,8 +2,11 @@ package unipd.se18.ocrcamera.forum;
 
 import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
@@ -29,17 +32,17 @@ public class AddPost_VMTest {
     private final String validAuthor = "Valid test author";
 
     // Parameters of the add post request
-    ArrayList<RequestManager.Parameter> postManagerParameters;
+    private ArrayList<RequestManager.Parameter> postManagerParameters;
 
     // String generated from getJSONPost method
-    String JSONPost;
+    private String JSONPost;
 
     /**
      * Sets up the environment for testing
      * @author Pietro Prandini (g2)
      */
     @Before
-    public void setUpAddPostVMEnvironment() {
+    public void setUpAddPostVMEnvironment() /*throws JSONException*/ {
         // Initialization of the variables
         IDJSONKey = "ID";
         titleJSONKey = "title";
@@ -49,12 +52,14 @@ public class AddPost_VMTest {
         commentsJSONKey = "comments";
         authorJSONKey = "author";
 
+        /*
         // Generating the parameters
         postManagerParameters =
                 AddPost_VM.getAddPostParameters(validTitle,validMessage,validAuthor);
 
         // Generating a JSON post
         JSONPost = AddPost_VM.getJSONPost(validTitle,validMessage,validAuthor);
+        */
     }
 
     /**
