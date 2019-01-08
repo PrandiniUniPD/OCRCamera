@@ -59,7 +59,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, ID
+     * Checks enum value, ID
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -68,7 +68,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Title
+     * Checks enum value, Title
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -77,7 +77,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Message
+     * Checks enum value, Message
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -86,7 +86,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Date
+     * Checks enum value, Date
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -95,7 +95,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Likes
+     * Checks enum value, Likes
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -104,7 +104,7 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Comments
+     * Checks enum value, Comments
      * @author Pietro Prandini (g2)
      */
     @Test
@@ -113,12 +113,72 @@ public class AddPost_VMTest {
     }
 
     /**
-     * Check enum value, Author
+     * Checks enum value, Author
      * @author Pietro Prandini (g2)
      */
     @Test
     public void enumAuthorCheck() {
         assertEquals(authorJSONKey, AddPost_VM.JSONPostKey.AUTHOR.value);
+    }
+
+    /**
+     * Checks the key of the add Post request
+     */
+    @Test
+    public void checkRequestAddPostKey() {
+        RequestManager.Parameter addPostRequest = postManagerParameters.get(0);
+        assertEquals(AddPost_VM.KEY_ADD_POST_REQUEST,addPostRequest.key);
+    }
+
+    /**
+     * Checks the value of the add Post request
+     */
+    @Test
+    public void checkRequestAddPostValue() {
+        RequestManager.Parameter addPostValue = postManagerParameters.get(0);
+        assertEquals(RequestManager.RequestType.ADD_POST.value,addPostValue.value);
+    }
+
+    /**
+     * Checks the key of the JSON post parameter
+     */
+    @Test
+    public void checkRequestJSONPostKey() {
+        RequestManager.Parameter JSONPostParameter = postManagerParameters.get(1);
+        assertEquals(AddPost_VM.KEY_JSON_POST_CONTENT,JSONPostParameter.key);
+    }
+
+    /**
+     * Checks the title value of the JSON post parameter
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkRequestJSONPostValueTitle() throws JSONException {
+        RequestManager.Parameter JSONPostParameter = postManagerParameters.get(1);
+        JSONObject JSONPost = new JSONObject(JSONPostParameter.value);
+        assertEquals(validTitle, JSONPost.getString(AddPost_VM.JSONPostKey.TITLE.value));
+    }
+
+    /**
+     * Checks the message value of the JSON post parameter
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkRequestJSONPostValueMessage() throws JSONException {
+        RequestManager.Parameter JSONPostParameter = postManagerParameters.get(1);
+        JSONObject JSONPost = new JSONObject(JSONPostParameter.value);
+        assertEquals(validMessage, JSONPost.getString(AddPost_VM.JSONPostKey.MESSAGE.value));
+    }
+
+    /**
+     * Checks the author value of the JSON post parameter
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkRequestJSONPostValueAuthor() throws JSONException {
+        RequestManager.Parameter JSONPostParameter = postManagerParameters.get(1);
+        JSONObject JSONPost = new JSONObject(JSONPostParameter.value);
+        assertEquals(validAuthor, JSONPost.getString(AddPost_VM.JSONPostKey.AUTHOR.value));
     }
 
     /**
@@ -129,5 +189,26 @@ public class AddPost_VMTest {
     public void checkJSONTitle() throws JSONException {
         JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
         assertEquals(validTitle, JSONPost.getString(AddPost_VM.JSONPostKey.TITLE.value));
+    }
+
+    /**
+     * Checks if the message of the JSON is the same as the message
+     * that is in the JSON generated post
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONMessage() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(validMessage, JSONPost.getString(AddPost_VM.JSONPostKey.MESSAGE.value));
+    }
+
+    /**
+     * Checks if the author of the JSON is the same as the author that is in the JSON generated post
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONAuthor() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(validAuthor, JSONPost.getString(AddPost_VM.JSONPostKey.AUTHOR.value));
     }
 }

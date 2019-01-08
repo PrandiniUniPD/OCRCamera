@@ -232,8 +232,8 @@ public class AddPost_VM implements AddPostsMethods {
      * @param title The new post's title
      * @param message The new post's message
      * @param author The new post's author
-     * @return The ArrayList of the parameters required,
-     * null if the JSON has not been created successfully.
+     * @return The ArrayList of the parameters required (first parameter is the request,
+     * the seconds is the JSON post content)
      * @throws JSONException If the JSON post is not correctly built
      * @author Pietro Prandini (g2)
      */
@@ -271,8 +271,7 @@ public class AddPost_VM implements AddPostsMethods {
      * @param title The new post's title
      * @param message The new post's message
      * @param author The new post's author
-     * @return The JSON string that represents the forum posts,
-     * null if the JSON has not been created successfully.
+     * @return The JSON string that represents the forum posts
      * @throws JSONException If the JSON post is not correctly built
      * @author Pietro Prandini (g2)
      */
