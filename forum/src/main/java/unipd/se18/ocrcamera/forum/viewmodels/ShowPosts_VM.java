@@ -78,14 +78,14 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
                     Map<String, Object> postData = item.getData();
 
                     String postID = item.getId();
-                    String postTitle = postData.get("title").toString();
-                    String postMessage = postData.get("message").toString();
-                    String postAuthor = postData.get("author").toString();
-                    int comments = Integer.valueOf(postData.get("comments").toString());
-                    int likes = Integer.valueOf(postData.get("likes").toString());
+                    String postTitle = postData.get(context.getString(R.string.titleKey)).toString();
+                    String postMessage = postData.get(context.getString(R.string.messageKey)).toString();
+                    String postAuthor = postData.get(context.getString(R.string.authorKey)).toString();
+                    int comments = Integer.valueOf(postData.get(context.getString(R.string.commentsKey)).toString());
+                    int likes = Integer.valueOf(postData.get(context.getString(R.string.likesKey)).toString());
 
-                    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                    String postDate = postData.get("date").toString();
+                    SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
+                    String postDate = postData.get(context.getString(R.string.dateKey)).toString();
 
                     try
                     {
@@ -93,7 +93,8 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
                     }
                     catch (ParseException e)
                     {
-                        e.printStackTrace();
+                        Log.d(LOG_TAG, e.getMessage());
+                        if (listener != null){ listener.onGetPostFailure(context.getString(R.string.requestFailedMessage)); }
                     }
                 }
 
