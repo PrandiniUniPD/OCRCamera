@@ -34,7 +34,7 @@ public class UserAllergensFragment extends Fragment {
         View fragmentView= inflater.inflate(R.layout.fragment_users_allergens, container,  false);
         allergensView = (ListView) fragmentView.findViewById(R.id.users_allergens_list_view);
 
-        mAllergensManager = new AllergensManager(getActivity());
+        mAllergensManager = InciSingleton.getInstance(getActivity()).getAllergensManager();
         //initialize the user's own list
         ArrayList<Allergen> userList= mAllergensManager.getSelectedAllergensList();
         //create adapter with the list of the users' allergens

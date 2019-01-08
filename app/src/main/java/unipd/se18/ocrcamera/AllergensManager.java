@@ -122,6 +122,7 @@ class AllergensManager {
 
                 // if the allergen commonName or inciName appears in the ingredient inciName or
                 // description respectively
+                allergenInciName = allergenInciName.toUpperCase();
                 if(ingr.getInciName().contains(allergenInciName) ||
                         ingr.getDescription().contains(allergen.getCommonName())) {
 

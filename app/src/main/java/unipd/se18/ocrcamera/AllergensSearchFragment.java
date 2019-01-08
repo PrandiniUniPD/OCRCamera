@@ -56,7 +56,7 @@ public class AllergensSearchFragment extends Fragment {
                 fragmentView.findViewById(R.id.allergen_auto_complete_text_view);
 
         //initialize the manager used to manipulate the list of allergens
-        mAllergensManager= new AllergensManager(getActivity());
+        mAllergensManager = InciSingleton.getInstance(getActivity()).getAllergensManager();
 
         //initialize the whole list of allergens
         wholeList= mAllergensManager.getAllergensList();

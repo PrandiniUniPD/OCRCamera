@@ -38,7 +38,7 @@ public class AllergenListAdapter extends ArrayAdapter<Allergen> {
         //in this case we will be using allergen_single.xml
         mResource = resource;
         //set an AllergenManager used to modify users' allergens list
-        mAllergensManager= new AllergensManager(mContext);
+        mAllergensManager = InciSingleton.getInstance(context).getAllergensManager();
         selectedAllergens = mAllergensManager.getSelectedAllergensList();
     }
 

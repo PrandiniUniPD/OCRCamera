@@ -2,6 +2,7 @@ package unipd.se18.ocrcamera;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +24,13 @@ public class AdapterIngredient extends BaseAdapter {
 
     private List<Ingredient> ingredients;
 
+    private AllergensManager allergensManager;
+
 
     AdapterIngredient(Context context, List<Ingredient> ingredients) {
         this.ingredients = ingredients;
         this.context = context;
+        this.allergensManager = InciSingleton.getInstance(context).getAllergensManager();
     }
 
     @Override
@@ -50,9 +54,10 @@ public class AdapterIngredient extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.ingredient_element, parent, false);
         }
 
-        final String inciName = ingredients.get(position).getInciName();
-        final String description = ingredients.get(position).getDescription();
-        final String function = ingredients.get(position).getFunction();
+        Ingredient ingredient = ingredients.get(position);
+        final String inciName = ingredient.getInciName();
+        final String description = ingredient.getDescription();
+        final String function = ingredient.getFunction();
 
         // Set the inci name
         TextView nameText = convertView.findViewById(R.id.inci_name_view);
@@ -65,6 +70,10 @@ public class AdapterIngredient extends BaseAdapter {
         // Set function
         TextView functionView = convertView.findViewById(R.id.function_view);
         functionView.setText(function);
+
+        // Highlight if it is an allergen
+        if(allergensManager.checkForAllergens(ingredient).size() > 0)
+            convertView.setBackgroundColor(Color.RED);
 
         return convertView;
     }
