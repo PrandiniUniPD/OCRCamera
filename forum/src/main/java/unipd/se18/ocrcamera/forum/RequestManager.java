@@ -2,6 +2,8 @@ package unipd.se18.ocrcamera.forum;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Base64;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -140,6 +142,8 @@ public class RequestManager
 
                 buffer.close();
                 inputStream.close();
+                
+                Log.d("#######", response);
 
                 return response;
             }

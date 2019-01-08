@@ -11,7 +11,7 @@ public class Post
 {
     public static final String DATE_FORMAT = "dd/MM/yyyy";
 
-    int ID;
+    String ID;
     String title;
     String message;
     String author;
@@ -29,7 +29,7 @@ public class Post
      * @param comments The post's number of comments
      * @param author The person who has written the post
      */
-    public Post(int ID, String title, String message, Date date, int likes, int comments, String author)
+    public Post(String ID, String title, String message, Date date, int likes, int comments, String author)
     {
         this.ID = ID;
         this.title = title;
@@ -42,7 +42,7 @@ public class Post
 
     public Post(String title, String message, Date date, String author)
     {
-        this(0, title, message, date, 0, 0, author);
+        this("", title, message, date, 0, 0, author);
     }
 
     /**
@@ -55,7 +55,7 @@ public class Post
      * Returns the post's ID
      * @return The post's ID
      */
-    public int getID() { return ID; }
+    public String getID() { return ID; }
 
     /**
      * Returns the post's title

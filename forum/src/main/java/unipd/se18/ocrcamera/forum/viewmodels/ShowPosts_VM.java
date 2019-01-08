@@ -3,7 +3,13 @@ package unipd.se18.ocrcamera.forum.viewmodels;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,7 +19,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
+import unipd.se18.ocrcamera.forum.DatabaseManager;
 import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
 import unipd.se18.ocrcamera.forum.models.Post;
@@ -57,77 +65,43 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
     @Override
     public void getPosts(final Context context)
     {
-        //Definition of the network request parameters
-        ArrayList<RequestManager.Parameter> parameters = new ArrayList<>();
-        parameters.add(new RequestManager.Parameter("c", RequestManager.RequestType.GET_POSTS.value));
-
-        RequestManager manager = new RequestManager();
-
-        //Implementation of the RequestManager listener
-        manager.setOnRequestFinishedListener(new RequestManager.RequestManagerListener()
+        final DatabaseManager.Listners listeners = new DatabaseManager.Listners();
+        listeners.completeListener = new OnCompleteListener<QuerySnapshot>()
         {
             @Override
-            public void onRequestFinished(String response)
+            public void onComplete(@NonNull Task<QuerySnapshot> task)
             {
-                try
+                ArrayList<Post> posts = new ArrayList<>();
+
+                for (QueryDocumentSnapshot item: task.getResult())
                 {
-                    //Definition of a temporary array which will contain the posts retrieved
-                    //from the network request that has just ended
-                    ArrayList<Post> posts = new ArrayList<>();
+                    Map<String, Object> postData = item.getData();
 
-                    //The network request sends back a response in JSON format
-                    //So now it has to be read and convert into usable data
-                    JSONArray jPosts = new JSONArray(response);
+                    String postID = item.getId();
+                    String postTitle = postData.get("title").toString();
+                    String postMessage = postData.get("message").toString();
+                    String postAuthor = postData.get("author").toString();
+                    int comments = Integer.valueOf(postData.get("comments").toString());
+                    int likes = Integer.valueOf(postData.get("likes").toString());
 
-                    for (int i = 0; i < jPosts.length(); i++)
+                    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                    String postDate = postData.get("date").toString();
+
+                    try
                     {
-                        JSONObject jPost = jPosts.getJSONObject(i);
-
-                        //Get post's attributes
-                        int ID = jPost.getInt(context.getString(R.string.jPostIDField));
-                        String title = jPost.getString(context.getString(R.string.jPostTitleField));
-                        String message = jPost.getString(context.getString(R.string.jPostMessageField));
-                        int likes = jPost.getInt(context.getString(R.string.jPostLikesField));
-                        int comments = jPost.getInt(context.getString(R.string.jPostCommentsField));
-                        String author = jPost.getString(context.getString(R.string.jPostAuthorField));
-                        SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
-                        Date date = format.parse(jPost.getString(context.getString(R.string.jPostDateField)));
-
-                        //Add the converted post to the temporary array
-                        posts.add(new Post(ID, title, message, date, likes, comments, author));
+                        posts.add(new Post(postID, postTitle, postMessage, format.parse(postDate), likes, comments, postAuthor));
                     }
-
-                    //The live data is triggered so that the UI can be correctly update
-                    if (listener != null) { listener.onGetPostsSuccess(posts); }
+                    catch (ParseException e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
-                catch (JSONException e)
-                {
-                    if (listener != null) { listener.onGetPostFailure(e.getMessage()); }
-                }
-                catch (ParseException e)
-                {
-                    if (listener != null) { listener.onGetPostFailure(e.getMessage()); }
-                }
+
+                if (listener != null){ listener.onGetPostsSuccess(posts); }
             }
+        };
 
-            @Override
-            public void onConnectionFailed(String message)
-            {
-                Log.d(LOG_TAG, message);
-                if (listener != null) { listener.onGetPostFailure(context.getString(R.string.requestFailedMessage)); }
-            }
-
-            @Override
-            public void onParametersSendingFailed(String message)
-            {
-                Log.d(LOG_TAG, message);
-                if (listener != null) { listener.onGetPostFailure(context.getString(R.string.requestFailedMessage)); }
-            }
-        });
-
-        //Sending of a network request to get the posts from the forum
-        manager.sendRequest(context, parameters);
-
+        DatabaseManager.getPosts(listeners);
     }
 
     /**

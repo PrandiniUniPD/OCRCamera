@@ -46,9 +46,15 @@ dependencies {
     implementation "android.arch.lifecycle:viewmodel:1.1.1"
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
 
+    //For database
+    implementation 'com.google.firebase:firebase-core:16.0.4'
+    implementation 'com.google.firebase:firebase-firestore:17.1.5'
+
     // For testing
     testImplementation 'junit:junit:4.12'
     testImplementation 'androidx.test:core:1.1.0'
     testImplementation 'org.mockito:mockito-core:2.23.4'
     //testImplementation 'org.json:json:20180130'
 }
+
+apply plugin: 'com.google.gms.google-services'
