@@ -206,11 +206,11 @@ public class AddPost_VM implements AddPostsMethods {
     }
 
     /**
-     * Checks the validity of the parameters received
+     * Checks the validity of the parameters received (not null and not empty String)
      * @param title The new post's title
      * @param message The new post's message
      * @param author The new post's author
-     * @return TRUE if the parameters are valid, FALSE otherwise
+     * @return TRUE if the parameters are valid (not null and not empty String), FALSE otherwise
      * @author Pietro Prandini (g2)
      */
     private Boolean areParametersValid(String title, String message, String author) {
@@ -234,7 +234,7 @@ public class AddPost_VM implements AddPostsMethods {
      * @param author The new post's author
      * @return The ArrayList of the parameters required (first parameter is the request,
      * the seconds is the JSON post content)
-     * @throws JSONException If the JSON post is not correctly built
+     * @throws JSONException If the JSON post is not correctly built {@link JSONException}
      * @author Pietro Prandini (g2)
      */
     public static ArrayList<RequestManager.Parameter> getAddPostParameters
@@ -272,7 +272,7 @@ public class AddPost_VM implements AddPostsMethods {
      * @param message The new post's message
      * @param author The new post's author
      * @return The JSON string that represents the forum posts
-     * @throws JSONException If the JSON post is not correctly built
+     * @throws JSONException If the JSON post is not correctly built {@link JSONException}
      * @author Pietro Prandini (g2)
      */
     public static String getJSONPost(String title, String message, String author)
