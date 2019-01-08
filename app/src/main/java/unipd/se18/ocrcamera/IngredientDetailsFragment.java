@@ -105,7 +105,7 @@ public class IngredientDetailsFragment extends DialogFragment {
 
             // Make request to wikipedia, searching for the ingredient.
             assert inciName != null;
-            String url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&" +
+            final String url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&" +
                     "exintro&explaintext&redirects=1&titles="+inciName.toLowerCase();
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {

@@ -1,7 +1,6 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;

@@ -11,7 +11,8 @@ import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 
 /**
- * Using singleton design pattern for single time inci db loading and ingredients extractor initialization.
+ * Using singleton design pattern for single time inci db loading, ingredients extractor and
+ * text corrector initialization, allergens manager initialization.
  * @author Francesco Pham
  */
 class InciSingleton {
