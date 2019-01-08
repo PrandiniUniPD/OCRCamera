@@ -1,11 +1,14 @@
 package unipd.se18.barcodemodule;
 
 import com.google.zxing.BinaryBitmap;
-import com.google.zxing.Reader;
-import com.google.zxing.MultiFormatReader;
+import com.google.zxing.ChecksumException;
+import com.google.zxing.FormatException;
 import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.Result;
 import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.Reader;
+import com.google.zxing.Result;
 import com.google.zxing.RGBLuminanceSource;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -40,7 +43,6 @@ public class ZXingBarcode implements Barcode {
                 bitmap.getHeight());
         //ZXing library class needed to abstract different bitmap implementations across platforms
         //into a standard interface for requesting greyscale luminance values.
-        //details here: https://zxing.github.io/zxing/apidocs/com/google/zxing/LuminanceSource.html
         LuminanceSource luminanceValues =
                 new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), pixels);
         //Reader that can decode an image of a barcode in some format into the String it encodes.
@@ -57,11 +59,17 @@ public class ZXingBarcode implements Barcode {
             //getText() returns the raw text encoded by the barcode.
             code = result.getText();
         }
-        catch (Exception e) {
-            Log.e("ErrorBarcode", "Error decoding a barcode in the bitmap", e);
+        catch (NotFoundException e) {
+            //If no barcode if found, "" is returned
+            Log.e("NoBarcode", "Error getting barcode from bitmap", e);
+        }
+        catch (ChecksumException | FormatException e) {
+            //If a barcode is found but decoding it leads to an error, a string that report an
+            // error occurred is returned
+            code="ERROR: Barcode decoding unsuccessful, please try again.";
+            Log.e("ErrorDecoding", "Error decoding barcode", e);
         }
 
-        //If no barcode is found, "" is returned.
         return code;
     }
 

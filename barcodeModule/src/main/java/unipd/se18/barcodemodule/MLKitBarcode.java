@@ -57,7 +57,7 @@ public class MLKitBarcode implements Barcode{
                     public void onFailure(@NonNull Exception e) {
                         latch.countDown();
                         //in case of failure return a string that report the error occurred
-                        code="ERROR: Barcode not retrieved, please try again";
+                        code="ERROR: Barcode decoding unsuccessful, please try again.";
                         Log.e("Error Barcode", e.getMessage());
                     }
                 });
