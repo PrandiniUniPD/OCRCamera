@@ -70,14 +70,8 @@ public class AddPost_VMInstrumentedTest {
             }
 
             @Override
-            public void onConnectionFailed(String error) {
+            public void onAddingPostFailure(String error) {
                 // With invalid parameters the connection shouldn't be established
-                assertNull(error);
-            }
-
-            @Override
-            public void onParametersSendingFailed(String error) {
-                // With invalid parameters the parameters shouldn't be sent
                 assertNull(error);
             }
 
@@ -85,12 +79,6 @@ public class AddPost_VMInstrumentedTest {
             public void onNotValidParameters(String error) {
                 // With invalid parameters this method should be launched with an error String
                 assertNotNull(error);
-            }
-
-            @Override
-            public void onJSONPostCreationFailed(String error) {
-                // With invalid parameters the JSON process shouldn't be started
-                assertNull(error);
             }
         };
 
