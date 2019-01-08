@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
 
 import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
@@ -21,9 +24,6 @@ public class AddPost_VMInstrumentedTest {
     /*
     AddPost_VM Instrumented tests (ViewModel)
      */
-    // Instance of AddPost ViewModel
-    private AddPost_VM addPostViewModel;
-
     // Parameter for posting a new post
     private Context context;
 
@@ -37,9 +37,8 @@ public class AddPost_VMInstrumentedTest {
      * @author Pietro Prandini (g2)
      */
     @Before
-    public void setUpAddPostVMEnvironment() {
+    public void setUpAddPostVMEnvironment() throws JSONException {
         // Initialization of the variables
-        addPostViewModel = new AddPost_VM();
         context = InstrumentationRegistry.getTargetContext();
     }
 
@@ -59,6 +58,9 @@ public class AddPost_VMInstrumentedTest {
      * @author Pietro Prandini (g2)
      */
     private void addPostToForumWithInvalidParameters(String title, String message, String author) {
+        // ViewModel instance
+        AddPost_VM addPostViewModel = new AddPost_VM();
+
         // Events listener of the AddPost ViewModel
         AddPost_VM.addPostListener addPostViewModelListener = new AddPost_VM.addPostListener() {
             @Override

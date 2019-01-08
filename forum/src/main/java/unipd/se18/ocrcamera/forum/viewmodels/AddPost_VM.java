@@ -24,19 +24,19 @@ public class AddPost_VM implements AddPostsMethods {
     /**
      * String used for logs
      */
-    private String TAG = "AddPost_VM -> ";
+    private static String TAG = "AddPost_VM -> ";
 
     /**
      * Key for requesting to add a new post
      * (used by the server that hosts the forum)
      */
-    private final String KEY_ADD_POST_REQUEST = "c";
+    public static final String KEY_ADD_POST_REQUEST = "c";
 
     /**
      * Key for indicating the content of the post
      * (used by the server that hosts the forum)
      */
-    private final String KEY_JSON_POST_CONTENT = "jPost";
+    public static final String KEY_JSON_POST_CONTENT = "jPost";
 
     /**
      * Listener useful for communicating with the View
@@ -167,7 +167,7 @@ public class AddPost_VM implements AddPostsMethods {
         Log.i(TAG,"addPostToForum");
 
         // Checks the validity of the parameters
-        if(!checkParametersValidity(title, message, author)) {
+        if(!areParametersValid(title, message, author)) {
             Log.d(TAG,"addPostToForum -> The parameters are not valid");
 
             // The parameters are not valid
@@ -213,12 +213,16 @@ public class AddPost_VM implements AddPostsMethods {
      * @return TRUE if the parameters are valid, FALSE otherwise
      * @author Pietro Prandini (g2)
      */
-    private Boolean checkParametersValidity(String title, String message, String author) {
+    private Boolean areParametersValid(String title, String message, String author) {
         // Checks if the Strings are not null and not empty ones
         return (title != null && !title.equals(""))
                 && (message != null && !message.equals(""))
                 && (author != null && !author.equals(""));
     }
+
+    /*
+    The next two methods are public and static to favourite the testing
+     */
 
     /**
      * Sets up the parameters for sending the post adding request
@@ -233,7 +237,7 @@ public class AddPost_VM implements AddPostsMethods {
      * @throws JSONException If the JSON post is not correctly built
      * @author Pietro Prandini (g2)
      */
-    private ArrayList<RequestManager.Parameter> getAddPostParameters
+    public static ArrayList<RequestManager.Parameter> getAddPostParameters
     (String title, String message, String author) throws JSONException {
         // Sets up the add post request parameter
         RequestManager.Parameter addPostParameter =
@@ -272,7 +276,8 @@ public class AddPost_VM implements AddPostsMethods {
      * @throws JSONException If the JSON post is not correctly built
      * @author Pietro Prandini (g2)
      */
-    private String getJSONPost(String title, String message, String author) throws JSONException {
+    public static String getJSONPost(String title, String message, String author)
+            throws JSONException {
         // Prepares the post's data
         Date today = new Date();
 

@@ -23,6 +23,17 @@ public class AddPost_VMTest {
     private String commentsJSONKey;
     private String authorJSONKey;
 
+    // Valid Strings for a new post
+    private final String validTitle = "Valid test title";
+    private final String validMessage = "Valid test message";
+    private final String validAuthor = "Valid test author";
+
+    // Parameters of the add post request
+    ArrayList<RequestManager.Parameter> postManagerParameters;
+
+    // String generated from getJSONPost method
+    String JSONPost;
+
     /**
      * Sets up the environment for testing
      * @author Pietro Prandini (g2)
@@ -37,6 +48,13 @@ public class AddPost_VMTest {
         likesJSONKey = "likes";
         commentsJSONKey = "comments";
         authorJSONKey = "author";
+
+        // Generating the parameters
+        postManagerParameters =
+                AddPost_VM.getAddPostParameters(validTitle,validMessage,validAuthor);
+
+        // Generating a JSON post
+        JSONPost = AddPost_VM.getJSONPost(validTitle,validMessage,validAuthor);
     }
 
     /**

@@ -23,6 +23,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
      * ***************************
      */
 
+    //TODO remove the variables used for the observer in order to use the listeners architecture
     public MutableLiveData<String> liveLoginResponse = new MutableLiveData<>();
     public MutableLiveData<String> liveError = new MutableLiveData<>();
 
@@ -70,7 +71,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
         /**
          * if the login wasn't successful
          */
-        void onLoginInsuccess(String message);
+        void onLoginFailure(String message);
 
 
     }
@@ -81,41 +82,43 @@ public class Login_VM extends ViewModel implements LoginMethods {
      * @param operationListener The instance of the listener useful for communicating with the view
      * @author Taulant Bullaku (g2)
      */
-    public void setforumLoginListener(Login_VM.forumLoginListener operationListener) {
+    public void setForumLoginListener(Login_VM.forumLoginListener operationListener) {
 
         this.operationListener = operationListener;
     }
 
     private forumLoginListener operationListener;
 
-    /**
-     * @author Taulant Bullaku (g2)
-     */
-    private RequestManager.RequestManagerListener requestManagerListener =
-            new RequestManager.RequestManagerListener() {
-                /**
-                 * Notifies that the login was successful
-                 * @param username The network request's response
-                 */
-                @Override
-                public void onLoginSuccess(String username) {
-                    // success login
-                    // TODO
-                    operationListener.onLoginSuccess(username);
-                }
+    //TODO you could delete these commented lines
+//    /**
+//     * @author Taulant Bullaku (g2)
+//     */
+//    private RequestManager.RequestManagerListener requestManagerListener =
+//            new RequestManager.RequestManagerListener() {
+//                /**
+//                 * Notifies that the login was successful
+//                 * @param username The network request's response
+//                 */
+//                @Override
+//                public void onLoginSuccess(String username) {
+//                    // success login
+//                    // TODO
+//                    operationListener.onLoginSuccess(username);
+//                }
+//
+//                /**
+//                 * Notifies that a post was added correctly
+//                 * @param response The network request's response
+//                 */
+//                @Override
+//                public void onLoginInsuccess(String message) {
+//                    // success login
+//                    // TODO
+//                    operationListener.onLoginInsuccess(message);
+//                }
+//
+//            };
 
-                /**
-                 * Notifies that a post was added correctly
-                 * @param response The network request's response
-                 */
-                @Override
-                public void onLoginInsuccess(String message) {
-                    // success login
-                    // TODO
-                    operationListener.onLoginInsuccess(message);
-                }
-
-            };
 
     @Override
     public void loginToForum(final Context context, final String username, String password) {
@@ -165,7 +168,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
              */
             @Override
             public void onRequestFinished(String response) {
-
+                //TODO put here the operationListener.onLoginSuccess() without the observe's statements
                 //The live data is triggered so that the UI can be correctly updated
                 if(response.equals("true")) {
                     //If credentials are correct, the username is passed to the login fragment
@@ -179,12 +182,14 @@ public class Login_VM extends ViewModel implements LoginMethods {
 
             @Override
             public void onConnectionFailed(String message) {
+                //TODO put here the operationListener.onLoginFailure(message) without the observe's statements
                 Log.d(LOG_TAG, message);
                 liveError.setValue(context.getString(R.string.loginFailedMessage));
             }
 
             @Override
             public void onParametersSendingFailed(String message) {
+                //TODO put here the operationListener.onLoginFailure(message) without the observe's statements
                 Log.d(LOG_TAG, message);
                 liveError.setValue(context.getString(R.string.loginFailedMessage));
             }
