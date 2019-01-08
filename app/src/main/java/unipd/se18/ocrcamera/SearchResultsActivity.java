@@ -3,12 +3,14 @@ package unipd.se18.ocrcamera;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -30,7 +32,8 @@ import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 /**
  * This activity allow the user to manually search for ingredients, providing smart suggestions
  * while the user is typing.
- * It can be launched with an ACTION_SEARCH intent
+ * Currently it is launched with an ACTION_SEARCH intent from the SearchView contained in the
+ * menu, in ResultActivity.java
  * @author Luca Moroldo g3
  */
 public class SearchResultsActivity extends AppCompatActivity {
@@ -58,11 +61,6 @@ public class SearchResultsActivity extends AppCompatActivity {
     private Button mSearchButton;
 
     /**
-     * Stores all the names of the ingredients inside the INCI db
-     */
-    private ArrayList<String> fullIngredientsList;
-
-    /**
      * Adapter used to update the dropdown suggestions list
      */
     private ArrayAdapter<String> dropDownListAdapter;
@@ -78,7 +76,7 @@ public class SearchResultsActivity extends AppCompatActivity {
     private static final int MAX_DROPDOWN_SUGGESTIONS = 40;
 
     /**
-     * Minimum query size to show succestions
+     * Minimum query size to show suggestions
      */
     private static final int SUGGESTION_THRESHOLD = 2;
 
@@ -102,7 +100,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         ingredientsExtractor = InciSingleton.getInstance(getApplicationContext()).getIngredientsExtractor();
 
 
-        //add an item list click to show a dialog with ingredient's data
+        //add on item list click listener to show a dialog with ingredient's data
         mIngredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -120,7 +118,8 @@ public class SearchResultsActivity extends AppCompatActivity {
         });
 
 
-        //set button click listener to get text inside AutoCompleteTV and search for ingredients
+        //set button click listener to get text inside AutoCompleteTV, search for ingredients and
+        //update mIndgredientsListView adapter
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,7 +127,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 String query = mAutoCompleteTextView.getText().toString();
 
                 //find similar ingredients list - toUpperCase() used because the database stores
-                //data uppercase only
+                //data with uppercase only
                 List<Ingredient> ingredientsFound =
                         ingredientsExtractor.findListIngredients(query.toUpperCase());
 
@@ -149,7 +148,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         //load the complete ingredients list and setup the AutoCompleteTextView
         new AutoCompleteTVSetup().run();
 
-
+        //handle the calling intent
         handleIntent(getIntent());
     }
 
@@ -161,7 +160,7 @@ public class SearchResultsActivity extends AppCompatActivity {
     /**
      * Given an action search intent, create a list view of similar ingredients retrieved
      * from INCI database
-     * @param intent action search intent
+     * @param intent an action search intent
      */
     private void handleIntent(Intent intent) {
 
@@ -189,6 +188,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 //message that nothing has been found
                 mMessageTextView.setText("Nothing found");
             }
+
         } else {
 
             //if the intent action is not an ACTION_SEARCH then close the activity and display an error
@@ -209,18 +209,17 @@ public class SearchResultsActivity extends AppCompatActivity {
     private class AutoCompleteTVSetup implements Runnable {
         @Override
         public void run() {
+            //specify to run this code on background to avoid slowing down the UI
+            android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 
             //start suggesting with more than SUGGESTION_THRESHOLD chars typed
             mAutoCompleteTextView.setThreshold(SUGGESTION_THRESHOLD);
-
-            //get an ArrayList<String> of ingredients names
-            fullIngredientsList = getFullIngredientsList();
 
             //instance the suggestion adapter with the custom suggestion filter
             dropDownListAdapter = new ArrayAdapter<String>(
                     getApplicationContext(),
                     android.R.layout.simple_list_item_1,
-                    (ArrayList<String>) fullIngredientsList.clone() ){
+                    getFullIngredientsList()){
 
                 //override getFilter to use the custom suggestions filter
                 private Filter filter;
@@ -254,7 +253,7 @@ public class SearchResultsActivity extends AppCompatActivity {
             });
 
 
-            //if user press enter key then run a search
+            //if user press enter key then perform search
             mAutoCompleteTextView.setOnKeyListener(new View.OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -269,7 +268,9 @@ public class SearchResultsActivity extends AppCompatActivity {
     }
 
     /**
-     * This filter provides smart suggestions from the full list of INCI ingredients
+     * This filter provides smart suggestions selected from the full list of INCI ingredients by
+     * ordering suggestions alphabetically and prioritizing shorter words that starts with the
+     * constraint given by the user.
      * @author Luca Moroldo g3
      */
     private class IngredientsFilter extends Filter {
@@ -293,8 +294,8 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
-            //Variable constraint contains the chars typed by the user inside the
-            //autocomplete textview
+            //this function is called every time the user type anything inside the
+            //autocomplete textview; the constraint is what the user typed so far
 
 
             FilterResults results = new FilterResults();
@@ -305,24 +306,19 @@ public class SearchResultsActivity extends AppCompatActivity {
                 return  results;
             }
 
-
-            // if the constraint is more restricting than the last, we can use as full
+            // if the constraint is more restricting than the last, use as full
             // list the last one and save time
             List<String> fullList = null;
             if(constraint.length() - lastSize > 0) {
                 fullList = lastList;
             } else {
-                // otherwise we need to get a copy of the full ingredients list
-                fullList = (ArrayList<String>) fullIngredientsList.clone();
+                // otherwise get a copy of the full ingredients list
+                fullList = getFullIngredientsList();
             }
-            //update last size
-            lastSize = constraint.length();
 
             //convert the constraint to upper case as the ingredients from the db use
-            //upper case
+            //upper case only
             final String stringConstraint = constraint.toString().toUpperCase();
-
-
 
             //add to the suggestions any ingredient that contains the constraint
             ArrayList<String> filteredList = new ArrayList<>();
@@ -332,7 +328,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 }
             }
 
-            //show sorted suggestions (if a suggestions starts with the constraint then show
+            //sort suggestions (if a suggestions starts with the constraint then show
             //it before)
             Collections.sort(filteredList, new Comparator<String> () {
                 @Override
@@ -369,7 +365,10 @@ public class SearchResultsActivity extends AppCompatActivity {
             results.values = filteredList;
             results.count = filteredList.size();
 
+            //update variables for any other constraint
             lastList = (ArrayList<String>) results.values;
+            lastSize = constraint.length();
+
             return results;
         }
 
@@ -388,7 +387,6 @@ public class SearchResultsActivity extends AppCompatActivity {
                 }
             }
             dropDownListAdapter.notifyDataSetChanged();
-
         }
     }
 
