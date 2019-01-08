@@ -60,4 +60,5 @@
     <string name="too_bright_picture">The picture might be too bright</string>
     <string name="too_dark_picture">The picture might be too dark</string>
     <string name="download_test_pics">No test pics fond, download them please.</string>
+    <string name="empty_ingredients_list_message">Nothing found</string>
 </resources>
