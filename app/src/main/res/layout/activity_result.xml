@@ -19,14 +19,12 @@
     <ListView
         android:id="@+id/ingredients_list"
         android:layout_width="match_parent"
-        android:layout_height="255dp"
+        android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/img_captured_view"
-        app:layout_constraintVertical_bias="1.0"></ListView>
+        app:layout_constraintTop_toBottomOf="@+id/img_captured_view">
+    </ListView>
 
     <TextView
         android:id="@+id/empty_list"
