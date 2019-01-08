@@ -3,10 +3,12 @@ package unipd.se18.ocrcamera.forum;
 import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import static org.junit.Assert.*;
 
@@ -18,13 +20,18 @@ import static org.junit.Assert.*;
  */
 public class AddPost_VMTest {
     // Post keys for a JSON
-    private String IDJSONKey;
-    private String titleJSONKey;
-    private String messageJSONKey;
-    private String dateJSONKey;
-    private String likesJSONKey;
-    private String commentsJSONKey;
-    private String authorJSONKey;
+    private final String IDJSONKey = "ID";
+    private final String titleJSONKey = "title";
+    private final String messageJSONKey = "message";
+    private final String dateJSONKey = "date";
+    private final String likesJSONKey = "likes";
+    private final String commentsJSONKey = "comments";
+    private final String authorJSONKey = "author";
+
+    // Default value of a post
+    private final int defaultID = 0;
+    private final int defaultLikes = 0;
+    private final int defaultComments = 0;
 
     // Valid Strings for a new post
     private final String validTitle = "Valid test title";
@@ -35,31 +42,20 @@ public class AddPost_VMTest {
     private ArrayList<RequestManager.Parameter> postManagerParameters;
 
     // String generated from getJSONPost method
-    private String JSONPost;
+    private String generatedJSONPostToString;
 
     /**
      * Sets up the environment for testing
      * @author Pietro Prandini (g2)
      */
     @Before
-    public void setUpAddPostVMEnvironment() /*throws JSONException*/ {
-        // Initialization of the variables
-        IDJSONKey = "ID";
-        titleJSONKey = "title";
-        messageJSONKey = "message";
-        dateJSONKey = "date";
-        likesJSONKey = "likes";
-        commentsJSONKey = "comments";
-        authorJSONKey = "author";
-
-        /*
-        // Generating the parameters
+    public void setUpAddPostVMEnvironment() throws JSONException {
+        // Generates the parameters
         postManagerParameters =
                 AddPost_VM.getAddPostParameters(validTitle,validMessage,validAuthor);
 
-        // Generating a JSON post
-        JSONPost = AddPost_VM.getJSONPost(validTitle,validMessage,validAuthor);
-        */
+        // Generates a JSON post
+        generatedJSONPostToString = AddPost_VM.getJSONPost(validTitle,validMessage,validAuthor);
     }
 
     /**
@@ -123,5 +119,15 @@ public class AddPost_VMTest {
     @Test
     public void enumAuthorCheck() {
         assertEquals(authorJSONKey, AddPost_VM.JSONPostKey.AUTHOR.value);
+    }
+
+    /**
+     * Checks if the title of the JSON is the same as the title that is in the JSON generated post
+     * @throws JSONException Exception of the JSON package {@link JSONException}
+     */
+    @Test
+    public void checkJSONTitle() throws JSONException {
+        JSONObject JSONPost = new JSONObject(generatedJSONPostToString);
+        assertEquals(validTitle, JSONPost.getString(AddPost_VM.JSONPostKey.TITLE.value));
     }
 }
