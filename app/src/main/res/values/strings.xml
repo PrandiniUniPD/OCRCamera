@@ -54,7 +54,7 @@
     <!--List of strings for MainAllergensActivity-->
     <string name="allergens_search_bar">Type an allergen name</string>
     <string name="allergens_search_fragment">Allergen Selection</string>
-    <string name="allergens_user_fragment">Your Allergens</string>
+    <string name="allergens_user_fragment">My Allergens</string>
     <string name="togglebutton_add_allergen">add</string>
     <string name="togglebutton_remove_allergen">remove</string>
     <string name="allergens_search_button">Search</string>

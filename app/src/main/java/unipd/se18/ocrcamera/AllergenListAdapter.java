@@ -83,6 +83,10 @@ public class AllergenListAdapter extends ArrayAdapter<Allergen> {
                     if (isSelected){
                         Log.i(TAG, "remove allergen from user's list");
                         selectedAllergens.remove(mAllergen);
+
+                        //remove allergen to hide it from the view
+                        remove(mAllergen);
+                        notifyDataSetChanged();
                     }
                     else {
                         Log.i(TAG, "add allergen to user's list");

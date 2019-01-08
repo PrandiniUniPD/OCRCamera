@@ -94,5 +94,6 @@ public class MainAllergensActivity extends AppCompatActivity {
         public int getCount() {
             return mFragmentList.size();
         }
+
     }
 }

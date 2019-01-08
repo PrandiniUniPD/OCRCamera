@@ -42,17 +42,14 @@ public class UserAllergensFragment extends Fragment {
         //create mAllergensListAdapter with the list of the users' allergens
         mAllergensListAdapter= new AllergenListAdapter(getActivity(), R.layout.allergen_single, userList);
         mAllergensListView.setAdapter(mAllergensListAdapter);
-
-        mAllergensListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.i(TAG, "premuto");
-            }
-        });
-
         return fragmentView;
     }
 
+    /**
+     * When the user focus the fragment, update mAllergensListView to show any change
+     * @param isVisibleToUser
+     * @author Luca Moroldo g3
+     */
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
