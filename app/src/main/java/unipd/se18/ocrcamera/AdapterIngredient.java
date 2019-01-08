@@ -72,7 +72,9 @@ public class AdapterIngredient extends BaseAdapter {
         functionView.setText(function);
 
         // Highlight if it is an allergen
-        if(allergensManager.checkForAllergens(ingredient).size() > 0)
+        if(allergensManager.checkForSelectedAllergens(ingredient).size() > 0)
+            convertView.setBackgroundColor(Color.RED);
+        else if(allergensManager.checkForAllergens(ingredient).size() > 0)
             convertView.setBackgroundColor(Color.YELLOW);
 
         return convertView;

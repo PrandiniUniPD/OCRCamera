@@ -46,14 +46,19 @@ class Allergen {
     public String inciNamesString() {
 
         String namesString = "";
+        boolean first = true;
 
         for (String name : inciNames) {
-            namesString = namesString + ", " + name;
+            if(first) {       // On the first iteration don't put the comma
+                namesString = name;
+                first = false;
+            }else {
+                namesString = namesString + ", " + name;
+            }
         }
 
         return namesString;
     }
-
     /**   !!HELP FROM STEFANO ROMANELLO!!
      * This method is used to check if two Allergens are the same (used in the "contains" method
      * in AllergensListAdapter
