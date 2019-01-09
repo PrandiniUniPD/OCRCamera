@@ -7,12 +7,10 @@ import android.util.Log;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 import unipd.se18.ocrcamera.forum.DatabaseManager;
 import unipd.se18.ocrcamera.forum.R;
-import unipd.se18.ocrcamera.forum.RequestManager;
 import unipd.se18.ocrcamera.forum.models.Post;
 
 /**
