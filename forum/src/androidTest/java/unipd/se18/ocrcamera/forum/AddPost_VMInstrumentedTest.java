@@ -9,8 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-
 import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
 import static org.junit.Assert.*;
@@ -21,9 +19,6 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class AddPost_VMInstrumentedTest {
-    /*
-    AddPost_VM Instrumented tests (ViewModel)
-     */
     // Parameter for posting a new post
     private Context context;
 
@@ -66,7 +61,7 @@ public class AddPost_VMInstrumentedTest {
             @Override
             public void onPostAdded(String response) {
                 // With invalid parameters the post shouldn't be added
-                assertNotNull(response);
+                assertNull(response);
             }
 
             @Override
