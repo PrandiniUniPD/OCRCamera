@@ -30,21 +30,25 @@ class AllergensManager {
 
     /**
      * constructor
-     * @param cntx context of the app/calling activity
+     * @param cntxt context of the app/calling activity
+     * @author Cervo Nicolò
      */
-    AllergensManager(Context cntx) {
+    AllergensManager(Context cntxt) {
 
-        context = cntx;
-        sp = context.getSharedPreferences("unipd.se18.ocrcamera.SELECTED_ALLERGENS", Context.MODE_PRIVATE);
+        context = cntxt;
+        String selectedAllergensSP = cntxt.getString(R.string.selected_allergens_sharedPref);
+        sp = context.getSharedPreferences(selectedAllergensSP, Context.MODE_PRIVATE);
         readAllergensdb();
 
     }
 
     /**
-     * loads the allergens contained in raw resource file allergendb.csv into allergensList
+     * Reads the allergendb.csv file from resources and stores the content in allergensList
+     * @author Cervo Nicolò
      */
     private  void readAllergensdb() {
 
+        // Parse through the allergendb.csv with CSVReader
         InputStream inputStream = context.getResources().openRawResource(R.raw.allergendb);
         InputStreamReader allergenDbReader = new InputStreamReader(inputStream);
         CSVReader csvReader = new CSVReader(allergenDbReader);
@@ -59,8 +63,8 @@ class AllergensManager {
                 String inciNames[];
 
                 // get the Allergen fields from line[]
-                commonName = line[COMMON_NAME].replace("\"", "");
-                inciNames = line[INCI_NAMES].replace("\"", "").split(", ");
+                commonName = line[COMMON_NAME];
+                inciNames = line[INCI_NAMES].split(", ");
 
                 // set the fields
                 allergen.setCommonName(commonName);
@@ -78,7 +82,7 @@ class AllergensManager {
      * This method returns an list of Allergen objects from allergendb.csv
      * @return allergensList, the converted ArrayList of Allergen objects
      * @modify allergensList by putting all allergens in it
-     * @author Cervo Nicolò
+     * @author Cervo Nicolò (g3)
      */
     public ArrayList<Allergen> getAllergensList() {
 
@@ -88,6 +92,7 @@ class AllergensManager {
     /**
      * parses through selected_allergens to return the list of selected allergens
      * @return selectedAllergensList, ArrayList<Allergen> of selected allergens
+     * @author Nicolò Cervo (g3)
      */
     public ArrayList<Allergen> getSelectedAllergensList() {
 
@@ -111,6 +116,7 @@ class AllergensManager {
      *        to be compared to the allergens
      * @return foundAllergens, ArrayList<Allergen> containing the allergens found in the inciName or
      *         in the description of ingr, empty list if none is found
+     * @author Cervo Nicolò
      */
     public ArrayList<Allergen> checkForAllergens(Ingredient ingr) {
         ArrayList<Allergen> foundAllergens = new ArrayList<>();
@@ -137,9 +143,10 @@ class AllergensManager {
     }
 
     /**
-     * Check if an ingredient contains a selected allergen common name or inci name
+     * Check if an ingredient contains a selected allergen common name or inci name (stored in SharedPreferences sp)
      * @param ingr, ingredient to check for allergens
-     * @return the allergen found in the ingredient, null if no allergen is found
+     * @return the allergen found in the ingredient, empty ArrayList if no allergen is found
+     * @author Nicolò Cervo (g3)
      */
     public ArrayList<Allergen> checkForSelectedAllergens(Ingredient ingr) {
 
@@ -162,9 +169,42 @@ class AllergensManager {
     }
 
     /**
+     * Checks an ArrayList of ingredients for allergens.
+     * @param ingrList, ArrayList of ingredients to check.
+     * @return foundAllergens, ArrayList of allergens found in ingrList.
+     * @author Nicolò Cervo (g3)
+     */
+    public ArrayList<Allergen> checkListForAllergens(ArrayList<Ingredient> ingrList) {
+        ArrayList<Allergen> foundAllergens = new ArrayList<>();
+
+        for(Ingredient ingr : ingrList) {
+            foundAllergens.addAll(checkForAllergens(ingr));
+        }
+        return foundAllergens;
+    }
+
+    /**
+     * Checks an ArrayList of ingredients for selected allergens.
+     * @param ingrList, ArrayList of ingredients to check.
+     * @return foundAllergens, ArrayList of selected allergens found in ingrList.
+     * @author Nicolò Cervo (g3)
+     */
+    public ArrayList<Allergen> checkListForSelectedAllergens(ArrayList<Ingredient> ingrList) {
+        ArrayList<Allergen> foundSelectedAllergens = new ArrayList<>();
+
+        for(Ingredient ingr : ingrList) {
+            foundSelectedAllergens.addAll(checkForSelectedAllergens(ingr));
+        }
+        return foundSelectedAllergens;
+    }
+
+    /**
      * adds allergen to the SharedPreferences file selected_allergens
+     * the allergens are saved in SharedPreferences as key value pairs where the key commonName and
+     * the value is a String containing the inciNames elements separated by ", ".
      * @param allergen, the Allergen to add
      * @modify selected_allergens
+     * @author Nicolò Cervo (g3)
      */
     public void selectAllergen(Allergen allergen) {
 
@@ -175,8 +215,11 @@ class AllergensManager {
 
     /**
      * removes an allergen from the SharedPreferences file selected_allergens
+     * the allergens are saved in SharedPreferences as key value pairs where the key commonName and
+     * the value is a String containing the inciNames elements separated by ", ".
      * @param allergen, the Allergen to remove
      * @modify selected_allergens
+     * @author Nicolò Cervo (g3)
      */
     public void deselectAllergen(Allergen allergen) {
 
@@ -186,8 +229,11 @@ class AllergensManager {
     }
 
     /**
-     * updates the sharedpreferences file selected_allergens with the new allergen list newSelectedAllergens
+     * Updates the sharedpreferences file selected_allergens with the new allergen list newSelectedAllergens
+     * the allergens are saved in SharedPreferences as key value pairs where the key commonName and
+     * the value is a String containing the inciNames elements separated by ", ".
      * @param newSelectdAllergens, new list of selected allergens
+     * @author Nicolò Cervo (g3)
      */
     public void updateSelectedAllergens(ArrayList<Allergen> newSelectdAllergens) {
 
