@@ -65,7 +65,7 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
     @Override
     public void getPosts(final Context context)
     {
-        final DatabaseManager.Listners listeners = new DatabaseManager.Listners();
+        final DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
         listeners.completeListener = new OnCompleteListener<QuerySnapshot>()
         {
             @Override

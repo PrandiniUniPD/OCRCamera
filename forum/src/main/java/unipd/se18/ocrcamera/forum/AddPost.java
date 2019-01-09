@@ -93,7 +93,6 @@ public class AddPost extends Fragment {
 
                         //Start showPost fragment
                         Fragment showPostFragment = new ShowPosts();
-                        showPostFragment.setArguments();
                         getActivity()
                                 .getSupportFragmentManager()
                                 .beginTransaction()
@@ -106,7 +105,7 @@ public class AddPost extends Fragment {
                     }
 
                     @Override
-                    public void onConnectionFailed(String error) {
+                    public void onAddingPostFailure(String error) {
                         Toast.makeText(getActivity(),
                                 getResources().getString(R.string.messagePostNotAdded),
                                 Toast.LENGTH_LONG).show();
@@ -127,54 +126,7 @@ public class AddPost extends Fragment {
                                 .addToBackStack(null)
                                 .commit();
                     }
-
-                    @Override
-                    public void onParametersSendingFailed(String error) {
-                        Toast.makeText(getActivity(),
-                                getResources().getString(R.string.messageWrongParameters),
-                                Toast.LENGTH_LONG).show();
-
-                        //Restart fragment
-                        Fragment addPostFragment = new AddPost();
-                        Bundle bundle = new Bundle();
-                        bundle.putString("title", titleText);
-                        bundle.putString("message", messageText);
-                        addPostFragment.setArguments(bundle);
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(
-                                        R.id.fragmentContainer,
-                                        addPostFragment
-                                )
-                                .addToBackStack(null)
-                                .commit();
-                    }
-
-                    @Override
-                    public void onJSONPostCreationFailed(String error) {
-                        Log.e(Tag, getResources().getString(R.string.logWrongJSON));
-                        Toast.makeText(getActivity(),
-                                getResources().getString(R.string.messageWrongJSON),
-                                Toast.LENGTH_LONG).show();
-
-                        //Restart fragment
-                        Fragment addPostFragment = new AddPost();
-                        Bundle bundle = new Bundle();
-                        bundle.putString("title", titleText);
-                        bundle.putString("message", messageText);
-                        addPostFragment.setArguments(bundle);
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(
-                                        R.id.fragmentContainer,
-                                        addPostFragment
-                                )
-                                .addToBackStack(null)
-                                .commit();
-                    }
-
+                    
                     @Override
                     public void onNotValidParameters(String error){
                         Toast.makeText(getActivity(),

@@ -18,7 +18,7 @@ public class DatabaseManager
     /**
      * Listeners that can be called when the communication with the db has ended
      */
-    public static class Listners
+    public static class Listeners
     {
         public OnSuccessListener successListener;
         public OnFailureListener failureListener;
@@ -32,7 +32,7 @@ public class DatabaseManager
      * @param password The specified user's password
      * @param listeners The listeners that have to be executed when the communication with the database has ended
      */
-    public static void loginUser(Context context, String username, String password, DatabaseManager.Listners listeners)
+    public static void loginUser(Context context, String username, String password, DatabaseManager.Listeners listeners)
     {
         //Get from the db the user with the specified username and password
         //When the query has ended the completeListener is called
@@ -51,7 +51,7 @@ public class DatabaseManager
      * @param post The post that has to be added into the database
      * @param listeners The listeners that have to be executed when the communication with the database has ended
      */
-    public static void addPost(Context context, Post post, DatabaseManager.Listners listeners)
+    public static void addPost(Context context, Post post, DatabaseManager.Listeners listeners)
     {
         //The post that has to be added is converted into a map
         Map<String, Object> toAdd = new HashMap<>();
@@ -76,7 +76,7 @@ public class DatabaseManager
      * @param context The reference to the activity/fragment that has invoked this method
      * @param listeners The listeners that have to be executed when the communication with the database has ended
      */
-    public static void getPosts(Context context, DatabaseManager.Listners listeners)
+    public static void getPosts(Context context, DatabaseManager.Listeners listeners)
     {
         //Get from the db the posts inserted by users
         //When the query has finished the completeListener is called

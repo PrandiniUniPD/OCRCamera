@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
  */
 public class PostTest {
     // Posts variables
-    private int ID;
+    private String ID;
     private String title;
     private String message;
     private Date date;
@@ -32,7 +32,7 @@ public class PostTest {
     @Before
     public void setUpPost() {
         // Assigns values to the variable for creating a new post
-        ID = 0;
+        ID = "";
         title = "Test";
         message = "Test message";
         date = new Date();

@@ -9,8 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-
 import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
 import static org.junit.Assert.*;
@@ -21,9 +19,6 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class AddPost_VMInstrumentedTest {
-    /*
-    AddPost_VM Instrumented tests (ViewModel)
-     */
     // Parameter for posting a new post
     private Context context;
 
@@ -66,18 +61,12 @@ public class AddPost_VMInstrumentedTest {
             @Override
             public void onPostAdded(String response) {
                 // With invalid parameters the post shouldn't be added
-                assertNotNull(response);
+                assertNull(response);
             }
 
             @Override
-            public void onConnectionFailed(String error) {
+            public void onAddingPostFailure(String error) {
                 // With invalid parameters the connection shouldn't be established
-                assertNull(error);
-            }
-
-            @Override
-            public void onParametersSendingFailed(String error) {
-                // With invalid parameters the parameters shouldn't be sent
                 assertNull(error);
             }
 
@@ -85,12 +74,6 @@ public class AddPost_VMInstrumentedTest {
             public void onNotValidParameters(String error) {
                 // With invalid parameters this method should be launched with an error String
                 assertNotNull(error);
-            }
-
-            @Override
-            public void onJSONPostCreationFailed(String error) {
-                // With invalid parameters the JSON process shouldn't be started
-                assertNull(error);
             }
         };
 
