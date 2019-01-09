@@ -18,7 +18,7 @@ import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
 
 /**
  * A fragment where a user can add a new post to the forum
- * @author Giovanni Furlan g2
+ * @author Giovanni Furlan g2 thanks to Pietro Prandini for some general advice
  */
 public class AddPost extends Fragment {
 
@@ -27,12 +27,11 @@ public class AddPost extends Fragment {
      * **   GLOBAL VARIABLES    **
      * ***************************
      */
-
     private AddPost_VM viewModel;
-    private String titleText;
-    private String messageText;
     private String username;
     private String Tag;
+    private String titleText;
+    private String messageText;
 
     /**
      * Ui initialization
@@ -40,18 +39,6 @@ public class AddPost extends Fragment {
     private Button confirmBotton;
     private EditText titleEditText;
     private EditText messageEditText;
-
-    /**
-     * Error messages
-     */
-    private final String messageNullCamps ="Inserimento di parametri non validi, riprovare";
-    private final String messagePostAdded ="Post inserito correttamente";
-    private final String messagePostNotAdded ="Post non inserito, riprovare";
-    private final String messageWrongParameters ="Parametri non corretti, riprovare";
-    private final String logWrongJSON ="Errore nella creazione del JSON";
-    private final String messageWrongJSON ="Errore nella creazione del post, riprovare";
-
-
 
     public AddPost()
     {
@@ -62,6 +49,9 @@ public class AddPost extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        titleText = getArguments().getString("title", null);
+        messageText = getArguments().getString("message", null);
+
         return inflater.inflate(R.layout.fragment_add_post, container, false);
     }
 
@@ -75,6 +65,12 @@ public class AddPost extends Fragment {
         titleEditText = view.findViewById(R.id.titleEditText);
         messageEditText = view.findViewById(R.id.messageEditText);
 
+        //reload information wrote before an error
+        if(titleText!=null)
+            titleEditText.setText(titleText);
+        if(messageEditText!=null)
+            messageEditText.setText(messageText);
+
         confirmBotton.setOnClickListener( new View.OnClickListener()
         {
             public void onClick(View view)
@@ -84,9 +80,6 @@ public class AddPost extends Fragment {
                 //Username passed with the fragment
                 username = getArguments().getString("username");
 
-                //Call to the AddPost_VM
-                viewModel.addPostToForum(view.getContext(), titleText,messageText,username);
-
 
                 /**
                  * Listener of AddPost_VM
@@ -94,7 +87,9 @@ public class AddPost extends Fragment {
                 viewModel.setAddPostListener(new AddPost_VM.addPostListener() {
                     @Override
                     public void onPostAdded(String response) {
-                        Toast.makeText(getActivity(), messagePostAdded, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(),
+                                getResources().getString(R.string.messagePostAdded),
+                                Toast.LENGTH_LONG).show();
 
                         //Start showPost fragment
                         Fragment showPostFragment = new ShowPosts();
@@ -111,10 +106,16 @@ public class AddPost extends Fragment {
 
                     @Override
                     public void onAddingPostFailure(String error) {
-                        Toast.makeText(getActivity(), messagePostNotAdded, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(),
+                                getResources().getString(R.string.messagePostNotAdded),
+                                Toast.LENGTH_LONG).show();
 
                         //Restart fragment
                         Fragment addPostFragment = new AddPost();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("title", titleText);
+                        bundle.putString("message", messageText);
+                        addPostFragment.setArguments(bundle);
                         getActivity()
                                 .getSupportFragmentManager()
                                 .beginTransaction()
@@ -125,13 +126,19 @@ public class AddPost extends Fragment {
                                 .addToBackStack(null)
                                 .commit();
                     }
-
+                    
                     @Override
                     public void onNotValidParameters(String error){
-                        Toast.makeText(getActivity(), messageNullCamps, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(),
+                                getResources().getString(R.string.messageWrongParameters),
+                                Toast.LENGTH_LONG).show();
 
                         //Restart fragment
                         Fragment addPostFragment = new AddPost();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("title", titleText);
+                        bundle.putString("message", messageText);
+                        addPostFragment.setArguments(bundle);
                         getActivity()
                                 .getSupportFragmentManager()
                                 .beginTransaction()
@@ -143,6 +150,9 @@ public class AddPost extends Fragment {
                                 .commit();
                     }
                 });
+
+                //Call to the AddPost_VM
+                viewModel.addPostToForum(view.getContext(), titleText,messageText,username);
             }
         });
     }
