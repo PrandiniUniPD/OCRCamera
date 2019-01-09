@@ -19,5 +19,10 @@
     <string name="post_added">Post added successfully</string>
     <string name="connection_failed">Connection failed. Try to check your internet connection please.</string>
     <string name="not_valid_parameters">Title, message or author are not valid</string>
+    <string name="messagePostAdded"> Post added correctly</string>
+    <string name="messagePostNotAdded"> Post not added, retry</string>
+    <string name="messageWrongParameters">Parameters not valid, retry</string>
+    <string name="logWrongJSON"> Error in JSON creation</string>
+    <string name="messageWrongJSON"> Error in post creation, retry</string>
 
 </resources>
