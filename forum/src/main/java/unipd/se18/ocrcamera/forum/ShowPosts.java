@@ -201,14 +201,29 @@ public class ShowPosts extends Fragment {
                 @Override
                 public void onClick(View v)
                 {
+                    //Implementation of the add like listener
+                    viewModel.setAddLikeListener(new ShowPosts_VM.AddLikeListener() {
+                        @Override
+                        public void onAddLikeSuccess(String message)
+                        {
+                            //Updating model and UI
+                            currentPost.addLike();
+                            postHolder.lblPostLikes.setText("Likes: " + currentPost.getLikes());
+                        }
+
+                        @Override
+                        public void onAddLikeFailure(String message)
+                        {
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                        }
+                    });
+
                     //Store the new like into the db
                     viewModel.addLikeToPost(v.getContext(), currentPost.getID(), loggedUser, currentPost.getLikes());
-
-                    //Updating model and UI
-                    currentPost.addLike();
-                    postHolder.lblPostLikes.setText("Likes: " + currentPost.getLikes());
                 }
             });
+
+            
         }
 
         @Override

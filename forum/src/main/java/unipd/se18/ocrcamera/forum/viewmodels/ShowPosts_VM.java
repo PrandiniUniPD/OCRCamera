@@ -132,7 +132,7 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
      * @param user The user that has added the like
      * @param prevLikes The number of likes before the last addition
      */
-    public void addLikeToPost(Context context, String post, String user, int prevLikes)
+    public void addLikeToPost(final Context context, String post, String user, int prevLikes)
     {
         DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
 
@@ -147,7 +147,8 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
             @Override
             public void onFailure(@NonNull Exception e)
             {
-
+                Log.d(LOG_TAG, "Error: " + e.getMessage());
+                if (addLikeListener != null) { addLikeListener.onAddLikeFailure(context.getString(R.string.addLikeOnFailureMessage)); }
             }
         };
 
