@@ -33,7 +33,7 @@ public class MLKitBarcode implements Barcode{
         //using firebase .fromBitmap method to get an analyzable image from a given bitmap
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
         //Get the detector, modularized from the main method, so it's possible to make independent changes
-        FirebaseVisionBarcodeDetector detector = getDetector();
+        final FirebaseVisionBarcodeDetector detector = getDetector();
         //method to find and decode a barcode in the image
         Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
                 //adding a listener for the success result
@@ -72,6 +72,11 @@ public class MLKitBarcode implements Barcode{
         return code;
     }
 
+    /**
+     * method useful to get a detector object with the possibility
+     * to use different barcode formats or different implementations
+     * @return the Firebase detector object created
+     */
     public FirebaseVisionBarcodeDetector getDetector(){
         //possibility to limit barcode format recognized to improve performance
         FirebaseVisionBarcodeDetectorOptions options =
