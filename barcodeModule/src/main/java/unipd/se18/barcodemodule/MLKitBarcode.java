@@ -9,6 +9,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -31,8 +32,8 @@ public class MLKitBarcode implements Barcode{
         final CountDownLatch latch = new CountDownLatch(1);
         //using firebase .fromBitmap method to get an analyzable image from a given bitmap
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
-        //instantiating the barcode detector
-        final FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector();
+        //Get the detector, modularized from the main method, so it's possible to make independent changes
+        FirebaseVisionBarcodeDetector detector = getDetector();
         //method to find and decode a barcode in the image
         Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
                 //adding a listener for the success result
@@ -62,12 +63,25 @@ public class MLKitBarcode implements Barcode{
                     }
                 });
         try {
-            //this is the waiting on the countdown latch, waiting for the latch to be 0
+            //waiting for the latch to be 0
             latch.await();
         }catch(InterruptedException e){
-            //TODO gestire l'eccezione
-            Log.e("ERROR", e.getMessage());
+            Log.e("Latch exception", e.getMessage());
+            return "Fatal error! Please try again.";
         }
         return code;
     }
+
+    public FirebaseVisionBarcodeDetector getDetector(){
+        //possibility to limit barcode format recognized to improve performance
+        FirebaseVisionBarcodeDetectorOptions options =
+                new FirebaseVisionBarcodeDetectorOptions.Builder()
+                        .setBarcodeFormats(
+                                FirebaseVisionBarcode.FORMAT_ALL_FORMATS).build();
+        //instantiating the barcode detector, with the options chosen before
+        final FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector(options);
+        return detector;
+    }
+
+
 }

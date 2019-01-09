@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -74,18 +73,6 @@ public class ResultActivity extends AppCompatActivity {
         } else {
             Log.e("ResultActivity", "error retrieving last photo");
         }
-
-
-        /*if (result != null) {
-            if (result.equals("")) {
-                mOCRTextView.setText(R.string.no_text_found);
-            } else {
-                mOCRTextView.setText(result);
-            }
-        } else {
-            AsyncLoad ocrTask = new AsyncLoad(mOCRTextView, getString(R.string.processing));
-            ocrTask.execute(lastPhoto);
-        }*/
 
         AsyncLoad ocrTask = new AsyncLoad(mOCRTextView, getString(R.string.processing));
         ocrTask.execute(lastPhoto);
@@ -146,16 +133,19 @@ public class ResultActivity extends AppCompatActivity {
             String barcodeRecognized = "";
 
             if(lastPhoto != null) {
-
+                //invoke a barcodeRecognizer choosing the api type
                 Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit);
+                //get the String of the barcode from the bitmap image
                 barcodeRecognized = barcodeRecognizer.decodeBarcode(lastPhoto);
-
-                if(barcodeRecognized.equals("")){
-
+                //check if any barcode is found
+                if(barcodeRecognized.equals(""))
+                {
+                    //if no barcode was found than try to get the text ocr
                     textRecognized = ocr.getTextFromImg(lastPhoto);
 
                     if(textRecognized.equals(""))
                     {
+                    //if nothing was found than return a No text found message
                     textRecognized = getString(R.string.no_text_found);
                     final String finalTextRecognized = textRecognized;
 
@@ -163,8 +153,8 @@ public class ResultActivity extends AppCompatActivity {
                             mOCRTextView.setText(finalTextRecognized);
                         });
                     }
-                    else
-                    {
+                    else {
+                        //if text is found, return it
                         final String finalTextRecognized = textRecognized;
 
                         runOnUiThread(() -> {
@@ -172,22 +162,24 @@ public class ResultActivity extends AppCompatActivity {
                         });
                     }
                 }
-                else
-                {
-                    final String finalTextRecognized = "Barcode " + barcodeRecognized;
+                else {
+                    //if barcode id found return the associated number, as a String,
+                    //with a fixed "Barcode: " string to check the result is not from the ocr
+                    final String finalTextRecognized = "Barcode: " + barcodeRecognized;
 
                     runOnUiThread(() -> {
                         mOCRTextView.setText(finalTextRecognized);
                     });
                 }
-            } else {
+            }
+            else {
                 Log.e("NOT_FOUND", "photo not found");
             }
-
+            //using two different variables and one more if condition to avoid string conflict
             if(barcodeRecognized.equals("")) {
                 return textRecognized;
             }
-            else{
+            else {
                 return barcodeRecognized;
             }
         }

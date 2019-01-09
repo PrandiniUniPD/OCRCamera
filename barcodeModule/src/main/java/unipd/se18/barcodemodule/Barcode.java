@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 /**
  * Interface for barcode recognition
+ * @author Andrea Ton
  */
 
 public interface Barcode {

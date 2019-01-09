@@ -3,6 +3,7 @@ package unipd.se18.barcodemodule;
 /**
  * Useful set a type of recognition
  * It avoids the single point of failure relative to this process
+ * @author Andrea Ton
  */
 public class BarcodeRecognizer {
 
@@ -18,7 +19,6 @@ public class BarcodeRecognizer {
      * Provides an OCR recognizer
      * @param type The id of the recognition api requested
      * @return the object relative to the choosen type
-     * @author Andrea Ton
      */
     public static Barcode barcodeRecognizer(API type){
         switch (type){

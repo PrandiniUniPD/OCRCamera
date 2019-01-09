@@ -9,6 +9,8 @@
 
     <!-- Permissions for using the camera - author Pietro Prandini (g2) -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Used to download the ML model when app installed, otherwise it will be downloaded first time you run detector
+         and it will not produce any result till the completion of the download-->
     <meta-data
         android:name="com.google.firebase.ml.vision.DEPENDENCIES"
         android:value="barcode" />
