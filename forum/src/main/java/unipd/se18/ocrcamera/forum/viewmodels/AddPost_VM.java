@@ -101,7 +101,7 @@ public class AddPost_VM implements AddPostsMethods {
             @Override
             public void onSuccess(Object o) {
                 Log.d(TAG, "addPostToForum -> Post added successfully");
-                notifier.onPostAdded(o.toString());
+                notifier.onPostAdded(context.getString(R.string.post_added));
             }
         };
 
@@ -110,7 +110,7 @@ public class AddPost_VM implements AddPostsMethods {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d(TAG, "addPostToForum -> There was a failure when trying to add a post");
-                notifier.onAddingPostFailure(e.toString());
+                notifier.onAddingPostFailure(context.getString(R.string.posting_failure));
             }
         };
 
