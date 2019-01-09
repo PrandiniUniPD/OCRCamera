@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "524098709276",
+    "firebase_url": "https://elementiunipdforum.firebaseio.com",
+    "project_id": "elementiunipdforum",
+    "storage_bucket": "elementiunipdforum.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:524098709276:android:e0c4dbcd59b93ff3",
+        "android_client_info": {
+          "package_name": "unipd.se18.ocrcamera.forum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "524098709276-ctk0n6tv3cp134cbdctgcnauklduj1ck.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHfl9FJQIImMUX1ZHZkDWzUR13Ql01LWM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
