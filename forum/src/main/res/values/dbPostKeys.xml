@@ -7,5 +7,6 @@
     <string name="postMessageKey">message</string>
     <string name="postAuthorKey">author</string>
     <string name="postLikesKey">likes</string>
+    <string name="postCommentKey">comment</string>
     <string name="postCommentsKey">comments</string>
 </resources>

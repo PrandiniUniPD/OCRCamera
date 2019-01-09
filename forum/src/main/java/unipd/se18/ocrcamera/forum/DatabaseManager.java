@@ -83,6 +83,7 @@ public class DatabaseManager
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection(context.getString(R.string.postCollectionName))
+                .whereEqualTo(context.getString(R.string.postCommentKey), null)
                 .get()
                 .addOnCompleteListener(listeners.completeListener);
     }
@@ -113,6 +114,23 @@ public class DatabaseManager
         db.collection(context.getString(R.string.postCollectionName))
                 .document(post)
                 .update(context.getString(R.string.postLikesKey), prevLikes+1);
+    }
+
+    /**
+     * Gets the detail of the specified post
+     * @param context The reference to the activity/fragment that has invoked this method
+     * @param post The ID of the specified post
+     * @param listeners The listeners that have to be executed when the communication with the database has ended
+     */
+    public static void getPostDetail(Context context, String post, Listeners listeners)
+    {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        //Get the post detail from the db
+        db.collection(context.getString(R.string.postCollectionName))
+                .whereEqualTo(context.getString(R.string.postCommentKey), post)
+                .get()
+                .addOnCompleteListener(listeners.completeListener);
     }
 
 }

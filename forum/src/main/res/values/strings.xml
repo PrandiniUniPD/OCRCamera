@@ -25,5 +25,6 @@
     <string name="logWrongJSON"> Error in JSON creation</string>
     <string name="messageWrongJSON"> Error in post creation, retry</string>
     <string name="usernameFrgParam">username</string>
+    <string name="getPostDetailFailure">An error occurred while getting the post detail. Please retry by refreshing the page</string>
 
 </resources>

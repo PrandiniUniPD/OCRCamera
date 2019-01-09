@@ -55,6 +55,7 @@ public class ShowPosts extends Fragment {
         viewModel = ViewModelProviders.of(this).get(ShowPosts_VM.class);
 
         //Fragment parameters reading
+        //TODO("Uncomment this line when the username of the logged user is really passed as parameter)
         //loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), "default");
         loggedUser = "leoanardo.rossi";
     }
@@ -223,7 +224,21 @@ public class ShowPosts extends Fragment {
                 }
             });
 
-            
+            postHolder.btnComment.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    PostDetail fDetail = new PostDetail();
+
+                    Bundle params = new Bundle();
+                    params.putParcelable("post", currentPost);
+                    fDetail.setArguments(params);
+
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fDetail).commit();
+                }
+            });
+
         }
 
         @Override

@@ -1,5 +1,8 @@
 package unipd.se18.ocrcamera.forum.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,7 +12,7 @@ import java.util.HashMap;
  * A model that describes a post with all its data
  * @author Leonardo Rossi g2
  */
-public class Post
+public class Post implements Parcelable
 {
     public static final String DATE_FORMAT = "dd/MM/yyyy";
 
@@ -47,11 +50,25 @@ public class Post
         this("", title, message, date, 0, 0, author);
     }
 
+    public Post(String ID)
+    {
+        this(ID, "", "", new Date(), 0, 0, "");
+    }
+
     /**
      * *************************
      * ** GETTER AND SETTERS  **
      * *************************
      */
+
+    protected Post(Parcel in) {
+        ID = in.readString();
+        title = in.readString();
+        message = in.readString();
+        author = in.readString();
+        likes = in.readInt();
+        comments = in.readInt();
+    }
 
     /**
      * Returns the post's ID
@@ -152,4 +169,32 @@ public class Post
         }
     }
 
+    @Override
+    public int describeContents()
+    {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags)
+    {
+        dest.writeString(ID);
+        dest.writeString(title);
+        dest.writeString(message);
+        dest.writeString(author);
+        dest.writeInt(likes);
+        dest.writeInt(comments);
+    }
+
+    public static final Creator<Post> CREATOR = new Creator<Post>() {
+        @Override
+        public Post createFromParcel(Parcel in) {
+            return new Post(in);
+        }
+
+        @Override
+        public Post[] newArray(int size) {
+            return new Post[size];
+        }
+    };
 }
