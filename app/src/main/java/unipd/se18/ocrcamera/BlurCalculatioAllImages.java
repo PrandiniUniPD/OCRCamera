@@ -33,12 +33,27 @@ import static android.graphics.BitmapFactory.decodeStream;
  */
 public class BlurCalculatioAllImages extends AppCompatActivity {
 
-
+    /**
+     *  Directory of the Photos
+     */
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/OCRCameraDB";
+
+
     //private final String PHOTOS_FIX_ERROR = "/storage/emulated/0/Images/OCRCameraDB";
+    /**
+     * ListView to show all the ingredients in a List
+     */
     ListView listView;
+
+    /**
+     * ArrayList of object (see class blur object)
+     */
     ArrayList<BlurObject> arrayBlur = new ArrayList<>();
-    String fileNames[];             //lista elementi nella cartella
+
+    /**
+     * List of elements inside PHOTOS_FOLDER
+     */
+    String fileNames[];
 
 
 
@@ -49,7 +64,9 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         File path = new File(PHOTOS_FOLDER);
+        Log.e("info", path.getAbsolutePath());
         fileNames = path.list();
+
         Log.e("info", PHOTOS_FOLDER);
 
         if (fileNames != null) {
@@ -88,6 +105,10 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
 
     }
 
+    /**
+     * Method that creates a blurObject for every image in the folder
+     * @param imagepath
+     */
     public void setGallery(String imagepath) {
 
         int conta = 0;
@@ -112,6 +133,11 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
         }
     }
 
+    /**
+     *  Method to show the max value of the blur
+     * @param list list of BlurObjects
+     * @return double value
+     */
     public double findMax(ArrayList<BlurObject> list){
 
         double max=0;

@@ -3,7 +3,7 @@ package unipd.se18.ocrcamera;
 import android.graphics.Bitmap;
 
 
-/** Class to merge the information about the images
+/** Class that holds the bitmap, the name , and the blur value calculated
  *  Pratesi Leonardo
  *
  */

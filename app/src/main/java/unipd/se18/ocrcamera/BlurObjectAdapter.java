@@ -17,7 +17,7 @@ import java.util.ArrayList;
 /**
  * Class that implements the adapter to show the list of BlurObject
  * Leonardo Pratesi - gruppo 1
- *  USING MODEL-VIEW-CONTROLLER
+ * using MODEL-VIEW-CONTROLLER
  */
 public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
 
@@ -28,15 +28,28 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
 
     }
 
+    /**
+     * Constructor
+     * @param context , the activity context
+     * @param textViewResourceId the layout resource that works as an UI
+     * @param items items that needs to be shown in the list
+     */
     public BlurObjectAdapter(Context context, int textViewResourceId, ArrayList<BlurObject> items) {
         super(context, textViewResourceId, items);
     }
+    
 
-    //create the view for each BlurObject
+    /**
+     *  Extented method of android.widget.Adapter
+     * @param position the item position
+     * @param convertView parameter to recycle the view
+     * @param parent the ListView of the Gallery
+     * @return a view for each item of the list
+     */
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            Log.e("erre", "ViewholderNONesiste");
+            Log.e("erre", "Viewholder Does Not Exist");
 
             convertView = LayoutInflater.from(getContext())
                     .inflate(R.layout.adapterview
@@ -75,4 +88,5 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
         viewHolder.position=position;
         return convertView;
     }
+
 }
