@@ -70,8 +70,8 @@ public class AddPost_VM implements AddPostsMethods {
 
     /**
      * Adds a post to the forum
-     * More details at: {@link RequestManager},
-     * {@link RequestManager#sendRequest(Context, ArrayList)}.
+     * More details at: {@link DatabaseManager}, {@link DatabaseManager.Listeners},
+     * {@link DatabaseManager#addPost(Context, Post, DatabaseManager.Listeners)}.
      * @param context The reference of the activity/fragment that calls this method
      * @param title The new post's title
      * @param message The new post's message
