@@ -24,5 +24,6 @@
     <string name="messageWrongParameters">Parameters not valid, retry</string>
     <string name="logWrongJSON"> Error in JSON creation</string>
     <string name="messageWrongJSON"> Error in post creation, retry</string>
+    <string name="usernameFrgParam">username</string>
 
 </resources>

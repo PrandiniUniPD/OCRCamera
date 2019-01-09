@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ public class ShowPosts extends Fragment {
     private OnFragmentInteractionListener mListener;
     private RecyclerView forumPosts;
     private ShowPosts_VM viewModel;
+    private String loggedUser = "";
 
     public ShowPosts()
     {
@@ -51,6 +53,10 @@ public class ShowPosts extends Fragment {
 
         //View model initialization
         viewModel = ViewModelProviders.of(this).get(ShowPosts_VM.class);
+
+        //Fragment parameters reading
+        //loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), "default");
+        loggedUser = "leoanardo.rossi";
     }
 
     @Override
@@ -69,7 +75,7 @@ public class ShowPosts extends Fragment {
         forumPosts.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         //Definition of view model listener
-        viewModel.setUIComunicatorListener(new ShowPosts_VM.UIComunicator() {
+        viewModel.setGetPostsListener(new ShowPosts_VM.GetPostListener() {
             @Override
             public void onGetPostsSuccess(ArrayList<Post> posts)
             {
@@ -117,6 +123,8 @@ public class ShowPosts extends Fragment {
             TextView lblPostMessage;
             TextView lblPostLikes;
             TextView lblPostComments;
+            Button btnLike;
+            Button btnComment;
 
             public PostHolder(@NonNull View itemView)
             {
@@ -127,6 +135,8 @@ public class ShowPosts extends Fragment {
                 lblPostMessage = itemView.findViewById(R.id.lblPostMessage);
                 lblPostLikes = itemView.findViewById(R.id.lblPostLikes);
                 lblPostComments = itemView.findViewById(R.id.lblPostComments);
+                btnLike = itemView.findViewById(R.id.btnLike);
+                btnComment = itemView.findViewById(R.id.btnComment);
             }
         }
 
@@ -171,10 +181,10 @@ public class ShowPosts extends Fragment {
          * @param position auto-increment value starting from 0 that tells which position of the list is now active
          */
         @Override
-        public void onBindViewHolder(@NonNull PostHolder postHolder, int position)
+        public void onBindViewHolder(@NonNull final PostHolder postHolder, int position)
         {
             //Obtaining the current post
-            Post currentPost = posts.get(position);
+            final Post currentPost = posts.get(position);
 
             //Population of the layout with post data
             postHolder.lblPostTitle.setText(currentPost.getTitle());
@@ -185,6 +195,20 @@ public class ShowPosts extends Fragment {
 
             SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
             postHolder.lblPostDate.setText(format.format(currentPost.getDate()));
+
+            //Listeners for buttons
+            postHolder.btnLike.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v)
+                {
+                    //Store the new like into the db
+                    viewModel.addLikeToPost(v.getContext(), currentPost.getID(), loggedUser, currentPost.getLikes());
+
+                    //Updating model and UI
+                    currentPost.addLike();
+                    postHolder.lblPostLikes.setText("Likes: " + currentPost.getLikes());
+                }
+            });
         }
 
         @Override

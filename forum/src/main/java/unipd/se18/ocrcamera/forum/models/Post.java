@@ -120,6 +120,13 @@ public class Post
     public void setAuthor(String author) { this.author = author; }
 
     /**
+     * ***********************
+     * **   PUBLIC METHODS  **
+     * ***********************
+     */
+    public void addLike() { likes++; }
+
+    /**
      * *****************+*********
      * **   PRIVATE METHODS     **
      * ***************************

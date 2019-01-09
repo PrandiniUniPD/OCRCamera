@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -35,23 +37,40 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
 {
 
     /**
-     * *******************
-     * **   LISTENER    **
-     * *******************
+     * ********************
+     * **   LISTENERS    **
+     * ********************
      */
-    public interface UIComunicator
+
+    public interface GetPostListener
     {
         /**
-         * Triggered when after the network response all the posts are correctly parsed
+         * Triggered when after the db interrogation all the posts are correctly parsed
          * @param posts The list of posts
          */
         void onGetPostsSuccess(ArrayList<Post> posts);
 
         /**
-         * Triggered when after the network response an error occurs while parsing the posts
+         * Triggered when after the db interrogation an error occurs while parsing the posts
          * @param message The error message
          */
         void onGetPostFailure(String message);
+
+    }
+
+    public interface AddLikeListener
+    {
+        /**
+         * Triggered when after the db interrogation the like has successfully been added
+         * @param message A message to show to the user
+         */
+        void onAddLikeSuccess(String message);
+
+        /**
+         * Triggered when after the db interrogation an error occurred while adding a like
+         * @param message The error message to show to the user
+         */
+        void onAddLikeFailure(String message);
     }
 
     /**
@@ -59,7 +78,8 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
      * **   GLOBAL VARIABLES    **
      * ***************************
      */
-    private UIComunicator listener;
+    private GetPostListener getPostListener;
+    private AddLikeListener addLikeListener;
     private final String LOG_TAG = "@@ShowPosts_VM";
 
     @Override
@@ -78,14 +98,14 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
                     Map<String, Object> postData = item.getData();
 
                     String postID = item.getId();
-                    String postTitle = postData.get(context.getString(R.string.titleKey)).toString();
-                    String postMessage = postData.get(context.getString(R.string.messageKey)).toString();
-                    String postAuthor = postData.get(context.getString(R.string.authorKey)).toString();
-                    int comments = Integer.valueOf(postData.get(context.getString(R.string.commentsKey)).toString());
-                    int likes = Integer.valueOf(postData.get(context.getString(R.string.likesKey)).toString());
+                    String postTitle = postData.get(context.getString(R.string.postTitleKey)).toString();
+                    String postMessage = postData.get(context.getString(R.string.postMessageKey)).toString();
+                    String postAuthor = postData.get(context.getString(R.string.postAuthorKey)).toString();
+                    int comments = Integer.valueOf(postData.get(context.getString(R.string.postCommentsKey)).toString());
+                    int likes = Integer.valueOf(postData.get(context.getString(R.string.postLikesKey)).toString());
 
                     SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
-                    String postDate = postData.get(context.getString(R.string.dateKey)).toString();
+                    String postDate = postData.get(context.getString(R.string.postDateKey)).toString();
 
                     try
                     {
@@ -94,11 +114,11 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
                     catch (ParseException e)
                     {
                         Log.d(LOG_TAG, e.getMessage());
-                        if (listener != null){ listener.onGetPostFailure(context.getString(R.string.requestFailedMessage)); }
+                        if (getPostListener != null){ getPostListener.onGetPostFailure(context.getString(R.string.requestFailedMessage)); }
                     }
                 }
 
-                if (listener != null){ listener.onGetPostsSuccess(posts); }
+                if (getPostListener != null){ getPostListener.onGetPostsSuccess(posts); }
             }
         };
 
@@ -106,8 +126,43 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
     }
 
     /**
+     * Adds a like to the specified post
+     * @param context The reference to the activity/fragment that has invoked this method
+     * @param post The ID of the post to which the like will be added
+     * @param user The user that has added the like
+     * @param prevLikes The number of likes before the last addition
+     */
+    public void addLikeToPost(Context context, String post, String user, int prevLikes)
+    {
+        DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
+
+        listeners.successListener = new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+
+            }
+        };
+
+        listeners.failureListener = new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e)
+            {
+
+            }
+        };
+
+        DatabaseManager.addLike(context, post, user, prevLikes, listeners);
+    }
+
+    /**
      * Adds the specified listener to the view model
      * @param listener The specified listener that has to be added to the view model
      */
-    public void setUIComunicatorListener(UIComunicator listener) { this.listener = listener; }
+    public void setGetPostsListener(GetPostListener listener) { this.getPostListener = listener; }
+
+    /**
+     * Adds the specified listener to the view model
+     * @param listener The specified listener that has to be added to the view model
+     */
+    public void setAddLikeListener(AddLikeListener listener) { this.addLikeListener = listener; }
 }

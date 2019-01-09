@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="postCollectionName">posts</string>
-    <string name="idKey">ID</string>
-    <string name="titleKey">title</string>
-    <string name="dateKey">date</string>
-    <string name="messageKey">message</string>
-    <string name="authorKey">author</string>
-    <string name="likesKey">likes</string>
-    <string name="commentsKey">comments</string>
+    <string name="postIdKey">ID</string>
+    <string name="postTitleKey">title</string>
+    <string name="postDateKey">date</string>
+    <string name="postMessageKey">message</string>
+    <string name="postAuthorKey">author</string>
+    <string name="postLikesKey">likes</string>
+    <string name="postCommentsKey">comments</string>
 </resources>

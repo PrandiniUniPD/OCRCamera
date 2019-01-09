@@ -55,10 +55,10 @@ public class DatabaseManager
     {
         //The post that has to be added is converted into a map
         Map<String, Object> toAdd = new HashMap<>();
-        toAdd.put(context.getString(R.string.titleKey), post.getTitle());
-        toAdd.put(context.getString(R.string.messageKey), post.getMessage());
-        toAdd.put(context.getString(R.string.dateKey), post.getDate());
-        toAdd.put(context.getString(R.string.authorKey), post.getAuthor());
+        toAdd.put(context.getString(R.string.postTitleKey), post.getTitle());
+        toAdd.put(context.getString(R.string.postMessageKey), post.getMessage());
+        toAdd.put(context.getString(R.string.postDateKey), post.getDate());
+        toAdd.put(context.getString(R.string.postAuthorKey), post.getAuthor());
 
         //Addition of the new post to the database
         //When the query has ended if the addition is successful then the successListener is called
@@ -85,6 +85,34 @@ public class DatabaseManager
         db.collection(context.getString(R.string.postCollectionName))
                 .get()
                 .addOnCompleteListener(listeners.completeListener);
+    }
+
+    /**
+     * Adds a like to the specified post into the db
+     * @param context The reference to the activity/fragment that has invoked this method
+     * @param post The ID of the post to which the like will be added
+     * @param user The user that has added the like
+     * @param prevLikes The number of likes before the last addition
+     * @param listeners The listeners that have to be executed when the communication with the database has ended
+     */
+    public static void addLike(Context context, String post, String user, int prevLikes, Listeners listeners)
+    {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        //Addition of the like to the db
+        Map<String, Object> toAdd = new HashMap<>();
+        toAdd.put("post", post);
+        toAdd.put("user", user);
+
+        db.collection(context.getString(R.string.likesCollectionName))
+                .add(toAdd)
+                .addOnSuccessListener(listeners.successListener)
+                .addOnFailureListener(listeners.failureListener);
+
+        //Incrementation of likes count to the specified post
+        db.collection(context.getString(R.string.postCollectionName))
+                .document(post)
+                .update(context.getString(R.string.postLikesKey), prevLikes+1);
     }
 
 }
