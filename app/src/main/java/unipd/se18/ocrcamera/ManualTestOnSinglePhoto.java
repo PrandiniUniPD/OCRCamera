@@ -22,15 +22,13 @@ import unipd.se18.ocrcamera.recognizer.TextRecognizer;
 import static unipd.se18.ocrcamera.recognizer.TextRecognizer.getTextRecognizer;
 
 /**
- * Class that compare the image stored image in preferences with the same image rotate of a certain angle,
- * showing the similarity value
+ * Class that compare the image stored image in preferences with the same image rotate
+ * of a certain angle given by the user, showing the similarity
  */
 
 public class ManualTestOnSinglePhoto extends AppCompatActivity {
 
     private String startingOCRText;
-    private String Tag;
-    private final String errorLog1 = "No filePath preferences found";
 
     /**
      * Modification variable
@@ -116,7 +114,7 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
 
 
                 } catch (PhotoNullException e) {
-                    Log.e(Tag, errorLog1);
+                    Log.e(null, getResources().getString(R.string.errorLog1));
                     Intent takeANewPhoto = new Intent(ManualTestOnSinglePhoto.this, CameraActivity.class);
                     startActivity(takeANewPhoto);
                 }
@@ -131,36 +129,37 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
      */
     private void SetResult(String text){
         String warning = findWarning(text, startingOCRText.length());
-        double confidence = compareStrings(startingOCRText,text);
+        String confidence = Double.toString(compareStrings(startingOCRText,text));
 
-        degreeTextView.setText(Integer.toString(angleRotation));
-        confidenceTextView.setText(Double.toString(confidence));
+        degreeTextView.setText(angleRotation);
+        confidenceTextView.setText(confidence);
         foundTextView.setText(text);
         warningTextView.setText(warning);
     }
 
-
     /**
      *Analise the given string and get the right warnings and add them on waring variable
+     * warning are found
      * @param text String to analise
      * @param length int of length of starting string
      * @return  warnings
      */
     private String findWarning(java.lang.String text, int length) {
         String warnings = "";
-        final String noTextWarning = "OCR found no text in this photo";
-        final String lessThen10CharWarning = "Less then 10 chars found by OCR";
-        final String lessThen20CharWarning = "Less then 20 chars found by OCR";
-        final String lessThen30CharWarning = "Less then 30 chars found by OCR";
+        final int firstBound=10;
+        final int secondBound=20;
+        final int thirdBound=30;
+        final int toleranceValue=4;
+
 
         if (text.equals("")) {
-            warnings = noTextWarning;
-        } else if (text.length() < 10 && length>14) {
-            warnings = lessThen10CharWarning;
-        } else if (text.length() < 20 && length>26) {
-            warnings = lessThen20CharWarning;
-        } else if (text.length() < 30 && length>38) {
-            warnings = lessThen30CharWarning;
+            warnings = getResources().getString(R.string.noTextWarning);
+        } else if (text.length() < firstBound && length>firstBound+toleranceValue) {
+            warnings = getResources().getString(R.string.lessThen10CharWarning);
+        } else if (text.length() < secondBound && length>secondBound+toleranceValue) {
+            warnings = getResources().getString(R.string.lessThen20CharWarning);
+        } else if (text.length() < thirdBound && length>thirdBound+toleranceValue) {
+            warnings = getResources().getString(R.string.lessThen30CharWarning);
         }
 
         return warnings;
@@ -203,10 +202,10 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
 class PhotoNullException extends Exception
 {
     // Parameterless Constructor
-    public PhotoNullException() {}
+    PhotoNullException() {}
 
     // Constructor that accepts a message
-    public PhotoNullException(String message)
+    PhotoNullException(String message)
     {
         super(message);
     }
