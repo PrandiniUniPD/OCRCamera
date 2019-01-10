@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.opencsv.CSVReader;
@@ -129,7 +130,7 @@ class AllergensManager {
                 // if the allergen commonName or inciName appears in the ingredient inciName or
                 // description respectively
                 if(ingr.getInciName().contains(allergenInciName) ||
-                        ingr.getDescription().contains(allergen.getCommonName())) {
+                        ingr.getDescription().toUpperCase().contains(allergen.getCommonName())) {
 
                     // add the allergen to foundAllergens
                     foundAllergens.add(allergen);
@@ -157,7 +158,7 @@ class AllergensManager {
         for(Map.Entry<String, ?> entry : selectedAllergens.entrySet()) {
             for(String inciName : entry.getValue().toString().split(", ")) {
                 if(ingr.getInciName().contains(inciName) ||
-                        ingr.getDescription().contains(entry.getKey())) {
+                        ingr.getDescription().toUpperCase().contains(entry.getKey())) {
 
                     allergen.setInciNames(entry.getValue().toString().split(", "));
                     allergen.setCommonName(entry.getKey());
@@ -170,11 +171,11 @@ class AllergensManager {
 
     /**
      * Checks an ArrayList of ingredients for allergens.
-     * @param ingrList, ArrayList of ingredients to check.
+     * @param ingrList, List of ingredients to check.
      * @return foundAllergens, ArrayList of allergens found in ingrList.
      * @author Nicolò Cervo (g3)
      */
-    public ArrayList<Allergen> checkListForAllergens(ArrayList<Ingredient> ingrList) {
+    public ArrayList<Allergen> checkListForAllergens(List<Ingredient> ingrList) {
         ArrayList<Allergen> foundAllergens = new ArrayList<>();
 
         for(Ingredient ingr : ingrList) {
@@ -185,11 +186,12 @@ class AllergensManager {
 
     /**
      * Checks an ArrayList of ingredients for selected allergens.
-     * @param ingrList, ArrayList of ingredients to check.
+     * @param ingrList, List of ingredients to check.
      * @return foundAllergens, ArrayList of selected allergens found in ingrList.
      * @author Nicolò Cervo (g3)
      */
-    public ArrayList<Allergen> checkListForSelectedAllergens(ArrayList<Ingredient> ingrList) {
+    //Todo: check if this method is correct, used int GalleryManager onBindViewHolder
+    public ArrayList<Allergen> checkListForSelectedAllergens(List<Ingredient> ingrList) {
         ArrayList<Allergen> foundSelectedAllergens = new ArrayList<>();
 
         for(Ingredient ingr : ingrList) {

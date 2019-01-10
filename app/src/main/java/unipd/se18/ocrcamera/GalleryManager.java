@@ -23,6 +23,10 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import unipd.se18.ocrcamera.inci.Ingredient;
+import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 
 
 /**
@@ -326,8 +330,20 @@ public class GalleryManager
 
             //Set txtView properties with the number of allergens found
 
-            //Todo: get the number of allergens from the arrayList<String> of ingredients currentPhoto.ingredients
-            holder.txtTitle.setText("??? allergens found");
+
+            //Get a single string with all ingredients fount from the ocr
+            String formattedIngredients = currentPhoto.ingredients.toString()
+                    .replace("[", "")  //remove the right bracket
+                    .replace("]", "")  //remove the left bracket
+                    .trim();
+
+            IngredientsExtractor extractor = InciSingleton.getInstance(mainActivity).getIngredientsExtractor();
+            List<Ingredient> ingredientsToScan = extractor.findListIngredients(formattedIngredients);
+
+            //ArrayList<Allergen> allergensFound = InciSingleton.getInstance(mainActivity).getAllergensManager().checkListForSelectedAllergens(ingredientsToScan);
+            AllergensManager test = new AllergensManager(mainActivity);
+            ArrayList<Allergen> allergensFound = test.checkListForSelectedAllergens(ingredientsToScan);
+            holder.txtTitle.setText(allergensFound.size()+ " allergens found");
         }
 
         /**
