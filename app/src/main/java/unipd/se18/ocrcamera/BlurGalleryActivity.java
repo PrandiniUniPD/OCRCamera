@@ -15,6 +15,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
+import static android.graphics.BitmapFactory.decodeStream;
+
 /** Testing Activity to see if blur could work, shows a gallery with each image associated with it's blur value
  * Leonardo Pratesi - gruppo 1
  * Activity accessible by the options menu on the application
@@ -47,7 +49,7 @@ public class BlurGalleryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.listavalori);
+        setContentView(R.layout.List);
         super.onCreate(savedInstanceState);
 
         File path = new File(PHOTOS_FOLDER);
@@ -63,7 +65,7 @@ public class BlurGalleryActivity extends AppCompatActivity {
 
         //View preparation
         listView = (ListView) findViewById(R.id.listview);
-        BlurObjectAdapter adapter = new BlurObjectAdapter(this, R.layout.listavalori, arrayBlur);
+        BlurObjectAdapter adapter = new BlurObjectAdapter(this, R.layout.List, arrayBlur);
         listView.setAdapter(adapter);
         //show max blur value
         TextView maxview = findViewById(R.id.textViewMax);
