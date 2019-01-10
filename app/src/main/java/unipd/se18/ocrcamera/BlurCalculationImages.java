@@ -31,7 +31,7 @@ import static android.graphics.BitmapFactory.decodeStream;
  * Activity accessible by the options menu on the application
  *
  */
-public class BlurCalculatioAllImages extends AppCompatActivity {
+public class BlurCalculationImages extends AppCompatActivity {
 
     /**
      *  Directory of the Photos
@@ -92,44 +92,30 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
     }
 
     /**
-     * Method to get file extension leonardo Pratesi
-     * @param file
-     * @return file extension
-     */
-    public String getExtension(String file) {
-        int dotposition = file.lastIndexOf(".");
-        String filename_Without_Ext = file.substring(0, dotposition);
-        String ext = file.substring(dotposition + 1, file.length());
-        Log.e(ext, ext);
-        return ext;
-
-    }
-
-    /**
      * Method that creates a blurObject for every image in the folder
-     * @param imagepath
+     * @param imagepath image directory
      */
     public void setGallery(String imagepath) {
+        int count = 0;
+        for (int i = 0; i < imagepath.length(); i++) {                    //imagepath.length = number of elements in the folder
+            if (getExtension(fileNames[i]) == "jpg") {                    //checks if it is an image
 
-        int conta = 0;
-        for (int i = 0; i < imagepath.length(); i++) {                    //path.length = number of elements in the folder
-            try {
-                //extension= getExtension(fileNames[i]);
+                try {
+                    File f = new File(PHOTOS_FOLDER, fileNames[i]);                               //creates a new object for each element
+                    Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));
+                    BlurObject obj = new BlurObject(fileNames[i], image);
+                    arrayBlur.add(obj);
 
-                File f = new File(PHOTOS_FOLDER, fileNames[i]);                               //crea un oggetto BlurObject per ogni elemento della cartella
-                Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));            //se è un file diverso da un immagine non viene costruito l'oggetto
-                BlurObject obj = new BlurObject(fileNames[i], image);
-                arrayBlur.add(obj);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Log.e("errore", "filenotfound");
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-                Log.e("errore", "illegalargument");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Log.e("errore", "filenotfound");
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                    Log.e("errore", "illegalargument");
+                }
+                count++; //check how many photos load
+                Log.e("check", Integer.toString(count));
             }
-            conta++; //check how many photos load
-            Log.e("check", Integer.toString(conta));
         }
     }
 
@@ -151,6 +137,21 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
             }
         }
         return max;
+    }
+
+
+    /**
+     * Method to get file extension leonardo Pratesi
+     * @param file
+     * @return file extension
+     */
+    public String getExtension(String file) {
+        int dotposition = file.lastIndexOf(".");
+        String filename_Without_Ext = file.substring(0, dotposition);
+        String ext = file.substring(dotposition + 1, file.length());
+        Log.e(ext, ext);
+        return ext;
+
     }
 
 }
