@@ -13,12 +13,20 @@ import java.util.List;
  */
 class IPBuilder {
 
+    /*
+        Documentation of the Imgproc class available at:
+        https://docs.opencv.org/java/2.4.2/org/opencv/imgproc/Imgproc.html
+
+        We referenced a previous instance of the documentation since
+        the newer one is still incomplete
+    */
+
     /**
      * Inner class to create an object CannyBuilder that contains
      * all the variables needed to Imgproc.Canny method
      * @author Thomas Porro (g1)
      */
-    private static class CannyBuilder{
+    static class CannyBuilder{
 
         private Mat source;
         private double minThreshold;
@@ -30,9 +38,8 @@ class IPBuilder {
          * Constructor that initialize the variables of the object
          * with a default value
          * @param src the source matrix
-         * @author Thomas Porro (g1)
          */
-        private CannyBuilder(Mat src){
+        CannyBuilder(Mat src){
             this.source = src;
             this.minThreshold = 50;
             this.maxThreshold = 200;
@@ -44,9 +51,8 @@ class IPBuilder {
          * Set minThreshold with the passed value
          * @param value the value you want it to take minThreshold
          * @return returns the current object instance
-         * @author Thomas Porro (g1)
          */
-        private CannyBuilder withMinThreshold(double value){
+        CannyBuilder withMinThreshold(double value){
             this.minThreshold = value;
             return this;
         }
@@ -55,9 +61,8 @@ class IPBuilder {
          * Set maxThreshold with the passed value
          * @param value the value you want it to take maxThreshold
          * @return returns the current object instance
-         * @author Thomas Porro (g1)
          */
-        private CannyBuilder withMaxThreshold(double value){
+        CannyBuilder withMaxThreshold(double value){
             this.maxThreshold = value;
             return this;
         }
@@ -66,9 +71,8 @@ class IPBuilder {
          * Set ApertureSize with the passed value
          * @param value the value you want it to withApertureSize
          * @return returns the current object instance
-         * @author Thomas Porro (g1)
          */
-        private CannyBuilder withApertureSize(int value){
+        CannyBuilder withApertureSize(int value){
             this.apertureSize = value;
             return this;
         }
@@ -77,9 +81,8 @@ class IPBuilder {
          * Set l2gradient with the passed value
          * @param value the value you want it to l2gradient
          * @return returns the current object instance
-         * @author Thomas Porro (g1)
          */
-        private CannyBuilder withL2gradient(boolean value){
+        CannyBuilder withL2gradient(boolean value){
             this.l2gradient = value;
             return this;
         }
@@ -91,9 +94,8 @@ class IPBuilder {
     /**
      * Inner class to create an object adaptiveThresholdBuilder that contains
      * all the variables needed to Imgproc.adaptiveThreshold
-     * @author Thomas Porro (g1)
      */
-    private static class AdaptiveThresholdBuilder{
+    static class AdaptiveThresholdBuilder{
         private Mat source;
         private double maxThreshold;
         private int blockSize;
@@ -103,9 +105,8 @@ class IPBuilder {
          * Constructor that initialize the variables of the object
          * with a default value
          * @param src the source matrix
-         * @author Thomas Porro (g1)
          */
-        private AdaptiveThresholdBuilder(Mat src){
+        AdaptiveThresholdBuilder(Mat src){
             this.source = src;
             this.maxThreshold = 200;
             this.blockSize = 3;
@@ -116,9 +117,8 @@ class IPBuilder {
          * Set maxThreshold with the passed value
          * @param value the value you want it to maxThreshold
          * @return returns the current object instance
-         * @author Thomas Porro (g1)
          */
-        private AdaptiveThresholdBuilder withMaxThreshold(double value){
+        AdaptiveThresholdBuilder withMaxThreshold(double value){
             this.maxThreshold = value;
             return this;
         }
@@ -127,9 +127,8 @@ class IPBuilder {
          * Set blockSize with the passed value
          * @param value the value you want it to blockSize
          * @return returns the current object instance
-         * @author Thomas Porro (g1)
          */
-        private AdaptiveThresholdBuilder withBlockSize(int value){
+        AdaptiveThresholdBuilder withBlockSize(int value){
             this.blockSize = value;
             return this;
         }
@@ -138,9 +137,8 @@ class IPBuilder {
          * Set constant with the passed value
          * @param value the value you want it to withApertureSize
          * @return returns the current object instance
-         * @author Thomas Porro (g1)
          */
-        private AdaptiveThresholdBuilder withConstant(double value){
+        AdaptiveThresholdBuilder withConstant(double value){
             this.constant = value;
             return this;
         }
@@ -153,7 +151,7 @@ class IPBuilder {
      * all the variables needed to Imgproc.findContours
      * @author Oscar Garrido (g1)
      */
-    private static class FindContoursBuilder{
+    static class FindContoursBuilder{
         private Mat source;
         private int mode;
         private int method;
@@ -162,21 +160,19 @@ class IPBuilder {
          * Constructor that initialize the variables of the object
          * with a default value
          * @param src the source matrix
-         * @author Oscar Garrido (g1)
          */
-        private FindContoursBuilder(Mat src){
+        FindContoursBuilder(Mat src){
             this.source = src;
-            this.mode = 0;
-            this.method = 1;
+            this.mode = Imgproc.RETR_EXTERNAL;
+            this.method = Imgproc.CHAIN_APPROX_SIMPLE;
         }
 
         /**
          * Set mode with the passed value
          * @param value the value you want it to take mode
          * @return returns the current object instance
-         * @author Oscar Garrido (g1)
          */
-        private FindContoursBuilder withMode(int value){
+        FindContoursBuilder withMode(int value){
             this.mode = value;
             return this;
         }
@@ -185,9 +181,8 @@ class IPBuilder {
          * Set method with the passed value
          * @param value the value you want it to take method
          * @return returns the current object instance
-         * @author Oscar Garrido (g1)
          */
-        private FindContoursBuilder withMethod(int value){
+        FindContoursBuilder withMethod(int value){
             this.mode = value;
             return this;
         }
@@ -202,7 +197,7 @@ class IPBuilder {
      * @return the matrix that contains the result of Imageproc.Canny
      * @author Thomas Porro (g1)
      */
-    public Mat doCanny(CannyBuilder builder){
+    static Mat doCanny(CannyBuilder builder){
         Mat destination = new Mat();
         Imgproc.Canny(builder.source, destination, builder.minThreshold, builder.maxThreshold,
                 builder.apertureSize, builder.l2gradient);
@@ -218,7 +213,7 @@ class IPBuilder {
      * @return the matrix that contains the result of Imageproc.adaptiveThreshold
      * @author Thomas Porro (g1)
      */
-    public Mat doAdaptiveThreshold(AdaptiveThresholdBuilder builder) {
+    static Mat doAdaptiveThreshold(AdaptiveThresholdBuilder builder) {
         Mat destination = new Mat();
         Imgproc.adaptiveThreshold(builder.source, destination, builder.maxThreshold,
                 Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, builder.blockSize,
@@ -235,11 +230,12 @@ class IPBuilder {
      * @return the matrix that contains the result of Imageproc.adaptiveThreshold
      * @author Oscar Garrido (g1)
      */
-    public List<MatOfPoint> doFindContours(FindContoursBuilder builder) {
+    static List<MatOfPoint> doFindContours(FindContoursBuilder builder) {
         List<MatOfPoint> contours = new ArrayList<>();
         Imgproc.findContours(builder.source, contours, new Mat(), builder.mode, builder.method);
         //The third parameter contains additional information that is unused
         return contours;
     }
 
+    //TODO create the Builder for Imgproc.HoughLinesP in PreProcessing (line 90)
 }

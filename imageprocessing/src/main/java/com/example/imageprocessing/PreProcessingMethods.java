@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
  * Interface used to call the processing methods
  * @author Thomas Porro (g1), Giovanni Fasan(g1), OScar Garrido(g1)
  */
-public interface ImageProcessingMethods {
+public interface PreProcessingMethods {
 
     /**
      * Detect if the image is blurred
@@ -22,9 +22,5 @@ public interface ImageProcessingMethods {
      * @return a Bitmap with adjustment, auto cropping the image and the likes
      * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
-<<<<<<< Updated upstream
-    Bitmap editBright(Bitmap image);
-=======
      Bitmap doImageProcessing(Bitmap image);
->>>>>>> Stashed changes
 }
