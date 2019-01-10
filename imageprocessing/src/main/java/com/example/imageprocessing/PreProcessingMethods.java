@@ -12,7 +12,7 @@ public interface PreProcessingMethods {
      * Detect if the image is blurred
      * @param image The image we want to discover if is blurred
      * @return True if the image is blurred. False otherwise or if the detection failed
-     * @author Thomas Porro (g1)
+     * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
     boolean isBlurred(Bitmap image);
 
