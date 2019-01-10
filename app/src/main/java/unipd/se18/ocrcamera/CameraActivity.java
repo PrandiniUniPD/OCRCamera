@@ -15,10 +15,24 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import com.camerakit.CameraKitView;
+
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
+import org.opencv.imgproc.Imgproc;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+
+import static java.lang.String.valueOf;
+
 
 /**
  * The Activity useful for making photos
@@ -26,13 +40,26 @@ import java.io.OutputStream;
 public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
-    private static String orientationResult;
+    private static String orientationResult="P";
 
     /**
      * onCreate method of the Android Activity Lifecycle
      * @param savedInstanceState The Bundle of the last instance state saved
      * @author Romanello Stefano
      */
+
+
+    /**
+     * inizializza OpenCV
+     * @author Leonardo Pratesi
+     *
+     */
+    static {
+        if (!OpenCVLoader.initDebug()) {
+            // Handle initialization error
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +135,9 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
-        }, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        },
+
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
 
         FloatingActionButton mButtonTakePhoto = findViewById(R.id.take_photo_button);
         mButtonTakePhoto.setOnClickListener(new View.OnClickListener() {
@@ -119,6 +148,7 @@ public class CameraActivity extends AppCompatActivity {
                 edit.putString("text", null);
                 edit.putString("imageDataPath", null);
                 edit.apply();
+
                 takePhoto();
             }
         });
@@ -128,15 +158,17 @@ public class CameraActivity extends AppCompatActivity {
      * Takes a photo, saves it inside internal storage and resets the last extracted text
      *
      * @modify SharedPreferences
-     * @author Romanello Stefano - modified by Leonardo Rossi
+     * @author Romanello Stefano - modified by Leonardo Rossi - modified by Leonardo Pratesi
      */
     private void takePhoto() {
         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
             @Override
             public void onImage(CameraKitView cameraKitView, final byte[] photo) {
 
-                Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
-                //Image rotation
+               Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
+               double valoreBlur = blurValue(bitmapImage);
+               Toast.makeText(getBaseContext(),
+                       "Valore Blur " + String.valueOf(valoreBlur), Toast.LENGTH_LONG).show(); //Toast che stampa il valore di blur per testing
 
                 if(orientationResult != null)
                 {
@@ -148,6 +180,7 @@ public class CameraActivity extends AppCompatActivity {
                         default: break;
                     }
 
+
                     //Temporary stores the captured photo into a file that will be used from the Camera Result activity
                     String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
 
@@ -157,8 +190,17 @@ public class CameraActivity extends AppCompatActivity {
                     edit.apply();
 
                     //An intent that will launch the activity that will analyse the photo
+                    //goes to Result activity if the photo is not blurry [Leonardo Pratesi]
+                    //fix= simply says if it is blurry then goes to ResultActivity
+                    if (blurDetection(valoreBlur))
+                    {
+                        Toast.makeText(getBaseContext(),
+                                "immagine sfocata", Toast.LENGTH_LONG).show(); //Toast che stampa il valore di blur per testing
+
+                    }
                     Intent i = new Intent(CameraActivity.this, ResultActivity.class);
                     startActivity(i);
+
                 }
             }
         });
@@ -240,8 +282,70 @@ public class CameraActivity extends AppCompatActivity {
                 matrix, true);
     }
 
+    /**
+     * Detect the blurriness by appling a Laplacian matrix and evaluating the variance (low variance means an usually blurry image) uses OpenCV
+     * @param bitmap The captured image
+     * @return Double value of the variance
+     * @author Leonardo Pratesi
+     */
+    public static double blurValue(Bitmap bitmap)
+    {
+        double blur;
+        Bitmap image = bitmap;
+        Mat matImage = new Mat();
+        org.opencv.android.Utils.bitmapToMat(image, matImage);
+        Mat destination = new Mat();
+        Mat matGray=new Mat();
+
+        Imgproc.cvtColor(matImage, matGray, Imgproc.COLOR_BGR2GRAY);    //converte immagine in scala di grigi
+        Imgproc.Laplacian(matGray, destination, 3);              //applica prodotto di convoluzione a matGray e lo mette in destination
+        MatOfDouble median = new MatOfDouble();
+        MatOfDouble std= new MatOfDouble();
+        Core.meanStdDev(destination, median , std);                     //calcola deviazione standard
+
+        blur=Math.pow(std.get(0,0)[0],2);                      //eleva deviazione standard al quadrato per avere varianza
 
 
+
+        return blur;
+    }
+
+    /** Detect the blurriness by appling a Laplacian matrix and evaluating the variance (low variance means an usually blurry image) uses OpenCV
+     * @param blurValue value from blurValue method
+     * @return boolean
+     * @author Leonardo Pratesi
+     */
+    public boolean blurDetection(double blurValue)
+    {
+        double threshold=10;
+        /**
+         * AGGIUNGERE METODO CHE CALCOLA TRESHOLD IN BASE AL SOGGETTO FOTOGRAFATO
+         *
+
+
+
+            cameraKitView.captureImage(new CameraKitView.ImageCallback() {
+                double meanblur=0;
+                int photonumber = 10;
+            for (int k = 0; k < photonumber; k++)
+                {
+                @Override
+                public void onImage(CameraKitView cameraKitView, final byte[] photo) {
+
+                    Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
+                    meanblur=meanblur + blurValue(bitmapImage);
+
+                }
+            });
+        } */
+
+        if (blurValue< threshold)
+            {
+                return true; //blurry
+            }
+        else
+                return false; //not blurry
+    }
 
 
 
