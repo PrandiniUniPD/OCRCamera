@@ -49,7 +49,7 @@ public class BlurGalleryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.List);
+        setContentView(R.layout.listlayout);
         super.onCreate(savedInstanceState);
 
         File path = new File(PHOTOS_FOLDER);
@@ -65,7 +65,7 @@ public class BlurGalleryActivity extends AppCompatActivity {
 
         //View preparation
         listView = (ListView) findViewById(R.id.listview);
-        BlurObjectAdapter adapter = new BlurObjectAdapter(this, R.layout.List, arrayBlur);
+        BlurObjectAdapter adapter = new BlurObjectAdapter(this, R.layout.listlayout, arrayBlur);
         listView.setAdapter(adapter);
         //show max blur value
         TextView maxview = findViewById(R.id.textViewMax);
