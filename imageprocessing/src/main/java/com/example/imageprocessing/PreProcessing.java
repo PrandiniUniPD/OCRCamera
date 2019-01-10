@@ -78,15 +78,12 @@ public class PreProcessing implements PreProcessingMethods {
                 .withL2gradient(false));
 
         //Create a 4 dimensions vector using matrix
-        MatOfInt4 lines = new MatOfInt4();
-
-        //Process the image with the Probabilistic Hough Transform
-        double rho = 1;
-        double theta = Math.PI / 180;
-        int threshold = 50;
-        double minLineLenght = 50;
-        double maxLineGap = 10;
-        Imgproc.HoughLinesP(grayscale, lines, rho, theta, threshold, minLineLenght, maxLineGap);
+        MatOfInt4 lines = IPBuilder.doHoughLinesP(new IPBuilder.HoughLinesPBuilder(grayscale)
+                .withRho(1)
+                .withTheta(Math.PI / 180)
+                .withThreshold(50)
+                .withMinLineLength(50)
+                .withMaxLineGap(10));
 
         double meanAngle = 0;
         Log.d(TAG, "rows = " + lines.cols() + "\ncols = " + lines.cols());
@@ -327,11 +324,13 @@ public class PreProcessing implements PreProcessingMethods {
             return false;
         }
 
-        //TODO we have to comment this lines and add getPixels to the builder
-        int[] pixels = new int[laplacianImage.getHeight() * laplacianImage.getWidth()];
-        laplacianImage.getPixels(pixels, 0, laplacianImage.getWidth(), 0, 0,
-                laplacianImage.getWidth(), laplacianImage.getHeight());
-
+        //Extracts all the pixels of the laplacian image into the array
+        int[] pixels = IPBuilder.doGetPixels(new IPBuilder.GetPixelsBuilder(laplacianImage)
+                  .withStride(laplacianImage.getWidth())
+                  .withWidth(laplacianImage.getWidth())
+                  .withHeight(laplacianImage.getHeight())
+                  );
+                  
         //Searches the pixel that has the highest colour range in the RGB format
         for(int pixel : pixels){
             if(pixel > maxLap){
@@ -359,5 +358,4 @@ public class PreProcessing implements PreProcessingMethods {
         Bitmap modifiedBright = editBright(image);
         return editSkew(modifiedBright);
     }
-
 }
