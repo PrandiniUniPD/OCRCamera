@@ -64,7 +64,7 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
 
 
         } else {
-            Log.e("err", "Viewholdersiste");
+            Log.e("err", "ViewHolderExist");
             viewHolder = (ViewHolder) convertView.getTag();
         }
         convertView.setTag(viewHolder);
@@ -75,10 +75,7 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
             @Override
             public void onClick(View v) {
 
-                //check if listener works
-                Toast.makeText(getContext(),(String) "bene",
-                        Toast.LENGTH_SHORT).show();
-
+                //TODO show images in new Activity with infos
             }
         });
 

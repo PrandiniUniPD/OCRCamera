@@ -43,19 +43,17 @@ public class BlurCalculationImages extends AppCompatActivity {
     /**
      * ListView to show all the ingredients in a List
      */
-    ListView listView;
+    private ListView listView;
 
     /**
      * ArrayList of object (see class blur object)
      */
-    ArrayList<BlurObject> arrayBlur = new ArrayList<>();
+    private ArrayList<BlurObject> arrayBlur = new ArrayList<>();
 
     /**
      * List of elements inside PHOTOS_FOLDER
      */
-    String fileNames[];
-
-
+    private String fileNames[];
 
 
     @Override
@@ -64,20 +62,14 @@ public class BlurCalculationImages extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         File path = new File(PHOTOS_FOLDER);
-        Log.e("info", path.getAbsolutePath()); //troubleshooting
         fileNames = path.list();
-
-        Log.e("info", PHOTOS_FOLDER);          //troubleshooting
-
         if (fileNames != null) {
-            setGallery(PHOTOS_FOLDER);
+            setGallery();
         }
         else {
             Toast.makeText(this, "No images found", Toast.LENGTH_SHORT).show();
             this.finish();
             //Exit from Gallery
-
-
         }
 
         //View preparation
@@ -93,25 +85,25 @@ public class BlurCalculationImages extends AppCompatActivity {
 
     /**
      * Method that creates a blurObject for every image in the folder
-     * @param imagepath image directory
+     *
      */
-    public void setGallery(String imagepath) {
-        int count = 0;
-        for (int i = 0; i < imagepath.length(); i++) {                    //imagepath.length = number of elements in the folder
-            if (getExtension(fileNames[i]) == "jpg") {                    //checks if it is an image
+    private void setGallery() {
+        int count =0;
+        for (int i = 0; i < fileNames.length; i++) {                                                          //imagepath.length = number of elements in the folder
+            if (getExtension(fileNames[i]) == "jpg") {                                          //checks if it is an image
 
                 try {
-                    File f = new File(PHOTOS_FOLDER, fileNames[i]);                               //creates a new object for each element
+                    File f = new File(PHOTOS_FOLDER, fileNames[i]);                             //creates a new object for each element
                     Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));
                     BlurObject obj = new BlurObject(fileNames[i], image);
                     arrayBlur.add(obj);
 
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    Log.e("errore", "filenotfound");
+                    Log.e("err", "filenotfound");
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
-                    Log.e("errore", "illegalargument");
+                    Log.e("err", "illegalargument");
                 }
                 count++; //check how many photos load
                 Log.e("check", Integer.toString(count));
