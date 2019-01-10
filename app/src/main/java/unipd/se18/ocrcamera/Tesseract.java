@@ -29,12 +29,13 @@ class Tesseract extends Application implements TextRecognizer{
     /**
      * @author Giovanni Fasan (g1)
      * Costrunctor
+     * @param String lan with language chosen to recognize the text
      */
-    public Tesseract() {
+    public Tesseract(String lan) {
         // TODO Auto-generated constructor stub
         mTess = new TessBaseAPI();
         datapath = Environment.getExternalStorageDirectory() + "/DemoOCR/";
-        language = "ita";
+        language = lan;
         File dir = new File(datapath + "/tessdata/");
         //if the directory does not exist it creates it
         if (!dir.exists()) {
@@ -46,8 +47,8 @@ class Tesseract extends Application implements TextRecognizer{
 
 
     /**
-     * @param bitmap
-     * @return
+     * @param Bitmap the image of which we want to recognize the text
+     * @return the string with the recognized text
      * @author Giovanni Fasan (g1)
      */
     @Override
