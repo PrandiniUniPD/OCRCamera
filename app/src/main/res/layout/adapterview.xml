@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="140dp"
-        android:layout_weight="1"
-        />
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_below="@+id/imageView"
+        android:layout_height="60dp"
         android:text="TextView"
-        />
-</RelativeLayout>
+        tools:layout_editor_absoluteX="162dp"
+        tools:layout_editor_absoluteY="16dp" />
+</LinearLayout>

@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +25,6 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
 
     private static class ViewHolder {                       //for better performance I use a ViewHolder
         private TextView itemView;
-        private ImageView imageView;
         public int position;                                //counter to save the position of the adapter to keep correct onClick listeners
 
     }
@@ -60,33 +58,26 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
 
             viewHolder = new ViewHolder();
             viewHolder.itemView = (TextView) convertView.findViewById(R.id.textView);
-            viewHolder.imageView = (ImageView) convertView.findViewById(R.id.imageView);
 
 
         } else {
-            Log.e("err", "Viewholdersiste");
+            Log.e("erre", "Viewholdersiste");
             viewHolder = (ViewHolder) convertView.getTag();
         }
         convertView.setTag(viewHolder);
         BlurObject item = getItem(position);
 
         /////////Click Listener
-        viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //check if listener works
-                Toast.makeText(getContext(),(String) "bene",
-                        Toast.LENGTH_SHORT).show();
-
             }
         });
 
 
         if (item!= null) {
-            Log.e("err", item.toString());
+            Log.e("erre", item.toString());
             viewHolder.itemView.setText(item.toString());
-            viewHolder.imageView.setImageBitmap(item.getImage());
         }
         viewHolder.position=position;
         return convertView;

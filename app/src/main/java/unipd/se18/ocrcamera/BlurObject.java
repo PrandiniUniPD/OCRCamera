@@ -9,20 +9,18 @@ import android.graphics.Bitmap;
  */
 
 public class BlurObject {
-    String name;
     Bitmap image;
     double blur;
 
-    public BlurObject(String name, Bitmap image, double blur)
-    {   this.name=name;
+    public BlurObject(Bitmap image, double blur)
+    {
         this.image= image;
         this.blur=blur;
     }
 
-    public BlurObject(String name, Bitmap image)
+    public BlurObject(Bitmap image)
     {
-        this.name=name;
-        this.image=image;
+        this.image= image;
         this.blur= CameraActivity.blurValue(this.image);
     }
 
@@ -31,8 +29,6 @@ public class BlurObject {
         return image;
     }
 
-    public String getName() {return name;}
-
     public double getBlur()
     {
         return blur;
@@ -40,7 +36,7 @@ public class BlurObject {
 
     public String toString()
     {
-        return name+" " +Double.toString(blur);
+        return Double.toString(blur);
     }
 
 
