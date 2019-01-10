@@ -44,7 +44,7 @@
             android:screenOrientation="portrait"
             />
         <activity
-            android:name=".BlurCalculationImages"
+            android:name=".BlurCalculatioAllImages"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
