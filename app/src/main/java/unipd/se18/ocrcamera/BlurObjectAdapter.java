@@ -41,7 +41,7 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
 
 
     /**
-     *  Extended method of android.widget.Adapter
+     *  Extented method of android.widget.Adapter
      * @param position the item position
      * @param convertView parameter to recycle the view
      * @param parent the ListView of the Gallery
@@ -50,7 +50,7 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            Log.e("err", "Viewholder Does Not Exist");
+            Log.e("erre", "Viewholder Does Not Exist");
 
             convertView = LayoutInflater.from(getContext())
                     .inflate(R.layout.adapterview

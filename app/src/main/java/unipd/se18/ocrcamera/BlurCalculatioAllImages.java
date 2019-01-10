@@ -31,13 +31,15 @@ import static android.graphics.BitmapFactory.decodeStream;
  * Activity accessible by the options menu on the application
  *
  */
-public class BlurGalleryActivity extends AppCompatActivity {
+public class BlurCalculatioAllImages extends AppCompatActivity {
 
     /**
      *  Directory of the Photos
      */
     private final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/OCRCameraDB";
 
+
+    //private final String PHOTOS_FIX_ERROR = "/storage/emulated/0/Images/OCRCameraDB";
     /**
      * ListView to show all the ingredients in a List
      */
@@ -48,6 +50,12 @@ public class BlurGalleryActivity extends AppCompatActivity {
      */
     ArrayList<BlurObject> arrayBlur = new ArrayList<>();
 
+    /**
+     * List of elements inside PHOTOS_FOLDER
+     */
+    String fileNames[];
+
+
 
 
     @Override
@@ -56,30 +64,20 @@ public class BlurGalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         File path = new File(PHOTOS_FOLDER);
-        String[] fileNames = path.list();
-        //load the ArrayList with all the images with the relative blur value
+        Log.e("info", path.getAbsolutePath()); //troubleshooting
+        fileNames = path.list();
+
+        Log.e("info", PHOTOS_FOLDER);          //troubleshooting
+
         if (fileNames != null) {
-            for (int i = 0; i < fileNames.length; i++) {                                          //path.length = number of elements in the folder
-                try {
-
-                    File f = new File(PHOTOS_FOLDER, fileNames[i]);                               //creates an object for each element of the folder
-                    Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));            //if it is an image
-                    BlurObject obj = new BlurObject(image, fileNames[i]);
-                    arrayBlur.add(obj);
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    Log.e("errore", "filenotfound");
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                    Log.e("errore", "illegalargument");
-                }
-            }
+            setGallery(PHOTOS_FOLDER);
         }
         else {
             Toast.makeText(this, "No images found", Toast.LENGTH_SHORT).show();
             this.finish();
             //Exit from Gallery
+
+
         }
 
         //View preparation
@@ -91,6 +89,48 @@ public class BlurGalleryActivity extends AppCompatActivity {
         maxview.setText(String.valueOf(findMax(arrayBlur)));
 
 
+    }
+
+    /**
+     * Method to get file extension leonardo Pratesi
+     * @param file
+     * @return file extension
+     */
+    public String getExtension(String file) {
+        int dotposition = file.lastIndexOf(".");
+        String filename_Without_Ext = file.substring(0, dotposition);
+        String ext = file.substring(dotposition + 1, file.length());
+        Log.e(ext, ext);
+        return ext;
+
+    }
+
+    /**
+     * Method that creates a blurObject for every image in the folder
+     * @param imagepath
+     */
+    public void setGallery(String imagepath) {
+
+        int conta = 0;
+        for (int i = 0; i < imagepath.length(); i++) {                    //path.length = number of elements in the folder
+            try {
+                //extension= getExtension(fileNames[i]);
+
+                File f = new File(PHOTOS_FOLDER, fileNames[i]);                               //crea un oggetto BlurObject per ogni elemento della cartella
+                Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));            //se è un file diverso da un immagine non viene costruito l'oggetto
+                BlurObject obj = new BlurObject(fileNames[i], image);
+                arrayBlur.add(obj);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Log.e("errore", "filenotfound");
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+                Log.e("errore", "illegalargument");
+            }
+            conta++; //check how many photos load
+            Log.e("check", Integer.toString(conta));
+        }
     }
 
     /**
@@ -111,21 +151,6 @@ public class BlurGalleryActivity extends AppCompatActivity {
             }
         }
         return max;
-    }
-
-
-    /**
-     * Method to get file extension leonardo Pratesi
-     * @param file
-     * @return file extension
-     */
-    public String getExtension(String file) {
-        int dotposition = file.lastIndexOf(".");
-        String filename_Without_Ext = file.substring(0, dotposition);
-        String ext = file.substring(dotposition + 1, file.length());
-        Log.e(ext, ext);
-        return ext;
-
     }
 
 }
