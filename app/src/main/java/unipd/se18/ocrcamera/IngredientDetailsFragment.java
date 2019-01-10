@@ -41,6 +41,13 @@ public class IngredientDetailsFragment extends DialogFragment {
         // Required empty public constructor
     }
 
+    /**
+     * Method for the fragment creation
+     * @param inciName Title to show in the fragment
+     * @param description Description of the ingredient
+     * @param function Functions of the ingredient
+     * @return
+     */
     public static IngredientDetailsFragment newInstance(String inciName, String description, String function) {
         IngredientDetailsFragment fragment = new IngredientDetailsFragment();
         Bundle args = new Bundle();
@@ -103,7 +110,7 @@ public class IngredientDetailsFragment extends DialogFragment {
             // Get a RequestQueue
             RequestQueueSingleton.getInstance(getActivity()).getRequestQueue();
 
-            // Make request to wikipedia, searching for the ingredient.
+            // Make request to wikipedia, searching for ingredient informations.
             assert inciName != null;
             final String url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&" +
                     "exintro&explaintext&redirects=1&titles="+inciName.toLowerCase();
@@ -154,6 +161,8 @@ public class IngredientDetailsFragment extends DialogFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        //set dialog fragment size (width and height values in fragment_ingredients_details.xml do not work)
         Window window = getDialog().getWindow();
         if (window != null) {
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

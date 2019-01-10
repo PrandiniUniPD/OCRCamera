@@ -70,8 +70,6 @@
             android:parentActivityName=".ResultActivity"
             android:windowSoftInputMode="adjustNothing">
         </activity>
-        <activity android:name=".TestDetailsActivity" />
-        <activity android:name=".IngredientDetailsActivity" />
 
         <!-- Activity launched to search for an ingredient -->
         <activity android:name=".SearchResultsActivity">

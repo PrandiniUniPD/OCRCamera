@@ -13,7 +13,7 @@ import java.util.List;
 import unipd.se18.ocrcamera.inci.Ingredient;
 
 /**
- * Adapter for list view of ingredients after processing with incidb
+ * Adapter for list view of ingredients after extraction from ocr text
  * @author Francesco Pham
  */
 public class AdapterIngredient extends BaseAdapter {
@@ -26,6 +26,7 @@ public class AdapterIngredient extends BaseAdapter {
 
     //type of ingredient ALLERGEN: possible allergen
     //                   SELECTEDALLERGEN: the user is allergic to the specified ingredient
+    //                   NOTALLERGEN: no warning
     private enum IngredientWarningType {
         NOTALLERGEN, ALLERGEN, SELECTEDALLERGEN
     }

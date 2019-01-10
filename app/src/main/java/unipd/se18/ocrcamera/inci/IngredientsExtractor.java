@@ -11,7 +11,7 @@ public interface IngredientsExtractor {
     /**
      * This method extracts ingredients from the ocr text and returns the list of ingredients.
      * @param text The entire OCR text
-     * @return List of Ingredient objects where ingredient's informations are stored
+     * @return List of extracted ingredients, empty list if no ingredients are found
      * @author Francesco Pham
      */
     List<Ingredient> findListIngredients(String text);

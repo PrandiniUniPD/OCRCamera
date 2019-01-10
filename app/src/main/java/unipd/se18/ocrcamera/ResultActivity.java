@@ -95,7 +95,7 @@ public class ResultActivity extends AppCompatActivity {
         emptyTextView.setText(R.string.finding_text);
         ingredientsListView.setEmptyView(emptyTextView);
 
-        //set on click on ingredient launching IngredientDetailsActivity
+        //set on click on ingredient launching IngredientDetailsFragment
         ingredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -262,6 +262,8 @@ public class ResultActivity extends AppCompatActivity {
 
             ResultActivity activity = activityReference.get();
             if (activity == null || activity.isFinishing()) return null;
+
+            //get extractor and corrector from singleton (this may pause until loading is finished)
             IngredientsExtractor extractor = InciSingleton.getInstance(activity).getIngredientsExtractor();
             TextAutoCorrection corrector = InciSingleton.getInstance(activity).getTextCorrector();
 
@@ -319,7 +321,7 @@ public class ResultActivity extends AppCompatActivity {
                 headerView.setText(analyzedText);
                 activity.ingredientsListView.addHeaderView(headerView);
 
-                //save image and ingredients extracted in the gallery
+                //save image and ingredients extracted in the gallery (Stefano Romanello)
                 activity.saveResultToGallery(ingredients);
             }
             else

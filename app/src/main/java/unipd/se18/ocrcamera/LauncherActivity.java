@@ -20,7 +20,8 @@ public class LauncherActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        //load inci db and initialize ingredients extractor
+        // load inci db, ingredients extractor, text corrector and allergens manager
+        // this can continue after this activity finishes and will end when loading is finished.
         Thread loadExtractorThread = new Thread() {
             public void run() {
                 InciSingleton.getInstance(getApplicationContext());

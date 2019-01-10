@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class NameMatchIngredientsExtractor implements IngredientsExtractor {
 
-    //list of recognized ingredients where are stored informations about ingredients
+    //list where all ingredients from inci db are stored
     private List<Ingredient> listIngredients;
 
     //Tag for logs
@@ -44,7 +44,7 @@ public class NameMatchIngredientsExtractor implements IngredientsExtractor {
     /**
      * This method extracts ingredients from the ocr text and returns the list of ingredients.
      * @param text The entire OCR text
-     * @return List of Ingredient objects where ingredient's informations are stored, empty list if no ingredients are found.
+     * @return List of extracted ingredients, empty list if no ingredients are found
      * @author Francesco Pham
      */
     @Override

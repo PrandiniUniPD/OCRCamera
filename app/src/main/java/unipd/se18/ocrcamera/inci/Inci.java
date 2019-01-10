@@ -37,10 +37,10 @@ public class Inci {
 
         ArrayList<Ingredient> listIngredients = new ArrayList<>(); //initializing list of ingredients
 
-        //initializing openCSV reader
+        //initialize openCSV reader
         CSVReader csvReader = new CSVReader(reader);
 
-        //skip fist line containing field names
+        //skip first line containing field names
         try {
             csvReader.skip(1);
         } catch (IOException e) {

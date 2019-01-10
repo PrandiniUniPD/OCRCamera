@@ -22,8 +22,7 @@ import edu.gatech.gtri.bktree.MutableBkTree;
  * https://github.com/frankplus/incidb/tree/master/src/main/java
  *
  * For the search of best matching words in the dictionary I used an implementation of bk-trees,
- * this way the search complexity is logarithmic instead of quadratic (shortening the processing time
- * from about 20 seconds to half a second)
+ * this way the search complexity is logarithmic instead of quadratic.
  * For more information: https://github.com/gtri/bk-tree
  *
  * @author Francesco Pham
