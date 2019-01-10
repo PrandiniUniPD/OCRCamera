@@ -2,15 +2,14 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.example.imageprocessing.exceptions.ConversionFailedException;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt4;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,17 +119,12 @@ public class PreProcessing implements PreProcessingMethods {
 
     /**
      * Rotate the given bitmap with the given angle
-     * @param original The image that we want to corrected
+     * @param original The image that we want to corrected, must not be null
      * @param degrees The degrees of the angle we want to rotate
-     * @return the rotatedImage. If the image is null return the original image
+     * @return the rotatedImage
      * @author Thomas Porro(g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
-    private static Bitmap rotateBitmap(Bitmap original, double degrees) {
-
-        //TODO not correct because it returns null, maybe we should add a @NonNull
-        if(original == null){
-            return original;
-        }
+    private static Bitmap rotateBitmap(@NonNull Bitmap original, double degrees) {
 
         //Obtain the dimen of the image
         int width = original.getWidth();
@@ -149,11 +143,11 @@ public class PreProcessing implements PreProcessingMethods {
 
     /**
      * Performs the skew correction
-     * @param image The image that I want to rotate
+     * @param image The image that I want to rotate, must not be null
      * @return The image corrected
      * @author Thomas Porro(g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
-    private Bitmap editSkew(Bitmap image){
+    private Bitmap editSkew(@NonNull Bitmap image){
         double angle = computeSkew(image);
         return rotateBitmap(image, angle);
     }
@@ -356,7 +350,7 @@ public class PreProcessing implements PreProcessingMethods {
 
 
     /**
-     * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar GArrido (g1)
+     * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      * See PreProcessingMethods.java
      */
     @Override
