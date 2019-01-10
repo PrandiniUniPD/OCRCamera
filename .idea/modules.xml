@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/OCRCamera.iml" filepath="$PROJECT_DIR$/OCRCamera.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/OCRCameraReview.iml" filepath="$PROJECT_DIR$/.idea/OCRCameraReview.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
