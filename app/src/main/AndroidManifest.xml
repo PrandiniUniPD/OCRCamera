@@ -50,12 +50,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TestResultActivity" />
-        <activity
-            android:name=".TestAlterationsActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
-        <activity android:name=".DownloadDbActivity"></activity>
+        <activity android:name=".TestsListActivity" />
+        <activity android:name=".DownloadDbActivity" />
+        <activity android:name=".ManualTestOnSinglePhoto" />
+        <activity android:name=".TestDetailsActivity"></activity>
     </application>
 
 </manifest>

@@ -22,4 +22,14 @@
     <string name="extrected_text">Extracted text:</string>
     <string name="alterations">Alterations:</string>
     <string name="view_alterations">View alterations</string>
+    <string name="extraction_error">"Something has gone wrong, plese try again."</string>
+    <string name="error_code">"Error code: "</string>
+    <string name="view_details">Details</string>
+    <string name="errorLog1">No filePath preferences found</string>
+    <string name="noTextWarning">OCR found no text in this photo</string>
+    <string name="lessThen10CharWarning">Less then 10 chars found by OCR</string>
+    <string name="lessThen20CharWarning">Less then 20 chars found by OCR</string>
+    <string name="lessThen30CharWarning">Less then 30 chars found by OCR</string>
+
+
 </resources>
