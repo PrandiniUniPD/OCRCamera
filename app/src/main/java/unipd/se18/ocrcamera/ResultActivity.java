@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -18,18 +17,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.Utils;
-
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -122,7 +111,7 @@ public class ResultActivity extends AppCompatActivity {
                 Intent galleryintent = new Intent(ResultActivity.this,ImageLibraryActivity.class);
                 startActivity(galleryintent);
             case R.id.blurtesting:
-                Intent blurintent = new Intent(ResultActivity.this, BlurCalculatioAllImages.class);
+                Intent blurintent = new Intent(ResultActivity.this, BlurGalleryActivity.class);
                 startActivity(blurintent);
             default:
                 return super.onOptionsItemSelected(item);

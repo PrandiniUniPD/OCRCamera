@@ -9,18 +9,21 @@ import android.graphics.Bitmap;
  */
 
 public class BlurObject {
+    String name;
     Bitmap image;
     double blur;
 
-    public BlurObject(Bitmap image, double blur)
+    public BlurObject(Bitmap image, String name, double blur)
     {
-        this.image= image;
+        this.image = image;
+        this.name = name;
         this.blur=blur;
     }
 
-    public BlurObject(Bitmap image)
+    public BlurObject(Bitmap image, String name)
     {
         this.image= image;
+        this.name = name;
         this.blur= CameraActivity.blurValue(this.image);
     }
 
