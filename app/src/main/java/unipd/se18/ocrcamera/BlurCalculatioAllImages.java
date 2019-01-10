@@ -26,7 +26,7 @@ import java.util.Optional;
 
 import static android.graphics.BitmapFactory.decodeStream;
 
-/** Testing Activity to see if blur could work
+/** Testing Activity to see if blur could work, shows a gallery with each image associated with it's blur value
  * Leonardo Pratesi - gruppo 1
  * Activity accessible by the options menu on the application
  *
@@ -64,10 +64,10 @@ public class BlurCalculatioAllImages extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         File path = new File(PHOTOS_FOLDER);
-        Log.e("info", path.getAbsolutePath());
+        Log.e("info", path.getAbsolutePath()); //troubleshooting
         fileNames = path.list();
 
-        Log.e("info", PHOTOS_FOLDER);
+        Log.e("info", PHOTOS_FOLDER);          //troubleshooting
 
         if (fileNames != null) {
             setGallery(PHOTOS_FOLDER);

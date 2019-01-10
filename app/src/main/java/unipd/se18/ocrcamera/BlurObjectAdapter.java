@@ -2,6 +2,7 @@ package unipd.se18.ocrcamera;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -37,7 +40,7 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
     public BlurObjectAdapter(Context context, int textViewResourceId, ArrayList<BlurObject> items) {
         super(context, textViewResourceId, items);
     }
-    
+
 
     /**
      *  Extented method of android.widget.Adapter
@@ -88,5 +91,28 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
         viewHolder.position=position;
         return convertView;
     }
+
+    /**
+     *  Method to pass the bitmap between activities
+     * @param bitmap
+     * @return
+     */
+    public String createImageFromBitmap(Bitmap bitmap) {
+        String fileName = "myImage";//no .png or .jpg needed
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            FileOutputStream fo = getContext().openFileOutput(fileName, Context.MODE_PRIVATE);
+            fo.write(bytes.toByteArray());
+            // remember close file output
+            fo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fileName = null;
+        }
+        return fileName;
+    }
+
+
 
 }
