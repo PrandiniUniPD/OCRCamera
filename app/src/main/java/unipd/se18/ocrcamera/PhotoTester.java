@@ -512,16 +512,7 @@ public class PhotoTester {
             List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(correctedRecognizedText);
             List<Ingredient> correctListIngredients = correctIngredientsExtractor.findListIngredients(correctIngredientsText);
 
-            //sort alphabetically (Francesco Pham)
-            Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
-                @Override
-                public int compare(Ingredient o1, Ingredient o2) {
-                    return o1.compareTo(o2.getInciName());
-                }
-            };
-            Collections.sort(extractedIngredients,cmp);
-            Collections.sort(correctListIngredients, cmp);
-
+            //show extracted ingredients from ocr text
             StringBuilder extractionReport = new StringBuilder();
             extractionReport.append("Extracted: ");
             Iterator<Ingredient> iterator = extractedIngredients.iterator();
@@ -530,6 +521,7 @@ public class PhotoTester {
                 extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
             }
 
+            //show correct ingredients (extracted from correct ingredients string)
             extractionReport.append("Correct: ");
             iterator = correctListIngredients.iterator();
             while(iterator.hasNext()){
@@ -550,7 +542,7 @@ public class PhotoTester {
                 }
             }
 
-            //make ingredients extraction report
+            //make ingredients extraction statistics report
             int nWrongExtractedIngreds = extractedIngredients.size();
             float percent = (float)100*nCorrectExtractedIngreds / correctListIngredients.size();
             if(Float.isNaN(percent)) percent = 0;
