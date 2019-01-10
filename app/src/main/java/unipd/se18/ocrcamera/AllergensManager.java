@@ -30,7 +30,7 @@ class AllergensManager {
     private SharedPreferences sp = null;
 
     /**
-     * constructor
+     * constructor, accesses the sharedPreferences file and reads the allergens database from res
      * @param cntxt context of the app/calling activity
      * @author Cervo Nicolò
      */
@@ -91,15 +91,18 @@ class AllergensManager {
     }
 
     /**
-     * parses through selected_allergens to return the list of selected allergens
+     * parses through selected_allergens_sharedPref to return the list of the selected allergens
      * @return selectedAllergensList, ArrayList<Allergen> of selected allergens
      * @author Nicolò Cervo (g3)
      */
     public ArrayList<Allergen> getSelectedAllergensList() {
 
+        // Get the content of selected_allergens_sharedPref
         Map<String, ?> selectedAllergens = sp.getAll();
         ArrayList<Allergen> selectedAllergensList = new ArrayList<>();
 
+        // For every line in selected_allergens_sharedPref create the corresponding Allergen
+        // and store it in selectedAllergensList
         for(Map.Entry<String, ?> entry : selectedAllergens.entrySet()) {
 
             Allergen allergen = new Allergen();
@@ -112,9 +115,8 @@ class AllergensManager {
     }
 
     /**
-     * compares the list of allergens to the ingredient ingr
-     * @param ingr, a List of the ingredients (recognized form the Ocr text)
-     *        to be compared to the allergens
+     * checks if ingr is or derives from any allergen.
+     * @param ingr, ingredient (recognized form the Ocr text)
      * @return foundAllergens, ArrayList<Allergen> containing the allergens found in the inciName or
      *         in the description of ingr, empty list if none is found
      * @author Cervo Nicolò
@@ -155,7 +157,9 @@ class AllergensManager {
         Allergen allergen = new Allergen();
         ArrayList<Allergen> foundSelectedAllergens = new ArrayList<>();
 
+        // For every selected allergen
         for(Map.Entry<String, ?> entry : selectedAllergens.entrySet()) {
+            // Check if the ingredient has one of it's inci names or it's common name(in the description)
             for(String inciName : entry.getValue().toString().split(", ")) {
                 if(ingr.getInciName().contains(inciName) ||
                         ingr.getDescription().toUpperCase().contains(entry.getKey())) {
@@ -163,6 +167,7 @@ class AllergensManager {
                     allergen.setInciNames(entry.getValue().toString().split(", "));
                     allergen.setCommonName(entry.getKey());
                     foundSelectedAllergens.add(allergen);
+                    break;
                 }
             }
         }
