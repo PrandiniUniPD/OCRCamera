@@ -6,9 +6,14 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.w3c.dom.Comment;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,13 +47,30 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
         void onGetDetailFailure(String message);
     }
 
+    public interface AddCommentListener
+    {
+        /**
+         * Triggered when a comment is successfully added
+         * @param comment The comment that has just been added
+         */
+        void onAddCommentSuccess(Post comment);
+
+        /**
+         * Triggered when a comment addition fails
+         * @param message The error message
+         */
+        void onAddCommentFailure(String message);
+    }
+
     /**
      * ***************************
      * **   GLOBAL VARIABLES    **
      * ***************************
      */
-    private GetPostDetailListener listener;
+    private GetPostDetailListener getDetailListener;
+    private AddCommentListener addCommentListener;
     private final String LOG_TAG = "@@PostDetail_VM";
+    public String postID = "";
 
     @Override
     public void getPostDetail(final Context context, final String post)
@@ -84,11 +106,11 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
                         catch (ParseException e)
                         {
                             Log.d(LOG_TAG, e.getMessage());
-                            if (listener !=  null){ listener.onGetDetailFailure(context.getString(R.string.getPostDetailFailure)); }
+                            if (getDetailListener !=  null){ getDetailListener.onGetDetailFailure(context.getString(R.string.getPostDetailFailure)); }
                         }
                     }
 
-                    if (listener != null) { listener.onGetDetailSuccess(comments); }
+                    if (getDetailListener != null) { getDetailListener.onGetDetailSuccess(comments); }
 
                 }
             }
@@ -98,8 +120,43 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
     }
 
     /**
+     * Adds the specified comment to the current post
+     * @param context The reference to the activity/fragment that has invoked this method
+     * @param comment The comment that has to be added to the current post
+     * @param prevComments The amount of comments before the last one's addition
+     */
+    public void addComment(final Context context, final Post comment, int prevComments)
+    {
+        DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
+        listeners.successListener = new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o)
+            {
+                if (addCommentListener != null) { addCommentListener.onAddCommentSuccess(comment); }
+            }
+        };
+
+        listeners.failureListener = new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e)
+            {
+                Log.d(LOG_TAG, e.getMessage());
+                if (addCommentListener != null) { addCommentListener.onAddCommentFailure(context.getString(R.string.addCommentFailure)); }
+            }
+        };
+
+        DatabaseManager.addComment(context, comment, prevComments, postID, listeners);
+    }
+
+    /**
      * Adds the specified listener to the view model
      * @param listener The specified listener that has to be added to the view model
      */
-    public void setGetDetailListener(GetPostDetailListener listener) { this.listener = listener; }
+    public void setGetDetailListener(GetPostDetailListener listener) { this.getDetailListener = listener; }
+
+    /**
+     * Adds the specified listener to the view model
+     * @param listener The specified listener that has to be added to the view model
+     */
+    public void setAddCommentListener(AddCommentListener listener) { this.addCommentListener = listener; }
 }

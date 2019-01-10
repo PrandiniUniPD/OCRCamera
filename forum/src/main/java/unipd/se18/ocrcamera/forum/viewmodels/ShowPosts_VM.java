@@ -138,8 +138,9 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
 
         listeners.successListener = new OnSuccessListener() {
             @Override
-            public void onSuccess(Object o) {
-
+            public void onSuccess(Object o)
+            {
+                if (addLikeListener != null) { addLikeListener.onAddLikeSuccess(""); }
             }
         };
 

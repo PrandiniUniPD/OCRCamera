@@ -12,11 +12,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import unipd.se18.ocrcamera.forum.models.Post;
 import unipd.se18.ocrcamera.forum.viewmodels.PostDetail_VM;
@@ -33,6 +36,9 @@ public class PostDetail extends android.support.v4.app.Fragment
     private OnFragmentInteractionListener mListener;
     private PostDetail_VM viewModel;
     private RecyclerView postComments;
+    private Button btnAddComment;
+    private String loggedUser;
+    private CommentsAdapter adapter;
 
     public PostDetail()
     {
@@ -46,6 +52,9 @@ public class PostDetail extends android.support.v4.app.Fragment
 
         //View model initialization
         viewModel = ViewModelProviders.of(this).get(PostDetail_VM.class);
+
+        //Fragment parameters reading
+        loggedUser = getArguments().getString(getResources().getString(R.string.loggedUser), "default.user");
     }
 
     @Override
@@ -62,16 +71,19 @@ public class PostDetail extends android.support.v4.app.Fragment
         //UI object initialization
         postComments = view.findViewById(R.id.postComments);
         postComments.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        btnAddComment = view.findViewById(R.id.btnAddComment);
 
         TextView lblPostTile = view.findViewById(R.id.lblDettPostTitle);
         TextView lblPosDate = view.findViewById(R.id.lblDettPostDate);
         TextView lblPostMessage = view.findViewById(R.id.lblDettPostMessage);
         TextView lblPostAuthor = view.findViewById(R.id.lblDettPostAuthor);
         TextView lblPostLikes = view.findViewById(R.id.lblDettPostLikes);
-        TextView lblPostComments = view.findViewById(R.id.lblDettPostComments);
+        final TextView lblPostComments = view.findViewById(R.id.lblDettPostComments);
+        final EditText txtComment = view.findViewById(R.id.txtComment);
 
         //Reading of fragment parameters
-        Post post = getArguments().getParcelable("post");
+        final Post post = getArguments().getParcelable("post");
+        viewModel.postID = post.getID();
 
         lblPostTile.setText(post.getTitle());
         lblPostAuthor.setText("Author: " + post.getAuthor());
@@ -87,7 +99,7 @@ public class PostDetail extends android.support.v4.app.Fragment
             @Override
             public void onGetDetailSuccess(ArrayList<Post> comments)
             {
-                CommentsAdapter adapter = new CommentsAdapter(view.getContext(), comments);
+                adapter = new CommentsAdapter(view.getContext(), comments);
                 postComments.setAdapter(adapter);
             }
 
@@ -97,6 +109,44 @@ public class PostDetail extends android.support.v4.app.Fragment
                 Toast.makeText(view.getContext(), message, Toast.LENGTH_LONG).show();
             }
         });
+
+
+        viewModel.setAddCommentListener(new PostDetail_VM.AddCommentListener() {
+            @Override
+            public void onAddCommentSuccess(Post comment)
+            {
+                //Notify the user with a success message
+                Toast.makeText(view.getContext(), getResources().getString(R.string.addCommentSuccess), Toast.LENGTH_LONG).show();
+
+                //Update the UI
+                post.addComment();
+                lblPostComments.setText("Comments: " + post.getComments());
+                txtComment.setText("");
+                adapter.addComment(comment);
+                adapter.notifyItemInserted(adapter.getLastPosition());
+            }
+
+            @Override
+            public void onAddCommentFailure(String message) {
+
+            }
+        });
+
+        //Listener for btnAddComment
+        btnAddComment.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+               Post comment = new Post();
+               comment.setAuthor(loggedUser);
+               comment.setMessage(txtComment.getText().toString());
+               comment.setDate(new Date());
+
+               viewModel.addComment(view.getContext(), comment, post.getComments());
+            }
+        });
+
 
         viewModel.getPostDetail(view.getContext(), post.getID());
     }
@@ -187,6 +237,18 @@ public class PostDetail extends android.support.v4.app.Fragment
 
         @Override
         public int getItemCount() { return comments.size(); }
+
+        /**
+         * Returns the last element's index in the list
+         * @return The last element's index
+         */
+        public int getLastPosition() { return comments.size() - 1; }
+
+        /**
+         * Adds the specified comment to the list
+         * @param comment The specified comment
+         */
+        public void addComment(Post comment) { comments.add(comment); }
     }
 
     public interface OnFragmentInteractionListener

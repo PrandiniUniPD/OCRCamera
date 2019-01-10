@@ -55,6 +55,8 @@ public class Post implements Parcelable
         this(ID, "", "", new Date(), 0, 0, "");
     }
 
+    public Post() { this("", "", "", new Date(), 0, 0, ""); }
+
     /**
      * *************************
      * ** GETTER AND SETTERS  **
@@ -142,6 +144,7 @@ public class Post implements Parcelable
      * ***********************
      */
     public void addLike() { likes++; }
+    public void addComment() { comments++; }
 
     /**
      * *****************+*********

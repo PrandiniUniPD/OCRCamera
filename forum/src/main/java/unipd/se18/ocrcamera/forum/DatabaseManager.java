@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -131,6 +132,38 @@ public class DatabaseManager
                 .whereEqualTo(context.getString(R.string.postCommentKey), post)
                 .get()
                 .addOnCompleteListener(listeners.completeListener);
+    }
+
+    /**
+     * Adds the specified comment to db
+     * @param context The reference to the activity/fragment that has invoked this method
+     * @param comment The comment that has to be added
+     * @param prevComments The amount of comments before the last one's addition
+     * @param post The ID of the post to which the comment is added
+     * @param listeners The listeners that have to be executed when the communication with the database has ended
+     */
+    public static void addComment(Context context, Post comment, int prevComments, String post, Listeners listeners)
+    {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        //Add the comment to the db
+        Map<String, Object> toAdd = new HashMap<>();
+        toAdd.put(context.getString(R.string.postAuthorKey), comment.getAuthor());
+        toAdd.put(context.getString(R.string.postMessageKey), comment.getMessage());
+        toAdd.put(context.getString(R.string.postCommentKey), post);
+
+        SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
+        toAdd.put(context.getString(R.string.postDateKey), format.format(comment.getDate()));
+
+        db.collection(context.getString(R.string.postCollectionName))
+                .add(toAdd)
+                .addOnSuccessListener(listeners.successListener)
+                .addOnFailureListener(listeners.failureListener);
+
+        //Update comments amount
+        db.collection(context.getString(R.string.postCollectionName))
+                .document(post)
+                .update(context.getString(R.string.postCommentsKey), prevComments+1);
     }
 
 }

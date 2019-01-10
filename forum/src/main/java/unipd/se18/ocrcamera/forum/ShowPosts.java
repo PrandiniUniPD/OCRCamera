@@ -232,10 +232,14 @@ public class ShowPosts extends Fragment {
                     PostDetail fDetail = new PostDetail();
 
                     Bundle params = new Bundle();
-                    params.putParcelable("post", currentPost);
+                    params.putParcelable(context.getString(R.string.postParameterKey), currentPost);
                     fDetail.setArguments(params);
 
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fDetail).commit();
+                    getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragmentContainer, fDetail)
+                            .addToBackStack(context.getString(R.string.fgShowPosts))
+                            .commit();
                 }
             });
 

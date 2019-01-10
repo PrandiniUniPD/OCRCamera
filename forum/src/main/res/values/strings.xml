@@ -27,4 +27,15 @@
     <string name="usernameFrgParam">username</string>
     <string name="getPostDetailFailure">An error occurred while getting the post detail. Please retry by refreshing the page</string>
 
+    <!-- Fragment back stack identifiers -->
+    <string name="fgShowPosts">ShowPosts</string>
+
+    <!-- Fragment parameters keys -->
+    <string name="postParameterKey">post</string>
+    <string name="loggedUser">user</string>
+
+    <!-- Add comment messaged -->
+    <string name="addCommentSuccess">Comment successfully added!</string>
+    <string name="addCommentFailure">An error occurred while adding the comment. Please retry</string>
+
 </resources>
