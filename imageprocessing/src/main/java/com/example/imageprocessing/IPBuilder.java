@@ -4,6 +4,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.core.MatOfInt4;
+import android.graphics.Bitmap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -290,7 +291,7 @@ class IPBuilder {
             this.x = 0;
             this.y = 0;
             this.width = 0;
-            this.heigth = 0;
+            this.height = 0;
         }
 
         /**
