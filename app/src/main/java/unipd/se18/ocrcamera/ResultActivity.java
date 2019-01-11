@@ -132,14 +132,14 @@ public class ResultActivity extends AppCompatActivity {
         //load the path to the last taken picture, can be null if the user didn't take any picture
         final String lastImagePath = prefs.getString("imagePath", null);
 
-        //only if lastImagePath is not null we set our view
         if(lastImagePath != null) {
 
+            //launch UCrop on image click
             mImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     final Uri resultImageUri = Uri.fromFile(new File(getCacheDir(),"croppedImg.jpg"));
-                    //Build Uri from filePath adding scheme
+                    //Build Uri from image path
                     Uri.Builder builder = new Uri.Builder().scheme("file").path(lastImagePath);
                     final Uri captureImageUri = builder.build();
 
@@ -161,6 +161,10 @@ public class ResultActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Show image, extract text from the image, extract ingredients and update UI showing results.
+     * @param imagePath Path of the image which has to be analyzed
+     */
     private void analyzeImageUpdateUI(final String imagePath) {
         // get Bitmap of the image
         final Bitmap image = BitmapFactory.decodeFile(imagePath);
@@ -217,15 +221,12 @@ public class ResultActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP)
         {
+            //get cropped image and update UI
             final Uri resultUri = UCrop.getOutput(data);
 
             if (resultUri != null) {
                 analyzeImageUpdateUI(resultUri.getPath());
             }
-        }
-        else if (resultCode == UCrop.RESULT_ERROR)
-        {
-            final Throwable cropError = UCrop.getError(data);
         }
     }
 
