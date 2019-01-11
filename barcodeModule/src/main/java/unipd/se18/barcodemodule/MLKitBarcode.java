@@ -20,11 +20,24 @@ import java.util.concurrent.CountDownLatch;
  */
 public class MLKitBarcode implements Barcode{
 
-    private String code = "";
+    //actual barcode String returned by main method decodeBarcode
+    public String barcode = "";
+    //text of the decoding error
+    private String decodeERROR = "ERROR: Barcode decoding unsuccessful, please try again.";
+    //text of the possible exception related to the CountdownLatch
+    private String latchERROR = "Fatal error! Please try again.";
+    //possibility to limit barcode format recognized to improve performance
+    private FirebaseVisionBarcodeDetectorOptions options =
+            new FirebaseVisionBarcodeDetectorOptions.Builder()
+                    .setBarcodeFormats(
+                            FirebaseVisionBarcode.FORMAT_ALL_FORMATS).build();
+    //cause of different possible implementations, the detector instantiation is leaved detached
+    private FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector(options);
 
     /**
      * implementation of the decodeBarcode method, that would detect the barcode from the given image
      * @param bitmap photo taken from the camera, to be analyzed.
+     * @return barcode String that represent the barcode scanned in the image
      */
     @Override
     public String decodeBarcode(Bitmap bitmap) {
@@ -33,7 +46,6 @@ public class MLKitBarcode implements Barcode{
         //using firebase .fromBitmap method to get an analyzable image from a given bitmap
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
         //Get the detector, modularized from the main method, so it's possible to make independent changes
-        final FirebaseVisionBarcodeDetector detector = getDetector();
         //method to find and decode a barcode in the image
         Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
                 //adding a listener for the success result
@@ -43,10 +55,10 @@ public class MLKitBarcode implements Barcode{
                     public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
                         if (!(barcodes.isEmpty())) {
                             //if not empty get the string of the barcode value
-                            code = barcodes.get(0).getRawValue();
+                            barcode = barcodes.get(0).getRawValue();
                         }else{
                             //if no barcode is found, return empty string
-                            code= "";
+                            barcode= "";
                         }
                         //get the countdown to zero in order to proceed with the method
                         latch.countDown();
@@ -58,7 +70,7 @@ public class MLKitBarcode implements Barcode{
                     public void onFailure(@NonNull Exception e) {
                         latch.countDown();
                         //in case of failure return a string that report the error occurred
-                        code="ERROR: Barcode decoding unsuccessful, please try again.";
+                        barcode = decodeERROR;
                         Log.e("Error Barcode", e.getMessage());
                     }
                 });
@@ -67,25 +79,9 @@ public class MLKitBarcode implements Barcode{
             latch.await();
         }catch(InterruptedException e){
             Log.e("Latch exception", e.getMessage());
-            return "Fatal error! Please try again.";
+            return latchERROR;
         }
-        return code;
-    }
-
-    /**
-     * method useful to get a detector object with the possibility
-     * to use different barcode formats or different implementations
-     * @return the Firebase detector object created
-     */
-    public FirebaseVisionBarcodeDetector getDetector(){
-        //possibility to limit barcode format recognized to improve performance
-        FirebaseVisionBarcodeDetectorOptions options =
-                new FirebaseVisionBarcodeDetectorOptions.Builder()
-                        .setBarcodeFormats(
-                                FirebaseVisionBarcode.FORMAT_ALL_FORMATS).build();
-        //instantiating the barcode detector, with the options chosen before
-        final FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector(options);
-        return detector;
+        return barcode;
     }
 
 
