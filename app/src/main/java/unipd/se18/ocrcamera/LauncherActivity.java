@@ -49,7 +49,7 @@ public class LauncherActivity extends AppCompatActivity {
             if(OCRText != null && !(OCRText.equals(""))) {
                 //An intent that will launch the activity
                 intent = new Intent(LauncherActivity.this, ResultActivity.class);
-
+                intent.putExtra("CAPTURED_IMAGE_PATH", pathImage);
             }
             else {
                 Log.e(TAG, "Error retrieving last extracted text");

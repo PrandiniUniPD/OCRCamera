@@ -156,15 +156,16 @@ public class CameraActivity extends AppCompatActivity {
                 }
 
                 //Temporary stores the captured photo into a file that will be used from the Camera Result activity
-                String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
+                String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage").trim();
 
                 SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
                 SharedPreferences.Editor edit = prefs.edit();
-                edit.putString("imagePath", filePath.trim());
+                edit.putString("imagePath", filePath);
                 edit.apply();
 
                 //An intent that will launch the activity that will analyse the photo
                 Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                i.putExtra("CAPTURED_IMAGE_PATH", filePath);
                 startActivity(i);
             }
         });
