@@ -226,7 +226,8 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
             Size imageDimensions = new Size(image.getHeight(), image.getWidth());
 
             //Creates a RotatedRect containing the full image
-            RotatedRect fullImage = new RotatedRect(center, imageDimensions, 0);
+            double inclinationAngle=0;
+            RotatedRect fullImage = new RotatedRect(center, imageDimensions, inclinationAngle);
             textContainer.addRegion(fullImage);
             return textContainer;
         }
@@ -274,6 +275,7 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
         while(textContainer.hasNext()){
             rectangle = (RotatedRect)textContainer.next();
             Mat croppedMat = crop(rectangle, img);
+            //If the conversion failed return a List with only the original image
             try {
                 Bitmap croppedBitmap = IPUtils.conversionMatToBitmap(croppedMat);
                 imgTextContainer.add(croppedBitmap);

@@ -78,7 +78,7 @@ public class PreProcessing implements PreProcessingMethods {
                 .withL2gradient(false));
 
         //Create a 4 dimensions vector using matrix
-        MatOfInt4 lines = IPBuilder.doHoughLinesP(new IPBuilder.HoughLinesPBuilder(grayscale)
+        MatOfInt4 lines = IPBuilder.doHoughLinesP(new IPBuilder.HoughLinesPBuilder(canny)
                 .withRho(1)
                 .withTheta(Math.PI / 180)
                 .withThreshold(50)
@@ -88,7 +88,7 @@ public class PreProcessing implements PreProcessingMethods {
         double meanAngle = 0;
         Log.d(TAG, "rows = " + lines.cols() + "\ncols = " + lines.cols());
 
-        //Analizes the text line per line
+        //Analyzes the text line per line
         for (int i = 0; i < lines.rows(); i++) {
             //Get points from the beginning and the ending of the line of text
             double[] vec = lines.get(i, 0);
@@ -153,16 +153,16 @@ public class PreProcessing implements PreProcessingMethods {
     /**
      * Detect if the image is bright
      * @param imageMat the image we want to detect the brightness
-     * @return 0 if image is neither too bright nor too dark,
-     *         1 if image is too bright,
-     *         2 if image is too dark.
+     * @return IMAGE_IS_OK if image is neither too bright nor too dark,
+     *         IMAGE_IS_BRIGHT if image is too bright,
+     *         IMAGE_IS_DARK if image is too dark.
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
      */
-    private int isBright(Mat imageMat){
+    private BrightnessValue isBright(Mat imageMat){
         //Converts the image into a matrix
         Mat brightnessMat = new Mat();
 
-        //Changes the format of the matrix
+        //Changes the format of the matrix into a RGB one
         Imgproc.cvtColor(imageMat, brightnessMat, Imgproc.COLOR_RGBA2RGB);
 
         //Obtain 3 different matrix with the 3 elemental colors
@@ -170,24 +170,25 @@ public class PreProcessing implements PreProcessingMethods {
         Core.split(brightnessMat, color);
 
         /*Each color is multiplied with his luminance.
-          For more informarions see https://en.wikipedia.org/wiki/Relative_luminance*/
-        Mat lumRed = new Mat();
-        Core.multiply(color.get(0), new Scalar(0.2126), lumRed);
-        Mat lumGreen = new Mat();
-        Core.multiply(color.get(1), new Scalar(0.7152), lumGreen);
-        Mat lumBlue = new Mat();
-        Core.multiply(color.get(2), new Scalar(0.0722), lumBlue);
+          The colors are in order RGB, so to access the che color I use the number 0, 1, 2 in order
+          For more informations see https://en.wikipedia.org/wiki/Relative_luminance*/
+        Mat redLuminance = new Mat();
+        Core.multiply(color.get(0), new Scalar(0.2126), redLuminance);
+        Mat greenLuminance= new Mat();
+        Core.multiply(color.get(1), new Scalar(0.7152), greenLuminance);
+        Mat blueLuminance = new Mat();
+        Core.multiply(color.get(2), new Scalar(0.0722), blueLuminance);
 
         //Sums the matrix of the colors into a single one
-        Mat lumTemp = new Mat();
-        Mat lum = new Mat();
-        Core.add(lumRed , lumGreen , lumTemp); //lumRed + lumGreen = lumTemp
-        Core.add(lumTemp , lumBlue , lum); //lumBlue + lumTemp = lum
+        Mat tempLuminance = new Mat();
+        Mat totalLuminance = new Mat();
+        Core.add(redLuminance , greenLuminance , tempLuminance); //Red + Green = Temp
+        Core.add(tempLuminance , blueLuminance , totalLuminance); //Temp + Blue = Luminance
 
         //Calculate the sum of the values of all pixels
-        Scalar sum = Core.sumElems(lum);
+        Scalar sum = Core.sumElems(totalLuminance);
 
-        //Image's bit
+        //Determines the image's bit
         int bit;
         switch ( brightnessMat.depth() ) {
             case CV_8U:  bit = 8; break;
@@ -197,10 +198,11 @@ public class PreProcessing implements PreProcessingMethods {
             case CV_32S: bit = 32; break;
             case CV_32F: bit = 32; break;
             case CV_64F: bit = 64; break;
-            default: return 0;
+            default: return BrightnessValue.IMAGE_IS_OK;
         }
         //Calculate the percentage of the brightness
-        double brightness = sum.val[0]/((Math.pow(2,bit)-1)*brightnessMat.rows()*brightnessMat.cols())*2;
+        double brightness = sum.val[0]/((Math.pow(2,bit)-1)*brightnessMat.rows()
+                *brightnessMat.cols())*2;
 
         Log.d(TAG, "Brightness:"+brightness);
 
@@ -210,11 +212,11 @@ public class PreProcessing implements PreProcessingMethods {
         double lowerBound = 0.4;
 
         if (brightness > upperBound){             //Image is too bright
-            return 1;
+            return BrightnessValue.IMAGE_TOO_BRIGHT;
         } else if (brightness < lowerBound){        //Image is too dark
-            return 2;
+            return BrightnessValue.IMAGE_TOO_DARK;
         } else {      //Image is neither too bright nor too dark
-            return 0;
+            return BrightnessValue.IMAGE_IS_OK;
         }
     }
 
@@ -226,6 +228,13 @@ public class PreProcessing implements PreProcessingMethods {
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Oscar Garrido(g1)
      */
     private Bitmap editBright(Bitmap image){
+        /*This variable is used to put a limit to the change of the image's brightness.
+          The value 240 is derived from the fact that in the for loop we try to modify
+          the value of all the pixels of a step, and being the maximum value = 255 (pixel's
+          color maximum value, we put the limit on 240*/
+        final int maxBrightness = 240;
+        final int step = 15;
+
         //Converts the image into a matrix
         Mat bright;
         try{
@@ -239,13 +248,28 @@ public class PreProcessing implements PreProcessingMethods {
         //and change the brightness according to the number obtained
         Mat modifiedMat = new Mat();
         switch (isBright(bright)) {
-            case 1: //If the image is too bright
-                Log.d(TAG, "Case==1 ==> Too bright");
+            case IMAGE_TOO_BRIGHT:
+                Log.d(TAG, "Case==IMAGE_TOO_BRIGHT");
                 //Darkens the colour's brightness until it's in an optimal value
-                for(double changeBrightness=0; changeBrightness!=-240; changeBrightness-=15){
-                    //Converts an array to another data type with optional scaling.
-                    bright.convertTo(modifiedMat, -1, 1, changeBrightness);
-                    if(isBright(modifiedMat)==0){
+                for(double changeBrightness = 0; changeBrightness != maxBrightness;
+                    changeBrightness -= step){
+                   /*This variable is used to select the type of matrix we want to abtain in the
+                      the convertTo method. If it's negative the type doesn't change*/
+                    int matrixType = -1;
+
+                    /*This variable is used to change the contrast of the matrix, but we want
+                      only modify the brightness so we put the value 1 because the method use
+                      this formula from the documentation:
+                      m(x,y) = saturate _ cast<rType>(alpha(*this)(x,y) + beta)
+                      We called beta as changeBrightness*/
+                    int alpha = 1;
+
+                    /*Modify the values of all pixels with an alpha and beta value following
+                      the formula above.*/
+                    bright.convertTo(modifiedMat, matrixType, alpha, changeBrightness);
+
+                    //Verify if the image is good enough
+                    if(isBright(modifiedMat) == BrightnessValue.IMAGE_IS_OK){
                         try{
                             return IPUtils.conversionMatToBitmap(modifiedMat);
                         } catch (ConversionFailedException error){
@@ -256,13 +280,21 @@ public class PreProcessing implements PreProcessingMethods {
                 }
                 break;
 
-            case 2: //If the image is too dark
-                Log.d(TAG, "Case==2 ==> Too dark");
+            case IMAGE_TOO_DARK:
+                Log.d(TAG, "Case==IMAGE_TOO_DARK");
+                //The variables are explained in the case above
                 //Lightens the colour's brightness until it's in an optimal value
-                for(double changeBrightness=0; changeBrightness!=240; changeBrightness+=15){
-                    //Converts an array to another data type with optional scaling.
-                    bright.convertTo(modifiedMat, -1, 1, changeBrightness);
-                    if(isBright(modifiedMat)==0){
+                for(double changeBrightness = 0; changeBrightness != maxBrightness;
+                    changeBrightness += step){
+
+                    //Converts an array to another data type with optional scaling. The variables's
+                    // values are explained in case 1
+                    int matrixType = -1;
+                    int alpha = 1;
+                    bright.convertTo(modifiedMat, matrixType, alpha, changeBrightness);
+
+                    //Verify if the image is good enough
+                    if(isBright(modifiedMat) == BrightnessValue.IMAGE_IS_OK){
                         //If the conversion failed it returns the original image
                         try{
                             return IPUtils.conversionMatToBitmap(modifiedMat);
@@ -274,8 +306,8 @@ public class PreProcessing implements PreProcessingMethods {
                 }
                 break;
 
-            case 0: //Image is neither too bright nor too dark
-                Log.d(TAG, "Case==0 ==> Perfect image");
+            case IMAGE_IS_OK: //Image is neither too bright nor too dark
+                Log.d(TAG, "Case==IMAGE_IS_OK");
                 return image;
         }
         return image;
@@ -312,6 +344,7 @@ public class PreProcessing implements PreProcessingMethods {
           the image blurriness*/
         Mat laplacianMat = new Mat();
         Imgproc.Laplacian(grayImageMat, laplacianMat, CV_8U);
+        //Converts the matrix into another format used to detect the blur
         Mat laplacianMat8Bit = new Mat();
         laplacianMat.convertTo(laplacianMat8Bit, CV_8UC1);
 
