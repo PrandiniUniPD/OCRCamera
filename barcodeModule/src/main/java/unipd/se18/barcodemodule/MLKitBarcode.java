@@ -23,16 +23,16 @@ public class MLKitBarcode implements Barcode{
     //actual barcode String returned by main method decodeBarcode
     private String barcode = "";
     //text of the decoding error
-    private String decodeERROR = "ERROR: Barcode decoding unsuccessful, please try again.";
+    private static final String DECODE_ERROR = "ERROR: Barcode decoding unsuccessful, please try again.";
     //text of the possible exception related to the CountdownLatch
-    private String latchERROR = "Fatal error! Please try again.";
+    private static final String LATCH_ERROR = "Fatal error! Please try again.";
     //possibility to limit barcode format recognized to improve performance
     private FirebaseVisionBarcodeDetectorOptions options =
             new FirebaseVisionBarcodeDetectorOptions.Builder()
                     .setBarcodeFormats(
                             FirebaseVisionBarcode.FORMAT_ALL_FORMATS).build();
     //cause of different possible implementations, the detector instantiation is leaved detached
-    private FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector(options);
+    private final FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector(options);
 
     /**
      * implementation of the decodeBarcode method, that would detect the barcode from the given image
@@ -70,7 +70,7 @@ public class MLKitBarcode implements Barcode{
                     public void onFailure(@NonNull Exception e) {
                         latch.countDown();
                         //in case of failure return a string that report the error occurred
-                        barcode = decodeERROR;
+                        barcode = DECODE_ERROR;
                         Log.e("Error Barcode", e.getMessage());
                     }
                 });
@@ -79,7 +79,7 @@ public class MLKitBarcode implements Barcode{
             latch.await();
         }catch(InterruptedException e){
             Log.e("Latch exception", e.getMessage());
-            return latchERROR;
+            return LATCH_ERROR;
         }
         return barcode;
     }

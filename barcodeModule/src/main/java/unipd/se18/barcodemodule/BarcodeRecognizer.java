@@ -16,7 +16,7 @@ public class BarcodeRecognizer {
     }
 
     /**
-     * Provides an OCR recognizer
+     * Provides an Barcode recognizer
      * @param type The id of the recognition api requested
      * @return the object relative to the choosen type
      */
