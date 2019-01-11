@@ -22,9 +22,11 @@ import android.widget.TextView;
 
 import unipd.se18.barcodemodule.Barcode;
 import unipd.se18.barcodemodule.BarcodeRecognizer;
-
+import unipd.se18.eanresolvemodule.EAN;
+import unipd.se18.eanresolvemodule.EANResolve;
 
 import static unipd.se18.barcodemodule.BarcodeRecognizer.barcodeRecognizer;
+import static unipd.se18.eanresolvemodule.EANResolve.eanResolve;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -113,6 +115,7 @@ public class ResultActivity extends AppCompatActivity {
     /**
      * Execute a task and post the result on the TextView given on construction
      * (g3) - modified by Rossi Leonardo - modified by Andrea Ton (barcode)
+     * -modified by Elia Bedin (barcode to product name)
      */
     @SuppressLint("StaticFieldLeak")
     private class AsyncLoad extends AsyncTask<Bitmap, Void, String> {
@@ -131,6 +134,7 @@ public class ResultActivity extends AppCompatActivity {
             TextExtractor ocr = new TextExtractor();
             String textRecognized = "";
             String barcodeRecognized = "";
+            String eanRecognized = "";
 
             if(lastPhoto != null) {
                 //invoke a barcodeRecognizer choosing the api type
@@ -163,9 +167,17 @@ public class ResultActivity extends AppCompatActivity {
                     }
                 }
                 else {
+
+                    //invoke a EANResolve choosing the API type
+                    EAN eanResolve = eanResolve(EANResolve.API.mignify);
+
+                    eanRecognized = eanResolve.decodeEAN(barcodeRecognized);
+
                     //if barcode id found return the associated number, as a String,
                     //with a fixed "Barcode: " string to check the result is not from the ocr
-                    final String finalTextRecognized = "Barcode: " + barcodeRecognized;
+                    //and "Product: " + product name
+                    final String finalTextRecognized =
+                            "Barcode: " + barcodeRecognized + "\nProduct: " + eanRecognized;
 
                     runOnUiThread(() -> {
                         mOCRTextView.setText(finalTextRecognized);

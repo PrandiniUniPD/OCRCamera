@@ -1,0 +1,50 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 28
+
+    useLibrary 'org.apache.http.legacy'
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    //implementation files('libs/unirest-java-1.4.9.jar')
+    implementation group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
+
+    /*implementation files('libs/json-20140107.jar')
+    implementation files('libs/httpclient-4.3.6.jar')
+    implementation files('libs/httpmime-4.3.6.jar')
+    implementation files('libs/httpasyncclient-4.0.2.jar')*/
+    /*implementation 'org.json:json:20140107'
+    implementation 'org.apache.httpcomponents:httpclient:4.3.6'
+    implementation 'org.apache.httpcomponents:httpmime:4.0.2'
+    implementation 'org.apache.httpcomponents:httpasyncclient:4.0.2'*/
+    //implementation group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
+    //implementation group: 'cz.msebera.android' , name: 'httpclient' , version: '4.4.1.2'
+
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+repositories { jcenter() }

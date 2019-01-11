@@ -27,6 +27,9 @@ android {
     }
     //End - For android testing
 
+    packagingOptions {
+        pickFirst  'META-INF/*'
+    }
 
 }
 
@@ -51,5 +54,6 @@ dependencies {
     //FTP dependencies
     implementation 'commons-net:commons-net:3.6'
     implementation project(path: ':barcodeModule')
+    implementation project(path: ':eanResolveModule')
 }
 apply plugin: 'com.google.gms.google-services'

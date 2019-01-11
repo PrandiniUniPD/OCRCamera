@@ -17,11 +17,12 @@ import android.util.Log;
  * This class implements the ZXing API for barcode recognition
  * More at https://github.com/zxing/zxing
  * APIDocs at https://zxing.github.io/zxing/apidocs/overview-summary.html
+ * @author Elia Bedin
  */
 
 public class ZXingBarcode implements Barcode {
 
-    //The string decoded from the barcode, if one is found.
+    //The string decoded from the barcode.
     private String code = "";
 
     /**
@@ -35,14 +36,14 @@ public class ZXingBarcode implements Barcode {
         //int array needed by the RGBLuminanceSource constructor
         int[] pixels = new int[bitmap.getWidth()*bitmap.getHeight()];
         //getPixels copies pixel data from the Bitmap into the 'pixels' int array.
-        //The three zeros are, in order:
+        //The three zeros (that will always be zeros) are, in order:
         //  offset, the first index to write into pixels[];
         //  the x coordinate of the first pixel to read from the bitmap;
         //  the y coordinate of the first pixel to read from the bitmap.
         bitmap.getPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(),
                 bitmap.getHeight());
         //ZXing library class needed to abstract different bitmap implementations across platforms
-        //into a standard interface for requesting greyscale luminance values.
+        //into a standard interface for requesting gray scale luminance values.
         LuminanceSource luminanceValues =
                 new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), pixels);
         //Reader that can decode an image of a barcode in some format into the String it encodes.
