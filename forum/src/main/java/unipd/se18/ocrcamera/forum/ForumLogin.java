@@ -94,34 +94,21 @@ public class ForumLogin extends Fragment {
         pwdEditText = view.findViewById(R.id.pwdEditText);
         loginButton = view.findViewById(R.id.loginButton);
 
-        //When the login button is clicked a request is sent through the viewmodel
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        //Definition of view model listener
+        viewModel.setGetPostsListener(new Login_VM.ForumLoginListener() {
+
+            /**
+             * Login_VM view model liveLoginResponse observer definition
+             *
+             * The method of the listener is triggered when liveLoginResponse variable inside the
+             * view model is initialized with a value, that is the username of the login request
+             *
+             * The observer itself is required to update the UI after receiving the username
+             *
+             * @author Alberto Valente (g2)
+             */
             @Override
-            public void onClick(View v) {
-
-                //The username and password inserted are gathered from the EditText objects
-                userName = usernameEditText.getText().toString();
-                userPwd = pwdEditText.getText().toString();
-
-                //Then the credentials are handed to the viewmodel method to be checked
-                viewModel.loginToForum(getContext(), userName, userPwd);
-            }
-        });
-
-        /**
-         * Login_VM viewmodel liveLoginResponse observer definition
-         *
-         * The method of the observer is triggered when liveLoginResponse variable inside the
-         * viewmodel is initialized with a value, that is the username of the login request
-         *
-         * The observer itself is required to update the UI after receiving the username
-         *
-         * @author Alberto Valente (g2)
-         */
-        Observer<String> obsLogin = new Observer<String>() {
-
-            @Override
-            public void onChanged(@Nullable String username) {
+            public void onLoginSuccess(String username) {
 
                 if(username != null) {
                     //creates the username bundle
@@ -148,22 +135,19 @@ public class ForumLogin extends Fragment {
                     Log.d(LOG_TAG, LOG_NULL_USERNAME);
                 }
             }
-        };
-        viewModel.liveLoginResponse.observe(getActivity(), obsLogin);
 
-        /**
-         * Login_VM viewmodel liveError observer definition
-         *
-         * The method of this observer is triggered when liveError variable inside the
-         * viewmodel is initialized with a value, that is the type of error occurred
-         *
-         * The error message is shown to the user through a toast
-         *
-         * @author Alberto Valente (g2)
-         */
-        Observer<String> obsError = new Observer<String>() {
+            /**
+             * Login_VM viewmodel liveError observer definition
+             *
+             * The method of this observer is triggered when liveError variable inside the
+             * viewmodel is initialized with a value, that is the type of error occurred
+             *
+             * The error message is shown to the user through a toast
+             *
+             * @author Alberto Valente (g2)
+             */
             @Override
-            public void onChanged(@Nullable String message) {
+            public void onLoginFailure(String message) {
 
                 if (message != null) {
                     Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
@@ -172,8 +156,21 @@ public class ForumLogin extends Fragment {
                     Log.d(LOG_TAG, LOG_NULL_ERROR_MESSAGE);
                 }
             }
-        };
-        viewModel.liveError.observe(getActivity(), obsError);
+        });
+
+        //When the login button is clicked a request is sent through the viewmodel
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //The username and password inserted are gathered from the EditText objects
+                userName = usernameEditText.getText().toString();
+                userPwd = pwdEditText.getText().toString();
+
+                //Then the credentials are handed to the viewmodel method to be checked
+                viewModel.loginToForum(getContext(), userName, userPwd);
+            }
+        });
 
     }
 
