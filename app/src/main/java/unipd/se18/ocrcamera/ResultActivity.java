@@ -381,8 +381,10 @@ public class ResultActivity extends AppCompatActivity {
                 //save image and ingredients extracted in the gallery (Stefano Romanello)
                 activity.saveResultToGallery(image, ingredients);
             }
-            else
+            else {
+                activity.ingredientsListView.setAdapter(null);
                 activity.emptyTextView.setText(R.string.no_ingredient_found);
+            }
         }
 }
 
