@@ -13,8 +13,6 @@ import java.util.ArrayList;
 
 import unipd.se18.ocrcamera.forum.DatabaseManager;
 import unipd.se18.ocrcamera.forum.R;
-import unipd.se18.ocrcamera.forum.RequestManager;
-import unipd.se18.ocrcamera.forum.models.Post;
 
 /**
  * View model that contains all the logic needed to perform a login by querying the database
@@ -70,33 +68,45 @@ public class Login_VM extends ViewModel implements LoginMethods {
     @Override
     public void loginToForum(final Context context, final String username, String password) {
 
+        /**
+         * Initialization of the listener useful to react to responses
+         * from the database requests, as soon as they are available
+         */
         final DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
 
         /**
          * If the user successfully logs in, the ShowPost is loaded
          * so that the user is allowed to access the forum content.
          *
-         * @param response The network request's response
+         * @param response The network request's response (not useful at all)
          * @author Alberto Valente (g2)
          */
         listeners.successListener = new OnSuccessListener() {
 
             @Override
-            public void onSuccess(Object o) {
-                //If credentials are correct, the username is passed to the login fragment
+            public void onSuccess(Object response) {
+
+                if (forumLoginListener != null){
+
+                    forumLoginListener.onLoginSuccess(username);
+                }
             }
         };
 
         /**
-         * If the user fails to log in, an error message about incorrect credentials is shown
+         * If the user fails to log in, an error message
+         * about incorrect credentials is shown to the user
          *
+         * @param e The type of exception that is thrown by the database as a resault of a failure
          * @author Alberto Valente (g2)
          */
         listeners.failureListener = new OnFailureListener() {
 
             @Override
             public void onFailure(@NonNull Exception e) {
+
                 Log.d(LOG_TAG, LOG_INCORRECT_CREDENTIALS);
+                forumLoginListener.onLoginFailure(context.getString(R.string.loginFailedMessage));
             }
         };
 

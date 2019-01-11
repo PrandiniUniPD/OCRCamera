@@ -17,9 +17,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
-import unipd.se18.ocrcamera.forum.models.Post;
 import unipd.se18.ocrcamera.forum.viewmodels.Login_VM;
 
 
@@ -98,13 +95,11 @@ public class ForumLogin extends Fragment {
         viewModel.setGetPostsListener(new Login_VM.ForumLoginListener() {
 
             /**
-             * Login_VM view model liveLoginResponse observer definition
+             * The method of the listener is triggered when the database response
+             * to the login request is positive and the view model requests to load
+             * the ShowPost fragment, so that the user can access the forum contents
              *
-             * The method of the listener is triggered when liveLoginResponse variable inside the
-             * view model is initialized with a value, that is the username of the login request
-             *
-             * The observer itself is required to update the UI after receiving the username
-             *
+             * @param username The username of the user that successfully logged in
              * @author Alberto Valente (g2)
              */
             @Override
@@ -137,13 +132,11 @@ public class ForumLogin extends Fragment {
             }
 
             /**
-             * Login_VM viewmodel liveError observer definition
+             * The method of the listener is triggered when the database response to
+             * the login request is negative and the view model requests to show the
+             * user an error message, that is performed through the use of a toast
              *
-             * The method of this observer is triggered when liveError variable inside the
-             * viewmodel is initialized with a value, that is the type of error occurred
-             *
-             * The error message is shown to the user through a toast
-             *
+             * @param message The error message about what was wrong with the login request
              * @author Alberto Valente (g2)
              */
             @Override
