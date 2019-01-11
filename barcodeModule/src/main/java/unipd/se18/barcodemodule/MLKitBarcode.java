@@ -21,7 +21,7 @@ import java.util.concurrent.CountDownLatch;
 public class MLKitBarcode implements Barcode{
 
     //actual barcode String returned by main method decodeBarcode
-    public String barcode = "";
+    private String barcode = "";
     //text of the decoding error
     private String decodeERROR = "ERROR: Barcode decoding unsuccessful, please try again.";
     //text of the possible exception related to the CountdownLatch
