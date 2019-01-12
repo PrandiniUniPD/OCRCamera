@@ -158,7 +158,7 @@ public class PreProcessing implements PreProcessingMethods {
      *         IMAGE_IS_DARK if image is too dark.
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
      */
-    private BrightnessValue isBright(Mat imageMat){
+     private BrightnessValue isBright(Mat imageMat){
         //Converts the image into a matrix
         Mat brightnessMat = new Mat();
 
@@ -166,18 +166,21 @@ public class PreProcessing implements PreProcessingMethods {
         Imgproc.cvtColor(imageMat, brightnessMat, Imgproc.COLOR_RGBA2RGB);
 
         //Obtain 3 different matrix with the 3 elemental colors
-        List<Mat> color = new ArrayList<>();
-        Core.split(brightnessMat, color);
+        List<Mat> colorComponent = new ArrayList<>();
+        Core.split(brightnessMat, colorComponent);
 
         /*Each color is multiplied with his luminance.
           The colors are in order RGB, so to access the che color I use the number 0, 1, 2 in order
           For more informations see https://en.wikipedia.org/wiki/Relative_luminance*/
+        final int RED = 0;
+        final int GREEN = 1;
+        final int BLUE = 2;
         Mat redLuminance = new Mat();
-        Core.multiply(color.get(0), new Scalar(0.2126), redLuminance);
+        Core.multiply(colorComponent.get(RED), new Scalar(0.2126), redLuminance);
         Mat greenLuminance= new Mat();
-        Core.multiply(color.get(1), new Scalar(0.7152), greenLuminance);
+        Core.multiply(colorComponent.get(GREEN), new Scalar(0.7152), greenLuminance);
         Mat blueLuminance = new Mat();
-        Core.multiply(color.get(2), new Scalar(0.0722), blueLuminance);
+        Core.multiply(colorComponent.get(BLUE), new Scalar(0.0722), blueLuminance);
 
         //Sums the matrix of the colors into a single one
         Mat tempLuminance = new Mat();
@@ -188,32 +191,22 @@ public class PreProcessing implements PreProcessingMethods {
         //Calculate the sum of the values of all pixels
         Scalar sum = Core.sumElems(totalLuminance);
 
-        //Determines the image's bit
-        int bit;
-        switch ( brightnessMat.depth() ) {
-            case CV_8U:  bit = 8; break;
-            case CV_8S:  bit = 8; break;
-            case CV_16U: bit = 16; break;
-            case CV_16S: bit = 16; break;
-            case CV_32S: bit = 32; break;
-            case CV_32F: bit = 32; break;
-            case CV_64F: bit = 64; break;
-            default: return BrightnessValue.IMAGE_IS_OK;
-        }
-        //Calculate the percentage of the brightness
-        double brightness = sum.val[0]/((Math.pow(2,bit)-1)*brightnessMat.rows()
-                *brightnessMat.cols())*2;
+        /*Calculate the percentage of the brightness. Since the value of the colos go
+          from 0 to 255 a pixel can contain the value 255 = 2^8-1*/
+        final double PIXEL_MAX_VALUE = (Math.pow(2,8)-1);
+        double numberOfBits = PIXEL_MAX_VALUE * brightnessMat.rows() * brightnessMat.cols();
+        double percentageBrightness = sum.val[0]/numberOfBits;
 
-        Log.d(TAG, "Brightness:"+brightness);
+        Log.d(TAG, "Brightness:"+percentageBrightness);
 
         /*Bounds to define if the image is dark or bright.
           The values were decided on the basis of various tests*/
-        double upperBound = 0.9;
-        double lowerBound = 0.4;
+        final double UPPER_BOUND = 0.45;
+        final double LOWER_BOUND = 0.2;
 
-        if (brightness > upperBound){             //Image is too bright
+        if (percentageBrightness > UPPER_BOUND){             //Image is too bright
             return BrightnessValue.IMAGE_TOO_BRIGHT;
-        } else if (brightness < lowerBound){        //Image is too dark
+        } else if (percentageBrightness < LOWER_BOUND){        //Image is too dark
             return BrightnessValue.IMAGE_TOO_DARK;
         } else {      //Image is neither too bright nor too dark
             return BrightnessValue.IMAGE_IS_OK;
@@ -228,89 +221,50 @@ public class PreProcessing implements PreProcessingMethods {
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Oscar Garrido(g1)
      */
     private Bitmap editBright(Bitmap image){
-        /*This variable is used to put a limit to the change of the image's brightness.
-          The value 240 is derived from the fact that in the for loop we try to modify
-          the value of all the pixels of a step, and being the maximum value = 255 (pixel's
-          color maximum value, we put the limit on 240*/
-        final int maxBrightness = 240;
-        final int step = 15;
+        //Variable used as step each time we want to modify the image's brightness
+        final int STEP = 15;
 
         //Converts the image into a matrix
-        Mat bright;
+        Mat imageMat;
         try{
-            bright = IPUtils.conversionBitmapToMat(image);
+            imageMat = IPUtils.conversionBitmapToMat(image);
         } catch (ConversionFailedException error){
             Log.e(TAG, error.getErrorMessage());
             return image;
         }
 
-        //Call the internal method isBright to detect if the image is bright or dark
-        //and change the brightness according to the number obtained
-        Mat modifiedMat = new Mat();
-        switch (isBright(bright)) {
-            case IMAGE_TOO_BRIGHT:
-                Log.d(TAG, "Case==IMAGE_TOO_BRIGHT");
-                //Darkens the colour's brightness until it's in an optimal value
-                for(double changeBrightness = 0; changeBrightness != maxBrightness;
-                    changeBrightness -= step){
-                   /*This variable is used to select the type of matrix we want to abtain in the
+        /*This variable is used to select the type of matrix we want to abtain in the
                       the convertTo method. If it's negative the type doesn't change*/
-                    int matrixType = -1;
+        final int MATRIX_TYPE = -1;
 
-                    /*This variable is used to change the contrast of the matrix, but we want
-                      only modify the brightness so we put the value 1 because the method use
-                      this formula from the documentation:
-                      m(x,y) = saturate _ cast<rType>(alpha(*this)(x,y) + beta)
-                      We called beta as changeBrightness*/
-                    int alpha = 1;
-
+        /*This variable is used to change the contrast of the matrix, but we want
+          only modify the brightness so we put the value 1 because the method use
+          this formula from the documentation:
+          m(x,y) = saturate _ cast<rType>(alpha(*this)(x,y) + beta)
+          We called beta as changeBrightness*/
+        final int ALPHA = 1;
+        while(isBright(imageMat) != BrightnessValue.IMAGE_IS_OK) {
+            switch (isBright(imageMat)) {
+                case IMAGE_TOO_BRIGHT:
+                    Log.d(TAG, "Case==IMAGE_TOO_BRIGHT");
                     /*Modify the values of all pixels with an alpha and beta value following
-                      the formula above.*/
-                    bright.convertTo(modifiedMat, matrixType, alpha, changeBrightness);
-
-                    //Verify if the image is good enough
-                    if(isBright(modifiedMat) == BrightnessValue.IMAGE_IS_OK){
-                        try{
-                            return IPUtils.conversionMatToBitmap(modifiedMat);
-                        } catch (ConversionFailedException error){
-                            Log.e(TAG, error.getErrorMessage());
-                            return image;
-                        }
-                    }
-                }
-                break;
-
-            case IMAGE_TOO_DARK:
-                Log.d(TAG, "Case==IMAGE_TOO_DARK");
-                //The variables are explained in the case above
-                //Lightens the colour's brightness until it's in an optimal value
-                for(double changeBrightness = 0; changeBrightness != maxBrightness;
-                    changeBrightness += step){
-
-                    //Converts an array to another data type with optional scaling. The variables's
-                    // values are explained in case 1
-                    int matrixType = -1;
-                    int alpha = 1;
-                    bright.convertTo(modifiedMat, matrixType, alpha, changeBrightness);
-
-                    //Verify if the image is good enough
-                    if(isBright(modifiedMat) == BrightnessValue.IMAGE_IS_OK){
-                        //If the conversion failed it returns the original image
-                        try{
-                            return IPUtils.conversionMatToBitmap(modifiedMat);
-                        } catch (ConversionFailedException error){
-                            Log.e(TAG, error.getErrorMessage());
-                            return image;
-                        }
-                    }
-                }
-                break;
-
-            case IMAGE_IS_OK: //Image is neither too bright nor too dark
-                Log.d(TAG, "Case==IMAGE_IS_OK");
-                return image;
+                      this formula m(x,y) = saturate _ cast<rType>(alpha(*this)(x,y) + beta)*/
+                    imageMat.convertTo(imageMat, MATRIX_TYPE, ALPHA, -STEP);
+                    break;
+                case IMAGE_TOO_DARK:
+                    Log.d(TAG, "Case==IMAGE_TOO_DARK");
+                    //The same as above
+                    imageMat.convertTo(imageMat, MATRIX_TYPE, ALPHA, STEP);
+                    break;
+            }
         }
-        return image;
+        Log.d(TAG, "IMAGE_IS_OK");
+        try {
+            return IPUtils.conversionMatToBitmap(imageMat);
+        } catch (ConversionFailedException error) {
+            Log.e(TAG, error.getErrorMessage());
+            return image;
+        }
     }
 
 
