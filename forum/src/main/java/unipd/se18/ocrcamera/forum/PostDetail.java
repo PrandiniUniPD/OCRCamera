@@ -2,6 +2,7 @@ package unipd.se18.ocrcamera.forum;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -138,12 +139,15 @@ public class PostDetail extends android.support.v4.app.Fragment
             @Override
             public void onClick(View v)
             {
-               Post comment = new Post();
-               comment.setAuthor(loggedUser);
-               comment.setMessage(txtComment.getText().toString());
-               comment.setDate(new Date());
+               if (!txtComment.getText().toString().equals(""))
+               {
+                   Post comment = new Post();
+                   comment.setAuthor(loggedUser);
+                   comment.setMessage(txtComment.getText().toString());
+                   comment.setDate(new Date());
 
-               viewModel.addComment(view.getContext(), comment, post.getComments());
+                   viewModel.addComment(view.getContext(), comment, post.getComments());
+               }
             }
         });
 
