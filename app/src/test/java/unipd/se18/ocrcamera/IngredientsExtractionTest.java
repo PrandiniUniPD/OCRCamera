@@ -120,5 +120,15 @@ public class IngredientsExtractionTest {
         text = corrector.correctText(text);
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("92137", extractedIngredients.get(0).getCosingRefNo());
+
+        //test of false ingredient inside word (verify "EGG" is not matched inside "PROTEGGERE")
+        text = "PROTEGGERE";
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals(0, extractedIngredients.size());
+
+        //test of false ingredient inside word (verify "AQUA" is not matched)
+        text = "CASA, QUALE";
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals(0, extractedIngredients.size());
     }
 }
