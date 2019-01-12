@@ -11,6 +11,7 @@ public class BarcodeRecognizer {
      * Ids of the different barcode api
      */
     public enum API {
+        mlkit,
         zxing
     }
 
