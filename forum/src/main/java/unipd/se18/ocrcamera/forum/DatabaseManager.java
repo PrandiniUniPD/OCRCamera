@@ -43,7 +43,8 @@ public class DatabaseManager
                 .whereEqualTo(context.getString(R.string.usernameKey), username)
                 .whereEqualTo(context.getString(R.string.passwordKey), password)
                 .get()
-                .addOnCompleteListener(listeners.completeListener);
+                .addOnSuccessListener(listeners.successListener)
+                .addOnFailureListener(listeners.failureListener);
     }
 
     /**

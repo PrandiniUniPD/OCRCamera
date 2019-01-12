@@ -49,8 +49,8 @@ public class AddPost extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        titleText = getArguments().getString("title", null);
-        messageText = getArguments().getString("message", null);
+        //titleText = getArguments().getString("title", null);
+        //messageText = getArguments().getString("message", null);
 
         return inflater.inflate(R.layout.fragment_add_post, container, false);
     }

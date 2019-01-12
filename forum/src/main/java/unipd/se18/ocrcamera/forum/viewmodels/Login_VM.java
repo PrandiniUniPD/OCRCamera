@@ -119,7 +119,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
      * @param listener The instance of the listener useful for communicating with the view
      * @author Taulant Bullaku (g2)
      */
-    public void setGetPostsListener(ForumLoginListener listener) {
+    public void setForumLoginListener(ForumLoginListener listener) {
 
         this.forumLoginListener = listener;
     }

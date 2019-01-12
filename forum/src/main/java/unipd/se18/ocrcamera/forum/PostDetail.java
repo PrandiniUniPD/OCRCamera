@@ -55,7 +55,7 @@ public class PostDetail extends android.support.v4.app.Fragment
         viewModel = ViewModelProviders.of(this).get(PostDetail_VM.class);
 
         //Fragment parameters reading
-        loggedUser = getArguments().getString(getResources().getString(R.string.loggedUser), "default.user");
+        loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), "default.user");
     }
 
     @Override

@@ -55,9 +55,7 @@ public class ShowPosts extends Fragment {
         viewModel = ViewModelProviders.of(this).get(ShowPosts_VM.class);
 
         //Fragment parameters reading
-        //TODO("Uncomment this line when the username of the logged user is really passed as parameter)
-        //loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), "default");
-        loggedUser = "leoanardo.rossi";
+        loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), "default");
     }
 
     @Override
@@ -233,6 +231,7 @@ public class ShowPosts extends Fragment {
 
                     Bundle params = new Bundle();
                     params.putParcelable(context.getString(R.string.postParameterKey), currentPost);
+                    params.putString(context.getString(R.string.usernameFrgParam), loggedUser);
                     fDetail.setArguments(params);
 
                     getActivity().getSupportFragmentManager()

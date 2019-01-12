@@ -92,7 +92,7 @@ public class ForumLogin extends Fragment {
         loginButton = view.findViewById(R.id.loginButton);
 
         //Definition of view model listener
-        viewModel.setGetPostsListener(new Login_VM.ForumLoginListener() {
+        viewModel.setForumLoginListener(new Login_VM.ForumLoginListener() {
 
             /**
              * The method of the listener is triggered when the database response
@@ -151,6 +151,7 @@ public class ForumLogin extends Fragment {
             }
         });
 
+
         //When the login button is clicked a request is sent through the viewmodel
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,8 +161,15 @@ public class ForumLogin extends Fragment {
                 userName = usernameEditText.getText().toString();
                 userPwd = pwdEditText.getText().toString();
 
-                //Then the credentials are handed to the viewmodel method to be checked
-                viewModel.loginToForum(getContext(), userName, userPwd);
+                if (!userName.equals("") && !userPwd.equals(""))
+                {
+                    //Then the credentials are handed to the viewmodel method to be checked
+                    viewModel.loginToForum(getContext(), userName, userPwd);
+                }
+                else
+                {
+                    Toast.makeText(getContext(), "Please enter username and password", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
