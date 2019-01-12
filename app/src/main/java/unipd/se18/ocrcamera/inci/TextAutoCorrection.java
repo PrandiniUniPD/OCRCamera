@@ -102,6 +102,9 @@ public class TextAutoCorrection {
             }
         }
 
+        if(wordsToCorrect.size() == 0)
+            return text;
+
         //correct words
         List<String> correctedWords = correctMultipleWords(wordsToCorrect);
 
@@ -155,23 +158,46 @@ public class TextAutoCorrection {
         return text;
     }
 
+    /**
+     * Each word in the list given is corrected
+     * @param words Words to be corrected in a list
+     * @return List of corrected words in the same position of the original word in the given list.
+     */
     private List<String> correctMultipleWords(List<String> words){
 
-        int concurrentTasks = Runtime.getRuntime().availableProcessors();
-        if(concurrentTasks > 1) {
-            concurrentTasks--; //leave a processor for the OS
-        }
+        //minimum number of words per task (if total number of words is less than this value all words are corrected in one task)
+        final int minWordsPerTask = 10;
 
-        CountDownLatch latch = new CountDownLatch(concurrentTasks);
+        //calculate number of concurrent tasks and number of words per task
+        int concurrentTasks;
+        if(words.size() < minWordsPerTask)
+            concurrentTasks = 1;
+        else {
+            concurrentTasks = Runtime.getRuntime().availableProcessors();
+            if (concurrentTasks > 1) {
+                concurrentTasks--; //leave a processor for the OS
+            }
+            if (words.size() / concurrentTasks < minWordsPerTask)
+                concurrentTasks = words.size() / minWordsPerTask;
+        }
         int wordsPerTask = words.size()/concurrentTasks;
+        Log.d(TAG, concurrentTasks+" tasks. "+wordsPerTask+" words per task.");
+
+        //generate threads
+        CountDownLatch latch = new CountDownLatch(concurrentTasks);
         WordsCorrectionThread[] threads = new WordsCorrectionThread[concurrentTasks];
         for(int i=0; i<concurrentTasks; i++){
+            //split the word list to be corrected
             int from = i*wordsPerTask;
             int to = i==concurrentTasks-1 ? words.size() : (i+1)*wordsPerTask;
             List<String> wordList = words.subList(from, to);
+
+            //start thread
             threads[i] = new WordsCorrectionThread(wordList, latch);
             threads[i].start();
         }
+
+        //wait until all threads are finished
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -179,6 +205,7 @@ public class TextAutoCorrection {
             return words;
         }
 
+        //join the result lists
         ArrayList<String> correctedWords = new ArrayList<>(words.size());
         for(int i=0; i<concurrentTasks; i++){
             correctedWords.addAll(threads[i].getCorrectedWords());
@@ -186,17 +213,26 @@ public class TextAutoCorrection {
         return correctedWords;
     }
 
+    /**
+     * Thread for words correction
+     */
     private class WordsCorrectionThread extends Thread {
         private List<String> wordsToCorrect;
         private List<String> correctedWords;
         private CountDownLatch doneSignal;
 
+        /**
+         * Constructor
+         * @param words Words to be corrected
+         * @param doneSignal CountDownLatch for signalling when the thread has ended
+         */
         WordsCorrectionThread(List<String> words, CountDownLatch doneSignal){
             wordsToCorrect = words;
             this.doneSignal = doneSignal;
         }
 
         public void run(){
+            //correct each word
             correctedWords = new ArrayList<>(wordsToCorrect.size());
             for(String word : wordsToCorrect){
                 correctedWords.add(correctWord(word));
@@ -204,7 +240,7 @@ public class TextAutoCorrection {
             doneSignal.countDown();
         }
 
-        public List<String> getCorrectedWords(){
+        List<String> getCorrectedWords(){
             return correctedWords;
         }
     }
