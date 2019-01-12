@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,7 +103,7 @@ public class TextAutoCorrection {
         }
 
         //correct words
-        ArrayList<String> correctedWords = correctMultipleWords(wordsToCorrect);
+        List<String> correctedWords = correctMultipleWords(wordsToCorrect);
 
         //in this array we store the mapping between indexes of original text and the corrected text.
         int[] mapIndexes = new int[text.length()];
@@ -153,12 +155,58 @@ public class TextAutoCorrection {
         return text;
     }
 
-    private ArrayList<String> correctMultipleWords(ArrayList<String> words){
+    private List<String> correctMultipleWords(List<String> words){
+
+        int concurrentTasks = Runtime.getRuntime().availableProcessors();
+        if(concurrentTasks > 1) {
+            concurrentTasks--; //leave a processor for the OS
+        }
+
+        CountDownLatch latch = new CountDownLatch(concurrentTasks);
+        int wordsPerTask = words.size()/concurrentTasks;
+        WordsCorrectionThread[] threads = new WordsCorrectionThread[concurrentTasks];
+        for(int i=0; i<concurrentTasks; i++){
+            int from = i*wordsPerTask;
+            int to = i==concurrentTasks-1 ? words.size() : (i+1)*wordsPerTask;
+            List<String> wordList = words.subList(from, to);
+            threads[i] = new WordsCorrectionThread(wordList, latch);
+            threads[i].start();
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return words;
+        }
+
         ArrayList<String> correctedWords = new ArrayList<>(words.size());
-        for(String word : words){
-            correctedWords.add(correctWord(word));
+        for(int i=0; i<concurrentTasks; i++){
+            correctedWords.addAll(threads[i].getCorrectedWords());
         }
         return correctedWords;
+    }
+
+    private class WordsCorrectionThread extends Thread {
+        private List<String> wordsToCorrect;
+        private List<String> correctedWords;
+        private CountDownLatch doneSignal;
+
+        WordsCorrectionThread(List<String> words, CountDownLatch doneSignal){
+            wordsToCorrect = words;
+            this.doneSignal = doneSignal;
+        }
+
+        public void run(){
+            correctedWords = new ArrayList<>(wordsToCorrect.size());
+            for(String word : wordsToCorrect){
+                correctedWords.add(correctWord(word));
+            }
+            doneSignal.countDown();
+        }
+
+        public List<String> getCorrectedWords(){
+            return correctedWords;
+        }
     }
 
     /**
