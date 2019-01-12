@@ -25,7 +25,7 @@ import static org.opencv.core.CvType.CV_8UC1;
 /**
  * Class used to process the image before passing the image to the OCR
  */
-public class PreProcessing implements PreProcessingMethods {
+public class leoPreProcessing implements PreProcessingMethods {
 
     //Tag used to identify the log
     private final String TAG = "PreProcessing";
@@ -315,7 +315,7 @@ public class PreProcessing implements PreProcessingMethods {
 
 
     /**
-     * @author Thomas Porro(g1), Oscar Garrido (g1), Giovanni Fasan(g1).
+     * @author Thomas Porro(g1), Oscar Garrido (g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
      * See PreProcessingMethods.java
      */
     @Override
