@@ -50,6 +50,9 @@ public class IngredientsExtractionTest {
 
         //single word correction
         assertEquals("CHOLESTEROL", corrector.correctText("CNOLSTEROL"));
+        assertEquals("GARDENIA", corrector.correctText("GABDELIA"));
+        assertEquals("JAPONICA", corrector.correctText("JAOONLCA"));
+        assertEquals("GRANDIFLORUS", corrector.correctText("GANDFLORUS"));
 
         //more than maxDistance is not corrected
         assertEquals("ACYLLARES", corrector.correctText("ACYLLARES")); //original word is "ACRYLATES"
