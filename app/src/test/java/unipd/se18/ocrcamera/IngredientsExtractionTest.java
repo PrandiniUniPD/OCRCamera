@@ -58,7 +58,7 @@ public class IngredientsExtractionTest {
         assertEquals("COCOYL  HYDROLYZED   COLLAGEN", corrector.correctText("CQCOYL  HYROLYZED   COLLGEN"));
 
         //multiple words correction separated by symbols
-        assertEquals("COCOYL$HYDROLYZED:COLLAGEN", corrector.correctText("CQCOYL$HYROLYZED:COLLGEN"));
+        assertEquals("COCOYL$HYDROLYZED:COLLAGEN.", corrector.correctText("CQCOYL$HYROLYZED:COLLGEN."));
 
         //test substitution of hyphen + line break
         assertEquals("OLIGOSACCHARIDES", corrector.correctText("OLIGOSAC-\nCHARIDES"));

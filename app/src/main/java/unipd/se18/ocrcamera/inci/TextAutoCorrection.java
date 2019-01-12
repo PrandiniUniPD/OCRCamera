@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,33 +89,53 @@ public class TextAutoCorrection {
         Pattern pattern = Pattern.compile("[a-zA-Z0-9-]+");
         Matcher matcher = pattern.matcher(text);
 
-        //try to correct each word
-        int findFromIndex = 0; //index after which we look for the next match
-        while (matcher.find(findFromIndex)) {
-            
+        //generate list of words to correct
+        ArrayList<String> wordsToCorrect = new ArrayList<>();
+        ArrayList<Integer> wordsStartPos = new ArrayList<>();
+        while (matcher.find()) {
             String word = matcher.group();
-            findFromIndex = matcher.end();
-
             if(word.length()>=minChars) {
-                String corrected = correctWord(word);
-                if (!corrected.equals(word)) {
-
-                    Log.d(TAG, "word " + word + " corrected with " + corrected);
-
-                    //substitute with the word found
-                    text = text.substring(0, matcher.start()) + corrected + text.substring(matcher.end());
-
-                    //take into account difference in length between original and corrected word
-                    if(corrected.length() != word.length()) {
-                        matcher = pattern.matcher(text);
-                        findFromIndex += corrected.length() - word.length();
-                    }
-                }
+                wordsToCorrect.add(word);
+                wordsStartPos.add(matcher.start());
             }
-
         }
 
-        return text;
+        //correct words
+        ArrayList<String> correctedWords = correctMultipleWords(wordsToCorrect);
+
+        //in this array we store the mapping between indexes of original text and the corrected text.
+        int[] mapIndexes = new int[text.length()];
+        for(int i=0; i<text.length(); i++) mapIndexes[i] = i;
+        String correctedText = text;
+
+        //construct corrected text by substituting the corrected words
+        for(int i=0; i<wordsToCorrect.size(); i++){
+            String oldWord = wordsToCorrect.get(i);
+            String correctedWord = correctedWords.get(i);
+            if (!correctedWord.equals(oldWord)) {
+
+                Log.d(TAG, "word " + oldWord + " corrected with " + correctedWord);
+
+                int startPos = wordsStartPos.get(i);
+                int endPos = startPos+oldWord.length();
+
+                //substitute with the corrected word
+                String newText = "";
+                if(startPos > 0) newText = correctedText.substring(0, mapIndexes[startPos]);
+                newText = newText + correctedWord;
+                if (endPos < text.length()) newText = newText + correctedText.substring(mapIndexes[endPos]);
+
+                correctedText = newText;
+
+                //shift map indexes by the difference of length between the old word and corrected word
+                int shift = correctedWord.length() - oldWord.length();
+                int from = startPos + Math.min(correctedWord.length(), oldWord.length());
+                for (int j = from; j < text.length(); j++)
+                    mapIndexes[j] += shift;
+            }
+        }
+
+        return correctedText;
     }
 
 
@@ -130,6 +151,14 @@ public class TextAutoCorrection {
         //ignoring case by converting all into upper case
         text = text.toUpperCase();
         return text;
+    }
+
+    private ArrayList<String> correctMultipleWords(ArrayList<String> words){
+        ArrayList<String> correctedWords = new ArrayList<>(words.size());
+        for(String word : words){
+            correctedWords.add(correctWord(word));
+        }
+        return correctedWords;
     }
 
     /**
