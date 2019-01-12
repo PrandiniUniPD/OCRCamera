@@ -272,18 +272,18 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
         /*For each rectangle contained in textContainer extract the rectangle and saves it
           into a bitmap*/
         RotatedRect rectangle;
-        while(textContainer.hasNext()){
-            rectangle = (RotatedRect)textContainer.next();
-            Mat croppedMat = crop(rectangle, img);
-            //If the conversion failed return a List with only the original image
-            try {
+        try {
+            while (textContainer.hasNext()) {
+                rectangle = (RotatedRect) textContainer.next();
+                Mat croppedMat = crop(rectangle, img);
+                //If the conversion failed return a List with only the original image
                 Bitmap croppedBitmap = IPUtils.conversionMatToBitmap(croppedMat);
                 imgTextContainer.add(croppedBitmap);
-            } catch (ConversionFailedException e){
-                Log.e(TAG, e.getErrorMessage());
-                imgTextContainer.add(image);
-                return imgTextContainer;
             }
+        } catch (ConversionFailedException e) {
+            Log.e(TAG, e.getErrorMessage());
+            imgTextContainer.add(image);
+            return imgTextContainer;
         }
         //Debug method
         //IPDebug.saveBitmapList(imgTextContainer);
