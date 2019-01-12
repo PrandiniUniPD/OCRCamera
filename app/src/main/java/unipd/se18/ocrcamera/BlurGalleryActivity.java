@@ -80,8 +80,8 @@ public class BlurGalleryActivity extends AppCompatActivity {
      */
     private void setGallery() {
         int count =0;
-        for (int i = 0; i < fileNames.length; i++) {                                                          //imagepath.length = number of elements in the folder
-            if (getExtension(fileNames[i]) == "jpg") {                                          //checks if it is an image
+        for (int i = 0; i < fileNames.length; i++) {                                                 //imagepath.length = number of elements in the folder
+            if (getExtension(fileNames[i]).equals("jpg")) {                                          //checks if it is an image
 
                 try {
                     File f = new File(PHOTOS_FOLDER, fileNames[i]);                             //creates a new object for each element
