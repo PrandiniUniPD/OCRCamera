@@ -282,8 +282,9 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
             }
         } catch (ConversionFailedException e) {
             Log.e(TAG, e.getErrorMessage());
-            imgTextContainer.add(image);
-            return imgTextContainer;
+            List<Bitmap> imgTextContainerFailure = new ArrayList<>();
+            imgTextContainerFailure.add(image);
+            return imgTextContainerFailure;
         }
         //Debug method
         //IPDebug.saveBitmapList(imgTextContainer);
