@@ -42,10 +42,10 @@ public class AdapterIngredient extends BaseAdapter {
         AllergensManager allergensManager = InciSingleton.getInstance(context).getAllergensManager();
         ingredientsLabels = new IngredientWarningType[ingredients.size()];
         for(int i=0; i<ingredients.size(); i++){
-            Ingredient currectIngred = ingredients.get(i);
-            if(allergensManager.checkForSelectedAllergens(currectIngred).size() > 0)
+            Ingredient currentIngred = ingredients.get(i);
+            if(allergensManager.checkForSelectedAllergens(currentIngred).size() > 0)
                 ingredientsLabels[i] = IngredientWarningType.SELECTEDALLERGEN;
-            else if(allergensManager.checkForAllergens(currectIngred).size() > 0)
+            else if(allergensManager.checkForAllergens(currentIngred).size() > 0)
                 ingredientsLabels[i] = IngredientWarningType.ALLERGEN;
             else
                 ingredientsLabels[i] = IngredientWarningType.NOTALLERGEN;
