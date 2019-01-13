@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 28
 
-    useLibrary 'org.apache.http.legacy'
+    //useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         minSdkVersion 21
@@ -26,20 +26,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    //implementation files('libs/unirest-java-1.4.9.jar')
-    implementation group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
-
-    /*implementation files('libs/json-20140107.jar')
-    implementation files('libs/httpclient-4.3.6.jar')
-    implementation files('libs/httpmime-4.3.6.jar')
-    implementation files('libs/httpasyncclient-4.0.2.jar')*/
-    /*implementation 'org.json:json:20140107'
-    implementation 'org.apache.httpcomponents:httpclient:4.3.6'
-    implementation 'org.apache.httpcomponents:httpmime:4.0.2'
-    implementation 'org.apache.httpcomponents:httpasyncclient:4.0.2'*/
-    //implementation group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
-    //implementation group: 'cz.msebera.android' , name: 'httpclient' , version: '4.4.1.2'
+    //http request library
+    implementation files('libs/unirest-java-1.4.10-SNAPSHOT-withDependency-ShadedForAndroid.jar')
 
     implementation 'com.android.support:appcompat-v7:28.0.0'
     testImplementation 'junit:junit:4.12'

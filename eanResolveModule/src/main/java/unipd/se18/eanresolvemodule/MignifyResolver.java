@@ -1,11 +1,8 @@
 package unipd.se18.eanresolvemodule;
 
 import android.util.Log;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.*;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import org.apache.http.auth.AUTH;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,8 +36,9 @@ public class MignifyResolver implements EAN {
      *JSON keys declaration: all the keys from the JSON response that are used
      */
     private static final String STATUS   = "status";
+    private static final String PAYLOAD  = "payload";
     private static final String RESULTS  = "results";
-    private static final String NAME     = "productNames";
+    private static final String NAME     = "productName";
     private static final String BRAND    = "brand";
     private static final String LANGUAGE = "languageCode";
     private static final String MESSAGE  = "message";
@@ -88,9 +86,11 @@ public class MignifyResolver implements EAN {
             if (status.equals("ok")) {
                 //If the EAN code was found, in the JSON there is an list of products, each
                 //one with name, brand and language
-                JSONArray productList = jsonResponse.getJSONArray(RESULTS);
+                //Getting the payload from the JSON
+                JSONObject payload = jsonResponse.getJSONObject(PAYLOAD);
+                JSONArray productList = payload.getJSONArray(RESULTS);
                 //If no product are in the response
-                if (jsonResponse.length() == 0) {
+                if (productList.length() == 0) {
                     product = NO_PRODUCT_ERROR;
                 } else {
                     String[] productNames = new String[productList.length()];
@@ -98,7 +98,7 @@ public class MignifyResolver implements EAN {
                     String[] productBrands = new String[productList.length()];
                     String[] productLanguages = new String[productList.length()];
                     //Getting name, brand and language for each product
-                    for (int i = 0; i < jsonResponse.length(); i++) {
+                    for (int i = 0; i < productList.length(); i++) {
                         //Getting the current product from the JSON list and it's values
                         JSONObject currentJsonObject = productList.getJSONObject(i);
                         productNames[i] = currentJsonObject.getString(NAME);
