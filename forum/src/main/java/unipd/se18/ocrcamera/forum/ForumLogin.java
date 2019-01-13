@@ -23,7 +23,7 @@ import unipd.se18.ocrcamera.forum.viewmodels.Login_VM;
 /**
  * A fragment where a user can login to the forum service
  *
- * @author Leonardo Rossi (g2), Alberto Valente (g2)
+ * @author Leonardo Rossi (g2), Alberto Valente (g2), Taulant Bullaku (g2)
  */
 public class ForumLogin extends Fragment {
 
@@ -100,7 +100,7 @@ public class ForumLogin extends Fragment {
              * the ShowPost fragment, so that the user can access the forum contents
              *
              * @param username The username of the user that successfully logged in
-             * @author Alberto Valente (g2)
+             * @author Alberto Valente (g2), Taulant Bullaku (g2)
              */
             @Override
             public void onLoginSuccess(String username) {
@@ -111,9 +111,9 @@ public class ForumLogin extends Fragment {
                     bundle.putString(KEY_USERNAME, username);
 
                     //creates an instance of the fragment to be launched
-                    ShowPosts showPosts = new ShowPosts();
+                    ShowPosts showPostsFragment = new ShowPosts();
                     //passes the bundle to the fragment as an argument
-                    showPosts.setArguments(bundle);
+                    showPostsFragment.setArguments(bundle);
 
                     //performs the fragment transaction
                     getActivity()
@@ -121,9 +121,8 @@ public class ForumLogin extends Fragment {
                             .beginTransaction()
                             .replace(
                                     R.id.fragmentContainer,
-                                    showPosts
+                                    showPostsFragment
                             )
-                            .addToBackStack(null)
                             .commit();
                 }
                 else {
@@ -137,7 +136,7 @@ public class ForumLogin extends Fragment {
              * user an error message, that is performed through the use of a toast
              *
              * @param message The error message about what was wrong with the login request
-             * @author Alberto Valente (g2)
+             * @author Alberto Valente (g2), Taulant Bullaku (g2)
              */
             @Override
             public void onLoginFailure(String message) {
@@ -151,8 +150,7 @@ public class ForumLogin extends Fragment {
             }
         });
 
-
-        //When the login button is clicked a request is sent through the viewmodel
+        //When the login button is clicked a request is sent through the view model
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -160,7 +158,7 @@ public class ForumLogin extends Fragment {
                 //The username and password inserted are gathered from the EditText objects
                 userName = usernameEditText.getText().toString();
                 userPwd = pwdEditText.getText().toString();
-
+                
                 if (!userName.equals("") && !userPwd.equals(""))
                 {
                     //Then the credentials are handed to the viewmodel method to be checked
@@ -170,6 +168,9 @@ public class ForumLogin extends Fragment {
                 {
                     Toast.makeText(getContext(), "Please enter username and password", Toast.LENGTH_LONG).show();
                 }
+
+                //Then the credentials are handed to the view model method to be checked
+                viewModel.loginToForum(getContext(), userName, userPwd);
             }
         });
 
