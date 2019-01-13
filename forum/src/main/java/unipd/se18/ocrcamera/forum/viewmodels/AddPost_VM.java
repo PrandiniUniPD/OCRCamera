@@ -2,16 +2,13 @@ package unipd.se18.ocrcamera.forum.viewmodels;
 
 import android.content.Context;
 import android.util.Log;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Date;
-
+import unipd.se18.ocrcamera.forum.models.Post;
 import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.RequestManager;
-import unipd.se18.ocrcamera.forum.models.Post;
 
 /**
  * ViewModel class for adding a post to the forum
