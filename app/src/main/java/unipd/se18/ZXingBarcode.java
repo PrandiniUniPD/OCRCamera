@@ -24,6 +24,13 @@ public class ZXingBarcode implements Barcode {
 
     //The string decoded from the barcode.
     private String code = "";
+    //The following three int will always be zeros
+    //The x coordinate of the first pixel to read from the bitmap;
+    private static final int  STARTING_X_POSITION = 0;
+    //The y coordinate of the first pixel to read from the bitmap
+    private static final int  STARTING_Y_POSITION = 0;
+    //Offset, the first index to write into pixels[];
+    private static final int  STARTING_INDEX = 0;
     //Text of the decoding error
     private static final String DECODE_ERROR =
             "ERROR: Barcode decoding unsuccessful, please try again.";
@@ -40,12 +47,8 @@ public class ZXingBarcode implements Barcode {
         //int array needed by the RGBLuminanceSource constructor
         int[] pixels = new int[bitmap.getWidth()*bitmap.getHeight()];
         //getPixels copies pixel data from the Bitmap into the 'pixels' int array
-        //The three zeros (that will always be zeros) are, in order:
-        //  offset, the first index to write into pixels[];
-        //  the x coordinate of the first pixel to read from the bitmap;
-        //  the y coordinate of the first pixel to read from the bitmap
-        bitmap.getPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(),
-                bitmap.getHeight());
+        bitmap.getPixels(pixels, STARTING_INDEX, bitmap.getWidth(),
+                STARTING_X_POSITION, STARTING_Y_POSITION, bitmap.getWidth(), bitmap.getHeight());
         //ZXing library class needed to abstract different bitmap implementations across platforms
         //into a standard interface for requesting gray scale luminance values
         LuminanceSource luminanceValues =
