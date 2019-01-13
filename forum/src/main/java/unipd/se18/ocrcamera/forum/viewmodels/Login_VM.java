@@ -9,14 +9,12 @@ import android.util.Log;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.util.ArrayList;
-
 import unipd.se18.ocrcamera.forum.DatabaseManager;
 import unipd.se18.ocrcamera.forum.R;
 
 /**
  * View model that contains all the logic needed to perform a login by querying the database
- * @author Leonardo Rossi (g2), Alberto Valente (g2)
+ * @author Leonardo Rossi (g2), Alberto Valente (g2), Taulant Bullaku (g2)
  */
 public class Login_VM extends ViewModel implements LoginMethods {
 
@@ -56,7 +54,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
     private ForumLoginListener forumLoginListener;
 
     /**
-     * String used for debug logs to identify the viewmodel throwing it
+     * String used for debug logs to identify the view model throwing it
      */
     private final String LOG_TAG = "@@Login_VM";
 
