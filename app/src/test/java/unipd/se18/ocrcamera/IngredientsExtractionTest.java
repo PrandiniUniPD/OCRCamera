@@ -50,6 +50,9 @@ public class IngredientsExtractionTest {
 
         //single word correction
         assertEquals("CHOLESTEROL", corrector.correctText("CNOLSTEROL"));
+        assertEquals("GARDENIA", corrector.correctText("GABDELIA"));
+        assertEquals("JAPONICA", corrector.correctText("JAOONLCA"));
+        assertEquals("GRANDIFLORUS", corrector.correctText("GANDFLORUS"));
 
         //more than maxDistance is not corrected
         assertEquals("ACYLLARES", corrector.correctText("ACYLLARES")); //original word is "ACRYLATES"
@@ -58,7 +61,7 @@ public class IngredientsExtractionTest {
         assertEquals("COCOYL  HYDROLYZED   COLLAGEN", corrector.correctText("CQCOYL  HYROLYZED   COLLGEN"));
 
         //multiple words correction separated by symbols
-        assertEquals("COCOYL$HYDROLYZED:COLLAGEN", corrector.correctText("CQCOYL$HYROLYZED:COLLGEN"));
+        assertEquals("COCOYL$HYDROLYZED:COLLAGEN.", corrector.correctText("CQCOYL$HYROLYZED:COLLGEN."));
 
         //test substitution of hyphen + line break
         assertEquals("OLIGOSACCHARIDES", corrector.correctText("OLIGOSAC-\nCHARIDES"));
@@ -120,5 +123,15 @@ public class IngredientsExtractionTest {
         text = corrector.correctText(text);
         extractedIngredients = extractor.findListIngredients(text);
         assertEquals("92137", extractedIngredients.get(0).getCosingRefNo());
+
+        //test of false ingredient inside word (verify "EGG" is not matched inside "PROTEGGERE")
+        text = "PROTEGGERE";
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals(0, extractedIngredients.size());
+
+        //test of false ingredient inside word (verify "AQUA" is not matched)
+        text = "CASA, QUALE";
+        extractedIngredients = extractor.findListIngredients(text);
+        assertEquals(0, extractedIngredients.size());
     }
 }
