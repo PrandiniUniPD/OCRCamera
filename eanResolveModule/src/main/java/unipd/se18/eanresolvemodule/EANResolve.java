@@ -10,17 +10,17 @@ public class EANResolve {
      * Ids of the different EAN resolver API
      */
     public enum API {
-        mignify
+        MIGNIFY
     }
 
     /**
      * Provides an EAN resolve
      * @param type The id of the recognition api requested
-     * @return the object relative to the choosen type
+     * @return the object relative to the chosen type
      */
     public static EAN eanResolve(API type){
         switch (type){
-            case mignify: return new MignifyResolver();
+            case MIGNIFY: return new MignifyResolver();
             default: return new MignifyResolver();
         }
     }

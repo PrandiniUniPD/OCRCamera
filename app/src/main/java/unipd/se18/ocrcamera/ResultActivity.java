@@ -169,7 +169,7 @@ public class ResultActivity extends AppCompatActivity {
                 else {
 
                     //invoke a EANResolve choosing the API type
-                    EAN eanResolve = eanResolve(EANResolve.API.mignify);
+                    EAN eanResolve = eanResolve(EANResolve.API.MIGNIFY);
 
                     eanRecognized = eanResolve.decodeEAN(barcodeRecognized);
 
