@@ -11,6 +11,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -56,6 +59,8 @@ public class ShowPosts extends Fragment {
 
         //Fragment parameters reading
         loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), "default");
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -91,6 +96,30 @@ public class ShowPosts extends Fragment {
 
         //Invoke the method of the view model to get the forum's posts
         viewModel.getPosts(view.getContext());
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        MenuItem btnAddPost = menu.add("Add post");
+        btnAddPost.setShowAsAction(1);
+        btnAddPost.setIcon(R.drawable.addpost);
+        btnAddPost.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item)
+            {
+                AddPost f = new AddPost();
+                Bundle params = new Bundle();
+                params.putString(getString(R.string.usernameFrgParam), loggedUser);
+                f.setArguments(params);
+
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, f)
+                        .addToBackStack(getString(R.string.fgAddPost))
+                        .commit();
+
+                return true;
+            }
+        });
     }
 
     public interface OnFragmentInteractionListener

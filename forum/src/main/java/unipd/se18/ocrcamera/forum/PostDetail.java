@@ -26,6 +26,10 @@ import unipd.se18.ocrcamera.forum.models.Post;
 import unipd.se18.ocrcamera.forum.viewmodels.PostDetail_VM;
 
 
+/**
+ * A fragment where the user can see the detail of a specific post
+ * @author Leonardo Rossi g2
+ */
 public class PostDetail extends android.support.v4.app.Fragment
 {
 
@@ -86,6 +90,7 @@ public class PostDetail extends android.support.v4.app.Fragment
         final Post post = getArguments().getParcelable("post");
         viewModel.postID = post.getID();
 
+        //UI population with post data
         lblPostTile.setText(post.getTitle());
         lblPostAuthor.setText("Author: " + post.getAuthor());
         lblPostMessage.setText(post.getMessage());
@@ -100,6 +105,7 @@ public class PostDetail extends android.support.v4.app.Fragment
             @Override
             public void onGetDetailSuccess(ArrayList<Post> comments)
             {
+                //If the detail has successfully been downloaded, then the UI is updated
                 adapter = new CommentsAdapter(view.getContext(), comments);
                 postComments.setAdapter(adapter);
             }
@@ -107,6 +113,7 @@ public class PostDetail extends android.support.v4.app.Fragment
             @Override
             public void onGetDetailFailure(String message)
             {
+                //If something when wrong during post's detail download a message is shown to the user
                 Toast.makeText(view.getContext(), message, Toast.LENGTH_LONG).show();
             }
         });
@@ -128,8 +135,9 @@ public class PostDetail extends android.support.v4.app.Fragment
             }
 
             @Override
-            public void onAddCommentFailure(String message) {
-
+            public void onAddCommentFailure(String message)
+            {
+                Toast.makeText(view.getContext(), message, Toast.LENGTH_LONG).show();
             }
         });
 

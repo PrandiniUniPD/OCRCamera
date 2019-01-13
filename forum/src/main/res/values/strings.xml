@@ -28,6 +28,7 @@
 
     <!-- Fragment back stack identifiers -->
     <string name="fgShowPosts">ShowPosts</string>
+    <string name="fgAddPost">AddPost</string>
 
     <!-- Fragment parameters keys -->
     <string name="postParameterKey">post</string>

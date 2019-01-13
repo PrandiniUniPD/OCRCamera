@@ -24,6 +24,10 @@ import unipd.se18.ocrcamera.forum.DatabaseManager;
 import unipd.se18.ocrcamera.forum.R;
 import unipd.se18.ocrcamera.forum.models.Post;
 
+/**
+ * View model that contains all the logic needed to retrieve a post's detail from the database
+ * @author Leonardo Rossi g2
+ */
 public class PostDetail_VM extends ViewModel implements PostDetailMethods
 {
     /**
