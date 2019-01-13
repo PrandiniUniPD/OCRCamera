@@ -253,25 +253,40 @@ public class TextAutoCorrection {
     private String correctWord(String word){
 
         //percentage distance below which we substitute the word with the term found in dictionary
-        // (during testing i found out that above 25% the confidence does not improve by much and
+        // (during testing i found out that above 30% the confidence does not improve by much and
         // also increases chance of correcting words not related to ingredients)
-        final double maxDistance = 0.25;
+        final double maxNormalizedDistance = 0.30;
 
-        //Searches the tree for elements whose distance satisfy maxDistance
+        //Searches the tree for elements whose distance satisfy max distance
+        // for the demostration of the distance upper bound see:
+        // https://github.com/frankplus/incidb/blob/master/maxNormalizedDistanceFormulaDim.jpg
         Set<BkTreeSearcher.Match<? extends String>> matches =
-                searcher.search(word, (int) (word.length()*maxDistance));
+                searcher.search(word, (int) (word.length()*maxNormalizedDistance/(1-maxNormalizedDistance)));
 
         //find the word with minimum distance
-        int minDistance = Integer.MAX_VALUE;
+        double minDistance = Double.MAX_VALUE;
         String closest = "";
         for (BkTreeSearcher.Match<? extends String> match : matches){
-            if(match.getDistance() < minDistance) {
-                minDistance = match.getDistance();
+
+            //if same word is found, no need to continue
+            if(match.getDistance() == 0) {
+                closest = word;
+                break;
+            }
+
+            //calculate normalized distance
+            int wordLength = word.length();
+            int matchLength = match.getMatch().length();
+            double normalizedDistance = (double) match.getDistance()/Math.max(wordLength, matchLength);
+
+            //if normalized distance satisfy max distance put it into closest match
+            if(normalizedDistance <= maxNormalizedDistance && normalizedDistance < minDistance) {
+                minDistance = normalizedDistance;
                 closest = match.getMatch();
             }
         }
 
-        //If no words within maxDistance is found, the same word is returned.
+        //If no words within maxNormalizedDistance is found, the same word is returned.
         return closest.equals("") ? word : closest;
     }
 }
