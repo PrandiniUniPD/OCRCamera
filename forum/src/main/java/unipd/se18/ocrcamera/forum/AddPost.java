@@ -28,10 +28,9 @@ public class AddPost extends Fragment {
      * ***************************
      */
     private AddPost_VM viewModel;
-    private String username;
-    private String Tag;
     private String titleText;
     private String messageText;
+    private String loggedUser;
 
     /**
      * Ui initialization
@@ -49,9 +48,6 @@ public class AddPost extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        //titleText = getArguments().getString("title", null);
-        //messageText = getArguments().getString("message", null);
-
         return inflater.inflate(R.layout.fragment_add_post, container, false);
     }
 
@@ -61,6 +57,7 @@ public class AddPost extends Fragment {
     {
         super.onViewCreated(view, savedInstanceState);
 
+        viewModel = new AddPost_VM();
         confirmBotton = view.findViewById(R.id.confirmButton);
         titleEditText = view.findViewById(R.id.titleEditText);
         messageEditText = view.findViewById(R.id.messageEditText);
@@ -78,7 +75,8 @@ public class AddPost extends Fragment {
                 titleText =  titleEditText.getText().toString();
                 messageText =  messageEditText.getText().toString();
                 //Username passed with the fragment
-                username = getArguments().getString("username");
+                loggedUser = getArguments().getString(
+                        getResources().getString(R.string.usernameFrgParam), "default");
 
 
                 /**
@@ -91,14 +89,23 @@ public class AddPost extends Fragment {
                                 getResources().getString(R.string.messagePostAdded),
                                 Toast.LENGTH_LONG).show();
 
-                        //Start showPost fragment
-                        Fragment showPostFragment = new ShowPosts();
+                        //Pass Username with fragment
+                        Bundle bundle = new Bundle();
+                        bundle.putString(
+                                getResources().getString(R.string.usernameFrgParam),
+                                loggedUser);
+
+                        //creates an instance of the fragment to be launched
+                        ShowPosts showPostsFragment = new ShowPosts();
+                        //passes the bundle to the fragment as an argument
+                        showPostsFragment.setArguments(bundle);
+
                         getActivity()
                                 .getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(
                                         R.id.fragmentContainer,
-                                        showPostFragment
+                                        showPostsFragment
                                 )
                                 .addToBackStack(null)
                                 .commit();
@@ -110,21 +117,6 @@ public class AddPost extends Fragment {
                                 getResources().getString(R.string.messagePostNotAdded),
                                 Toast.LENGTH_LONG).show();
 
-                        //Restart fragment
-                        Fragment addPostFragment = new AddPost();
-                        Bundle bundle = new Bundle();
-                        bundle.putString("title", titleText);
-                        bundle.putString("message", messageText);
-                        addPostFragment.setArguments(bundle);
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(
-                                        R.id.fragmentContainer,
-                                        addPostFragment
-                                )
-                                .addToBackStack(null)
-                                .commit();
                     }
                     
                     @Override
@@ -133,26 +125,11 @@ public class AddPost extends Fragment {
                                 getResources().getString(R.string.messageWrongParameters),
                                 Toast.LENGTH_LONG).show();
 
-                        //Restart fragment
-                        Fragment addPostFragment = new AddPost();
-                        Bundle bundle = new Bundle();
-                        bundle.putString("title", titleText);
-                        bundle.putString("message", messageText);
-                        addPostFragment.setArguments(bundle);
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(
-                                        R.id.fragmentContainer,
-                                        addPostFragment
-                                )
-                                .addToBackStack(null)
-                                .commit();
                     }
                 });
 
                 //Call to the AddPost_VM
-                viewModel.addPostToForum(view.getContext(), titleText,messageText,username);
+                viewModel.addPostToForum(view.getContext(), titleText,messageText,loggedUser);
             }
         });
     }
