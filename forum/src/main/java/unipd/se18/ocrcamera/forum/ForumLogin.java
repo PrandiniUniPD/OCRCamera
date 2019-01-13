@@ -158,7 +158,7 @@ public class ForumLogin extends Fragment {
                 //The username and password inserted are gathered from the EditText objects
                 userName = usernameEditText.getText().toString();
                 userPwd = pwdEditText.getText().toString();
-                
+
                 if (!userName.equals("") && !userPwd.equals(""))
                 {
                     //Then the credentials are handed to the viewmodel method to be checked
@@ -168,9 +168,7 @@ public class ForumLogin extends Fragment {
                 {
                     Toast.makeText(getContext(), "Please enter username and password", Toast.LENGTH_LONG).show();
                 }
-
-                //Then the credentials are handed to the view model method to be checked
-                viewModel.loginToForum(getContext(), userName, userPwd);
+                
             }
         });
 

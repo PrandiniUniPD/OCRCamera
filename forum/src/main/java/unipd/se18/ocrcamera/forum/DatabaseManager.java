@@ -41,7 +41,6 @@ public class DatabaseManager
 
         db.collection(context.getString(R.string.userCollectionName))
                 .whereEqualTo(context.getString(R.string.usernameKey), username)
-                .whereEqualTo(context.getString(R.string.passwordKey), password)
                 .get()
                 .addOnSuccessListener(listeners.successListener)
                 .addOnFailureListener(listeners.failureListener);
