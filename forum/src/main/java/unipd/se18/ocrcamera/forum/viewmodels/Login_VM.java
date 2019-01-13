@@ -6,8 +6,11 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import unipd.se18.ocrcamera.forum.DatabaseManager;
 import unipd.se18.ocrcamera.forum.R;
@@ -72,39 +75,22 @@ public class Login_VM extends ViewModel implements LoginMethods {
          */
         final DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
 
-        /**
-         * If the user successfully logs in, the ShowPost is loaded
-         * so that the user is allowed to access the forum content.
-         *
-         * @param response The network request's response (not useful at all)
-         * @author Alberto Valente (g2)
-         */
-        listeners.successListener = new OnSuccessListener() {
-
+        //Definition of the listener that will be triggered when the login process finishes
+        listeners.completeListener = new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(Object response) {
-
-                if (forumLoginListener != null){
-
-                    forumLoginListener.onLoginSuccess(username);
+            public void onComplete(@NonNull Task<QuerySnapshot> task)
+            {
+                if (task.isSuccessful())
+                {
+                    if (task.getResult().size() == 1)
+                    {
+                        forumLoginListener.onLoginSuccess(username);
+                    }
+                    else
+                    {
+                        forumLoginListener.onLoginFailure(context.getString(R.string.loginFailedMessage));
+                    }
                 }
-            }
-        };
-
-        /**
-         * If the user fails to log in, an error message
-         * about incorrect credentials is shown to the user
-         *
-         * @param e The type of exception that is thrown by the database as a resault of a failure
-         * @author Alberto Valente (g2)
-         */
-        listeners.failureListener = new OnFailureListener() {
-
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-                Log.d(LOG_TAG, LOG_INCORRECT_CREDENTIALS);
-                forumLoginListener.onLoginFailure(context.getString(R.string.loginFailedMessage));
             }
         };
 

@@ -168,7 +168,7 @@ public class ForumLogin extends Fragment {
                 {
                     Toast.makeText(getContext(), "Please enter username and password", Toast.LENGTH_LONG).show();
                 }
-                
+
             }
         });
 
