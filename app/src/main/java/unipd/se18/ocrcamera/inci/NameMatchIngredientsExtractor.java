@@ -68,19 +68,40 @@ public class NameMatchIngredientsExtractor implements IngredientsExtractor {
         //for each inci ingredient check if it is contained in the text
         for(Ingredient ingredient : listIngredients) {
             String strippedName = ingredient.getStrippedInciName();
-            int indexOf = strippedText.indexOf(strippedName);
-            if(indexOf >= 0){
-                //found the ingredient
-                ingredient.setStartPositionFound(mapIndexes[indexOf]);
-                ingredient.setEndPositionFound(mapIndexes[indexOf+strippedName.length()-1]);
-                foundIngredients.add(ingredient);
 
-                Log.d(TAG, "found "+ingredient.getInciName()+" at pos "+indexOf);
+            int foundAtIndex = strippedText.indexOf(strippedName);
+            int foundEndIndex = foundAtIndex+strippedName.length()-1;
 
-                //remove the ingredient from text replacing it with whitespaces
-                String replacement = StringUtils.repeat(' ', strippedName.length());
-                strippedText = strippedText.replace(strippedName, replacement);
+
+            if(foundAtIndex >= 0){
+                int foundAtOriginalIndex = mapIndexes[foundAtIndex];
+                int foundEndOriginalIndex = mapIndexes[foundEndIndex];
+
+                boolean found = false;
+
+                // for names with 4 characters or less, check if before and after the name there is
+                // a non alphanumeric character (e.g. prevent match of EGG inside PROTEGGE)
+                if(strippedName.length() > 4) {
+                    found = true;
+                }
+                else if((foundAtOriginalIndex==0 || !isAlphaNumeric(text.charAt(foundAtOriginalIndex-1)))
+                            && (foundEndOriginalIndex+1 >= text.length() || !isAlphaNumeric(text.charAt(foundEndOriginalIndex+1)))){
+                    found = true;
+                }
+
+                if(found){
+                    //found the ingredient
+                    ingredient.setStartPositionFound(foundAtOriginalIndex);
+                    ingredient.setEndPositionFound(foundEndOriginalIndex);
+                    foundIngredients.add(ingredient);
+
+                    //remove the ingredient from text replacing it with whitespaces
+                    String replacement = StringUtils.repeat(' ', strippedName.length());
+                    strippedText = strippedText.replace(strippedName, replacement);
+                }
             }
+
+
         }
 
         //sort by index where the ingredients are found (reconstruct original order)
@@ -92,5 +113,9 @@ public class NameMatchIngredientsExtractor implements IngredientsExtractor {
         });
 
         return foundIngredients;
+    }
+
+    private boolean isAlphaNumeric(char c){
+        return Character.isLetter(c) || Character.isDigit(c);
     }
 }

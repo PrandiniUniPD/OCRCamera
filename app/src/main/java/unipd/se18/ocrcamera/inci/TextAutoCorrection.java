@@ -6,7 +6,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,33 +91,56 @@ public class TextAutoCorrection {
         Pattern pattern = Pattern.compile("[a-zA-Z0-9-]+");
         Matcher matcher = pattern.matcher(text);
 
-        //try to correct each word
-        int findFromIndex = 0; //index after which we look for the next match
-        while (matcher.find(findFromIndex)) {
-            
+        //generate list of words to correct
+        ArrayList<String> wordsToCorrect = new ArrayList<>();
+        ArrayList<Integer> wordsStartPos = new ArrayList<>();
+        while (matcher.find()) {
             String word = matcher.group();
-            findFromIndex = matcher.end();
-
             if(word.length()>=minChars) {
-                String corrected = correctWord(word);
-                if (!corrected.equals(word)) {
-
-                    Log.d(TAG, "word " + word + " corrected with " + corrected);
-
-                    //substitute with the word found
-                    text = text.substring(0, matcher.start()) + corrected + text.substring(matcher.end());
-
-                    //take into account difference in length between original and corrected word
-                    if(corrected.length() != word.length()) {
-                        matcher = pattern.matcher(text);
-                        findFromIndex += corrected.length() - word.length();
-                    }
-                }
+                wordsToCorrect.add(word);
+                wordsStartPos.add(matcher.start());
             }
-
         }
 
-        return text;
+        if(wordsToCorrect.size() == 0)
+            return text;
+
+        //correct words
+        List<String> correctedWords = correctMultipleWords(wordsToCorrect);
+
+        //in this array we store the mapping between indexes of original text and the corrected text.
+        int[] mapIndexes = new int[text.length()];
+        for(int i=0; i<text.length(); i++) mapIndexes[i] = i;
+        String correctedText = text;
+
+        //construct corrected text by substituting the corrected words
+        for(int i=0; i<wordsToCorrect.size(); i++){
+            String oldWord = wordsToCorrect.get(i);
+            String correctedWord = correctedWords.get(i);
+            if (!correctedWord.equals(oldWord)) {
+
+                Log.d(TAG, "word " + oldWord + " corrected with " + correctedWord);
+
+                int startPos = wordsStartPos.get(i);
+                int endPos = startPos+oldWord.length();
+
+                //substitute with the corrected word
+                String newText = "";
+                if(startPos > 0) newText = correctedText.substring(0, mapIndexes[startPos]);
+                newText = newText + correctedWord;
+                if (endPos < text.length()) newText = newText + correctedText.substring(mapIndexes[endPos]);
+
+                correctedText = newText;
+
+                //shift map indexes by the difference of length between the old word and corrected word
+                int shift = correctedWord.length() - oldWord.length();
+                int from = startPos + Math.min(correctedWord.length(), oldWord.length());
+                for (int j = from; j < text.length(); j++)
+                    mapIndexes[j] += shift;
+            }
+        }
+
+        return correctedText;
     }
 
 
@@ -133,6 +159,93 @@ public class TextAutoCorrection {
     }
 
     /**
+     * Each word in the list given is corrected
+     * @param words Words to be corrected in a list
+     * @return List of corrected words in the same position of the original word in the given list.
+     */
+    private List<String> correctMultipleWords(List<String> words){
+
+        //minimum number of words per task (if total number of words is less than this value all words are corrected in one task)
+        final int minWordsPerTask = 10;
+
+        //calculate number of concurrent tasks and number of words per task
+        int concurrentTasks;
+        if(words.size() < minWordsPerTask)
+            concurrentTasks = 1;
+        else {
+            concurrentTasks = Runtime.getRuntime().availableProcessors();
+            if (concurrentTasks > 1) {
+                concurrentTasks--; //leave a processor for the OS
+            }
+            if (words.size() / concurrentTasks < minWordsPerTask)
+                concurrentTasks = words.size() / minWordsPerTask;
+        }
+        int wordsPerTask = words.size()/concurrentTasks;
+        Log.d(TAG, concurrentTasks+" tasks. "+wordsPerTask+" words per task.");
+
+        //generate threads
+        CountDownLatch latch = new CountDownLatch(concurrentTasks);
+        WordsCorrectionThread[] threads = new WordsCorrectionThread[concurrentTasks];
+        for(int i=0; i<concurrentTasks; i++){
+            //split the word list to be corrected
+            int from = i*wordsPerTask;
+            int to = i==concurrentTasks-1 ? words.size() : (i+1)*wordsPerTask;
+            List<String> wordList = words.subList(from, to);
+
+            //start thread
+            threads[i] = new WordsCorrectionThread(wordList, latch);
+            threads[i].start();
+        }
+
+        //wait until all threads are finished
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return words;
+        }
+
+        //join the result lists
+        ArrayList<String> correctedWords = new ArrayList<>(words.size());
+        for(int i=0; i<concurrentTasks; i++){
+            correctedWords.addAll(threads[i].getCorrectedWords());
+        }
+        return correctedWords;
+    }
+
+    /**
+     * Thread for words correction
+     */
+    private class WordsCorrectionThread extends Thread {
+        private List<String> wordsToCorrect;
+        private List<String> correctedWords;
+        private CountDownLatch doneSignal;
+
+        /**
+         * Constructor
+         * @param words Words to be corrected
+         * @param doneSignal CountDownLatch for signalling when the thread has ended
+         */
+        WordsCorrectionThread(List<String> words, CountDownLatch doneSignal){
+            wordsToCorrect = words;
+            this.doneSignal = doneSignal;
+        }
+
+        public void run(){
+            //correct each word
+            correctedWords = new ArrayList<>(wordsToCorrect.size());
+            for(String word : wordsToCorrect){
+                correctedWords.add(correctWord(word));
+            }
+            doneSignal.countDown();
+        }
+
+        List<String> getCorrectedWords(){
+            return correctedWords;
+        }
+    }
+
+    /**
      * Correct a single word by searching for the most similar in word list
      * @param word The word to be corrected
      * @return Best candidate word from word list. If no words within maxDistance is found, the same word is returned.
@@ -140,25 +253,40 @@ public class TextAutoCorrection {
     private String correctWord(String word){
 
         //percentage distance below which we substitute the word with the term found in dictionary
-        // (during testing i found out that above 25% the confidence does not improve by much and
+        // (during testing i found out that above 30% the confidence does not improve by much and
         // also increases chance of correcting words not related to ingredients)
-        final double maxDistance = 0.25;
+        final double maxNormalizedDistance = 0.30;
 
-        //Searches the tree for elements whose distance satisfy maxDistance
+        //Searches the tree for elements whose distance satisfy max distance
+        // for the demostration of the distance upper bound see:
+        // https://github.com/frankplus/incidb/blob/master/maxNormalizedDistanceFormulaDim.jpg
         Set<BkTreeSearcher.Match<? extends String>> matches =
-                searcher.search(word, (int) (word.length()*maxDistance));
+                searcher.search(word, (int) (word.length()*maxNormalizedDistance/(1-maxNormalizedDistance)));
 
         //find the word with minimum distance
-        int minDistance = Integer.MAX_VALUE;
+        double minDistance = Double.MAX_VALUE;
         String closest = "";
         for (BkTreeSearcher.Match<? extends String> match : matches){
-            if(match.getDistance() < minDistance) {
-                minDistance = match.getDistance();
+
+            //if same word is found, no need to continue
+            if(match.getDistance() == 0) {
+                closest = word;
+                break;
+            }
+
+            //calculate normalized distance
+            int wordLength = word.length();
+            int matchLength = match.getMatch().length();
+            double normalizedDistance = (double) match.getDistance()/Math.max(wordLength, matchLength);
+
+            //if normalized distance satisfy max distance put it into closest match
+            if(normalizedDistance <= maxNormalizedDistance && normalizedDistance < minDistance) {
+                minDistance = normalizedDistance;
                 closest = match.getMatch();
             }
         }
 
-        //If no words within maxDistance is found, the same word is returned.
+        //If no words within maxNormalizedDistance is found, the same word is returned.
         return closest.equals("") ? word : closest;
     }
 }
