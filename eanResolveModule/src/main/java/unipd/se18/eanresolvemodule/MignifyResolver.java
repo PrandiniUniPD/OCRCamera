@@ -84,13 +84,15 @@ public class MignifyResolver implements EAN {
             //The server responds with either "ok" or "error"
             String status = jsonResponse.getString(STATUS);
             if (status.equals("ok")) {
-                //If the EAN code was found, in the JSON there is an list of products, each
-                //one with name, brand and language
                 //Getting the payload from the JSON
                 JSONObject payload = jsonResponse.getJSONObject(PAYLOAD);
+                //Since the EAN code was found, inside the JSON there's a list of products, each
+                //one with name, brand and language
                 JSONArray productList = payload.getJSONArray(RESULTS);
+                //Getting the number of products in the list
+                int productListSize = productList.length();
                 //If no product are in the response
-                if (productList.length() == 0) {
+                if (productListSize == 0) {
                     product = NO_PRODUCT_ERROR;
                 } else {
                     String[] productNames = new String[productList.length()];
@@ -98,17 +100,24 @@ public class MignifyResolver implements EAN {
                     String[] productBrands = new String[productList.length()];
                     String[] productLanguages = new String[productList.length()];
                     //Getting name, brand and language for each product
-                    for (int i = 0; i < productList.length(); i++) {
+                    for (int i = 0; i < productListSize; i++) {
                         //Getting the current product from the JSON list and it's values
                         JSONObject currentJsonObject = productList.getJSONObject(i);
                         productNames[i] = currentJsonObject.getString(NAME);
                         productBrands[i] = currentJsonObject.getString(BRAND);
                         productLanguages[i] = currentJsonObject.getString(LANGUAGE);
                     }
-                    //Selecting the first name in the list as the result product name.
-                    //It should be the most plausible product name.
-                    //In the future a better selection will be made, checking brand and language
-                    product = productNames[0];
+                    /*
+                     * Selecting the first name in the list as the result product name.
+                     * It should be the most plausible product name.
+                     * In the future a better selection will be made, checking brand and language
+                     */
+                    //If the product brand string isn't already contained inside the product name
+                    //string then it's added to the result
+                    if(!productNames[0].toLowerCase().contains(productBrands[0].toLowerCase())) {
+                        product = productBrands[0] + " ";
+                    }
+                    product += productNames[0];
                 }
             } else if(status.equals("error")){
                 //This else if should never be entered since the Barcode Module already checks
