@@ -171,6 +171,7 @@ public class ResultActivity extends AppCompatActivity {
         // get Bitmap of the image
         Bitmap image = BitmapFactory.decodeFile(imagePath);
 
+        //process image adjusting brightness and eventually autorotating
         PreProcessing processing = new PreProcessing();
         image = processing.doImageProcessing(image, autoSkew);
 
