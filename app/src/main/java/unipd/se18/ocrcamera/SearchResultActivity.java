@@ -73,7 +73,7 @@ public class SearchResultsActivity extends AppCompatActivity {
     /**
      * Size of the dropdown suggestions list
      */
-    private static final int MAX_DROPDOWN_SUGGESTIONS = 40;
+    private static final int MAX_DROPDOWN_SUGGESTIONS = 20;
 
     /**
      * Minimum query size to show suggestions
@@ -152,6 +152,12 @@ public class SearchResultsActivity extends AppCompatActivity {
         handleIntent(getIntent());
     }
 
+    /**
+     * If the activity is re-launched then handle the new intent.
+     * More information about onNewIntent:
+     * https://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent)
+     * @param intent
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         handleIntent(intent);
@@ -248,6 +254,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                     //update TextView and set cursor at the end of the text
                     mAutoCompleteTextView.setText(ingredientClicked);
                     mAutoCompleteTextView.setSelection(mAutoCompleteTextView.getText().length());
+                    //Call mSearchButton onClickListener implementation
                     mSearchButton.performClick();
                 }
             });
@@ -258,6 +265,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if(KeyEvent.KEYCODE_ENTER == keyCode) {
+                        //Call mSearchButton onClickListener implementation
                         mSearchButton.performClick();
                         return true;
                     }
@@ -271,6 +279,8 @@ public class SearchResultsActivity extends AppCompatActivity {
      * This filter provides smart suggestions selected from the full list of INCI ingredients by
      * ordering suggestions alphabetically and prioritizing shorter words that starts with the
      * constraint given by the user.
+     * More info about Filter:
+     * https://developer.android.com/reference/android/widget/Filter
      * @author Luca Moroldo g3
      */
     private class IngredientsFilter extends Filter {
