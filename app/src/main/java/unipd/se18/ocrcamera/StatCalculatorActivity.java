@@ -73,7 +73,7 @@ public class StatCalculatorActivity extends AppCompatActivity {
         mChart = (HorizontalBarChart) findViewById(R.id.chart1);
 
         //set graph
-        setData(20, 50);
+        setData(12, 50);
 
     }
 
@@ -108,6 +108,7 @@ public class StatCalculatorActivity extends AppCompatActivity {
                 StatisticManager manager = new StatisticManager(getApplicationContext());
                 manager.resetStats();
                 finish();
+                Toast.makeText(this, "statsCleared", Toast.LENGTH_LONG).show();
                 return true;
 
                 default:
@@ -127,12 +128,11 @@ public class StatCalculatorActivity extends AppCompatActivity {
         ArrayList<BarEntry> yVals = new ArrayList<>(); //values
         ArrayList<String> xVals = new ArrayList<>();   //keys
 
-        float spaceForBar = 1f;
-        int i = 0;
+        int columnNumber = 0;
         for (Map.Entry<String, Integer> entry : statmap.entrySet()) {
-                    yVals.add(new BarEntry(i, entry.getValue()));
+                    yVals.add(new BarEntry(columnNumber, entry.getValue()));
                     xVals.add(entry.getKey());
-                    i++;
+                    columnNumber++;
 
         }
 
@@ -152,11 +152,16 @@ public class StatCalculatorActivity extends AppCompatActivity {
         mChart.setDrawGridBackground(false);
 
         XAxis xAxis = mChart.getXAxis();
-        xAxis.setGranularity(1f);
+        //set the number of names shown (always maximum here)
+        xAxis.setLabelCount(statmap.size(),false);
+
+
+
+
 
         xAxis.setValueFormatter(new MyXAxisValueFormatter(xValsToString));
 
-        mChart.getAxisLeft().setDrawLabels(false);
+        //see barChart column values
         mChart.getAxisRight().setDrawLabels(false);
     }
 }
