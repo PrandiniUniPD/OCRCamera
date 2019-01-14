@@ -1,7 +1,5 @@
 package unipd.se18.ocrcamera.inci;
 
-import android.util.Log;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -58,7 +56,7 @@ public class NameMatchIngredientsExtractor implements IngredientsExtractor {
         StringBuilder strippedTextBuilder = new StringBuilder();
         for(int i=0; i<text.length(); i++) {
             char currentChar = text.charAt(i);
-            if(Character.isLetter(currentChar) || Character.isDigit(currentChar)) {
+            if(isAlphaNumeric(currentChar)) {
                 mapIndexes[strippedTextBuilder.length()] = i;
                 strippedTextBuilder.append(currentChar);
             }
@@ -79,9 +77,10 @@ public class NameMatchIngredientsExtractor implements IngredientsExtractor {
 
                 boolean found = false;
 
-                // for names with 4 characters or less, check if before and after the name there is
+                // for names with nCharThreshold characters or less, check if before and after the name there is
                 // a non alphanumeric character (e.g. prevent match of EGG inside PROTEGGE)
-                if(strippedName.length() > 4) {
+                final int nCharThreshold = 4;
+                if(strippedName.length() > nCharThreshold) {
                     found = true;
                 }
                 else if((foundAtOriginalIndex==0 || !isAlphaNumeric(text.charAt(foundAtOriginalIndex-1)))
@@ -100,8 +99,6 @@ public class NameMatchIngredientsExtractor implements IngredientsExtractor {
                     strippedText = strippedText.replace(strippedName, replacement);
                 }
             }
-
-
         }
 
         //sort by index where the ingredients are found (reconstruct original order)

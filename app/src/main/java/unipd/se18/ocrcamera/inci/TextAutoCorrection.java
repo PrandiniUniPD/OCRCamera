@@ -102,8 +102,9 @@ public class TextAutoCorrection {
             }
         }
 
+
         if(wordsToCorrect.size() == 0)
-            return text;
+            return text; //no words to correct
 
         //correct words
         List<String> correctedWords = correctMultipleWords(wordsToCorrect);
@@ -121,6 +122,7 @@ public class TextAutoCorrection {
 
                 Log.d(TAG, "word " + oldWord + " corrected with " + correctedWord);
 
+                //get start-end positions of the word to replace
                 int startPos = wordsStartPos.get(i);
                 int endPos = startPos+oldWord.length();
 
