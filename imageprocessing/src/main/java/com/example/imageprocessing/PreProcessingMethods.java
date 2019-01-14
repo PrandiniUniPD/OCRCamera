@@ -2,6 +2,8 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 
+import com.example.imageprocessing.enumClasses.BlurValue;
+
 /**
  * Interface used to call the processing methods
  * @author Thomas Porro (g1), Giovanni Fasan(g1), OScar Garrido(g1)
@@ -14,7 +16,7 @@ public interface PreProcessingMethods {
      * @return True if the image is blurred. False otherwise or if the detection failed
      * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
-    boolean isBlurred(Bitmap image);
+    BlurValue isBlurred(Bitmap image);
 
     /**
      * Do all the image processing, like brightness adjustment, auto cropping the image and the likes

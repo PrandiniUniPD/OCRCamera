@@ -2,6 +2,8 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
+
+import com.example.imageprocessing.enumClasses.DetectTheTextMethods;
 import com.example.imageprocessing.exceptions.ConversionFailedException;
 import java.util.ArrayList;
 import java.util.List;
@@ -272,18 +274,19 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
         /*For each rectangle contained in textContainer extract the rectangle and saves it
           into a bitmap*/
         RotatedRect rectangle;
-        while(textContainer.hasNext()){
-            rectangle = (RotatedRect)textContainer.next();
-            Mat croppedMat = crop(rectangle, img);
-            //If the conversion failed return a List with only the original image
-            try {
+        try {
+            while (textContainer.hasNext()) {
+                rectangle = (RotatedRect) textContainer.next();
+                Mat croppedMat = crop(rectangle, img);
+                //If the conversion failed return a List with only the original image
                 Bitmap croppedBitmap = IPUtils.conversionMatToBitmap(croppedMat);
                 imgTextContainer.add(croppedBitmap);
-            } catch (ConversionFailedException e){
-                Log.e(TAG, e.getErrorMessage());
-                imgTextContainer.add(image);
-                return imgTextContainer;
             }
+        } catch (ConversionFailedException e) {
+            Log.e(TAG, e.getErrorMessage());
+            List<Bitmap> imgTextContainerFailure = new ArrayList<>();
+            imgTextContainerFailure.add(image);
+            return imgTextContainerFailure;
         }
         //Debug method
         //IPDebug.saveBitmapList(imgTextContainer);

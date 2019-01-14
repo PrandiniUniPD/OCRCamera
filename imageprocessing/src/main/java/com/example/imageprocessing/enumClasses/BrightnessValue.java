@@ -1,4 +1,4 @@
-package com.example.imageprocessing;
+package com.example.imageprocessing.enumClasses;
 
 /**
  * Enum class used to identify the image's brightness

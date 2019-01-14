@@ -28,6 +28,8 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.imageprocessing.PreProcessing;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -125,6 +127,8 @@ public class ResultActivity extends AppCompatActivity {
 
             // Bitmap of the lastPhoto saved
             lastPhoto = BitmapFactory.decodeFile(lastImagePath);
+            PreProcessing gay = new PreProcessing();
+            lastPhoto = gay.doImageProcessing(lastPhoto);
 
             // Sets the image to the view
             mImageView.setImageBitmap(
