@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import com.example.imageprocessing.enumClasses.BlurValue;
 import com.example.imageprocessing.enumClasses.BrightnessValue;
 import com.example.imageprocessing.exceptions.ConversionFailedException;
@@ -26,7 +25,6 @@ public class PreProcessing implements PreProcessingMethods {
 
     //Tag used to identify the log
     private final String TAG = "PreProcessing";
-
 
     /**
      * Constructor of the class which initialize the openCV library
@@ -156,28 +154,38 @@ public class PreProcessing implements PreProcessingMethods {
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
      */
     private BrightnessValue isBright(Mat imageMat){
-        //Converts the image into a matrix
-        Mat brightnessMat = new Mat();
 
-        //Changes the format of the matrix into a RGB one
-        Imgproc.cvtColor(imageMat, brightnessMat, Imgproc.COLOR_RGBA2RGB);
+        Mat rgbImageMat = new Mat();
+
+        /*
+         Changes the format of the matrix into an RGB one, so we are now able to
+         split the color with the Core.split method
+        */
+        Imgproc.cvtColor(imageMat, rgbImageMat, Imgproc.COLOR_RGBA2RGB);
 
         //Obtain 3 different matrix with the 3 elemental colors
-        List<Mat> colorComponent = new ArrayList<>();
-        Core.split(brightnessMat, colorComponent);
+
+        List<Mat> imageColors = new ArrayList<>();
+        Core.split(rgbImageMat, imageColors);
+
 
         /*Each color is multiplied with his luminance.
           The colors are in order RGB, so to access the che color I use the number 0, 1, 2 in order
-          For more informations see https://en.wikipedia.org/wiki/Relative_luminance*/
+          For more informations see https://en.wikipedia.org/wiki/Relative_luminance
+		  */
         final int RED = 0;
         final int GREEN = 1;
         final int BLUE = 2;
+        final double RED_LUMINANCE = 0.2126;
+        final double GREEN_LUMINANCE = 0.7152;
+        final double BLUE_LUMINANCE = 0.0722;
         Mat redLuminance = new Mat();
-        Core.multiply(colorComponent.get(RED), new Scalar(0.2126), redLuminance);
+
+        Core.multiply(imageColors.get(RED), new Scalar(RED_LUMINANCE), redLuminance);
         Mat greenLuminance= new Mat();
-        Core.multiply(colorComponent.get(GREEN), new Scalar(0.7152), greenLuminance);
+        Core.multiply(imageColors.get(GREEN), new Scalar(GREEN_LUMINANCE), greenLuminance);
         Mat blueLuminance = new Mat();
-        Core.multiply(colorComponent.get(BLUE), new Scalar(0.0722), blueLuminance);
+        Core.multiply(imageColors.get(BLUE), new Scalar(BLUE_LUMINANCE), blueLuminance);
 
         //Sums the matrix of the colors into a single one
         Mat tempLuminance = new Mat();
@@ -188,10 +196,10 @@ public class PreProcessing implements PreProcessingMethods {
         //Calculate the sum of the values of all pixels
         Scalar sum = Core.sumElems(totalLuminance);
 
-        /*Calculate the percentage of the brightness. Since the value of the colos go
+		/*Calculate the percentage of the brightness. Since the value of the colors go
           from 0 to 255 a pixel can contain the value 255 = 2^8-1*/
         final double PIXEL_MAX_VALUE = (Math.pow(2,8)-1);
-        double numberOfBits = PIXEL_MAX_VALUE * brightnessMat.rows() * brightnessMat.cols();
+        double numberOfBits = PIXEL_MAX_VALUE * rgbImageMat.rows() * rgbImageMat.cols();
         double percentageBrightness = sum.val[0]/numberOfBits;
 
         Log.d(TAG, "Brightness:"+percentageBrightness);
@@ -218,7 +226,11 @@ public class PreProcessing implements PreProcessingMethods {
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Oscar Garrido(g1)
      */
     private Bitmap editBright(Bitmap image){
-        //Variable used as step each time we want to modify the image's brightness
+        /*This variable is used to put a limit to the change of the image's brightness.
+          The value 240 is derived from the fact that in the for loop we try to modify
+          the value of all the pixels of a step, and being the maximum value = 255 (pixel's
+          color maximum value, we put the limit on 240*/
+        final int MAX_BRIGHTNESS = 240;
         final int STEP = 15;
 
         //Converts the image into a matrix
@@ -230,7 +242,7 @@ public class PreProcessing implements PreProcessingMethods {
             return image;
         }
 
-        /*This variable is used to select the type of matrix we want to abtain in the
+		/*This variable is used to select the type of matrix we want to abtain in the
           the convertTo method. If it's negative the type doesn't change*/
         final int MATRIX_TYPE = -1;
 
@@ -240,6 +252,9 @@ public class PreProcessing implements PreProcessingMethods {
           m(x,y) = saturate _ cast<rType>(alpha(*this)(x,y) + beta)
           We called beta as STEP*/
         final int ALPHA = 1;
+
+        //Call the internal method isBright to detect if the image is bright or dark
+        //and change the brightness according to the number obtained
         while(isBright(imageMat) != BrightnessValue.IMAGE_IS_OK) {
             switch (isBright(imageMat)) {
                 case IMAGE_TOO_BRIGHT:
@@ -272,11 +287,11 @@ public class PreProcessing implements PreProcessingMethods {
     @Override
     public BlurValue isBlurred(Bitmap image) {
 
-        //Total number of color
+        //Total number of color of RGB: 256 each color, so 256^3
         int maxLap = -16777216;
 
         //Threshold above which the color is out of focus
-        final int threshold = -6118750;
+        final int OUT_OF_FOCUS_THRESHOLD = -6118750;
 
         //Converts the image into a matrix
         Mat imageMat;
@@ -291,7 +306,7 @@ public class PreProcessing implements PreProcessingMethods {
         Mat grayImageMat = new Mat();
         Imgproc.cvtColor(imageMat, grayImageMat, Imgproc.COLOR_BGR2GRAY);
 
-        /*Use the openCV's Laplacian methods to apply a transformation that allow us to detect
+        /*Use the openCV's Laplacian methods to apply a Laplacian filter, that allow us to detect
           the image blurriness*/
         Mat laplacianMat = new Mat();
         Imgproc.Laplacian(grayImageMat, laplacianMat, CV_8U);
@@ -310,12 +325,12 @@ public class PreProcessing implements PreProcessingMethods {
 
         //Extracts all the pixels of the laplacian image into the array
         int[] pixels = IPBuilder.doGetPixels(new IPBuilder.GetPixelsBuilder(laplacianImage)
-                  .withStride(laplacianImage.getWidth())
-                  .withWidth(laplacianImage.getWidth())
-                  .withHeight(laplacianImage.getHeight())
-                  );
-                  
-        //Searches the pixel that has the highest colour range in the RGB format
+                .withStride(laplacianImage.getWidth())
+                .withWidth(laplacianImage.getWidth())
+                .withHeight(laplacianImage.getHeight())
+        );
+
+        //searches the maximum value of the pixels in the Laplacin filtered image
         for(int pixel : pixels){
             if(pixel > maxLap){
                 maxLap = pixel;
@@ -323,7 +338,7 @@ public class PreProcessing implements PreProcessingMethods {
         }
 
         //Verify if the image is blurred
-        if(maxLap < threshold){
+        if(maxLap < OUT_OF_FOCUS_THRESHOLD){
             Log.d("Blur", "IS BLURRED");
             return BlurValue.IMAGE_BLURRED;
         } else {
