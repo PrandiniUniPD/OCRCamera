@@ -51,7 +51,14 @@ public class StatCalculatorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StatisticManager manager = new StatisticManager(getApplicationContext());
+        manager.resetStats();
         statmap = manager.loadMap();
+
+
+        /////////////////////
+        List<Ingredient> list = null;
+        manager.updateMap(list);
+
         Log.i("HASHFINAL", statmap.toString());
         setContentView(R.layout.activity_stat_calculator);
         mChart = (HorizontalBarChart) findViewById(R.id.chart1);

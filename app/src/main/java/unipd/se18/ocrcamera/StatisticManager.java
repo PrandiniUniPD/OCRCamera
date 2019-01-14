@@ -11,10 +11,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import unipd.se18.ocrcamera.inci.Ingredient;
 
 import static android.content.Context.MODE_PRIVATE;
+import static java.lang.System.err;
 
 /**
  * Class that contains all the method related to the statistics about ingredients
@@ -33,18 +35,18 @@ public class StatisticManager {
 
     /**
      * Method to save the map in properties
-     * @param hmap
+     * @param map the hashMap containing the list of the ingredients
      * @author Leonardo Pratesi
      */
-    public void saveMap(HashMap hmap) {
+    public void saveMap(HashMap<String, Integer> map) {
 
         try {
             FileOutputStream fos = context.openFileOutput("hashmap.ser", MODE_PRIVATE);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(hmap);
+            oos.writeObject(map);
             oos.close();
             fos.close();
-            Log.e("hashsave", hmap.toString());
+            Log.e("hashsave", map.toString());
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -59,6 +61,7 @@ public class StatisticManager {
      * @return HashMap<String, Integer>
      * @author Leonardo Pratesi
      */
+    //TODO check exceptions
     public HashMap<String, Integer> loadMap() {
         HashMap<String, Integer> map = null;
         try {
@@ -73,9 +76,13 @@ public class StatisticManager {
                     e.printStackTrace();
                 }
             }
+
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            // if the file is not found creates an empty map
+            return new HashMap<>();
+
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -92,26 +99,28 @@ public class StatisticManager {
      *
      */
     public void updateMap(List<Ingredient> ingredients) {
+        if (ingredients != null){
+            HashMap<String, Integer> temp = loadMap();
+            for (Ingredient s : ingredients) {
+                if (temp.containsKey(s.getInciName().toUpperCase()))
+                    temp.put(s.getInciName(), temp.get(s.getInciName()) + 1);
 
-        HashMap temp = loadMap();
-        for (Ingredient s : ingredients) {
-            if (temp.containsKey(s.getInciName().toUpperCase()))
-                temp.put(s.getInciName(), (Integer)temp.get(s.getInciName()) + 1);
-
-            else {
-                temp.put(s.getInciName(), 1);
+                else {
+                    temp.put(s.getInciName(), 1);
+                }
             }
+            saveMap(temp);
         }
-        saveMap(temp);
-
+        else {}
     }
 
     /**
      * Method to reset all the ingredients
-     *
+     * @author Leonardo Pratesi
      */
-    private void resetStats() {
-        HashMap temp = null;
+    public void resetStats() {
+
+        HashMap<String, Integer> temp = new HashMap();
         saveMap(temp);
 
     }
