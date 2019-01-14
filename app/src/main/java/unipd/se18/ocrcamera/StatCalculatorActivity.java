@@ -1,10 +1,14 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -82,6 +86,37 @@ public class StatCalculatorActivity extends AppCompatActivity {
     }
 
     /**
+     * Menu Inflater
+     *
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.clear_graph, menu);
+        return true;
+    }
+
+    /**
+     * Handling click events on the menu
+     *
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.statsDelete:
+                StatisticManager manager = new StatisticManager(getApplicationContext());
+                manager.resetStats();
+                finish();
+                return true;
+
+                default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    /**
      * method to populate the chart
      * @param count
      * @param range
@@ -89,22 +124,21 @@ public class StatCalculatorActivity extends AppCompatActivity {
      */
     private void setData(int count, int range) {
 
-
         ArrayList<BarEntry> yVals = new ArrayList<>(); //values
         ArrayList<String> xVals = new ArrayList<>();   //keys
 
-        float barWidth = 20f;
         float spaceForBar = 1f;
         int i = 0;
         for (Map.Entry<String, Integer> entry : statmap.entrySet()) {
-                    float val = (float) (entry.getValue());
-                    yVals.add(new BarEntry(i * spaceForBar, entry.getValue()));
+                    yVals.add(new BarEntry(i, entry.getValue()));
                     xVals.add(entry.getKey());
                     i++;
 
         }
 
         Log.e("xVals",xVals.toString());
+        String[] xValsToString = new String[xVals.size()];
+        xValsToString = xVals.toArray(xValsToString);
 
         // if you want to show a description change this
         mChart.getDescription().setEnabled(false);
@@ -113,30 +147,33 @@ public class StatCalculatorActivity extends AppCompatActivity {
         set1.setColors(ColorTemplate.COLORFUL_COLORS);
         BarData data = new BarData(set1);
 
-        //xAxis.setGranularity(1);
        //barchart plotted
         mChart.setData(data);
+        mChart.setDrawGridBackground(false);
 
         XAxis xAxis = mChart.getXAxis();
-        xAxis.setValueFormatter(new MyXAxisValueFormatter(xVals));
-        xAxis.setGranularity(1);
-    }
+        xAxis.setGranularity(1f);
 
+        xAxis.setValueFormatter(new MyXAxisValueFormatter(xValsToString));
+
+        mChart.getAxisLeft().setDrawLabels(false);
+        mChart.getAxisRight().setDrawLabels(false);
+    }
 }
 
 /**
- * class to get the name of every bar in the graph
+ * Class to get the name of every bar in the graph
  */
 class MyXAxisValueFormatter implements IAxisValueFormatter {
-    private ArrayList<String> mValues;
+    private String[] mValues;
 
-    public MyXAxisValueFormatter(ArrayList<String> values) {
+    public MyXAxisValueFormatter(String[] values) {
         this.mValues = values;
     }
 
     @Override
     public String getFormattedValue(float value, AxisBase axis) {
-        return mValues.get((int)value);
+        return mValues[(int)value];
     }
 }
 

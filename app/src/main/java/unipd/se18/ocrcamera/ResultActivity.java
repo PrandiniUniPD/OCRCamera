@@ -78,8 +78,22 @@ public class ResultActivity extends AppCompatActivity {
      */
     private Bitmap lastPhoto;
 
+    /**
+     *  Boolean to pass to the Asynctask to recognize if the foto has been taken or not
+     *  false by standard because result activity is opened first if there is no old photo
+     */
+    private boolean imageTaken;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // this bit is necessary to recognize if the photo is taken new or is an old photo -Leonardo Pratesi
+        Intent intent = getIntent();
+        if (intent != null) {
+            if (getIntent().getExtras() != null) {
+                imageTaken = getIntent().getExtras().getBoolean("imageTaken");
+            }
+        }
+        ///////////////
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
@@ -96,7 +110,6 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
             }
         });
-        StatisticManager manager = new StatisticManager(getApplicationContext());
 
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
@@ -320,36 +333,16 @@ public class ResultActivity extends AppCompatActivity {
                 activity.saveResultToGallery(ingredients);
 
                 ////////////////////////////////////////// Leonardo Pratesi stat analyzer
-                activity.updateMap(ingredients);
+
+                if (activity.imageTaken) {
+                    StatisticManager manager = new StatisticManager(activity);
+                    manager.updateMap(ingredients);
+                }
             }
             else
                 activity.emptyTextView.setText(R.string.no_ingredient_found);
         }
 }
-
-    /**
-     * update the map and saves it
-     * @param
-     * @param ingredients
-     * @author Leonardo Pratesi
-     *
-     */
-    public void updateMap(List<Ingredient> ingredients) {
-        StatisticManager manager = new StatisticManager(getApplicationContext());
-        if (ingredients != null){
-            HashMap<String, Integer> temp = manager.loadMap();
-            for (Ingredient s : ingredients) {
-                if (temp.containsKey(s.getInciName().toUpperCase()))
-                    temp.put(s.getInciName(), temp.get(s.getInciName()) + 1);
-
-                else {
-                    temp.put(s.getInciName(), 1);
-                }
-            }
-            manager.saveMap(temp);
-        }
-        else {}
-    }
 
     /**
      * Save the photo using the correct extracted ingredients
