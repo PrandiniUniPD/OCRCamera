@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="likesCollectionName">likes</string>
+    <string name="likesPostKey">post</string>
+    <string name="likesUserKey">user</string>
+    <string name="addLikeOnFailureMessage">Impossible to add a like, please retry</string>
+</resources>
