@@ -127,8 +127,8 @@ public class ResultActivity extends AppCompatActivity {
 
             // Bitmap of the lastPhoto saved
             lastPhoto = BitmapFactory.decodeFile(lastImagePath);
-            PreProcessing gay = new PreProcessing();
-            lastPhoto = gay.doImageProcessing(lastPhoto);
+            PreProcessing processing = new PreProcessing();
+            lastPhoto = processing.doImageProcessing(lastPhoto);
 
             // Sets the image to the view
             mImageView.setImageBitmap(
