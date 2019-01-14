@@ -19,10 +19,15 @@ public interface PreProcessingMethods {
     BlurValue isBlurred(Bitmap image);
 
     /**
-     * Do all the image processing, like brightness adjustment, auto cropping the image and the likes
+     * Does the image processing brightness adjustment and, if wanted to, it also auto rotates the image
      * @param image The image to modify
+     * @param autoSkew auto rotates the image if true, does nothing if false
      * @return a Bitmap with adjustment, auto cropping the image and the likes
      * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
-     Bitmap doImageProcessing(Bitmap image);
+     Bitmap doImageProcessing(Bitmap image, boolean autoSkew);
+
+    /**
+     *
+     */
 }
