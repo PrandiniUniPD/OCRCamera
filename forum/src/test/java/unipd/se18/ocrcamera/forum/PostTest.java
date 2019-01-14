@@ -5,9 +5,12 @@ import unipd.se18.ocrcamera.forum.models.Post;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.junit.Assert.*;
+import static unipd.se18.ocrcamera.forum.models.Post.DATE_FORMAT;
 
 /**
  * Post unit test, which will execute on the development machine (host).
@@ -35,7 +38,7 @@ public class PostTest {
         ID = "";
         title = "Test";
         message = "Test message";
-        date = new Date();
+        date = convertDate(new Date());
         likes = 0;
         comments = 0;
         author = "Developer";
@@ -135,7 +138,7 @@ public class PostTest {
      */
     @Test
     public void setDateTest() {
-        date = new Date();
+        date = convertDate(new Date());
         post.setDate(date);
         assertEquals(date,post.getDate());
     }
@@ -149,5 +152,25 @@ public class PostTest {
         author = "Same developer";
         post.setAuthor(author);
         assertEquals(author,post.getAuthor());
+    }
+
+    /**
+     * Converts the specified date to the specified format
+     * @param date The date that has to be converted
+     * @return The date in the new format
+     */
+    private Date convertDate(Date date)
+    {
+        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
+        String sDate = format.format(date);
+
+        try
+        {
+            return format.parse(sDate);
+        }
+        catch (ParseException e)
+        {
+            return null;
+        }
     }
 }
