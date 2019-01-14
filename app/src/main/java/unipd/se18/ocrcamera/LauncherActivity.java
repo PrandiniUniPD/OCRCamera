@@ -42,20 +42,7 @@ public class LauncherActivity extends AppCompatActivity {
          * @author Luca Moroldo modified by Francesco Pham
         */
         if(pathImage != null) {
-            //load last extracted text
-            prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-            String OCRText = prefs.getString("text", null);
-
-            if(OCRText != null && !(OCRText.equals(""))) {
-                //An intent that will launch the activity
-                intent = new Intent(LauncherActivity.this, ResultActivity.class);
-
-            }
-            else {
-                Log.e(TAG, "Error retrieving last extracted text");
-                intent = new Intent(LauncherActivity.this, CameraActivity.class);
-            }
-
+            intent = new Intent(LauncherActivity.this, ResultActivity.class);
         }
         else {
             intent = new Intent(LauncherActivity.this, CameraActivity.class);

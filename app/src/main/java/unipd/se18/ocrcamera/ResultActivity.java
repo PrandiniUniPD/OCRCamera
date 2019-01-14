@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -27,6 +28,9 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.yalantis.ucrop.UCrop;
+
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -52,6 +56,11 @@ public class ResultActivity extends AppCompatActivity {
     private final String TAG = "ResultActivity";
 
     /**
+     * ImageView of the captured picture
+     */
+    private ImageView mImageView;
+
+    /**
      * listview used to show the ingredients extracted according with the INCI database
      */
     private ListView ingredientsListView;
@@ -67,9 +76,9 @@ public class ResultActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     /**
-     * Contains the last photo taken by the user
+     * text view showing ocr text analyzed highlighting ingredients extracted
      */
-    private Bitmap lastPhoto;
+    private TextView analyzedTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +86,7 @@ public class ResultActivity extends AppCompatActivity {
         setContentView(R.layout.activity_result);
 
         // UI components
-        ImageView mImageView = findViewById(R.id.img_captured_view);
+        mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
         progressBar = findViewById(R.id.progress_bar);
 
@@ -94,6 +103,10 @@ public class ResultActivity extends AppCompatActivity {
         emptyTextView= findViewById(R.id.empty_list);
         emptyTextView.setText(R.string.finding_text);
         ingredientsListView.setEmptyView(emptyTextView);
+
+        //show analyzed text view
+        analyzedTextView = new TextView(ResultActivity.this);
+        ingredientsListView.addHeaderView(analyzedTextView);
 
         //set on click on ingredient launching IngredientDetailsFragment
         ingredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -117,63 +130,107 @@ public class ResultActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         //load the path to the last taken picture, can be null if the user didn't take any picture
-        String lastImagePath = prefs.getString("imagePath", null);
+        final String lastImagePath = prefs.getString("imagePath", null);
 
-        //only if lastImagePath is not null we set our view
         if(lastImagePath != null) {
 
-            // Bitmap of the lastPhoto saved
-            lastPhoto = BitmapFactory.decodeFile(lastImagePath);
-
-            // Sets the image to the view
-            mImageView.setImageBitmap(
-                    // Scales the image firstly
-                    Bitmap.createScaledBitmap(
-                            lastPhoto,
-                            lastPhoto.getWidth(),
-                            lastPhoto.getHeight(),
-                            false
-                    )
-            );
-
-            //create a listener for the end of the text extraction by the OCR
-            OCRListener textExtractionListener = new OCRListener() {
-                //function called when the OCR extraction is finished
+            //launch UCrop on image click
+            mImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onTextRecognized(String text) {
-                    //search for ingredients in the INCI db and update the UI
+                public void onClick(View v) {
+                    final Uri resultImageUri = Uri.fromFile(new File(getCacheDir(),"croppedImg.jpg"));
+                    //Build Uri from image path
+                    Uri.Builder builder = new Uri.Builder().scheme("file").path(lastImagePath);
+                    final Uri captureImageUri = builder.build();
 
-                    new AsyncIngredientsExtraction(ResultActivity.this).execute(text);
-
-                    //save photo in the gallery and the last recognized text
-                    saveTheResult(text);
+                    //Create a new result file and take his Uri
+                    UCrop.Options options = new UCrop.Options();
+                    options.setHideBottomControls(false);
+                    options.setFreeStyleCropEnabled(true);
+                    options.setActiveWidgetColor(getResources().getColor(R.color.colorPrimary));
+                    options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
+                    options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+                    options.setToolbarTitle(getResources().getString(R.string.focus_on_ingredients));
+                    UCrop.of(captureImageUri, resultImageUri)
+                            .withOptions(options)
+                            .start(ResultActivity.this);
                 }
+            });
 
-                @Override
-                public void onTextRecognizedError(int code) {
+            analyzeImageUpdateUI(lastImagePath);
+        }
+    }
+
+    /**
+     * Show image, extract text from the image, extract ingredients and update UI showing results.
+     * @param imagePath Path of the image which has to be analyzed
+     */
+    private void analyzeImageUpdateUI(final String imagePath) {
+        // get Bitmap of the image
+        final Bitmap image = BitmapFactory.decodeFile(imagePath);
+
+        // Sets the image to the view
+        mImageView.setImageBitmap(
+                // Scales the image firstly
+                Bitmap.createScaledBitmap(
+                        image,
+                        image.getWidth(),
+                        image.getHeight(),
+                        false
+                )
+        );
+
+        //listener for the end of the text extraction by the OCR
+        OCRListener textExtractionListener = new OCRListener() {
+            //function called when the OCR extraction is finished
+            @Override
+            public void onTextRecognized(String text) {
+                //search for ingredients in the INCI db and update the UI
+                AsyncIngredientsExtraction extraction = new AsyncIngredientsExtraction(ResultActivity.this, image);
+                extraction.execute(text);
+            }
+
+            @Override
+            public void onTextRecognizedError(int code) {
                     /*
                      Text not correctly recognized
                      -> prints the error on the screen and doesn't save it in the preferences
                      */
-                    String errorText = R.string.extraction_error
-                            + " (" + R.string.error_code + code + ")";
-                    Log.e(TAG, errorText);
-                }
-            };
-
-            //get an OCR instance
-            OCR textRecognizer = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
-                    textExtractionListener);
-
-            //extract text
-            textRecognizer.getTextFromImg(lastPhoto);
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+                String errorText = R.string.extraction_error
+                        + " (" + R.string.error_code + code + ")";
+                Log.e(TAG, errorText);
+            }
+        };
 
 
-            // Analyze the brightness of the taken photo  @author Balzan Pietro
-            new ASyncBrightnessRecognition(ResultActivity.this).execute(lastPhoto);
+        //get an OCR instance
+        OCR textRecognizer = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
+                textExtractionListener);
+
+        //extract text
+        textRecognizer.getTextFromImg(image);
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+
+
+        // Analyze the brightness of the taken photo  @author Balzan Pietro
+        new ASyncBrightnessRecognition(ResultActivity.this).execute(image);
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP)
+        {
+            //get cropped image and update UI
+            final Uri resultUri = UCrop.getOutput(data);
+
+            if (resultUri != null) {
+                analyzeImageUpdateUI(resultUri.getPath());
+            }
         }
     }
+
+
 
     /**
      * Menu inflater
@@ -235,9 +292,11 @@ public class ResultActivity extends AppCompatActivity {
 
         private WeakReference<ResultActivity> activityReference;
         private String correctedText;
+        private Bitmap image;
 
-        AsyncIngredientsExtraction(ResultActivity context){
+        AsyncIngredientsExtraction(ResultActivity context, Bitmap image){
             activityReference = new WeakReference<>(context);
+            this.image = image;
         }
 
         @Override
@@ -317,15 +376,15 @@ public class ResultActivity extends AppCompatActivity {
                     analyzedText.setSpan(new BackgroundColorSpan(Color.YELLOW),
                             ingred.getStartPositionFound(), ingred.getEndPositionFound()+1, 0);
                 }
-                TextView headerView = new TextView(activity);
-                headerView.setText(analyzedText);
-                activity.ingredientsListView.addHeaderView(headerView);
+                activity.analyzedTextView.setText(analyzedText);
 
                 //save image and ingredients extracted in the gallery (Stefano Romanello)
-                activity.saveResultToGallery(ingredients);
+                activity.saveResultToGallery(image, ingredients);
             }
-            else
+            else {
+                activity.ingredientsListView.setAdapter(null);
                 activity.emptyTextView.setText(R.string.no_ingredient_found);
+            }
         }
 }
 
@@ -335,7 +394,7 @@ public class ResultActivity extends AppCompatActivity {
      * @param ingredients List of ingredients extracted using AsyncIngredientsExtraction
      * @author Romanello Stefano
      */
-    private void saveResultToGallery(List<Ingredient> ingredients)
+    private void saveResultToGallery(Bitmap image, List<Ingredient> ingredients)
     {
         ArrayList<String>ingredientsToSave = new ArrayList<>();
         for (Ingredient ingredient : ingredients) {
@@ -343,26 +402,12 @@ public class ResultActivity extends AppCompatActivity {
         }
 
         try {
-            GalleryManager.storeImage(lastPhoto,ingredientsToSave);
+            GalleryManager.storeImage(image,ingredientsToSave);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Saves the result obtained in the "prefs" preferences (Context.MODE_PRIVATE)
-     * - the name of the String is "text"
-     * @param text The text extracted by the process
-     * @author Pietro Prandini (g2)
-     */
-    private void saveTheResult(String text) {
-        // Saving in the preferences
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs",
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("text", text);
-        editor.apply();
-    }
 
     /**
      * ASyncTask for brightness recognition and toast message display when image is too bright or too dark

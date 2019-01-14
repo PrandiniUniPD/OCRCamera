@@ -67,5 +67,8 @@ dependencies {
 
     //for request to wikipedia
     implementation 'com.android.volley:volley:1.1.1'
+
+    //for image cropping
+    implementation 'com.github.yalantis:ucrop:2.2.2-native'
 }
 apply plugin: 'com.google.gms.google-services'

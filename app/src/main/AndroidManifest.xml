@@ -82,6 +82,11 @@
         <!-- Declare searchable (ingredient) -->
         <meta-data android:name="android.app.default_searchable" android:value=".SearchResultsActivity"/>
 
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>
