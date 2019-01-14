@@ -28,6 +28,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.imageprocessing.PreProcessing;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -157,17 +158,25 @@ public class ResultActivity extends AppCompatActivity {
                 }
             });
 
-            analyzeImageUpdateUI(lastImagePath);
+            analyzeImageUpdateUI(lastImagePath, true);
         }
     }
 
     /**
      * Show image, extract text from the image, extract ingredients and update UI showing results.
      * @param imagePath Path of the image which has to be analyzed
+     * @param autoSkew True if automatic rotation of the image is required, false otherwise.
      */
-    private void analyzeImageUpdateUI(final String imagePath) {
+    private void analyzeImageUpdateUI(final String imagePath, boolean autoSkew) {
         // get Bitmap of the image
-        final Bitmap image = BitmapFactory.decodeFile(imagePath);
+        Bitmap image = BitmapFactory.decodeFile(imagePath);
+
+        if(autoSkew) {
+            PreProcessing processing = new PreProcessing();
+            image = processing.doImageProcessing(image);
+        }
+
+        final Bitmap finalImage = image;
 
         // Sets the image to the view
         mImageView.setImageBitmap(
@@ -186,7 +195,7 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void onTextRecognized(String text) {
                 //search for ingredients in the INCI db and update the UI
-                AsyncIngredientsExtraction extraction = new AsyncIngredientsExtraction(ResultActivity.this, image);
+                AsyncIngredientsExtraction extraction = new AsyncIngredientsExtraction(ResultActivity.this, finalImage);
                 extraction.execute(text);
             }
 
@@ -225,7 +234,7 @@ public class ResultActivity extends AppCompatActivity {
             final Uri resultUri = UCrop.getOutput(data);
 
             if (resultUri != null) {
-                analyzeImageUpdateUI(resultUri.getPath());
+                analyzeImageUpdateUI(resultUri.getPath(), false);
             }
         }
     }
