@@ -40,6 +40,8 @@ import unipd.se18.textrecognizer.OCR;
 import unipd.se18.textrecognizer.OCRListener;
 import unipd.se18.textrecognizer.TextRecognizer;
 
+import unipd.se18.ocrcamera.forum.Forum;
+
 import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
 
 
@@ -215,6 +217,9 @@ public class ResultActivity extends AppCompatActivity {
                 Intent gallery_intent = new Intent(ResultActivity.this, GalleryActivity.class);
                 startActivity(gallery_intent);
                 return true;
+            case R.id.forum:
+                Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
+                startActivity(forumIntent);
             default:
                 return super.onOptionsItemSelected(item);
         }

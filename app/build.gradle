@@ -32,6 +32,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'com.android.support:support-v4:28.0.0'
@@ -42,6 +43,9 @@ dependencies {
     // Firebase mlkit for text extraction
     implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.google.firebase:firebase-ml-vision:18.0.1'
+
+    // Firebase database
+    implementation 'com.google.firebase:firebase-firestore:17.1.5'
 
     //for json testing
     testImplementation 'org.json:json:20140107'
@@ -75,5 +79,8 @@ dependencies {
 
     // Image processing module
     implementation project(':imageprocessing')
+
+    // Forum module
+    implementation project(':forum')
 }
 apply plugin: 'com.google.gms.google-services'

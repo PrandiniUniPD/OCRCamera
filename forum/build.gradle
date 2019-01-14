@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 28
@@ -6,8 +6,7 @@ android {
 
 
     defaultConfig {
-        applicationId "unipd.se18.ocrcamera.forum"
-        minSdkVersion 22
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
