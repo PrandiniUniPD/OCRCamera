@@ -10,7 +10,7 @@
 
     <!-- Permissions for using the camera - author Pietro Prandini (g2) -->
     <uses-permission android:name="android.permission.CAMERA" />
-    
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -66,7 +66,10 @@
         <activity android:name=".GalleryActivity" />
         <activity android:name=".TestsListActivity" />
         <activity android:name=".TestDetailsActivity" />
-        <activity android:name=".IngredientDetailsActivity" />
+        <activity android:name=".MainAllergensActivity"
+            android:parentActivityName=".ResultActivity"
+            android:windowSoftInputMode="adjustNothing">
+        </activity>
 
         <!-- Activity launched to search for an ingredient -->
         <activity android:name=".SearchResultsActivity">
@@ -79,6 +82,11 @@
         <!-- Declare searchable (ingredient) -->
         <meta-data android:name="android.app.default_searchable" android:value=".SearchResultsActivity"/>
 
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -23,6 +24,11 @@ import org.json.JSONObject;
 import java.util.Iterator;
 
 
+/**
+ * Dialog Fragment that shows details about the ingredient selected such as name, description,
+ * function and an extract from wikipedia.
+ * @author Francesco Pham
+ */
 public class IngredientDetailsFragment extends DialogFragment {
 
     private static final String TAG = "IngredDetailsFragment";
@@ -35,6 +41,13 @@ public class IngredientDetailsFragment extends DialogFragment {
         // Required empty public constructor
     }
 
+    /**
+     * Method for the fragment creation
+     * @param inciName Title to show in the fragment
+     * @param description Description of the ingredient
+     * @param function Functions of the ingredient
+     * @return Returns the fragment created
+     */
     public static IngredientDetailsFragment newInstance(String inciName, String description, String function) {
         IngredientDetailsFragment fragment = new IngredientDetailsFragment();
         Bundle args = new Bundle();
@@ -73,11 +86,18 @@ public class IngredientDetailsFragment extends DialogFragment {
                 }
             });
 
+            //set close button listener
+            final Button closeButton = view.findViewById(R.id.close_button);
+            closeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                }
+            });
+
             // show ingredient information
-            getDialog().setTitle(inciName);
             TextView nameView = view.findViewById(R.id.inci_name_view);
             nameView.setText(inciName);
-            getDialog().getWindow().setLayout(800, 800);
 
             TextView descriptionView = view.findViewById(R.id.description_view);
             descriptionView.setText(description);
@@ -90,10 +110,11 @@ public class IngredientDetailsFragment extends DialogFragment {
             // Get a RequestQueue
             RequestQueueSingleton.getInstance(getActivity()).getRequestQueue();
 
-            // Make request to wikipedia, searching for the ingredient.
+            // Make url
             assert inciName != null;
-            String url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&" +
-                    "exintro&explaintext&redirects=1&titles="+inciName.toLowerCase();
+            final String url = buildWikiUrlRequest(inciName);
+
+            // Make request to wikipedia, searching for ingredient informations.
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
@@ -138,9 +159,26 @@ public class IngredientDetailsFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Build URL for the request to wikipedia of an extract of the given ingredient in json format
+     * @param inciName Inci name of the ingredient to search on wikipedia
+     * @return Url string for the request
+     */
+    private String buildWikiUrlRequest(String inciName){
+        return "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&" +
+                "exintro&explaintext&redirects=1&titles="+inciName.toLowerCase();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+        //set dialog fragment size (width and height values in fragment_ingredients_details.xml do not work)
+        Window window = getDialog().getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
     }
+
+
 }

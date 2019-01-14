@@ -7,12 +7,12 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
@@ -28,8 +28,9 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.imageprocessing.PreProcessing;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -55,6 +56,11 @@ public class ResultActivity extends AppCompatActivity {
     private final String TAG = "ResultActivity";
 
     /**
+     * ImageView of the captured picture
+     */
+    private ImageView mImageView;
+
+    /**
      * listview used to show the ingredients extracted according with the INCI database
      */
     private ListView ingredientsListView;
@@ -70,9 +76,9 @@ public class ResultActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     /**
-     * Contains the last photo taken by the user
+     * text view showing ocr text analyzed highlighting ingredients extracted
      */
-    private Bitmap lastPhoto;
+    private TextView analyzedTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +86,7 @@ public class ResultActivity extends AppCompatActivity {
         setContentView(R.layout.activity_result);
 
         // UI components
-        ImageView mImageView = findViewById(R.id.img_captured_view);
+        mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
         progressBar = findViewById(R.id.progress_bar);
 
@@ -98,7 +104,11 @@ public class ResultActivity extends AppCompatActivity {
         emptyTextView.setText(R.string.finding_text);
         ingredientsListView.setEmptyView(emptyTextView);
 
-        //set on click on ingredient launching IngredientDetailsActivity
+        //show analyzed text view
+        analyzedTextView = new TextView(ResultActivity.this);
+        ingredientsListView.addHeaderView(analyzedTextView);
+
+        //set on click on ingredient launching IngredientDetailsFragment
         ingredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -120,64 +130,107 @@ public class ResultActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         //load the path to the last taken picture, can be null if the user didn't take any picture
-        String lastImagePath = prefs.getString("imagePath", null);
+        final String lastImagePath = prefs.getString("imagePath", null);
 
-        //only if lastImagePath is not null we set our view
         if(lastImagePath != null) {
 
-            // Bitmap of the lastPhoto saved
-            lastPhoto = BitmapFactory.decodeFile(lastImagePath);
-            PreProcessing processing = new PreProcessing();
-            lastPhoto = processing.doImageProcessing(lastPhoto);
-
-            // Sets the image to the view
-            mImageView.setImageBitmap(
-                    // Scales the image firstly
-                    Bitmap.createScaledBitmap(
-                            lastPhoto,
-                            lastPhoto.getWidth(),
-                            lastPhoto.getHeight(),
-                            false
-                    )
-            );
-
-            //create a listener for the end of the text extraction by the OCR
-            OCRListener textExtractionListener = new OCRListener() {
-                //function called when the OCR extraction is finished
+            //launch UCrop on image click
+            mImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onTextRecognized(String text) {
-                    //search for ingredients in the INCI db and update the UI
-                    new AsyncIngredientsExtraction(ResultActivity.this).execute(text);
+                public void onClick(View v) {
+                    final Uri resultImageUri = Uri.fromFile(new File(getCacheDir(),"croppedImg.jpg"));
+                    //Build Uri from image path
+                    Uri.Builder builder = new Uri.Builder().scheme("file").path(lastImagePath);
+                    final Uri captureImageUri = builder.build();
 
-                    //save photo in the gallery and the last recognized text
-                    saveTheResult(text);
+                    //Create a new result file and take his Uri
+                    UCrop.Options options = new UCrop.Options();
+                    options.setHideBottomControls(false);
+                    options.setFreeStyleCropEnabled(true);
+                    options.setActiveWidgetColor(getResources().getColor(R.color.colorPrimary));
+                    options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
+                    options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+                    options.setToolbarTitle(getResources().getString(R.string.focus_on_ingredients));
+                    UCrop.of(captureImageUri, resultImageUri)
+                            .withOptions(options)
+                            .start(ResultActivity.this);
                 }
+            });
 
-                @Override
-                public void onTextRecognizedError(int code) {
+            analyzeImageUpdateUI(lastImagePath);
+        }
+    }
+
+    /**
+     * Show image, extract text from the image, extract ingredients and update UI showing results.
+     * @param imagePath Path of the image which has to be analyzed
+     */
+    private void analyzeImageUpdateUI(final String imagePath) {
+        // get Bitmap of the image
+        final Bitmap image = BitmapFactory.decodeFile(imagePath);
+
+        // Sets the image to the view
+        mImageView.setImageBitmap(
+                // Scales the image firstly
+                Bitmap.createScaledBitmap(
+                        image,
+                        image.getWidth(),
+                        image.getHeight(),
+                        false
+                )
+        );
+
+        //listener for the end of the text extraction by the OCR
+        OCRListener textExtractionListener = new OCRListener() {
+            //function called when the OCR extraction is finished
+            @Override
+            public void onTextRecognized(String text) {
+                //search for ingredients in the INCI db and update the UI
+                AsyncIngredientsExtraction extraction = new AsyncIngredientsExtraction(ResultActivity.this, image);
+                extraction.execute(text);
+            }
+
+            @Override
+            public void onTextRecognizedError(int code) {
                     /*
                      Text not correctly recognized
                      -> prints the error on the screen and doesn't save it in the preferences
                      */
-                    String errorText = R.string.extraction_error
-                            + " (" + R.string.error_code + code + ")";
-                    Log.e(TAG, errorText);
-                }
-            };
-
-            //get an OCR instance
-            OCR textRecognizer = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
-                    textExtractionListener);
-
-            //extract text
-            textRecognizer.getTextFromImg(lastPhoto);
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+                String errorText = R.string.extraction_error
+                        + " (" + R.string.error_code + code + ")";
+                Log.e(TAG, errorText);
+            }
+        };
 
 
-            // Analyze the brightness of the taken photo  @author Balzan Pietro
-            new ASyncBrightnessRecognition(ResultActivity.this).execute(lastPhoto);
+        //get an OCR instance
+        OCR textRecognizer = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
+                textExtractionListener);
+
+        //extract text
+        textRecognizer.getTextFromImg(image);
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+
+
+        // Analyze the brightness of the taken photo  @author Balzan Pietro
+        new ASyncBrightnessRecognition(ResultActivity.this).execute(image);
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP)
+        {
+            //get cropped image and update UI
+            final Uri resultUri = UCrop.getOutput(data);
+
+            if (resultUri != null) {
+                analyzeImageUpdateUI(resultUri.getPath());
+            }
         }
     }
+
+
 
     /**
      * Menu inflater
@@ -219,6 +272,10 @@ public class ResultActivity extends AppCompatActivity {
                 Intent gallery_intent = new Intent(ResultActivity.this, GalleryActivity.class);
                 startActivity(gallery_intent);
                 return true;
+            case R.id.allergens_selection:
+                Intent allergensAct= new Intent(ResultActivity.this, MainAllergensActivity.class);
+                startActivity(allergensAct);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -235,9 +292,11 @@ public class ResultActivity extends AppCompatActivity {
 
         private WeakReference<ResultActivity> activityReference;
         private String correctedText;
+        private Bitmap image;
 
-        AsyncIngredientsExtraction(ResultActivity context){
+        AsyncIngredientsExtraction(ResultActivity context, Bitmap image){
             activityReference = new WeakReference<>(context);
+            this.image = image;
         }
 
         @Override
@@ -262,6 +321,8 @@ public class ResultActivity extends AppCompatActivity {
 
             ResultActivity activity = activityReference.get();
             if (activity == null || activity.isFinishing()) return null;
+
+            //get extractor and corrector from singleton (this may pause until loading is finished)
             IngredientsExtractor extractor = InciSingleton.getInstance(activity).getIngredientsExtractor();
             TextAutoCorrection corrector = InciSingleton.getInstance(activity).getTextCorrector();
 
@@ -269,11 +330,21 @@ public class ResultActivity extends AppCompatActivity {
             if(ocrText == null || ocrText.equals(""))
                 return null;
 
+            long startTime = System.currentTimeMillis();
+
             //correct text
             correctedText = corrector.correctText(ocrText);
 
+            long endCorrectionTime = System.currentTimeMillis();
+
             //extract ingredients
             List<Ingredient> ingredientList = extractor.findListIngredients(correctedText);
+
+            long endExtractionTime = System.currentTimeMillis();
+
+            //log execution time
+            Log.d("IngredientsExtraction", "correction time: "+(endCorrectionTime-startTime)+" ms");
+            Log.d("IngredientsExtraction", "ingredients extraction time: "+(endExtractionTime-endCorrectionTime)+" ms");
 
             //if the list is empty then return null
             if(ingredientList.size() == 0)
@@ -305,41 +376,38 @@ public class ResultActivity extends AppCompatActivity {
                     analyzedText.setSpan(new BackgroundColorSpan(Color.YELLOW),
                             ingred.getStartPositionFound(), ingred.getEndPositionFound()+1, 0);
                 }
-                TextView headerView = new TextView(activity);
-                headerView.setText(analyzedText);
-                activity.ingredientsListView.addHeaderView(headerView);
-            } else
+                activity.analyzedTextView.setText(analyzedText);
+
+                //save image and ingredients extracted in the gallery (Stefano Romanello)
+                activity.saveResultToGallery(image, ingredients);
+            }
+            else {
+                activity.ingredientsListView.setAdapter(null);
                 activity.emptyTextView.setText(R.string.no_ingredient_found);
+            }
         }
-    }
-
-
+}
 
 
     /**
-     * Saves the result obtained in the "prefs" preferences (Context.MODE_PRIVATE)
-     * - the name of the String is "text"
-     * @param text The text extracted by the process
-     * @author Pietro Prandini (g2)
+     * Save the photo using the correct extracted ingredients
+     * @param ingredients List of ingredients extracted using AsyncIngredientsExtraction
+     * @author Romanello Stefano
      */
-    private void saveTheResult(String text) {
-        // Saving in the preferences
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs",
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("text", text);
-        editor.apply();
+    private void saveResultToGallery(Bitmap image, List<Ingredient> ingredients)
+    {
+        ArrayList<String>ingredientsToSave = new ArrayList<>();
+        for (Ingredient ingredient : ingredients) {
+            ingredientsToSave.add(ingredient.getInciName());
+        }
 
-        //I cant understand the ingredients yet, for now I put everything as one ingredient
-        ArrayList<String> txt = new ArrayList<>();
-        String formattedText=String.valueOf(Html.fromHtml(text));
-        txt.add(formattedText);
         try {
-            GalleryManager.storeImage(getBaseContext(),lastPhoto,txt,"0%");
+            GalleryManager.storeImage(image,ingredientsToSave);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     /**
      * ASyncTask for brightness recognition and toast message display when image is too bright or too dark

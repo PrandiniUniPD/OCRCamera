@@ -20,7 +20,7 @@ import edu.gatech.gtri.bktree.MutableBkTree;
  */
 public class TextSplitIngredientsExtractor implements IngredientsExtractor {
 
-    //list of recognized ingredients where are stored informations about ingredients
+    //list where all ingredients from inci db are stored
     private List<Ingredient> listIngredients;
 
     private static final String TAG = "IngredientsExtractor";
@@ -70,7 +70,7 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
     /**
      * This method extract ingredients from the ocr text and returns the list of ingredients.
      * @param text The entire OCR text
-     * @return List of Ingredient objects where are stored ingredient's informations, empty list if no ingredients are found
+     * @return List of extracted ingredients, empty list if no ingredients are found
      * @author Francesco Pham
      */
     @Override
@@ -81,7 +81,7 @@ public class TextSplitIngredientsExtractor implements IngredientsExtractor {
         //maximum accepted distance between block of text and inci name
         final double maxDistance = 0.2;
 
-        //split the text by each comma or dot
+        //split the text by symbols
         text = text.toUpperCase();
         String[] splittedText = text.trim().split("[,.:)(]+");
 
