@@ -171,10 +171,8 @@ public class ResultActivity extends AppCompatActivity {
         // get Bitmap of the image
         Bitmap image = BitmapFactory.decodeFile(imagePath);
 
-        if(autoSkew) {
-            PreProcessing processing = new PreProcessing();
-            image = processing.doImageProcessing(image);
-        }
+        PreProcessing processing = new PreProcessing();
+        image = processing.doImageProcessing(image, autoSkew);
 
         final Bitmap finalImage = image;
 
