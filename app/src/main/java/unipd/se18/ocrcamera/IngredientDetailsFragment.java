@@ -46,7 +46,7 @@ public class IngredientDetailsFragment extends DialogFragment {
      * @param inciName Title to show in the fragment
      * @param description Description of the ingredient
      * @param function Functions of the ingredient
-     * @return
+     * @return Returns the fragment created
      */
     public static IngredientDetailsFragment newInstance(String inciName, String description, String function) {
         IngredientDetailsFragment fragment = new IngredientDetailsFragment();
@@ -110,10 +110,11 @@ public class IngredientDetailsFragment extends DialogFragment {
             // Get a RequestQueue
             RequestQueueSingleton.getInstance(getActivity()).getRequestQueue();
 
-            // Make request to wikipedia, searching for ingredient informations.
+            // Make url
             assert inciName != null;
-            final String url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&" +
-                    "exintro&explaintext&redirects=1&titles="+inciName.toLowerCase();
+            final String url = buildWikiUrlRequest(inciName);
+
+            // Make request to wikipedia, searching for ingredient informations.
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
@@ -158,6 +159,16 @@ public class IngredientDetailsFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Build URL for the request to wikipedia of an extract of the given ingredient in json format
+     * @param inciName Inci name of the ingredient to search on wikipedia
+     * @return Url string for the request
+     */
+    private String buildWikiUrlRequest(String inciName){
+        return "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&" +
+                "exintro&explaintext&redirects=1&titles="+inciName.toLowerCase();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -168,4 +179,6 @@ public class IngredientDetailsFragment extends DialogFragment {
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
     }
+
+
 }
