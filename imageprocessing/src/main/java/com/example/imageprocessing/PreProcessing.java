@@ -266,7 +266,7 @@ public class PreProcessing implements PreProcessingMethods {
 
 
     /**
-     * @author Thomas Porro(g1), Oscar Garrido (g1), Giovanni Fasan(g1).
+     * @author Thomas Porro(g1), Oscar Garrido (g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
      * See PreProcessingMethods.java
      */
     @Override
