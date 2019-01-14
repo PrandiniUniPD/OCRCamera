@@ -8,7 +8,7 @@ import android.util.Log;
  */
 class LibraryLoaderSingletone {
 
-    private final static String TAG = "openCV";
+    private final static String TAG = "Singleton openCV";
     private static LibraryLoaderSingletone myLibrary;
 
     /**
