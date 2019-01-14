@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">OCRCamera</string>
+    <string name="app_name">ToolbarTest</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera</string>
+    <string name="test_imagine">test_imagine</string>
+    <string name="test_image">immagine di prova</string>
+    <string name="cameraTextView">Camera Text View</string>
+    <string name="action_bar_camera_button_description">action bar camera button</string>
+    <string name="action_bar_gallery_button_description">action bar gallery button</string>
+    <string name="action_bar_settings_button_description">action bar settings button</string>
+    <string name="settingsTextView">settings textview</string>
 </resources>

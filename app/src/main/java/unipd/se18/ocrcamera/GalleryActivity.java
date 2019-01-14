@@ -6,20 +6,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.LinearLayout;
 
-public class CameraActivity extends AppCompatActivity {
+public class GalleryActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = "CameraActivity";
+    private static final String LOG_TAG = "GalleryActivity";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.camera_activity);
+        setContentView(R.layout.gallery_layout);
+
         String msg = "onCreate:";
         Log.d(LOG_TAG, msg);
 
-        //set emphasis to the corresponding activity button
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.action_bar_linear_layout);
-        ActionBarFragment.enphasizeButton(linearLayout, R.id.action_bar_camera_button);
+        LinearLayout ll = (LinearLayout) findViewById(R.id.action_bar_linear_layout);
+        ActionBarFragment.enphasizeButton(ll,R.id.action_bar_gallery_button);
     }
 
     @Override

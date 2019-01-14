@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/action_bar_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:padding="0dp">
+
+        <ImageButton
+            android:id="@+id/action_bar_camera_button"
+            android:contentDescription="@string/action_bar_camera_button_description"
+            style="@style/ActionButtonStyle"
+            android:src="@drawable/ic_camera_action_button_src" />
+
+        <ImageButton
+            android:id="@+id/action_bar_gallery_button"
+            android:contentDescription="@string/action_bar_gallery_button_description"
+            style="@style/ActionButtonStyle"
+            android:src="@drawable/ic_gallery_action_button_src" />
+
+        <ImageButton
+            android:id="@+id/action_bar_settings_button"
+            android:contentDescription="@string/action_bar_settings_button_description"
+            style="@style/ActionButtonStyle"
+            android:src="@drawable/ic_settings_action_button_src" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
