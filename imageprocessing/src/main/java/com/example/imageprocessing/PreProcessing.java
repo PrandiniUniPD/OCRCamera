@@ -30,7 +30,6 @@ public class PreProcessing implements PreProcessingMethods {
     //Tag used to identify the log
     private final String TAG = "PreProcessing";
 
-
     /**
      * Constructor of the class which initialize the openCV library
      * @author Thomas Porro (g1)
@@ -159,25 +158,31 @@ public class PreProcessing implements PreProcessingMethods {
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
      */
     private BrightnessValue isBright(Mat imageMat){
-        //Converts the image into a matrix
-        Mat brightnessMat = new Mat();
+        Mat rgbImageMat = new Mat();
 
-        //Changes the format of the matrix into a RGB one
-        Imgproc.cvtColor(imageMat, brightnessMat, Imgproc.COLOR_RGBA2RGB);
+        /*
+         Changes the format of the matrix into an RGB one, so we are now able to
+         split the color with the Core.split method
+        */
+        Imgproc.cvtColor(imageMat, rgbImageMat, Imgproc.COLOR_RGBA2RGB);
 
         //Obtain 3 different matrix with the 3 elemental colors
-        List<Mat> color = new ArrayList<>();
-        Core.split(brightnessMat, color);
+        List<Mat> imageColors = new ArrayList<>();
+        Core.split(rgbImageMat, imageColors);
 
         /*Each color is multiplied with his luminance.
           The colors are in order RGB, so to access the che color I use the number 0, 1, 2 in order
-          For more informations see https://en.wikipedia.org/wiki/Relative_luminance*/
+          For more informations see https://en.wikipedia.org/wiki/Relative_luminance
+		  */
+		final double RED_LUMINANCE = 0.2126;
+		final double GREEN_LUMINANCE = 0.7152;
+		final double BLUE_LUMINANCE = 0.0722;
         Mat redLuminance = new Mat();
-        Core.multiply(color.get(0), new Scalar(0.2126), redLuminance);
+        Core.multiply(imageColors.get(0), new Scalar(RED_LUMINANCE), redLuminance);
         Mat greenLuminance= new Mat();
-        Core.multiply(color.get(1), new Scalar(0.7152), greenLuminance);
+        Core.multiply(imageColors.get(1), new Scalar(GREEN_LUMINANCE), greenLuminance);
         Mat blueLuminance = new Mat();
-        Core.multiply(color.get(2), new Scalar(0.0722), blueLuminance);
+        Core.multiply(imageColors.get(2), new Scalar(BLUE_LUMINANCE), blueLuminance);
 
         //Sums the matrix of the colors into a single one
         Mat tempLuminance = new Mat();
@@ -187,22 +192,12 @@ public class PreProcessing implements PreProcessingMethods {
 
         //Calculate the sum of the values of all pixels
         Scalar sum = Core.sumElems(totalLuminance);
-
-        //Determines the image's bit
-        int bit;
-        switch ( brightnessMat.depth() ) {
-            case CV_8U:  bit = 8; break;
-            case CV_8S:  bit = 8; break;
-            case CV_16U: bit = 16; break;
-            case CV_16S: bit = 16; break;
-            case CV_32S: bit = 32; break;
-            case CV_32F: bit = 32; break;
-            case CV_64F: bit = 64; break;
-            default: return BrightnessValue.IMAGE_IS_OK;
-        }
-        //Calculate the percentage of the brightness
-        double brightness = sum.val[0]/((Math.pow(2,bit)-1)*brightnessMat.rows()
-                *brightnessMat.cols())*2;
+        
+		/*Calculate the percentage of the brightness. Since the value of the colors go
+          from 0 to 255 a pixel can contain the value 255 = 2^8-1*/
+        final double PIXEL_MAX_VALUE = (Math.pow(2,8)-1);
+        double numberOfBits = PIXEL_MAX_VALUE * brightnessMat.rows() * brightnessMat.cols();
+        double percentageBrightness = sum.val[0]/numberOfBits;
 
         Log.d(TAG, "Brightness:"+brightness);
 
@@ -319,13 +314,13 @@ public class PreProcessing implements PreProcessingMethods {
      * See PreProcessingMethods.java
      */
     @Override
-    public boolean isBlurred(Bitmap image) {
+    public BlurValue isBlurred(Bitmap image) {
 
-        //Total number of color
+        //Total number of color of RGB: 256 each color, so 256^3 
         int maxLap = -16777216;
 
         //Threshold above which the color is out of focus
-        final int threshold = -6118750;
+        final int OUT_OF_FOCUS_THRESHOLD = -6118750;
 
         //Converts the image into a matrix
         Mat imageMat;
@@ -333,7 +328,7 @@ public class PreProcessing implements PreProcessingMethods {
             imageMat = IPUtils.conversionBitmapToMat(image);
         } catch (ConversionFailedException error){
             Log.e(TAG, error.getErrorMessage());
-            return false;
+            return BlurValue.IMAGE_NOT_ANALYZED;
         }
 
         //Turn the colored matrix into a grayscale matrix
@@ -354,7 +349,7 @@ public class PreProcessing implements PreProcessingMethods {
             laplacianImage = IPUtils.conversionMatToBitmap(laplacianMat8Bit);
         } catch (ConversionFailedException error){
             Log.e(TAG, error.getErrorMessage());
-            return false;
+            return BlurValue.IMAGE_NOT_ANALYZED;
         }
 
         //Extracts all the pixels of the laplacian image into the array
@@ -372,12 +367,14 @@ public class PreProcessing implements PreProcessingMethods {
         }
 
         //Verify if the image is blurred
-        if(maxLap < threshold){
+        if(maxLap < OUT_OF_FOCUS_THRESHOLD){
             Log.d("Blur", "IS BLURRED");
+			return BlurValue.IMAGE_BLURRED;
         } else {
             Log.d("Blur", "IS NOT BLURRED");
+			return BlurValue.IMAGE_NOT_BLURRED;
         }
-        return maxLap < threshold;
+        return maxLap < OUT_OF_FOCUS_THRESHOLD;
     }
 
 
