@@ -67,6 +67,7 @@
         <activity android:name=".TestsListActivity" />
         <activity android:name=".TestDetailsActivity" />
         <activity android:name=".IngredientDetailsActivity" />
+        <activity android:name=".StatCalculatorActivity"/>\1
 
         <!-- Activity launched to search for an ingredient -->
         <activity android:name=".SearchResultsActivity">

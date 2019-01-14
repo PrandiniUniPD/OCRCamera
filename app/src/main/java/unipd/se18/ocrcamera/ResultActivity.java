@@ -28,9 +28,15 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import unipd.se18.ocrcamera.inci.Ingredient;
@@ -90,6 +96,7 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
             }
         });
+        StatisticManager manager = new StatisticManager(getApplicationContext());
 
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
@@ -216,6 +223,9 @@ public class ResultActivity extends AppCompatActivity {
                 Intent gallery_intent = new Intent(ResultActivity.this, GalleryActivity.class);
                 startActivity(gallery_intent);
                 return true;
+            case R.id.stats:
+                Intent statistics_intent = new Intent(ResultActivity.this, StatCalculatorActivity.class);
+                startActivity(statistics_intent);
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -308,6 +318,9 @@ public class ResultActivity extends AppCompatActivity {
 
                 //save image and ingredients extracted in the gallery
                 activity.saveResultToGallery(ingredients);
+
+                ////////////////////////////////////////// Leonardo Pratesi stat analyzer
+                //activity.updateMap(ingredients);
             }
             else
                 activity.emptyTextView.setText(R.string.no_ingredient_found);
