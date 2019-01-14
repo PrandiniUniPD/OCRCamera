@@ -23,6 +23,10 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import unipd.se18.ocrcamera.inci.Ingredient;
+import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 
 
 /**
@@ -89,14 +93,12 @@ public class GalleryManager
 
     /**
      * Stores image and metadata
-     * @param context The reference to the activity where the gallery is displayed
      * @param toStore The image with the corresponding ingredients that has to be stored
      * @param ingredients The ingredients that has to be stored with the image
-     * @param reliability The OCR reliability on the photo
      * @throws IOException if an error occurs during image saving or metadata writing
      * @author Leonardo Rossi
      */
-    public static void storeImage(Context context, Bitmap toStore, ArrayList<String> ingredients, String reliability) throws IOException
+    public static void storeImage(Bitmap toStore, ArrayList<String> ingredients) throws IOException
     {
         //Images directory reference set up
         setupImageDirectoryInfo();
@@ -116,7 +118,7 @@ public class GalleryManager
         //Storing the given image into a file
         String filePath = saveToFile(toStore, imageName);
         //Metadata writing
-        writeMetadata(filePath, ingredients, reliability);
+        writeMetadata(filePath, ingredients);
     }
 
 
@@ -162,13 +164,12 @@ public class GalleryManager
             //Ingredients are read from image metadata
             ExifInterface metadataReader = new ExifInterface(image.getAbsolutePath());
             String ingredients = metadataReader.getAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION);
-            String reliability = metadataReader.getAttribute(ExifInterface.TAG_USER_COMMENT);
             //A PhotoStructure object is built so that it can contain all image's information
             PhotoStructure structure = new PhotoStructure();
             structure.ingredients.add(ingredients);
             structure.photo = BitmapFactory.decodeFile(image.getAbsolutePath());
-            structure.reliability = reliability;
             structure.fileImagePath = image.getPath();
+
             return structure;
         }
         catch (IOException e)
@@ -204,11 +205,10 @@ public class GalleryManager
      * Writes the specified metadata to the image
      * @param path The path of the image to which the metadata have to be written
      * @param ingredients The information that has to be stored with the image
-     * @param  reliability The OCR reliability on the photo
      * @throws IOException if it's impossible to reach the file at the specified path
      * @author Leonardo Rossi
      */
-    private static void writeMetadata(String path, ArrayList<String> ingredients, String reliability) throws IOException
+    private static void writeMetadata(String path, ArrayList<String> ingredients) throws IOException
     {
         ExifInterface metadataWriter = new ExifInterface(path);
 
@@ -218,7 +218,7 @@ public class GalleryManager
                 .trim();
 
         metadataWriter.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, ingredientsString);
-        metadataWriter.setAttribute(ExifInterface.TAG_USER_COMMENT, reliability);
+        //Another field to use could be ExifInterface.TAG_USER_COMMENT
 
         //Saves metadata to the image
         metadataWriter.saveAttributes();
@@ -231,14 +231,13 @@ public class GalleryManager
     public static class PhotoStructure implements Serializable
     {
         public Bitmap photo;
-        public String reliability;
         public String fileImagePath;
         public ArrayList<String> ingredients = new ArrayList();
     }
 
 
     /**
-     * Adapter for the cardView in the UI. Load the cards with images and reliability inside the recycler view
+     * Adapter for the cardView in the UI. Load the cards with images inside the recycler view
      * @author Romanello Stefano
      * @request need the activity context and ArrayList<PhotoStructure> of photos to load.
      */
@@ -280,10 +279,12 @@ public class GalleryManager
             View view = LayoutInflater.from(parent.getContext()) .inflate(R.layout.cardlayoutgallery, parent, false);
             final CardViewHolder cardViewHolder = new CardViewHolder(view);
 
+            //setOnClickListener of the desired card
             //Load the fragment of the deailed photo
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //Understand which image ive clicked
                     int position = cardViewHolder.getAdapterPosition();
 
                     FragmentManager fm = ((GalleryActivity)mainActivity).getSupportFragmentManager();
@@ -292,6 +293,7 @@ public class GalleryManager
                     //Create fragment and pass the parameters as bundle
                     GalleryActivity.DetailFragment detailedFragment = new GalleryActivity.DetailFragment();
                     Bundle bundle = new Bundle();
+                    //Obtain the object PhotoStructure from the list using the position.
                     bundle.putSerializable(mainActivity.getString(R.string.serializableObjectName),photosList.get(position));
                     detailedFragment.setArguments(bundle);
 
@@ -326,8 +328,22 @@ public class GalleryManager
             holder.imageView.setImageBitmap(resize(lastPhoto,WIDTHSIZECARD,HEIGHTSIZECARD));
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            //Set txtView properties with reliability
-            holder.txtTitle.setText("Reliability: "+currentPhoto.reliability);
+            //Set txtView properties with the number of allergens found
+
+
+            //Get a single string with all ingredients fount from the ocr
+            String formattedIngredients = currentPhoto.ingredients.toString()
+                    .replace("[", "")  //remove the right bracket
+                    .replace("]", "")  //remove the left bracket
+                    .trim();
+
+            IngredientsExtractor extractor = InciSingleton.getInstance(mainActivity).getIngredientsExtractor();
+            List<Ingredient> ingredientsToScan = extractor.findListIngredients(formattedIngredients);
+
+            //ArrayList<Allergen> allergensFound = InciSingleton.getInstance(mainActivity).getAllergensManager().checkListForSelectedAllergens(ingredientsToScan);
+            AllergensManager test = new AllergensManager(mainActivity);
+            ArrayList<Allergen> allergensFound = test.checkListForSelectedAllergens(ingredientsToScan);
+            holder.txtTitle.setText(allergensFound.size()+ " allergens found");
         }
 
         /**
@@ -368,7 +384,7 @@ public class GalleryManager
          * @return the resized image
          * @author Romanello Stefano
          */
-        private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
+        public static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
             if (maxHeight > 0 && maxWidth > 0) {
                 int width = image.getWidth();
                 int height = image.getHeight();

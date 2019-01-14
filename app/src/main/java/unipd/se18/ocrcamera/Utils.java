@@ -37,8 +37,8 @@ public class Utils {
     }
 
     /**
-     * Convert exit orientation information from image into degree
-     * @param exifOrientation
+     * Convert exif orientation information from image into degree
+     * @param exifOrientation Exif orientation value
      * @return degree
      * @author Francesco Pham
      */

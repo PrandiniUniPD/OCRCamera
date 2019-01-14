@@ -4,7 +4,6 @@
 
     <item android:id="@+id/search"
         android:title="@string/search_title"
-        android:icon="@drawable/ic_search"
         app:showAsAction="always"
         app:actionViewClass="android.widget.SearchView" />
 
@@ -15,6 +14,8 @@
         android:title="Download Photos"/>
     <item android:id="@+id/gallery"
         android:title="Gallery"/>
+    <item android:id="@+id/allergens_selection"
+        android:title="allergens selection"/>
     <item android:id="@+id/forum"
         android:title="@string/forum"/>
 </menu>
