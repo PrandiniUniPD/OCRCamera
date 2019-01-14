@@ -320,13 +320,36 @@ public class ResultActivity extends AppCompatActivity {
                 activity.saveResultToGallery(ingredients);
 
                 ////////////////////////////////////////// Leonardo Pratesi stat analyzer
-                //activity.updateMap(ingredients);
+                activity.updateMap(ingredients);
             }
             else
                 activity.emptyTextView.setText(R.string.no_ingredient_found);
         }
 }
 
+    /**
+     * update the map and saves it
+     * @param
+     * @param ingredients
+     * @author Leonardo Pratesi
+     *
+     */
+    public void updateMap(List<Ingredient> ingredients) {
+        StatisticManager manager = new StatisticManager(getApplicationContext());
+        if (ingredients != null){
+            HashMap<String, Integer> temp = manager.loadMap();
+            for (Ingredient s : ingredients) {
+                if (temp.containsKey(s.getInciName().toUpperCase()))
+                    temp.put(s.getInciName(), temp.get(s.getInciName()) + 1);
+
+                else {
+                    temp.put(s.getInciName(), 1);
+                }
+            }
+            manager.saveMap(temp);
+        }
+        else {}
+    }
 
     /**
      * Save the photo using the correct extracted ingredients
