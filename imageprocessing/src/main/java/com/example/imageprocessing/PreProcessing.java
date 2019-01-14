@@ -353,9 +353,11 @@ public class PreProcessing implements PreProcessingMethods {
      * See PreProcessingMethods.java
      */
     @Override
-    public Bitmap doImageProcessing(Bitmap image) {
+    public Bitmap doImageProcessing(Bitmap image, boolean autoSkew) {
         //Call methods that perform the image processing
         Bitmap modifiedBright = editBright(image);
-        return editSkew(modifiedBright);
+        if(autoSkew)
+            modifiedBright = editSkew(modifiedBright);
+        return modifiedBright;
     }
 }
