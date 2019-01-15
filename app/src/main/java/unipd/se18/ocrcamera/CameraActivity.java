@@ -19,7 +19,7 @@ public class CameraActivity extends AppCompatActivity {
 
         //set emphasis to the corresponding activity button
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.action_bar_linear_layout);
-        ActionBarFragment.enphasizeButton(linearLayout, R.id.action_bar_camera_button);
+        ActionBarFragment.emphasizeButton(linearLayout, R.id.action_bar_camera_button);
     }
 
     @Override

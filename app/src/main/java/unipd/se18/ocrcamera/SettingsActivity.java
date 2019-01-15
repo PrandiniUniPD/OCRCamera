@@ -17,7 +17,7 @@ public class SettingsActivity extends AppCompatActivity {
         Log.d(LOG_TAG, msg);
 
         LinearLayout ll = (LinearLayout) findViewById(R.id.action_bar_linear_layout);
-        ActionBarFragment.enphasizeButton(ll,R.id.action_bar_settings_button);
+        ActionBarFragment.emphasizeButton(ll,R.id.action_bar_settings_button);
     }
 
     @Override
