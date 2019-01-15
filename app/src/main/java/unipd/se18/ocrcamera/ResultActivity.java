@@ -160,7 +160,7 @@ public class ResultActivity extends AppCompatActivity {
                 }
             });
 
-            //analyzeImageUpdateUI(lastImagePath, true);
+            analyzeImageUpdateUI(lastImagePath, true); //TODO not work on virtual machine
         }
     }
 
