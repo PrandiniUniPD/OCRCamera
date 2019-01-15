@@ -160,7 +160,7 @@ public class ResultActivity extends AppCompatActivity {
                 }
             });
 
-            analyzeImageUpdateUI(lastImagePath, true);
+            //analyzeImageUpdateUI(lastImagePath, true);
         }
     }
 
@@ -170,6 +170,7 @@ public class ResultActivity extends AppCompatActivity {
      * @param autoSkew True if automatic rotation of the image is required, false otherwise.
      */
     private void analyzeImageUpdateUI(final String imagePath, boolean autoSkew) {
+
         // get Bitmap of the image
         Bitmap image = BitmapFactory.decodeFile(imagePath);
 

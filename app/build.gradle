@@ -75,6 +75,8 @@ dependencies {
     //for image cropping
     implementation 'com.github.yalantis:ucrop:2.2.2-native'
 
+    implementation 'com.android.support:design:28.0.0'
+
     // Image processing module
     implementation project(':imageprocessing')
 
