@@ -45,8 +45,8 @@ import unipd.se18.ocrcamera.inci.Ingredient;
 
 /**
  * Class to show the statistics about ingredients
- * @author Leonardo Pratesi
- */
+ * @author Leonardo Pratesi                                          //LINES CALCULATED 200(statcalculatoractivity) + 150(statisticmanager) + 50(blurobject) + 150(blurgalleryactivity) + 100(blurobjectadapter) + 50(galleryactivity) + 50(resultactivity)
+ */                                                                  // 200+150+50+150+100+50+50 = 750
 public class StatCalculatorActivity extends AppCompatActivity {
 
 
@@ -66,14 +66,15 @@ public class StatCalculatorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StatisticManager manager = new StatisticManager(getApplicationContext());
+        //load map
         statmap = manager.loadMap();
-
         Log.i("HASHFINAL", statmap.toString());
         setContentView(R.layout.activity_stat_calculator);
+        //objectview of the BarChart
         mChart = (HorizontalBarChart) findViewById(R.id.chart1);
 
         //set graph
-        setData(12, 50);
+        setData();
 
     }
 
@@ -103,15 +104,20 @@ public class StatCalculatorActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
+        StatisticManager manager = new StatisticManager(getApplicationContext());
         switch (item.getItemId()) {
             case R.id.statsDelete:
-                StatisticManager manager = new StatisticManager(getApplicationContext());
                 manager.resetStats();
                 finish();
                 Toast.makeText(this, "statsCleared", Toast.LENGTH_LONG).show();
                 return true;
-
-                default:
+            case R.id.sort:
+                statmap = manager.sortMap(statmap);
+                setContentView(R.layout.activity_stat_calculator);
+                mChart = (HorizontalBarChart) findViewById(R.id.chart1);
+                setData();
+                return true;
+            default:
                 return super.onOptionsItemSelected(item);
         }
 
@@ -119,11 +125,9 @@ public class StatCalculatorActivity extends AppCompatActivity {
 
     /**
      * method to populate the chart
-     * @param count
-     * @param range
      * @author Leonardo Pratesi
      */
-    private void setData(int count, int range) {
+    private void setData() {
 
         ArrayList<BarEntry> yVals = new ArrayList<>(); //values
         ArrayList<String> xVals = new ArrayList<>();   //keys
@@ -155,10 +159,7 @@ public class StatCalculatorActivity extends AppCompatActivity {
         //set the number of names shown (always maximum here)
         xAxis.setLabelCount(statmap.size(),false);
 
-
-
-
-
+        //show all the ingredients name
         xAxis.setValueFormatter(new MyXAxisValueFormatter(xValsToString));
 
         //see barChart column values

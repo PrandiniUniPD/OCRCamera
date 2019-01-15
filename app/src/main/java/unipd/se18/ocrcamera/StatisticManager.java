@@ -9,7 +9,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -130,11 +135,26 @@ public class StatisticManager {
     }
 
     /**
-     * Method to sort the map by value
+     * Method to sort the map by value -
      */
     //TODO do this method (should check that does not sort the wrong map)
-    public void sortMap() {
+    //TODO why choose HashMap instead of Map?
+    public HashMap<String, Integer> sortMap(HashMap<String, Integer> hashMap)  {
+            List<Map.Entry<String, Integer>> list = new LinkedList(hashMap.entrySet());
+            Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+                @Override
+                public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            });
 
-    }
+            HashMap<String, Integer> result = new LinkedHashMap<>();
+            for (Map.Entry<String, Integer> entry : list) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+            Log.i("sort", "sorted");
+            return result;
+        }
 }
+
 
