@@ -28,6 +28,8 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.opencv.android.OpenCVLoader;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -83,6 +85,17 @@ public class ResultActivity extends AppCompatActivity {
      *  false by standard because result activity is opened first if there is no old photo
      */
     private boolean imageTaken;
+
+    /**
+     * initialization of OpenCV
+     *
+     */
+    static {
+        System.loadLibrary("opencv_java");
+        if (!OpenCVLoader.initDebug()) {
+            // Handle initialization error
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
