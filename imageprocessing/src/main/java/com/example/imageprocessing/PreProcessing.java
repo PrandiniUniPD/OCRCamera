@@ -101,7 +101,8 @@ public class PreProcessing implements PreProcessingMethods {
         }
 
         //Calculate the meanAngle by dividing it with the number of rows
-        meanAngle /= lines.rows();
+        if(lines.rows() == 0) meanAngle = 0;
+        else meanAngle /= lines.rows();
 
         //Transform the angle in degrees
         double degreesAngle = Math.toDegrees(meanAngle);
