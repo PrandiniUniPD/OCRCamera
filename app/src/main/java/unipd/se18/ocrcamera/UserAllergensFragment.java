@@ -22,18 +22,25 @@ public class UserAllergensFragment extends Fragment {
     private AllergensManager mAllergensManager;
     private AllergenListAdapter mAllergensListAdapter;
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //the inflater is not considered as child of "parent"
+        final boolean isParent = false;
+
+        return inflater.inflate(R.layout.fragment_users_allergens, container,  isParent);
+    }
+
     /**
      * This method is used to get the View that will make the fragment' layout in the Activity
-     * @param inflater
-     * @param container
+     * @param fragmentView the view that was inflated in onCreateView
      * @param savedInstanceState
      * @return fragmentView
      * @author Pietro Balzan
      */
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View fragmentView= inflater.inflate(R.layout.fragment_users_allergens, container,  false);
+    public void onViewCreated(@NonNull View fragmentView, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(fragmentView, savedInstanceState);
         mAllergensListView = (ListView) fragmentView.findViewById(R.id.users_allergens_list_view);
 
         mAllergensManager = InciSingleton.getInstance(getActivity()).getAllergensManager();
@@ -42,7 +49,6 @@ public class UserAllergensFragment extends Fragment {
         //create mAllergensListAdapter with the list of the users' allergens
         mAllergensListAdapter= new AllergenListAdapter(getActivity(), R.layout.allergen_single, userList);
         mAllergensListView.setAdapter(mAllergensListAdapter);
-        return fragmentView;
     }
 
     /**

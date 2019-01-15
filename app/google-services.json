@@ -1,27 +1,58 @@
 {
   "project_info": {
-    "project_number": "148989252526",
-    "firebase_url": "https://gruppo1ingsw1819.firebaseio.com",
-    "project_id": "gruppo1ingsw1819",
-    "storage_bucket": "gruppo1ingsw1819.appspot.com"
+    "project_number": "524098709276",
+    "firebase_url": "https://elementiunipdforum.firebaseio.com",
+    "project_id": "elementiunipdforum",
+    "storage_bucket": "elementiunipdforum.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:148989252526:android:eeb1c8433d22ba11",
+        "mobilesdk_app_id": "1:524098709276:android:eeb1c8433d22ba11",
         "android_client_info": {
           "package_name": "unipd.se18.ocrcamera"
         }
       },
       "oauth_client": [
         {
-          "client_id": "148989252526-o2repli8pa7bs3gncg27th5a51hkfum2.apps.googleusercontent.com",
+          "client_id": "524098709276-ctk0n6tv3cp134cbdctgcnauklduj1ck.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAatL4jOpv6-IIpBlBc9TDffLgpNiyFJjI"
+          "current_key": "AIzaSyBHfl9FJQIImMUX1ZHZkDWzUR13Ql01LWM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:524098709276:android:e0c4dbcd59b93ff3",
+        "android_client_info": {
+          "package_name": "unipd.se18.ocrcamera.forum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "524098709276-ctk0n6tv3cp134cbdctgcnauklduj1ck.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHfl9FJQIImMUX1ZHZkDWzUR13Ql01LWM"
         }
       ],
       "services": {
