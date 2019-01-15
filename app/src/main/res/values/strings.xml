@@ -53,6 +53,7 @@
     <string name="confidence">confidence</string>
     <string name="drawer_menu_item_Allergens">Allergen Selection</string>
     <string name="drawer_menu_item_Gallery">Gallery</string>
+    <string name="drawer_menu_item_forum">Forum</string>
 
     <!--List of strings for MainAllergensActivity-->
     <string name="allergens_search_bar">Type an allergen name</string>
@@ -72,5 +73,6 @@
     <string name="too_dark_picture">The picture might be too dark</string>
     <string name="empty_ingredients_list_message">Nothing found</string>
     <string name="download_test_pics">No test pics fond, download them please.</string>
+    <string name="forum">Forum</string>
     <string name="selected_allergens_sharedPref">unipd.se18.ocrcamera.SELECTED_ALLERGENS</string>
 </resources>

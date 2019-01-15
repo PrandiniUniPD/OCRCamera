@@ -16,4 +16,6 @@
         android:title="Gallery"/>
     <item android:id="@+id/allergens_selection"
         android:title="allergens selection"/>
+    <item android:id="@+id/forum"
+        android:title="@string/forum"/>
 </menu>

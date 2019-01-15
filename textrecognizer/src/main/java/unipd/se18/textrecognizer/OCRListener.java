@@ -11,6 +11,11 @@ public interface OCRListener {
     int FAILURE = 0;
 
     /**
+     * Code of the bitmap is null failure
+     */
+    int BITMAP_IS_NULL_FAILURE = 1;
+
+    /**
      * Method called when an extraction is successfully completed.
      * @param text The String of the text recognized (empty String if nothing is recognized)
      */

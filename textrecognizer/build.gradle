@@ -22,6 +22,9 @@ android {
         }
     }
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -36,4 +39,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.google.firebase:firebase-ml-vision:18.0.1'
 
+    // For testing
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'androidx.test:core:1.1.0'
+    testImplementation 'org.mockito:mockito-core:2.23.4'
+    testImplementation 'org.json:json:20180813'
+    androidTestImplementation 'org.mockito:mockito-core:2+'
+    androidTestImplementation 'org.mockito:mockito-android:2+'
 }

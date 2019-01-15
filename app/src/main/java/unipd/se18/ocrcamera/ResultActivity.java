@@ -50,6 +50,8 @@ import unipd.se18.textrecognizer.OCR;
 import unipd.se18.textrecognizer.OCRListener;
 import unipd.se18.textrecognizer.TextRecognizer;
 
+import unipd.se18.ocrcamera.forum.Forum;
+
 import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
 
 
@@ -170,7 +172,7 @@ public class ResultActivity extends AppCompatActivity {
                 }
             });
 
-            analyzeImageUpdateUI(lastImagePath, true);
+            analyzeImageUpdateUI(lastImagePath, true); //TODO not work on virtual machine
         }
 
         //Set the toolbar as the action bar
@@ -198,6 +200,9 @@ public class ResultActivity extends AppCompatActivity {
                             case R.id.gallery_activity:
                                 startActivity(new Intent (ResultActivity.this, GalleryActivity.class));
                                 return true;
+                            case R.id.forum_activity:
+                                Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
+                                startActivity(forumIntent);
                         }
 
                         return false;
@@ -213,6 +218,7 @@ public class ResultActivity extends AppCompatActivity {
      * @param autoSkew True if automatic rotation of the image is required, false otherwise.
      */
     private void analyzeImageUpdateUI(final String imagePath, boolean autoSkew) {
+
         // get Bitmap of the image
         Bitmap image = BitmapFactory.decodeFile(imagePath);
 
@@ -320,14 +326,6 @@ public class ResultActivity extends AppCompatActivity {
                 Intent download_intent = new Intent(ResultActivity.this,
                         DownloadDbActivity.class);
                 startActivity(download_intent);
-                return true;
-            case R.id.gallery:
-                Intent gallery_intent = new Intent(ResultActivity.this, GalleryActivity.class);
-                startActivity(gallery_intent);
-                return true;
-            case R.id.allergens_selection:
-                Intent allergensAct= new Intent(ResultActivity.this, MainAllergensActivity.class);
-                startActivity(allergensAct);
                 return true;
             case android.R.id.home:   //menu button is pressed
                 mDrawerLayout.openDrawer(GravityCompat.START);
