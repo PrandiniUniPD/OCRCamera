@@ -131,7 +131,7 @@ public class StatCalculatorActivity extends AppCompatActivity {
         int columnNumber = 0;
         for (Map.Entry<String, Integer> entry : statmap.entrySet()) {
                     yVals.add(new BarEntry(columnNumber, entry.getValue()));
-                    xVals.add(entry.getKey());
+                    xVals.add(trimStringIfTooLong(entry.getKey()));
                     columnNumber++;
 
         }
@@ -163,6 +163,20 @@ public class StatCalculatorActivity extends AppCompatActivity {
 
         //see barChart column values
         mChart.getAxisRight().setDrawLabels(false);
+    }
+
+    /**
+     * Method to cut the names of the ingredients that are too long
+     * @param inciname name of the ingredient that need to be trimmed
+     * @return trimmed string
+     */
+    // TODO trim for better understanding
+    private String trimStringIfTooLong(String inciname) {
+
+            if (inciname != null && inciname.length() > 10)
+                inciname = inciname.substring(0, 10)+ "..";
+            return inciname;
+
     }
 }
 

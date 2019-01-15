@@ -98,6 +98,7 @@ public class StatisticManager {
      * @author Leonardo Pratesi
      *
      */
+    //TODO ask if cheking null here or when the method is called
     public void updateMap(List<Ingredient> ingredients) {
         if (ingredients != null){
             HashMap<String, Integer> temp = loadMap();
@@ -111,8 +112,11 @@ public class StatisticManager {
             }
             saveMap(temp);
         }
-        else {}
-    }
+        else {
+            //no ingredients found
+        }
+        }
+
 
     /**
      * Method to reset all the ingredients
@@ -120,8 +124,16 @@ public class StatisticManager {
      */
     public void resetStats() {
 
-        HashMap<String, Integer> temp = new HashMap();
+        HashMap<String, Integer> temp = new HashMap<>();
         saveMap(temp);
+
+    }
+
+    /**
+     * Method to sort the map by value
+     */
+    //TODO do this method (should check that does not sort the wrong map)
+    public void sortMap() {
 
     }
 }
