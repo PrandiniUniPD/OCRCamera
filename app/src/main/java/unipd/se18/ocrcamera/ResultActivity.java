@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -86,19 +87,11 @@ public class ResultActivity extends AppCompatActivity {
      */
     private boolean imageTaken;
 
-    /**
-     * initialization of OpenCV
-     *
-     */
-    static {
-        System.loadLibrary("opencv_java");
-        if (!OpenCVLoader.initDebug()) {
-            // Handle initialization error
-        }
-    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         // this bit is necessary to recognize if the photo is taken new or is an old photo -Leonardo Pratesi
         Intent intent = getIntent();
         if (intent != null) {
@@ -252,9 +245,11 @@ public class ResultActivity extends AppCompatActivity {
             case R.id.stats:
                 Intent statistics_intent = new Intent(ResultActivity.this, StatCalculatorActivity.class);
                 startActivity(statistics_intent);
+                return true;
             case R.id.blurtesting:
-                Intent blurintent = new Intent(ResultActivity.this, BlurGalleryActivity.class);
-                startActivity(blurintent);
+                Intent blur_intent = new Intent(ResultActivity.this, BlurGalleryActivity.class);
+                startActivity(blur_intent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
