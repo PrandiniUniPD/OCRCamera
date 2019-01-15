@@ -18,6 +18,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
@@ -32,7 +33,6 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.example.imageprocessing.PreProcessing;
 import com.yalantis.ucrop.UCrop;
@@ -176,16 +176,18 @@ public class ResultActivity extends AppCompatActivity {
         }
 
         //Set the toolbar as the action bar
-        android.support.v7.widget.Toolbar toolbar= findViewById(R.id.toolbar);
+        Toolbar toolbar= findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //Set up the Action Bar with the menu button
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+        }
 
         //set up Hamburger menu layout items
-        NavigationView navigationView= findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -203,6 +205,16 @@ public class ResultActivity extends AppCompatActivity {
                             case R.id.forum_activity:
                                 Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
                                 startActivity(forumIntent);
+                                return true;
+                            case R.id.test:
+                                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
+                                startActivity(i);
+                                return true;
+                            case R.id.download_photos:
+                                Intent download_intent = new Intent(ResultActivity.this,
+                                        DownloadDbActivity.class);
+                                startActivity(download_intent);
+                                return true;
                         }
 
                         return false;
@@ -318,15 +330,6 @@ public class ResultActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.test:
-                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
-                startActivity(i);
-                return true;
-            case R.id.download_photos:
-                Intent download_intent = new Intent(ResultActivity.this,
-                        DownloadDbActivity.class);
-                startActivity(download_intent);
-                return true;
             case android.R.id.home:   //menu button is pressed
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;

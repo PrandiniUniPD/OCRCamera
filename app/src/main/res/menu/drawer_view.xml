@@ -11,4 +11,10 @@
     <item
         android:id="@+id/forum_activity"
         android:title="@string/drawer_menu_item_forum" />
+
+    <!-- these are for testing and should be removed for release-->
+    <item android:id="@+id/test"
+        android:title="Test"/>
+    <item android:id="@+id/download_photos"
+        android:title="Download Photos"/>
 </menu>
