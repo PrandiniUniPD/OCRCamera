@@ -16,4 +16,6 @@
         android:title="Gallery"/>
     <item android:id="@+id/stats"
         android:title="Statistics"/>
+    <item android:title="BlurTesting"
+        android:id="@+id/blurtesting"/>
 </menu>

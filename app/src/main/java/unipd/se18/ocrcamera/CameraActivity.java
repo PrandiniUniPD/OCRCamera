@@ -27,6 +27,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
+import org.opencv.imgproc.Imgproc;
+
 /**
  * The Activity useful for making photos
  */
@@ -34,6 +43,18 @@ public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
     private static String orientationResult="P";
+
+
+    /**
+     * initialization of OpenCV
+     * @author Leonardo Pratesi
+     *
+     */
+    static {
+        if (!OpenCVLoader.initDebug()) {
+            // Handle initialization error
+        }
+    }
 
     public String getDir() {
         return getExternalFilesDir(null).getAbsolutePath();
@@ -230,6 +251,72 @@ public class CameraActivity extends AppCompatActivity {
         }
 
         return imageFile.getAbsolutePath();
+    }
+
+
+    /**
+     * Detect the blurriness by appling a Laplacian matrix and evaluating the variance (low variance means an usually blurry image) uses OpenCV
+     * @param bitmap The captured image
+     * @return Double value of the variance
+     * @author Leonardo Pratesi
+     */
+    public static double blurValue(Bitmap bitmap)
+    {
+        double blur;
+        Bitmap image = bitmap;
+        Mat matImage = new Mat();
+        org.opencv.android.Utils.bitmapToMat(image, matImage);
+        Mat destination = new Mat();
+        Mat matGray=new Mat();
+
+        Imgproc.cvtColor(matImage, matGray, Imgproc.COLOR_BGR2GRAY);    //converte immagine in scala di grigi
+        Imgproc.Laplacian(matGray, destination, 3);              //applica prodotto di convoluzione a matGray e lo mette in destination
+        MatOfDouble median = new MatOfDouble();
+        MatOfDouble std= new MatOfDouble();
+        Core.meanStdDev(destination, median , std);                     //calcola deviazione standard
+
+        blur=Math.pow(std.get(0,0)[0],2);                      //eleva deviazione standard al quadrato per avere varianza
+
+
+
+        return blur;
+    }
+
+    /** Detect the blurriness by appling a Laplacian matrix and evaluating the variance (low variance means an usually blurry image) uses OpenCV
+     * @param blurValue value from blurValue method
+     * @return boolean
+     * @author Leonardo Pratesi
+     */
+    public boolean blurDetection(double blurValue)
+    {
+        double threshold=10;
+        /**
+         * AGGIUNGERE METODO CHE CALCOLA TRESHOLD IN BASE AL SOGGETTO FOTOGRAFATO
+         *
+
+
+
+         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
+         double meanblur=0;
+         int photonumber = 10;
+         for (int k = 0; k < photonumber; k++)
+         {
+         @Override
+         public void onImage(CameraKitView cameraKitView, final byte[] photo) {
+
+         Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
+         meanblur=meanblur + blurValue(bitmapImage);
+
+         }
+         });
+         } */
+
+        if (blurValue< threshold)
+        {
+            return true; //blurry
+        }
+        else
+            return false; //not blurry
     }
 
 

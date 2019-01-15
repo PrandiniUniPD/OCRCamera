@@ -239,6 +239,9 @@ public class ResultActivity extends AppCompatActivity {
             case R.id.stats:
                 Intent statistics_intent = new Intent(ResultActivity.this, StatCalculatorActivity.class);
                 startActivity(statistics_intent);
+            case R.id.blurtesting:
+                Intent blurintent = new Intent(ResultActivity.this, BlurGalleryActivity.class);
+                startActivity(blurintent);
             default:
                 return super.onOptionsItemSelected(item);
         }
