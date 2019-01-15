@@ -36,18 +36,24 @@ public class AllergensSearchFragment extends Fragment {
     //show the suggestions dropdown list with at leas 2 chars typed
     private static final int SUGGESTION_THRESHOLD = 2;
 
-    /**
-     * This method is used to get the View that will make the fragment' layout in the Activity
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
-     * @return fragmentView
-     * @author Pietro Balzan
-     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @android.support.annotation.Nullable ViewGroup container, @android.support.annotation.Nullable Bundle savedInstanceState) {
-        View fragmentView= inflater.inflate(R.layout.fragment_allergens_search, container,  false);
+        //the inflater is not considered as child of "parent"
+        final boolean isParent = false;
+
+        return inflater.inflate(R.layout.fragment_allergens_search, container,  false);
+    }
+
+    /**
+     * This method is used to get the View that will make the fragment' layout in the Activity
+     * @param fragmentView the view that was inflated in onCreateView
+     * @param savedInstanceState
+     * @author Pietro Balzan
+     */
+    @Override
+    public void onViewCreated(@NonNull View fragmentView, @android.support.annotation.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(fragmentView, savedInstanceState);
 
         //Fragments Layout components
         allergensListView = (ListView) fragmentView.findViewById(R.id.allergens_list_view);
@@ -64,14 +70,14 @@ public class AllergensSearchFragment extends Fragment {
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               String searchedIngredient= mAllergensAutoCompleteTextView.getText().toString();
-               Log.i(TAG, "The typed string is "+searchedIngredient);
-               //list of all allergens shown as result of the search
-               ArrayList<Allergen> searchResultList= search(searchedIngredient);
+                String searchedIngredient= mAllergensAutoCompleteTextView.getText().toString();
+                Log.i(TAG, "The typed string is "+searchedIngredient);
+                //list of all allergens shown as result of the search
+                ArrayList<Allergen> searchResultList= search(searchedIngredient);
 
-               //show list to user
-               mAllergensListAdapter= new AllergenListAdapter(getActivity(),
-                       R.layout.allergen_single, searchResultList);
+                //show list to user
+                mAllergensListAdapter= new AllergenListAdapter(getActivity(),
+                        R.layout.allergen_single, searchResultList);
                 allergensListView.setAdapter(mAllergensListAdapter);
 
                 //after a click hide dropdown suggestions
@@ -81,8 +87,6 @@ public class AllergensSearchFragment extends Fragment {
 
         //setup allergens AutoCompleteTextView
         new prepareAllergenAutoTextView().run();
-
-        return fragmentView;
     }
 
     /**

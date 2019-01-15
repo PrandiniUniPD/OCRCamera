@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/allergens_activity"
+        android:title="@string/drawer_menu_item_Allergens" />
+    <item
+        android:id="@+id/gallery_activity"
+        android:title="@string/drawer_menu_item_Gallery" />
+</menu>
