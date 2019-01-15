@@ -20,6 +20,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -88,23 +89,31 @@ public class BlurGalleryActivity extends AppCompatActivity {
      *
      */
     private void setGallery() {
+        //counts how many images are loaded (for troubleshooting purpose)
         int count =0;
-        for (int i = 0; i < fileNames.length; i++) {                                                          //imagepath.length = number of elements in the folder
-            if (getExtension(fileNames[i]) == "jpg") {                                          //checks if it is an image
+        for (String fileName : fileNames) {                                                          //imagepath.length = number of elements in the folder
+            if (getExtension(fileName).equals("jpg")) {                                          //checks if it is an image
 
                 try {
-                    File f = new File(PHOTOS_FOLDER, fileNames[i]);                             //creates a new object for each element
-                    Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));
-                    BlurObject obj = new BlurObject(fileNames[i], image);
+                    File f = new File(PHOTOS_FOLDER, fileName); //creates a new object for each element
+                    FileInputStream stream = new FileInputStream(f);
+                    Bitmap image = BitmapFactory.decodeStream(stream);
+                    BlurObject obj = new BlurObject(fileName, image);
                     arrayBlur.add(obj);
+                    stream.close();
 
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Log.e("err", "filenotfound");
                 } catch (IllegalArgumentException e) {
+                    //TODO better way to manage exceptions
                     e.printStackTrace();
                     Log.e("err", "illegalargument");
-                }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e("err", "IOException");
+                    }
+
                 count++; //check how many photos load
                 Log.e("check", Integer.toString(count));
             }

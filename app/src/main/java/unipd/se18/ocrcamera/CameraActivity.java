@@ -272,10 +272,10 @@ public class CameraActivity extends AppCompatActivity {
         Imgproc.cvtColor(matImage, matGray, Imgproc.COLOR_BGR2GRAY);    //converte immagine in scala di grigi
         Imgproc.Laplacian(matGray, destination, 3);              //applica prodotto di convoluzione a matGray e lo mette in destination
         MatOfDouble median = new MatOfDouble();
-        MatOfDouble std= new MatOfDouble();
-        Core.meanStdDev(destination, median , std);                     //calcola deviazione standard
+        MatOfDouble standardDeviation = new MatOfDouble();
+        Core.meanStdDev(destination, median , standardDeviation );      //calcola deviazione standard
 
-        blur=Math.pow(std.get(0,0)[0],2);                      //eleva deviazione standard al quadrato per avere varianza
+        blur=Math.pow(standardDeviation .get(0,0)[0],2);       //eleva deviazione standard al quadrato per avere varianza
 
 
 
@@ -287,31 +287,12 @@ public class CameraActivity extends AppCompatActivity {
      * @return boolean
      * @author Leonardo Pratesi
      */
-    public boolean blurDetection(double blurValue)
+    public boolean isBlur(double blurValue)
     {
-        double threshold=10;
-        /**
-         * AGGIUNGERE METODO CHE CALCOLA TRESHOLD IN BASE AL SOGGETTO FOTOGRAFATO
-         *
+        final double BLUR_THRESHOLD = 10;
 
 
-
-         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
-         double meanblur=0;
-         int photonumber = 10;
-         for (int k = 0; k < photonumber; k++)
-         {
-         @Override
-         public void onImage(CameraKitView cameraKitView, final byte[] photo) {
-
-         Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
-         meanblur=meanblur + blurValue(bitmapImage);
-
-         }
-         });
-         } */
-
-        if (blurValue< threshold)
+        if (blurValue< BLUR_THRESHOLD)
         {
             return true; //blurry
         }

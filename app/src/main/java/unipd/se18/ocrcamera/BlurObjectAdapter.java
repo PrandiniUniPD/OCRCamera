@@ -14,7 +14,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -78,7 +81,7 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
         });
 
         if (item!= null) {
-            Log.e("err", item.toString());
+            Log.i("itemToGetView", item.toString());
             viewHolder.itemView.setText(item.toString());
             viewHolder.imageView.setImageBitmap(item.getImage());
         }
@@ -88,21 +91,23 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
 
     /**
      *  Method to pass the bitmap between activities
-     * @param bitmap
-     * @return
+     * @param bitmap to be converted in image File in the phone memory
+     * @return String with the name of the file
      */
     public String createImageFromBitmap(Bitmap bitmap) {
         String fileName = "myImage";
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes); //100 means the quality of compression see Java Documentation
             FileOutputStream fo = getContext().openFileOutput(fileName, Context.MODE_PRIVATE);
             fo.write(bytes.toByteArray());
             // close file output
             fo.close();
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             fileName = null;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return fileName;
     }
