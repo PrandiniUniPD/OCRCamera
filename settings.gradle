@@ -1,1 +1,2 @@
 include ':app', ':textrecognizer'
+include ':openCVLibrary342'
