@@ -38,12 +38,15 @@
         <activity
             android:name=".CameraActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:parentActivityName=".ResultActivity"/>
+
         <activity
             android:name=".ResultActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:value=".CameraActivity">
+            android:value=".CameraActivity"
+            android:theme="@style/AppTheme.NoActionBar">
 
             <!-- Search item meta-data  -  Luca Moroldo -->
             <meta-data
@@ -63,9 +66,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".DownloadDbActivity" />
-        <activity android:name=".GalleryActivity" />
+        <activity
+            android:name=".GalleryActivity"
+            android:parentActivityName=".ResultActivity"/>
+
         <activity android:name=".TestsListActivity" />
+
         <activity android:name=".TestDetailsActivity" />
+
         <activity android:name=".MainAllergensActivity"
             android:parentActivityName=".ResultActivity"
             android:windowSoftInputMode="adjustNothing">
@@ -86,8 +94,7 @@
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

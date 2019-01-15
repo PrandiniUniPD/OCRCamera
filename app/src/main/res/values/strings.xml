@@ -51,6 +51,9 @@
     <string name="tested">Tested:</string>
     <string name="of">of</string>
     <string name="confidence">confidence</string>
+    <string name="drawer_menu_item_Allergens">Allergen Selection</string>
+    <string name="drawer_menu_item_Gallery">Gallery</string>
+    <string name="drawer_menu_item_forum">Forum</string>
 
     <!--List of strings for MainAllergensActivity-->
     <string name="allergens_search_bar">Type an allergen name</string>

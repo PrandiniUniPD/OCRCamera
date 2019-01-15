@@ -10,9 +10,15 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
@@ -83,6 +89,11 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView analyzedTextView;
 
+    /**
+     * the DrawerLayout that provides the "Hamburger" Menu for the options
+     */
+    private DrawerLayout mDrawerLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +103,7 @@ public class ResultActivity extends AppCompatActivity {
         mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
         progressBar = findViewById(R.id.progress_bar);
+        mDrawerLayout= findViewById(R.id.drawer_layout);
 
         // Floating action buttons listeners (Francesco Pham)
         FloatingActionButton fabNewPic = findViewById(R.id.newPictureFab);
@@ -162,6 +174,54 @@ public class ResultActivity extends AppCompatActivity {
 
             analyzeImageUpdateUI(lastImagePath, true); //TODO not work on virtual machine
         }
+
+        //Set the toolbar as the action bar
+        Toolbar toolbar= findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //Set up the Action Bar with the menu button
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+        }
+
+        //set up Hamburger menu layout items
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+                        //choose which activity to start depending on the selected item
+
+                        switch (menuItem.getItemId()){
+                            case R.id.allergens_activity:
+                                startActivity( new Intent(ResultActivity.this, MainAllergensActivity.class));
+                                return true;
+                            case R.id.gallery_activity:
+                                startActivity(new Intent (ResultActivity.this, GalleryActivity.class));
+                                return true;
+                            case R.id.forum_activity:
+                                Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
+                                startActivity(forumIntent);
+                                return true;
+                            case R.id.test:
+                                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
+                                startActivity(i);
+                                return true;
+                            case R.id.download_photos:
+                                Intent download_intent = new Intent(ResultActivity.this,
+                                        DownloadDbActivity.class);
+                                startActivity(download_intent);
+                                return true;
+                        }
+
+                        return false;
+                    }
+                }
+        );
+
     }
 
     /**
@@ -264,32 +324,15 @@ public class ResultActivity extends AppCompatActivity {
 
     /**
      * Handling click events on the menu
-     * @author Francesco Pham - modified by Stefano Romanello
+     * @author Francesco Pham - modified by Stefano Romanello - modified by Pietro Balzan
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.test:
-                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
-                startActivity(i);
+            case android.R.id.home:   //menu button is pressed
+                mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
-            case R.id.download_photos:
-                Intent download_intent = new Intent(ResultActivity.this,
-                        DownloadDbActivity.class);
-                startActivity(download_intent);
-                return true;
-            case R.id.gallery:
-                Intent gallery_intent = new Intent(ResultActivity.this, GalleryActivity.class);
-                startActivity(gallery_intent);
-                return true;
-            case R.id.allergens_selection:
-                Intent allergensAct= new Intent(ResultActivity.this, MainAllergensActivity.class);
-                startActivity(allergensAct);
-                return true;
-            case R.id.forum:
-                Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
-                startActivity(forumIntent);
             default:
                 return super.onOptionsItemSelected(item);
         }
