@@ -1,1 +1,3 @@
-include ':app', ':textrecognizer'
+include ':app', ':textrecognizer', ':imageprocessing'
+include ':openCVLibrary344'
+

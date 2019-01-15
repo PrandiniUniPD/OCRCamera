@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.example.imageprocessing.PreProcessing;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -79,7 +81,8 @@ public class PhotoTester {
     private IngredientsExtractor correctIngredientsExtractor;
     private TextAutoCorrection textCorrector;
 
-
+    //image processor
+    private PreProcessing processing;
 
 
 
@@ -184,6 +187,9 @@ public class PhotoTester {
         ocrIngredientsExtractor = InciSingleton.getInstance(context).getIngredientsExtractor();
         List<Ingredient> listInciIngredients = InciSingleton.getInstance(context).getListInciIngredients();
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
+
+        //image processor initialization
+        processing = new PreProcessing();
 
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(testElements.size());
@@ -483,6 +489,9 @@ public class PhotoTester {
         private void evaluateTest(TestElement test) {
             String imagePath = test.getImagePath();
             Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
+
+            //process image adjusting brightness and eventually autorotating
+            testBitmap = processing.doImageProcessing(testBitmap, false);
 
             String ocrText = executeOcr(testBitmap);
 
