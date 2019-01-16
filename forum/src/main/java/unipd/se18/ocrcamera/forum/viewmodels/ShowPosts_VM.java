@@ -23,7 +23,11 @@ import unipd.se18.ocrcamera.forum.models.Post;
 
 
 /**
- * View model that contains all the logic needed to retrieve posts from the database
+ * According to the MVVM (Model-View-ViewModel) architecture this class contains all fragment ShowPosts' logic.
+ * This architecture ensures that the code is more testable and organised than the classic approch to put everything
+ * in the activity or fragment class.
+ * In particular the methods that are implemented here are used to get posts from forum and to handle users' likes. The
+ * forum's data is stored into a database handle thanks to Firebase Firestore API
  * @author Leonardo Rossi g2
  */
 public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
@@ -35,6 +39,11 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
      * ********************
      */
 
+    /**
+     * This listener is triggered to update the UI with the result of a db interrogation to get posts inside the forum.
+     * If the result is successful, that is all the posts are correctly downloaded, the ShowPost fragment receives the
+     * posts list, otherwise it receives an error message that can be shown to the user
+     */
     public interface GetPostListener
     {
         /**
@@ -51,6 +60,10 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
 
     }
 
+    /**
+     * This listener is triggered to update the UI when a user put "like" to a specific post. This operation is
+     * successful if the like is correctly store into the db, failed otherwise.
+     */
     public interface AddLikeListener
     {
         /**
@@ -78,34 +91,43 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
     @Override
     public void getPosts(final Context context)
     {
+        //Definition of the listener that will be triggered when the db interrogation is finished
         final DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
         listeners.completeListener = new OnCompleteListener<QuerySnapshot>()
         {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task)
             {
+
+                //This array will contain the posts downloaded from the db
                 ArrayList<Post> posts = new ArrayList<>();
 
+                //Loopping through the db interrogation's result
                 for (QueryDocumentSnapshot item: task.getResult())
                 {
+                    //Each item inside the db interrogation's result is a map
+                    //where the key identifies the db field to which is associated the corresponding value
                     Map<String, Object> postData = item.getData();
 
+                    //Post attributes reading
                     String postID = item.getId();
                     String postTitle = postData.get(context.getString(R.string.postTitleKey)).toString();
                     String postMessage = postData.get(context.getString(R.string.postMessageKey)).toString();
                     String postAuthor = postData.get(context.getString(R.string.postAuthorKey)).toString();
                     int comments = Integer.valueOf(postData.get(context.getString(R.string.postCommentsKey)).toString());
                     int likes = Integer.valueOf(postData.get(context.getString(R.string.postLikesKey)).toString());
-
-                    SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
                     String postDate = postData.get(context.getString(R.string.postDateKey)).toString();
 
                     try
                     {
-                        posts.add(new Post(postID, postTitle, postMessage, format.parse(postDate), likes, comments, postAuthor));
+                        //At this point, if no exception are thrown, a post object can be built and stored into the
+                        //specific array
+                        posts.add(new Post(postID, postTitle, postMessage, Post.FORMATTER.parse(postDate), likes, comments, postAuthor));
                     }
                     catch (ParseException e)
                     {
+                        //If an error occurs while converting the post's date an error message is logged to console and
+                        //the failure UI listener is triggered with a explanation message for the user
                         Log.d(LOG_TAG, e.getMessage());
                         if (getPostListener != null){ getPostListener.onGetPostFailure(context.getString(R.string.requestFailedMessage)); }
                     }
@@ -127,12 +149,16 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
      */
     public void addLikeToPost(final Context context, String post, String user, int prevLikes)
     {
+        //Definition of the listeners that will be triggered when the db interrogation is finished.
+        //In particular two listeners are defined: one for a successful db interrogation, the other in case of failure
         DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
 
         listeners.successListener = new OnSuccessListener() {
             @Override
             public void onSuccess(Object o)
             {
+                //If the like has correctly been added to the db the success listener is triggerd
+                //(In this case there's an empty string as parameter because there's no specific message to show to the user)
                 if (addLikeListener != null) { addLikeListener.onAddLikeSuccess(""); }
             }
         };
@@ -141,11 +167,16 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
             @Override
             public void onFailure(@NonNull Exception e)
             {
+                //If an error occurrs while storing a like into the db an error message is logged to console and
+                //and the failure UI listener is trigger with an explanation message for the user
                 Log.d(LOG_TAG, "Error: " + e.getMessage());
                 if (addLikeListener != null) { addLikeListener.onAddLikeFailure(context.getString(R.string.addLikeOnFailureMessage)); }
             }
         };
 
+        //Calling to the method to store a like into the db passing as parameter:
+        //The context which references to the fragment, the post ID, the user that has put "like" to the post,
+        //the amount of likes before the last one is added and the listeners previously defined
         DatabaseManager.addLike(context, post, user, prevLikes, listeners);
     }
 

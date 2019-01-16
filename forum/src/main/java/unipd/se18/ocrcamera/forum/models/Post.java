@@ -14,7 +14,8 @@ import java.util.HashMap;
  */
 public class Post implements Parcelable
 {
-    public static final String DATE_FORMAT = "dd/MM/yyyy";
+    private static final String DATE_FORMAT = "dd/MM/yyyy";
+    public static final SimpleDateFormat FORMATTER = new SimpleDateFormat(DATE_FORMAT);
 
     String ID;
     String title;
@@ -39,7 +40,7 @@ public class Post implements Parcelable
         this.ID = ID;
         this.title = title;
         this.message = message;
-        this.date = convertDate(date);
+        this.date = date;
         this.likes = likes;
         this.comments = comments;
         this.author = author;
@@ -100,11 +101,7 @@ public class Post implements Parcelable
      * Returns the date in string format
      * @return The post's date converted to string
      */
-    public String getDateInString()
-    {
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        return format.format(date);
-    }
+    public String getDateInString() { return FORMATTER.format(date); }
 
     /**
      * Returns the post's number of comments
@@ -140,7 +137,7 @@ public class Post implements Parcelable
      * Sets the post's date to the specified value
      * @param date The specified value
      */
-    public void setDate(Date date) { this.date = convertDate(date); }
+    public void setDate(Date date) { this.date = date; }
 
     /**
      * Sets the post's author to the specified value
@@ -157,30 +154,11 @@ public class Post implements Parcelable
     public void addComment() { comments++; }
 
     /**
-     * *****************+*********
-     * **   PRIVATE METHODS     **
-     * ***************************
+     * *****************+***********
+     * **   PARCELABLE METHODS    **
+     * *****************************
      */
 
-    /**
-     * Converts the specified date to the specified format
-     * @param date The date that has to be converted
-     * @return The date in the new format
-     */
-    private Date convertDate(Date date)
-    {
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        String sDate = format.format(date);
-
-        try
-        {
-            return format.parse(sDate);
-        }
-        catch (ParseException e)
-        {
-            return null;
-        }
-    }
 
     @Override
     public int describeContents()
