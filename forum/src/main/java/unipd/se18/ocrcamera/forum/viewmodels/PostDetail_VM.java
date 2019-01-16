@@ -95,8 +95,6 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
                         String commentID = item.getId();
                         String message = itemData.get(context.getString(R.string.postMessageKey)).toString();
                         String author = itemData.get(context.getString(R.string.postAuthorKey)).toString();
-
-                        SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
                         String postDate = itemData.get(context.getString(R.string.postDateKey)).toString();
 
                         Post comment = new Post(commentID);
@@ -104,7 +102,7 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
                         comment.setAuthor(author);
                         try
                         {
-                            comment.setDate(format.parse(postDate));
+                            comment.setDate(Post.FORMATTER.parse(postDate));
                             comments.add(comment);
                         }
                         catch (ParseException e)

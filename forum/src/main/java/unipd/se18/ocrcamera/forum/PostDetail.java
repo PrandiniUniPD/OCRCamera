@@ -96,9 +96,7 @@ public class PostDetail extends android.support.v4.app.Fragment
         lblPostMessage.setText(post.getMessage());
         lblPostLikes.setText("Likes: " + post.getLikes());
         lblPostComments.setText("Comments: " + post.getComments());
-
-        SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
-        lblPosDate.setText(format.format(post.getDate()));
+        lblPosDate.setText(Post.FORMATTER.format(post.getDate()));
 
         //Definition of view model listener
         viewModel.setGetDetailListener(new PostDetail_VM.GetPostDetailListener() {
@@ -242,9 +240,7 @@ public class PostDetail extends android.support.v4.app.Fragment
 
             commentHolder.lblAuthor.setText(currentComment.getAuthor());
             commentHolder.lblMessage.setText(currentComment.getMessage());
-
-            SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
-            commentHolder.lblDate.setText(format.format(currentComment.getDate()));
+            commentHolder.lblDate.setText(Post.FORMATTER.format(currentComment.getDate()));
         }
 
         @Override
