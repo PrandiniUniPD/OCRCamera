@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import unipd.se18.ocrcamera.forum.models.Post;
 import unipd.se18.ocrcamera.forum.viewmodels.ShowPosts_VM;
@@ -39,7 +40,6 @@ public class ShowPosts extends Fragment {
      * ***************************
      */
 
-    private OnFragmentInteractionListener mListener;
     private RecyclerView forumPosts;
     private ShowPosts_VM viewModel;
     private String loggedUser = "";
@@ -58,8 +58,10 @@ public class ShowPosts extends Fragment {
         viewModel = ViewModelProviders.of(this).get(ShowPosts_VM.class);
 
         //Fragment parameters reading
-        loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), "default");
+        final String DEFAULT_USERNAME = "default.user";
+        loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), DEFAULT_USERNAME);
 
+        //Enabling the possibility to have an options menu in this fragment
         setHasOptionsMenu(true);
     }
 
@@ -83,6 +85,8 @@ public class ShowPosts extends Fragment {
             @Override
             public void onGetPostsSuccess(ArrayList<Post> posts)
             {
+                //If posts have correctly been downloaded from the database an adapter
+                //is built to populate the UI with posts data
                 PostsAdapter adapter = new PostsAdapter(view.getContext(), posts);
                 forumPosts.setAdapter(adapter);
             }
@@ -101,18 +105,29 @@ public class ShowPosts extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
-        MenuItem btnAddPost = menu.add("Add post");
-        btnAddPost.setShowAsAction(1);
+        //Defining the button that will appear into the options menu.
+        //Its purpose is to let the user access to the app's section where adding a new post
+        final String BUTTON_TITLE = "Add post";
+        final int SHOW_AS_ACTION = 1;
+
+        MenuItem btnAddPost = menu.add(BUTTON_TITLE);
+        btnAddPost.setShowAsAction(SHOW_AS_ACTION);
         btnAddPost.setIcon(R.drawable.addpost);
+
+        //Implementation of the onClick listener for the button
         btnAddPost.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item)
             {
+
+                //Here an instance of AddPost fragment is created and the username of the
+                //user that previously accessed the forum is passed as parameter
                 AddPost f = new AddPost();
                 Bundle params = new Bundle();
                 params.putString(getString(R.string.usernameFrgParam), loggedUser);
                 f.setArguments(params);
 
+                //The new fragment is shown
                 getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, f)
                         .addToBackStack(getString(R.string.fgAddPost))
                         .commit();
@@ -120,12 +135,6 @@ public class ShowPosts extends Fragment {
                 return true;
             }
         });
-    }
-
-    public interface OnFragmentInteractionListener
-    {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     /**
@@ -214,12 +223,12 @@ public class ShowPosts extends Fragment {
             //Obtaining the current post
             final Post currentPost = posts.get(position);
 
-            //Population of the layout with post data
+            //Population of the layout with post's data
             postHolder.lblPostTitle.setText(currentPost.getTitle());
             postHolder.lblPostMessage.setText(currentPost.getMessage());
-            postHolder.lblPostLikes.setText("Likes: " + currentPost.getLikes());
-            postHolder.lblPostComments.setText("Comments: " + currentPost.getComments());
-            postHolder.lblPostAuthor.setText("Author: " + currentPost.getAuthor());
+            postHolder.lblPostLikes.setText(String.format(Locale.ITALIAN, "%s %d", getResources().getString(R.string.likesLabel), currentPost.getLikes()));
+            postHolder.lblPostComments.setText(String.format(Locale.ITALIAN, "%s %d", getResources().getString(R.string.commentsLabel), currentPost.getComments()));
+            postHolder.lblPostAuthor.setText(String.format(Locale.ITALIAN, "%s %s", getResources().getString(R.string.authorLabel), currentPost.getAuthor()));
             postHolder.lblPostDate.setText(Post.FORMATTER.format(currentPost.getDate()));
 
             //Listeners for buttons
@@ -227,6 +236,7 @@ public class ShowPosts extends Fragment {
                 @Override
                 public void onClick(View v)
                 {
+
                     //Implementation of the add like listener
                     viewModel.setAddLikeListener(new ShowPosts_VM.AddLikeListener() {
                         @Override
@@ -234,7 +244,7 @@ public class ShowPosts extends Fragment {
                         {
                             //Updating model and UI
                             currentPost.addLike();
-                            postHolder.lblPostLikes.setText("Likes: " + currentPost.getLikes());
+                            postHolder.lblPostLikes.setText(String.format(Locale.ITALIAN, "%s %d", getResources().getString(R.string.likesLabel), currentPost.getLikes()));
                         }
 
                         @Override
@@ -254,13 +264,18 @@ public class ShowPosts extends Fragment {
                 @Override
                 public void onClick(View v)
                 {
-                    PostDetail fDetail = new PostDetail();
 
+                    //Here an instance of PostDetail fragment is created.
+                    //It has two parameters:
+                    //- The post of which the user wants to see the detail
+                    //- The user's username useful for comments' author
+                    PostDetail fDetail = new PostDetail();
                     Bundle params = new Bundle();
                     params.putParcelable(context.getString(R.string.postParameterKey), currentPost);
                     params.putString(context.getString(R.string.usernameFrgParam), loggedUser);
                     fDetail.setArguments(params);
 
+                    //The new fragment is shown
                     getActivity().getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.fragmentContainer, fDetail)

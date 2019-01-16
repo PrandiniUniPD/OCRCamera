@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="likesLabel">Likes:</string>
+    <string name="commentsLabel">Comments:</string>
+    <string name="authorLabel">Author:</string>
+</resources>
