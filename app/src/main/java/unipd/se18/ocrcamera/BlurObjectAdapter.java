@@ -94,21 +94,27 @@ public class BlurObjectAdapter extends ArrayAdapter<BlurObject> {
      * @param bitmap to be converted in image File in the phone memory
      * @return String with the name of the file
      */
-    public String createImageFromBitmap(Bitmap bitmap) {
-        String fileName = "myImage";
+    public String createImageFromBitmap(Bitmap bitmap, String fileName) {
+        FileOutputStream fo = null;
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes); //100 means the quality of compression see Java Documentation
-            FileOutputStream fo = getContext().openFileOutput(fileName, Context.MODE_PRIVATE);
+            fo = getContext().openFileOutput(fileName, Context.MODE_PRIVATE);
             fo.write(bytes.toByteArray());
             // close file output
-            fo.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             fileName = null;
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {               //added finally close to be sure the stream is closed (Li suggestion)
+                fo.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
         return fileName;
     }
 

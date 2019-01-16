@@ -65,7 +65,11 @@ public class BlurGalleryActivity extends AppCompatActivity {
         File path = new File(PHOTOS_FOLDER);
         fileNames = path.list();
         if (fileNames != null) {
-            setGallery();
+            try {               //added try catch after Li suggestion
+                setGallery();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         }
         else {
             Toast.makeText(this, "No images found", Toast.LENGTH_SHORT).show();
@@ -88,11 +92,11 @@ public class BlurGalleryActivity extends AppCompatActivity {
      * Method that creates a blurObject for every image in the folder
      *
      */
-    private void setGallery() {
+    private void setGallery() throws Exception {
         //counts how many images are loaded (for troubleshooting purpose)
         int count =0;
-        for (String fileName : fileNames) {                                                          //imagepath.length = number of elements in the folder
-            if (getExtension(fileName).equals("jpg")) {                                          //checks if it is an image
+        for (String fileName : fileNames) {                                //imagepath.length = number of elements in the folder
+            if (getExtension(fileName).equals("jpg")) {                    //checks if it is an image
 
                 try {
                     File f = new File(PHOTOS_FOLDER, fileName); //creates a new object for each element
@@ -105,13 +109,14 @@ public class BlurGalleryActivity extends AppCompatActivity {
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Log.e("err", "filenotfound");
+                    throw e;
                 } catch (IllegalArgumentException e) {
-                    //TODO better way to manage exceptions
-                    e.printStackTrace();
                     Log.e("err", "illegalargument");
+                    throw e;
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.e("err", "IOException");
+                    throw e;
                     }
 
                 count++; //check how many photos load

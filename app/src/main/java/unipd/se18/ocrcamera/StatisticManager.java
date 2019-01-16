@@ -83,14 +83,10 @@ public class StatisticManager {
             }
 
         }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-            // if the file is not found creates an empty map
-            return new HashMap<>();
 
-        }
         catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
         return map;
     }
