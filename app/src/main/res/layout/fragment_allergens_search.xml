@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainAllergensActivity">
+
+    <AutoCompleteTextView
+        android:id="@+id/allergen_auto_complete_text_view"
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="65dp"
+        android:layout_marginEnd="8dp"
+        android:ems="10"
+        android:hint="@string/allergens_search_bar"
+        android:inputType="textPersonName" />
+
+    <ListView
+        android:id="@+id/allergens_list_view"
+        android:layout_width="350dp"
+        android:layout_height="400dp"
+        android:layout_below="@+id/allergen_auto_complete_text_view"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/allergens_search_button"
+        android:layout_width="50dp"
+        android:layout_height="27dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="77dp"
+        android:layout_marginEnd="16dp"
+        android:layout_toEndOf="@+id/allergen_auto_complete_text_view"
+        android:background="@drawable/ic_icon_search"
+        android:textSize="12sp" />
+</RelativeLayout>
