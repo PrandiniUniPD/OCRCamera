@@ -1,6 +1,5 @@
 package unipd.se18.ocrcamera.forum.viewmodels;
 
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -13,19 +12,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Map;
 
 import unipd.se18.ocrcamera.forum.DatabaseManager;
 import unipd.se18.ocrcamera.forum.R;
-import unipd.se18.ocrcamera.forum.RequestManager;
 import unipd.se18.ocrcamera.forum.models.Post;
 
 

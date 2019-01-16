@@ -97,6 +97,16 @@ public class Post implements Parcelable
     public Date getDate() { return date; }
 
     /**
+     * Returns the date in string format
+     * @return The post's date converted to string
+     */
+    public String getDateInString()
+    {
+        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
+        return format.format(date);
+    }
+
+    /**
      * Returns the post's number of comments
      * @return The post's number of comments
      */

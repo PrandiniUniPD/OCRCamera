@@ -14,6 +14,10 @@ import java.util.Map;
 
 import unipd.se18.ocrcamera.forum.models.Post;
 
+/**
+ * This class manages the db interfacing using Firebase Firestore API
+ * @author Leonardo Rossi g2
+ */
 public class DatabaseManager
 {
     /**
@@ -54,7 +58,8 @@ public class DatabaseManager
      */
     public static void addPost(Context context, Post post, DatabaseManager.Listeners listeners)
     {
-        //The post that has to be added is converted into a map
+        //The post that has to be added is converted into a map, which is the format
+        //used by Firestore to handle elements addition
         Map<String, Object> toAdd = new HashMap<>();
         toAdd.put(context.getString(R.string.postTitleKey), post.getTitle());
         toAdd.put(context.getString(R.string.postMessageKey), post.getMessage());
@@ -62,9 +67,7 @@ public class DatabaseManager
         toAdd.put(context.getString(R.string.postCommentKey), null);
         toAdd.put(context.getString(R.string.postCommentsKey), post.getComments());
         toAdd.put(context.getString(R.string.postLikesKey), post.getLikes());
-
-        SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
-        toAdd.put(context.getString(R.string.postDateKey), format.format(post.getDate()));
+        toAdd.put(context.getString(R.string.postDateKey), post.getDateInString());
 
         //Addition of the new post to the database
         //When the query has ended if the addition is successful then the successListener is called
@@ -108,15 +111,15 @@ public class DatabaseManager
 
         //Addition of the like to the db
         Map<String, Object> toAdd = new HashMap<>();
-        toAdd.put("post", post);
-        toAdd.put("user", user);
+        toAdd.put(context.getString(R.string.likesPostKey), post);
+        toAdd.put(context.getString(R.string.likesUserKey), user);
 
         db.collection(context.getString(R.string.likesCollectionName))
                 .add(toAdd)
                 .addOnSuccessListener(listeners.successListener)
                 .addOnFailureListener(listeners.failureListener);
 
-        //Incrementation of likes count to the specified post
+        //Update likes amount
         db.collection(context.getString(R.string.postCollectionName))
                 .document(post)
                 .update(context.getString(R.string.postLikesKey), prevLikes+1);
@@ -156,9 +159,7 @@ public class DatabaseManager
         toAdd.put(context.getString(R.string.postAuthorKey), comment.getAuthor());
         toAdd.put(context.getString(R.string.postMessageKey), comment.getMessage());
         toAdd.put(context.getString(R.string.postCommentKey), post);
-
-        SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
-        toAdd.put(context.getString(R.string.postDateKey), format.format(comment.getDate()));
+        toAdd.put(context.getString(R.string.postDateKey), comment.getDateInString());
 
         db.collection(context.getString(R.string.postCollectionName))
                 .add(toAdd)
