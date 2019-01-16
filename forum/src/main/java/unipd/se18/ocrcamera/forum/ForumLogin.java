@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import unipd.se18.ocrcamera.forum.viewmodels.Login_VM;
@@ -53,13 +54,17 @@ public class ForumLogin extends Fragment {
      */
     private final String KEY_USERNAME = String.valueOf(R.string.keyUsername);
 
+    //UI objects declaration
     private EditText usernameEditText;
     private EditText pwdEditText;
     private Button loginButton;
+    private TextView registerEditText;
 
+    //Credentials strings declaration
     private String userName;
     private String userPwd;
 
+    //Corresponding view model declaration
     private Login_VM viewModel;
 
     public ForumLogin() {
@@ -88,6 +93,7 @@ public class ForumLogin extends Fragment {
         usernameEditText = view.findViewById(R.id.usernameEditText);
         pwdEditText = view.findViewById(R.id.pwdEditText);
         loginButton = view.findViewById(R.id.loginButton);
+        registerEditText = view.findViewById(R.id.registerEditText);
 
         //Definition of view model listener
         viewModel.setForumLoginListener(new Login_VM.ForumLoginListener() {
@@ -148,25 +154,49 @@ public class ForumLogin extends Fragment {
             }
         });
 
-        //When the login button is clicked a request is sent through the view model
         loginButton.setOnClickListener(new View.OnClickListener() {
+
+            /**
+             * When the login button is clicked a login request is sent through the view model
+             * so as the user can access the forum providing his credentials
+             *
+             * @param v the view where the click event is performed
+             */
             @Override
             public void onClick(View v) {
 
-                //The username and password inserted are gathered from the EditText objects
+                //The username and password inserted are gathered from the
+                //EditText objects which have been filled by the user
                 userName = usernameEditText.getText().toString();
                 userPwd = pwdEditText.getText().toString();
 
-                if (!userName.equals("") && !userPwd.equals(""))
-                {
-                    //Then the credentials are handed to the viewmodel method to be checked
+                //Checks whether the user left a blank field
+                if (!userName.equals("") && !userPwd.equals("")) {
+
+                    //If not, the credentials are handed to the view model method to be checked
                     viewModel.loginToForum(getContext(), userName, userPwd);
                 }
-                else
-                {
-                    Toast.makeText(getContext(), R.string.loginButtonToast, Toast.LENGTH_LONG).show();
-                }
+                else {
 
+                    //If so, a warning toast is shown to the user
+                    Toast.makeText(getContext(), R.string.loginButtonToast, Toast.LENGTH_LONG)
+                            .show();
+                }
+            }
+        });
+
+        registerEditText.setOnClickListener(new View.OnClickListener(){
+
+            /**
+             * When the register label is clicked a new fragment is launched
+             * in order to make the user create the required account
+             *
+             * @param v the view where the click event is performed
+             */
+            @Override
+            public void onClick(View v) {
+
+                Log.d("REGISTER LISTENER", "REGISTER LABEL CLICKED");
             }
         });
 
