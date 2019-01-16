@@ -18,7 +18,7 @@ import java.io.OutputStream;
 
 
 /**
- * Utility class used in ImageProcessing
+ * Utility class used in ExtractTheText
  * @author Thomas Porro (g1), Oscar Garrido (g1)
  */
 class IPUtils {

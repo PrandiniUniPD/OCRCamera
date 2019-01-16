@@ -1,8 +1,8 @@
 package unipd.se18.textrecognizer;
+
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -10,12 +10,6 @@ import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -37,21 +31,6 @@ class MlKitRecognizer implements OCR {
      */
     private OCRListener textExtractionListener;
 
-    /*
-    The next four int are used for recognizing the position of the FirebaseVisionText Objects.
-    They could be useful for sorting the blocks or for an automatic recognition
-    of the ingredients text block.
-    The indexes are a clockwise order from the top-left corner.
-    More details at:
-    {@link FirebaseVisionText.TextBlock#getCornerPoints()},
-    {@link FirebaseVisionText.Line#getCornerPoints()}
-    or {@link FirebaseVisionText.Element#getCornerPoints()}.
-     */
-    private final int TOP_LEFT      = 0;
-    private final int TOP_RIGHT     = 1;
-    private final int BOTTOM_LEFT   = 2;
-    private final int BOTTOM_RIGHT  = 3;
-
     /**
      * Constructor of this recognizer
      * @param textExtractionListener The listener used to notify the result of the extraction
@@ -72,6 +51,12 @@ class MlKitRecognizer implements OCR {
      * @author Pietro Prandini (g2)
      */
     public void getTextFromImg(Bitmap img) {
+        // Checks the Bitmap is not null
+        if(img == null) {
+            textExtractionListener.onTextRecognizedError(OCRListener.BITMAP_IS_NULL_FAILURE);
+            return;
+        }
+
         // String used for the logs of this method
         final String methodTag = "getTextFromImg -> ";
         Log.d(TAG, methodTag + "launched");
@@ -118,7 +103,7 @@ class MlKitRecognizer implements OCR {
                                 + (afterWaiting - beforeWaiting) + " ms");
 
                         // Notify to the listener the result of the task
-                        textExtractionListener.onTextRecognized(extractString(firebaseVisionText));
+                        textExtractionListener.onTextRecognized(firebaseVisionText.getText());
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -129,74 +114,5 @@ class MlKitRecognizer implements OCR {
                 textExtractionListener.onTextRecognizedError(OCRListener.FAILURE);
             }
         });
-    }
-
-    /**
-     * Produces a String from a FirebaseVisionText
-     * More details at: {@link FirebaseVisionText.TextBlock#getText()}.
-     * @param firebaseVisionTextExtracted The result of the FirebaseVisionText extraction
-     * @return String extracted by the FirebaseVisionText result
-     * @author Pietro Prandini (g2)
-     */
-    private String extractString(FirebaseVisionText firebaseVisionTextExtracted) {
-        // Orders the blocks (requested by the issue #18 but not so useful at the moment)
-        ArrayList<FirebaseVisionText.TextBlock> textBlocks =
-                sortBlocks(firebaseVisionTextExtracted);
-
-        // Prepares the String with the text of the blocks identified by the Firebase process
-        StringBuilder text = new StringBuilder();
-        for(FirebaseVisionText.TextBlock block: textBlocks) {
-            text.append(block.getText()).append("\n");
-        }
-        String extractedText = text.toString();
-
-        // Returns the String
-        return extractedText;
-    }
-
-    /*
-    Sorting methods are not so useful at the moment.
-    There is an issue (#18) that request this method for a possible future use.
-     */
-
-    /**
-     * Sorts the blocks recognized in an ArrayList
-     * More details at: {@link FirebaseVisionText.TextBlock#getTextBlocks()}.
-     * @param OCRResult FirebaseVisionText object produced by an OCR recognition
-     * @return An ArrayList of FirebaseVisionText sorted
-     * @author Pietro Prandini (g2)
-     */
-    private ArrayList<FirebaseVisionText.TextBlock> sortBlocks(FirebaseVisionText OCRResult) {
-        ArrayList<FirebaseVisionText.TextBlock> OCRBlocks =
-                new ArrayList<>(OCRResult.getTextBlocks());
-        // Sorts the ArrayList of the blocks from top to bottom
-        OCRBlocks = sortBlocksY(OCRBlocks);
-        return OCRBlocks;
-    }
-
-    /**
-     * Sorts the blocks recognized from top to bottom in an ArrayList
-     * More details at: {@link FirebaseVisionText.TextBlock#getCornerPoints()}, {@link Comparator},
-     * {@link Collections#sort(List, Comparator)}.
-     * @param OCRBlocks ArrayList of FirebaseVisionText.TextBlock recognized by the OCR processing
-     * @return An ArrayList of FirebaseVisionText sorted from top to bottom
-     * @author Pietro Prandini (g2)
-     */
-    private ArrayList<FirebaseVisionText.TextBlock>
-    sortBlocksY(ArrayList<FirebaseVisionText.TextBlock> OCRBlocks) {
-        // Comparator for ordering the blocks by the y axis
-        Comparator<FirebaseVisionText.TextBlock> mYComparator =
-                new Comparator<FirebaseVisionText.TextBlock>() {
-                    @Override
-                    public int compare(FirebaseVisionText.TextBlock o1,
-                                       FirebaseVisionText.TextBlock o2) {
-                        int o1TopLeftY = Objects.requireNonNull(o1.getCornerPoints())[TOP_LEFT].y;
-                        int o2TopLeftY = Objects.requireNonNull(o2.getCornerPoints())[TOP_LEFT].y;
-                        return Integer.compare(o1TopLeftY,o2TopLeftY);
-                    }
-                };
-        // Sorts the blocks
-        Collections.sort(OCRBlocks, mYComparator);
-        return OCRBlocks;
     }
 }

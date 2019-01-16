@@ -11,7 +11,8 @@ import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 
 /**
- * Using singleton design pattern for single time inci db loading and ingredients extractor initialization.
+ * Using singleton design pattern for single time inci db loading, ingredients extractor and
+ * text corrector initialization, allergens manager initialization.
  * @author Francesco Pham
  */
 class InciSingleton {
@@ -20,6 +21,7 @@ class InciSingleton {
     private IngredientsExtractor ingredientsExtractor;
     private TextAutoCorrection textCorrector;
     private List<Ingredient> listInciIngredients;
+    private AllergensManager allergensManager;
 
     static InciSingleton getInstance(Context context) {
         if (ourInstance == null) {
@@ -45,6 +47,9 @@ class InciSingleton {
         //Load wordlist and initialize text corrector
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
         this.textCorrector = new TextAutoCorrection(wordListStream);
+
+        //Load allergens manager
+        this.allergensManager = new AllergensManager(context);
     }
 
     IngredientsExtractor getIngredientsExtractor(){
@@ -57,6 +62,10 @@ class InciSingleton {
 
     List<Ingredient> getListInciIngredients() {
         return this.listInciIngredients;
+    }
+
+    AllergensManager getAllergensManager() {
+        return this.allergensManager;
     }
 
 }

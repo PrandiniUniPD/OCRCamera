@@ -6,10 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/forum/forum.iml" filepath="$PROJECT_DIR$/forum/forum.iml" />
       <module fileurl="file://$PROJECT_DIR$/imageprocessing/imageprocessing.iml" filepath="$PROJECT_DIR$/imageprocessing/imageprocessing.iml" />
-      <module fileurl="file://$PROJECT_DIR$/imageprocessing/imageprocessing.iml" filepath="$PROJECT_DIR$/imageprocessing/imageprocessing.iml" />
       <module fileurl="file://$PROJECT_DIR$/openCVLibrary344/openCVLibrary344.iml" filepath="$PROJECT_DIR$/openCVLibrary344/openCVLibrary344.iml" />
-      <module fileurl="file://$PROJECT_DIR$/openCVLibrary344/openCVLibrary344.iml" filepath="$PROJECT_DIR$/openCVLibrary344/openCVLibrary344.iml" />
-      <module fileurl="file://$PROJECT_DIR$/textrecognizer/textrecognizer.iml" filepath="$PROJECT_DIR$/textrecognizer/textrecognizer.iml" />
       <module fileurl="file://$PROJECT_DIR$/textrecognizer/textrecognizer.iml" filepath="$PROJECT_DIR$/textrecognizer/textrecognizer.iml" />
     </modules>
   </component>

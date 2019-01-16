@@ -20,7 +20,8 @@ public class LauncherActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        //load inci db and initialize ingredients extractor
+        // load inci db, ingredients extractor, text corrector and allergens manager
+        // this can continue after this activity finishes and will end when loading is finished.
         Thread loadExtractorThread = new Thread() {
             public void run() {
                 InciSingleton.getInstance(getApplicationContext());
@@ -41,20 +42,7 @@ public class LauncherActivity extends AppCompatActivity {
          * @author Luca Moroldo modified by Francesco Pham
         */
         if(pathImage != null) {
-            //load last extracted text
-            prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-            String OCRText = prefs.getString("text", null);
-
-            if(OCRText != null && !(OCRText.equals(""))) {
-                //An intent that will launch the activity
-                intent = new Intent(LauncherActivity.this, ResultActivity.class);
-
-            }
-            else {
-                Log.e(TAG, "Error retrieving last extracted text");
-                intent = new Intent(LauncherActivity.this, CameraActivity.class);
-            }
-
+            intent = new Intent(LauncherActivity.this, ResultActivity.class);
         }
         else {
             intent = new Intent(LauncherActivity.this, CameraActivity.class);

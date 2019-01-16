@@ -1,7 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +13,7 @@ import java.util.List;
 import unipd.se18.ocrcamera.inci.Ingredient;
 
 /**
- * Adapter for list view of ingredients after processing with incidb
+ * Adapter for list view of ingredients after extraction from ocr text
  * @author Francesco Pham
  */
 public class AdapterIngredient extends BaseAdapter {
@@ -21,12 +21,35 @@ public class AdapterIngredient extends BaseAdapter {
     //Context of the app
     private Context context;
 
+    //ingredients to be displayed
     private List<Ingredient> ingredients;
+
+    //type of ingredient ALLERGEN: possible allergen
+    //                   SELECTEDALLERGEN: the user is allergic to the specified ingredient
+    //                   NOTALLERGEN: no warning
+    private enum IngredientWarningType {
+        NOTALLERGEN, ALLERGEN, SELECTEDALLERGEN
+    }
+
+    private IngredientWarningType ingredientsLabels[];
 
 
     AdapterIngredient(Context context, List<Ingredient> ingredients) {
         this.ingredients = ingredients;
         this.context = context;
+
+        //set warning label to ingredient if is allergen or selected allergen.
+        AllergensManager allergensManager = InciSingleton.getInstance(context).getAllergensManager();
+        ingredientsLabels = new IngredientWarningType[ingredients.size()];
+        for(int i=0; i<ingredients.size(); i++){
+            Ingredient currectIngred = ingredients.get(i);
+            if(allergensManager.checkForSelectedAllergens(currectIngred).size() > 0)
+                ingredientsLabels[i] = IngredientWarningType.SELECTEDALLERGEN;
+            else if(allergensManager.checkForAllergens(currectIngred).size() > 0)
+                ingredientsLabels[i] = IngredientWarningType.ALLERGEN;
+            else
+                ingredientsLabels[i] = IngredientWarningType.NOTALLERGEN;
+        }
     }
 
     @Override
@@ -50,9 +73,10 @@ public class AdapterIngredient extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.ingredient_element, parent, false);
         }
 
-        final String inciName = ingredients.get(position).getInciName();
-        final String description = ingredients.get(position).getDescription();
-        final String function = ingredients.get(position).getFunction();
+        Ingredient ingredient = ingredients.get(position);
+        final String inciName = ingredient.getInciName();
+        final String description = ingredient.getDescription();
+        final String function = ingredient.getFunction();
 
         // Set the inci name
         TextView nameText = convertView.findViewById(R.id.inci_name_view);
@@ -65,6 +89,14 @@ public class AdapterIngredient extends BaseAdapter {
         // Set function
         TextView functionView = convertView.findViewById(R.id.function_view);
         functionView.setText(function);
+
+        // Highlight if it is an allergen
+        if(ingredientsLabels[position] == IngredientWarningType.SELECTEDALLERGEN)
+            convertView.setBackgroundColor(Color.RED);
+        else if(ingredientsLabels[position] == IngredientWarningType.ALLERGEN)
+            convertView.setBackgroundColor(Color.YELLOW);
+        else
+            convertView.setBackgroundColor(Color.WHITE);
 
         return convertView;
     }

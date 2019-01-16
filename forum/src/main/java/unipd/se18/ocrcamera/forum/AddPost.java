@@ -129,7 +129,7 @@ public class AddPost extends Fragment {
                 });
 
                 //Call to the AddPost_VM
-                viewModel.addPostToForum(view.getContext(), titleText,messageText,loggedUser);
+                viewModel.addPostToForum(view.getContext(), titleText, messageText,loggedUser);
             }
         });
     }

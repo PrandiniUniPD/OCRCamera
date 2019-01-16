@@ -58,8 +58,13 @@ public class DatabaseManager
         Map<String, Object> toAdd = new HashMap<>();
         toAdd.put(context.getString(R.string.postTitleKey), post.getTitle());
         toAdd.put(context.getString(R.string.postMessageKey), post.getMessage());
-        toAdd.put(context.getString(R.string.postDateKey), post.getDate());
         toAdd.put(context.getString(R.string.postAuthorKey), post.getAuthor());
+        toAdd.put(context.getString(R.string.postCommentKey), null);
+        toAdd.put(context.getString(R.string.postCommentsKey), post.getComments());
+        toAdd.put(context.getString(R.string.postLikesKey), post.getLikes());
+
+        SimpleDateFormat format = new SimpleDateFormat(Post.DATE_FORMAT);
+        toAdd.put(context.getString(R.string.postDateKey), format.format(post.getDate()));
 
         //Addition of the new post to the database
         //When the query has ended if the addition is successful then the successListener is called

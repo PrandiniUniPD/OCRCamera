@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.example.imageprocessing.PreProcessing;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -79,7 +81,8 @@ public class PhotoTester {
     private IngredientsExtractor correctIngredientsExtractor;
     private TextAutoCorrection textCorrector;
 
-
+    //image processor
+    private PreProcessing processing;
 
 
 
@@ -184,6 +187,9 @@ public class PhotoTester {
         ocrIngredientsExtractor = InciSingleton.getInstance(context).getIngredientsExtractor();
         List<Ingredient> listInciIngredients = InciSingleton.getInstance(context).getListInciIngredients();
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
+
+        //image processor initialization
+        processing = new PreProcessing();
 
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(testElements.size());
@@ -484,6 +490,9 @@ public class PhotoTester {
             String imagePath = test.getImagePath();
             Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
 
+            //process image adjusting brightness and eventually autorotating
+            testBitmap = processing.doImageProcessing(testBitmap, false);
+
             String ocrText = executeOcr(testBitmap);
 
             String correctIngredients = test.getIngredients();
@@ -512,16 +521,7 @@ public class PhotoTester {
             List<Ingredient> extractedIngredients = ocrIngredientsExtractor.findListIngredients(correctedRecognizedText);
             List<Ingredient> correctListIngredients = correctIngredientsExtractor.findListIngredients(correctIngredientsText);
 
-            //sort alphabetically (Francesco Pham)
-            Comparator<Ingredient> cmp =  new Comparator<Ingredient>() {
-                @Override
-                public int compare(Ingredient o1, Ingredient o2) {
-                    return o1.compareTo(o2.getInciName());
-                }
-            };
-            Collections.sort(extractedIngredients,cmp);
-            Collections.sort(correctListIngredients, cmp);
-
+            //show extracted ingredients from ocr text
             StringBuilder extractionReport = new StringBuilder();
             extractionReport.append("Extracted: ");
             Iterator<Ingredient> iterator = extractedIngredients.iterator();
@@ -530,6 +530,7 @@ public class PhotoTester {
                 extractionReport.append(iterator.hasNext() ? ", " : "\n\n");
             }
 
+            //show correct ingredients (extracted from correct ingredients string)
             extractionReport.append("Correct: ");
             iterator = correctListIngredients.iterator();
             while(iterator.hasNext()){
@@ -550,7 +551,7 @@ public class PhotoTester {
                 }
             }
 
-            //make ingredients extraction report
+            //make ingredients extraction statistics report
             int nWrongExtractedIngreds = extractedIngredients.size();
             float percent = (float)100*nCorrectExtractedIngreds / correctListIngredients.size();
             if(Float.isNaN(percent)) percent = 0;
