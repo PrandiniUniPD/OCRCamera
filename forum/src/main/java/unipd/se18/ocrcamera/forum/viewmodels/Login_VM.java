@@ -56,16 +56,6 @@ public class Login_VM extends ViewModel implements LoginMethods {
      */
     private ForumLoginListener forumLoginListener;
 
-    /**
-     * String used for debug logs to identify the view model throwing it
-     */
-    private final String LOG_TAG = "@@Login_VM";
-
-    /**
-     * String used to identify the error given by incorrect credentials
-     */
-    private final String LOG_INCORRECT_CREDENTIALS = "Connection established. Credentials refused.";
-
     @Override
     public void loginToForum(final Context context, final String username, String password) {
 
@@ -73,10 +63,10 @@ public class Login_VM extends ViewModel implements LoginMethods {
          * Initialization of the listener useful to react to responses
          * from the database requests, as soon as they are available
          */
-        final DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
+        final DatabaseManager.Listeners forumLoginListeners = new DatabaseManager.Listeners();
 
         //Definition of the listener that will be triggered when the login process finishes
-        listeners.completeListener = new OnCompleteListener<QuerySnapshot>() {
+        forumLoginListeners.completeListener = new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task)
             {
@@ -95,7 +85,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
         };
 
         //Sends a netword request to check if the provided credentials are correct
-        DatabaseManager.loginUser(context, username, password, listeners);
+        DatabaseManager.loginUser(context, username, password, forumLoginListeners);
     }
 
     /**
