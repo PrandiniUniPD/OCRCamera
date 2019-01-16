@@ -9,19 +9,28 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
+/**
+ * Class that manages all the Fragment changes
+ * @author Leonardo Pratesi
+ */
 public class FragmentManager extends AppCompatActivity {
 
     private BottomNavigationView mMainNav;
     private FrameLayout mMainFrame;
 
-    private CameraFragment cameraFragment;
-    private AllergensFragment allergensFragment;
-    private ForumFragment forumFragment;
+    private Fragment galleryFragment;
+    private Fragment allergensFragment;
+    private Fragment forumFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_manager_layout);
+
+
+        galleryFragment = new GalleryFragment();
+        allergensFragment = new Fragment();
+        forumFragment = new Fragment();
 
         mMainFrame = (FrameLayout)findViewById(R.id.main_frame);
         mMainNav = (BottomNavigationView)findViewById(R.id.main_nav);
@@ -34,7 +43,7 @@ public class FragmentManager extends AppCompatActivity {
 
                     case R.id.camera :
                         mMainNav.setItemBackgroundResource(R.color.colorPrimary);
-                        setFragment(cameraFragment);
+                        setFragment(galleryFragment);
                         return true;
                     case R.id.allergens :
                         mMainNav.setItemBackgroundResource(R.color.colorAccent);
@@ -52,6 +61,10 @@ public class FragmentManager extends AppCompatActivity {
         });
     }
 
+    /**
+     * Method to set the fragment to be viewed
+     * @param fragment the frangment that needs to be inflated
+     */
     private void setFragment(Fragment fragment) {
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

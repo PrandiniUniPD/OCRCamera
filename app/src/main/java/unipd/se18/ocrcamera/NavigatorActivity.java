@@ -46,7 +46,7 @@ public class NavigatorActivity extends AppCompatActivity {
 
             if(OCRText != null && !(OCRText.equals(""))) {
                 //An intent that will launch the activity
-                intent = new Intent(NavigatorActivity.this, ResultActivity.class);
+                intent = new Intent(NavigatorActivity.this, FragmentManager.class);
 
             }
             else {

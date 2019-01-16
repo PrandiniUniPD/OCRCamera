@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OCRCamera</string>
+    <string name="app_name">OCRCameraDesign</string>
     <string name="take_photo">Take pic</string>
     <string name="view_last_photo">Last pic</string>
     <string name="preview_failed">Preview failed!</string>
