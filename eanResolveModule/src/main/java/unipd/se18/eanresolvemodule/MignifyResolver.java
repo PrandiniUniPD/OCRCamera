@@ -112,9 +112,10 @@ public class MignifyResolver implements EAN {
                      * It should be the most plausible product name.
                      * In the future a better selection will be made, checking brand and language
                      */
-                    //If the product brand string isn't already contained inside the product name
-                    //string then it's added to the result
-                    if(!productNames[0].toLowerCase().contains(productBrands[0].toLowerCase())) {
+                    //If the product brand string isn't null and already contained inside the
+                    //product name string then it's added to the result
+                    if(!(productBrands[0] == null) && !productNames[0].toLowerCase()
+                            .contains(productBrands[0].toLowerCase())) {
                         product = productBrands[0] + " ";
                     }
                     product += productNames[0];
