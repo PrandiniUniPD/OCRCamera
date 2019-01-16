@@ -22,6 +22,10 @@
     <string name="extrected_text">Extracted text:</string>
     <string name="alterations">Alterations:</string>
     <string name="view_alterations">View alterations</string>
+    <string name="homeFragmentTag">homefgm</string>
+    <string name="galleryFragmentTitle">Gallery</string>
+    <string name="galleryDetailsFragmentTitle">Details</string>
+    <string name="serializableObjectName">PhotoStructureObject</string>
     <string name="allergens" />
     <string name="camera" />
     <string name="gallery" />

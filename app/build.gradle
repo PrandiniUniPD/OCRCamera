@@ -49,5 +49,6 @@ dependencies {
 
     //FTP dependencies
     implementation 'commons-net:commons-net:3.6'
+    implementation 'org.jetbrains:annotations-java5:15.0'
 }
 apply plugin: 'com.google.gms.google-services'
