@@ -36,6 +36,11 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
      * ********************
      */
 
+    /**
+     * This listener is triggered to update the UI with the result of a db interrogation to get a post detail.
+     * If the result is successful, that is all the detail is correctly downloaded, the PostDetail fragment receives the
+     * comments list, otherwise it receives an error message that can be shown to the user
+     */
     public interface GetPostDetailListener
     {
         /**
@@ -51,6 +56,10 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
         void onGetDetailFailure(String message);
     }
 
+    /**
+     * This listener is triggered to update the UI when a user add a comment to a specific post. This operation is
+     * successful if the comment is correctly store into the db, failed otherwise.
+     */
     public interface AddCommentListener
     {
         /**
@@ -79,24 +88,32 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
     @Override
     public void getPostDetail(final Context context, final String post)
     {
+        //Definition of the listener that will be triggered when the db interrogation is finished
         final DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
         listeners.completeListener = new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task)
             {
+
                 if (task.isSuccessful())
                 {
+                    //This array contains all the comments related to the specified post
                     ArrayList<Post> comments = new ArrayList<>();
 
+                    //Loop through the db interrogation's result
                     for (QueryDocumentSnapshot item : task.getResult())
                     {
+                        //Each item inside the db interrogation's result is a map
+                        //where the key identifies the db field to which is associated the corresponding value
                         Map<String, Object> itemData = item.getData();
 
+                        //Comment attributes reading
                         String commentID = item.getId();
                         String message = itemData.get(context.getString(R.string.postMessageKey)).toString();
                         String author = itemData.get(context.getString(R.string.postAuthorKey)).toString();
                         String postDate = itemData.get(context.getString(R.string.postDateKey)).toString();
 
+                        //At this point a comment is built with all its data
                         Post comment = new Post(commentID);
                         comment.setMessage(message);
                         comment.setAuthor(author);
@@ -107,17 +124,21 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
                         }
                         catch (ParseException e)
                         {
+                            //If an error occurs while converting the comment's date an error message is logged to console and
+                            //the failure UI listener is triggered with a explanation message for the user
                             Log.d(LOG_TAG, e.getMessage());
                             if (getDetailListener !=  null){ getDetailListener.onGetDetailFailure(context.getString(R.string.getPostDetailFailure)); }
                         }
                     }
 
+                    //If everything goes well the success listener is triggered
                     if (getDetailListener != null) { getDetailListener.onGetDetailSuccess(comments); }
 
                 }
             }
         };
 
+        //The method to retrieve a post detail is invoked
         DatabaseManager.getPostDetail(context, post, listeners);
     }
 
@@ -129,11 +150,14 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
      */
     public void addComment(final Context context, final Post comment, int prevComments)
     {
+        //Definition of the listener that will be triggered when the db interrogation is finished
         DatabaseManager.Listeners listeners = new DatabaseManager.Listeners();
         listeners.successListener = new OnSuccessListener() {
             @Override
             public void onSuccess(Object o)
             {
+                //If the comment has been successfully added into the database the corresponding
+                //listener is triggered so that the UI can be updated with the last comment added
                 if (addCommentListener != null) { addCommentListener.onAddCommentSuccess(comment); }
             }
         };
@@ -142,11 +166,14 @@ public class PostDetail_VM extends ViewModel implements PostDetailMethods
             @Override
             public void onFailure(@NonNull Exception e)
             {
+                //If something goes wrong while adding a comment an error message is print to the console
+                //and the failure listener is triggered with an explanation message for the user
                 Log.d(LOG_TAG, e.getMessage());
                 if (addCommentListener != null) { addCommentListener.onAddCommentFailure(context.getString(R.string.addCommentFailure)); }
             }
         };
 
+        //The method to add a comment to the db is invoked
         DatabaseManager.addComment(context, comment, prevComments, postID, listeners);
     }
 

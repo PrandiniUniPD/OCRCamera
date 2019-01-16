@@ -23,11 +23,7 @@ import unipd.se18.ocrcamera.forum.models.Post;
 
 
 /**
- * According to the MVVM (Model-View-ViewModel) architecture this class contains all fragment ShowPosts' logic.
- * This architecture ensures that the code is more testable and organised than the classic approch to put everything
- * in the activity or fragment class.
- * In particular the methods that are implemented here are used to get posts from forum and to handle users' likes. The
- * forum's data is stored into a database handle thanks to Firebase Firestore API
+ * View model that contains all the logic needed to retrieve posts from the database and to handle user "likes"
  * @author Leonardo Rossi g2
  */
 public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
@@ -133,6 +129,7 @@ public class ShowPosts_VM extends ViewModel implements ShowPostsMethods
                     }
                 }
 
+                //If everything goes well the success listener is triggered
                 if (getPostListener != null){ getPostListener.onGetPostsSuccess(posts); }
             }
         };
