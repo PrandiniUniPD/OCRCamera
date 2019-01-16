@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import unipd.se18.barcodemodule.Barcode;
+import unipd.se18.barcodemodule.BarcodeListener;
 import unipd.se18.barcodemodule.BarcodeRecognizer;
 import unipd.se18.eanresolvemodule.EAN;
 import unipd.se18.eanresolvemodule.EANResolve;
@@ -66,7 +67,6 @@ public class ResultActivity extends AppCompatActivity {
         //Get image path and text of the last image from preferences
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String pathImage = prefs.getString("imagePath", null);
-        String result = prefs.getString("result", null);
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
 
@@ -76,7 +76,7 @@ public class ResultActivity extends AppCompatActivity {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-        AsyncLoad ocrTask = new AsyncLoad(mOCRTextView, getString(R.string.processing));
+        AsyncLoad ocrTask = new AsyncLoad();
         ocrTask.execute(lastPhoto);
     }
 
@@ -113,104 +113,72 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     /**
+     * analyze the photo and return the barcode retrieved
+     * @param photo is the last photo taken
+     * @author Andrea Ton
+     */
+    private void analyzeAndRecognize(Bitmap photo){
+
+        //Barcode listener
+        BarcodeListener barcodeListener = new BarcodeListener() {
+            @Override
+            public void onBarcodeRecognized(String barcode) {
+                mOCRTextView.setText(barcode);
+            }
+
+            @Override
+            public void onBarcodeRecognizedError(int code) {
+                switch(code){
+                    //TODO manage error cases
+                    case BARCODE_NOT_FOUND:
+                        Log.e("Barcode not found", "No barcode was found");
+                    case DECODING_ERROR:
+                        Log.e("Decoding error", "Error decoding image");
+                    case BITMAP_NOT_FOUND:
+                        Log.e("Bitmap not found", "Bitmap not found");
+
+                }
+            }
+        };
+
+        Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit, barcodeListener);
+        barcodeRecognizer.decodeBarcode(photo);
+    }
+
+    /**
+     * Retrieve the product name and brand from online database
+     * @param barcode is the barcode to be searched
+     * @return productInfo information retrieved from the database
+     * @author Andrea Ton
+     */
+    private String getProductInfo(String barcode){
+        EAN eanResolve = eanResolve(EANResolve.API.MIGNIFY);
+        return eanResolve.decodeEAN(barcode);
+    }
+
+    /**
      * Execute a task and post the result on the TextView given on construction
-     * (g3) - modified by Rossi Leonardo - modified by Andrea Ton (barcode)
-     * -modified by Elia Bedin (barcode to product name)
+     * @author Andrea Ton
      */
     @SuppressLint("StaticFieldLeak")
     private class AsyncLoad extends AsyncTask<Bitmap, Void, String> {
 
         private ProgressDialog progressDialog;
-        private TextView resultTextView;
-        private String progressMessage;
-
-        AsyncLoad(TextView view, String progressMessage) {
-            this.resultTextView = view;
-            this.progressMessage = progressMessage;
-        }
 
         @Override
         protected String doInBackground(Bitmap... bitmaps) {
-            TextExtractor ocr = new TextExtractor();
-            String textRecognized = "";
-            String barcodeRecognized = "";
-            String eanRecognized = "";
-
-            if(lastPhoto != null) {
-                //invoke a barcodeRecognizer choosing the api type
-                Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit);
-                //get the String of the barcode from the bitmap image
-                barcodeRecognized = barcodeRecognizer.decodeBarcode(lastPhoto);
-                //check if any barcode is found
-                if(barcodeRecognized.equals(""))
-                {
-                    //if no barcode was found than try to get the text ocr
-                    textRecognized = ocr.getTextFromImg(lastPhoto);
-
-                    if(textRecognized.equals(""))
-                    {
-                    //if nothing was found than return a No text found message
-                    textRecognized = getString(R.string.no_text_found);
-                    final String finalTextRecognized = textRecognized;
-
-                    runOnUiThread(() -> {
-                            mOCRTextView.setText(finalTextRecognized);
-                        });
-                    }
-                    else {
-                        //if text is found, return it
-                        final String finalTextRecognized = textRecognized;
-
-                        runOnUiThread(() -> {
-                            mOCRTextView.setText(finalTextRecognized);
-                        });
-                    }
-                }
-                else {
-
-                    //invoke a EANResolve choosing the API type
-                    EAN eanResolve = eanResolve(EANResolve.API.MIGNIFY);
-
-                    eanRecognized = eanResolve.decodeEAN(barcodeRecognized);
-
-                    //if barcode id found return the associated number, as a String,
-                    //with a fixed "Barcode: " string to check the result is not from the ocr
-                    //and "Product: " + product name
-                    final String finalTextRecognized =
-                            "Barcode: " + barcodeRecognized + "\nProduct: " + eanRecognized;
-
-                    runOnUiThread(() -> {
-                        mOCRTextView.setText(finalTextRecognized);
-                    });
-                }
-            }
-            else {
-                Log.e("NOT_FOUND", "photo not found");
-            }
-            //using two different variables and one more if condition to avoid string conflict
-            if(barcodeRecognized.equals("")) {
-                return textRecognized;
-            }
-            else {
-                return barcodeRecognized;
-            }
+            analyzeAndRecognize(lastPhoto);
+            return null;
         }
 
         @Override
         protected void onPostExecute(String s) {
             progressDialog.dismiss();
-            // Saving in the preferences
-            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("result", s);
-            editor.apply();
         }
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(ResultActivity.this,
-                    progressMessage,
-                    "");
+            progressDialog = ProgressDialog.show(ResultActivity.this, getString(R.string.processing), "");
         }
     }
 }

@@ -42,7 +42,7 @@ public class ZXingBarcode implements Barcode {
      * @param bitmap photo taken from the camera, to be analyzed.
      */
     @Override
-    public String decodeBarcode(Bitmap bitmap) {
+    public void decodeBarcode(Bitmap bitmap) {
 
         //int array needed by the RGBLuminanceSource constructor
         int[] pixels = new int[bitmap.getWidth()*bitmap.getHeight()];
@@ -77,7 +77,6 @@ public class ZXingBarcode implements Barcode {
             code = DECODE_ERROR;
             Log.e("ErrorDecoding", "Error decoding barcode", e);
         }
-        return code;
     }
 
 }

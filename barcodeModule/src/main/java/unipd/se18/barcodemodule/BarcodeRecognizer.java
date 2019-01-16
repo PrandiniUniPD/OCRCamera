@@ -20,11 +20,11 @@ public class BarcodeRecognizer {
      * @param type The id of the recognition api requested
      * @return the object relative to the choosen type
      */
-    public static Barcode barcodeRecognizer(API type){
+    public static Barcode barcodeRecognizer(API type, BarcodeListener barcodeListener){
         switch (type){
-            case mlkit: return new MLKitBarcode();
+            case mlkit: return new MLKitBarcode(barcodeListener);
             case zxing: return new ZXingBarcode();
-            default: return new MLKitBarcode();
+            default: return new MLKitBarcode(barcodeListener);
         }
     }
 }

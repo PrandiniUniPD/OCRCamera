@@ -18,10 +18,16 @@ import java.util.concurrent.CountDownLatch;
  */
 public class MLKitBarcode implements Barcode{
 
-    private String barcode = "";
-    private static final String DECODE_ERROR = "ERROR: Barcode decoding unsuccessful, please try again.";
     private final FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector();
-    private CountDownLatch latch = new CountDownLatch(1);
+    private BarcodeListener barcodeListener;
+
+    /**
+     *constructor of the class
+     * @param listener
+     */
+    public MLKitBarcode (BarcodeListener listener){
+        barcodeListener = listener;
+    }
 
     /**
      * implementation of the decodeBarcode method, that would detect the barcode from the given image
@@ -29,21 +35,16 @@ public class MLKitBarcode implements Barcode{
      * @return barcode String that represent the barcode scanned in the image
      */
     @Override
-    public String decodeBarcode(Bitmap bitmap) {
+    public void decodeBarcode(Bitmap bitmap) {
 
+        if (bitmap == null){
+            barcodeListener.onBarcodeRecognizedError(BarcodeListener.BITMAP_NOT_FOUND);
+        }
         //get the FirebaseImage obj from the bitmap
         final FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
 
         detectTheBarcode(image);
 
-        //wait for the detection to be completed
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return barcode;
     }
 
     /**
@@ -51,32 +52,29 @@ public class MLKitBarcode implements Barcode{
      * @param image the image that will be scanned from Firebase
      * @modify barcode is set with the string of the code retrieved
      */
-    private void detectTheBarcode(FirebaseVisionImage image) {
+    private void detectTheBarcode(final FirebaseVisionImage image) {
 
         //Firebase method to detect barcodes inside an image
         Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
 
                 .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
 
-                    //on success - set the barcode to the string retrieved from the image, empty string if no barcode is found
                     @Override
                     public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
                         if (!barcodes.isEmpty()) {
-                            barcode = barcodes.get(0).getRawValue();
-                        }else{
-                            barcode= "";
+                            barcodeListener.onBarcodeRecognized(barcodes.get(0).getRawValue());
                         }
-                        latch.countDown();
+                        else {
+                            barcodeListener.onBarcodeRecognizedError(BarcodeListener.BARCODE_NOT_FOUND);
+                        }
                     }
                 })
 
                 .addOnFailureListener(new OnFailureListener() {
 
-                    //on fail - return an error on decoding the barcode
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        barcode = DECODE_ERROR;
-                        latch.countDown();
+                        barcodeListener.onBarcodeRecognizedError(BarcodeListener.DECODING_ERROR);
                     }
                 });
     }
