@@ -227,6 +227,7 @@ public class GalleryManager
     /**
      * Represents gallery's data model
      * @implements Serializable for be able to pass this structure to the Bundle of the fragment
+     * @author Leonardo Rossi g2
      */
     public static class PhotoStructure implements Serializable
     {

@@ -215,19 +215,32 @@ public class CameraActivity extends AppCompatActivity {
     private String tempFileImage(Context context, Bitmap bitmap, String name)
     {
 
+        //Creating an instance of the file where the image will be saved
+        //It will be stored at the path contained into the variable outputDir
+        //It name will be the composition of the name variable's value and .jpg
         File outputDir = context.getCacheDir();
         File imageFile = new File(outputDir, name + ".jpg");
 
-        OutputStream os;
-        try {
-            os = new FileOutputStream(imageFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+        try
+        {
+            //Enabling the previous file to writing
+            OutputStream os = new FileOutputStream(imageFile);
+            //Before storing the image it is compressed in JPEG format and then written into the file's output stream
+            final int IMAGE_QUALITY = 100;
+            bitmap.compress(Bitmap.CompressFormat.JPEG, IMAGE_QUALITY, os);
+            //This method ensures that all the bytes in the output stream will be written into the specified file
             os.flush();
+            //At the end the output stream is closed
             os.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
+            //If an error happens while writing data into a file, then an exceprion is thrown and
+            //some logs are created
             Log.e(context.getClass().getSimpleName(), "Error writing file", e);
         }
 
+        //If all has gone well, the file's path is returned
         return imageFile.getAbsolutePath();
     }
 

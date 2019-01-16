@@ -21,6 +21,7 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import unipd.se18.ocrcamera.forum.models.Post;
 import unipd.se18.ocrcamera.forum.viewmodels.PostDetail_VM;
@@ -38,7 +39,6 @@ public class PostDetail extends android.support.v4.app.Fragment
      * **   GLOBAL VARIABLES    **
      * ***************************
      */
-    private OnFragmentInteractionListener mListener;
     private PostDetail_VM viewModel;
     private RecyclerView postComments;
     private Button btnAddComment;
@@ -59,7 +59,7 @@ public class PostDetail extends android.support.v4.app.Fragment
         viewModel = ViewModelProviders.of(this).get(PostDetail_VM.class);
 
         //Fragment parameters reading
-        loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), "default.user");
+        loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), getString(R.string.defaultUsername));
     }
 
     @Override
@@ -86,16 +86,16 @@ public class PostDetail extends android.support.v4.app.Fragment
         final TextView lblPostComments = view.findViewById(R.id.lblDettPostComments);
         final EditText txtComment = view.findViewById(R.id.txtComment);
 
-        //Reading of fragment parameters
-        final Post post = getArguments().getParcelable("post");
+        //Reading fragment parameters
+        final Post post = getArguments().getParcelable(getString(R.string.postParameterKey));
         viewModel.postID = post.getID();
 
         //UI population with post data
         lblPostTile.setText(post.getTitle());
-        lblPostAuthor.setText("Author: " + post.getAuthor());
+        lblPostAuthor.setText(String.format(Locale.ITALIAN, "%s %s", getResources().getString(R.string.authorLabel), post.getAuthor()));
         lblPostMessage.setText(post.getMessage());
-        lblPostLikes.setText("Likes: " + post.getLikes());
-        lblPostComments.setText("Comments: " + post.getComments());
+        lblPostLikes.setText(String.format(Locale.ITALIAN, "%s %d", getResources().getString(R.string.likesLabel), post.getLikes()));
+        lblPostComments.setText(String.format(Locale.ITALIAN, "%s %d", getResources().getString(R.string.commentsLabel), post.getComments()));
         lblPosDate.setText(Post.FORMATTER.format(post.getDate()));
 
         //Definition of view model listener
@@ -126,7 +126,7 @@ public class PostDetail extends android.support.v4.app.Fragment
 
                 //Update the UI
                 post.addComment();
-                lblPostComments.setText("Comments: " + post.getComments());
+                lblPostComments.setText(String.format(Locale.ITALIAN, "%s %d", getResources().getString(R.string.commentsLabel), post.getComments()));
                 txtComment.setText("");
                 adapter.addComment(comment);
                 adapter.notifyItemInserted(adapter.getLastPosition());
@@ -135,6 +135,7 @@ public class PostDetail extends android.support.v4.app.Fragment
             @Override
             public void onAddCommentFailure(String message)
             {
+                //If something when wrong during comment's addition a message is shown to the user
                 Toast.makeText(view.getContext(), message, Toast.LENGTH_LONG).show();
             }
         });
@@ -145,7 +146,8 @@ public class PostDetail extends android.support.v4.app.Fragment
             @Override
             public void onClick(View v)
             {
-               if (!txtComment.getText().toString().equals(""))
+
+                if (!txtComment.getText().toString().equals(""))
                {
                    Post comment = new Post();
                    comment.setAuthor(loggedUser);
@@ -157,7 +159,7 @@ public class PostDetail extends android.support.v4.app.Fragment
             }
         });
 
-
+        //The method to get post's detail is invoked
         viewModel.getPostDetail(view.getContext(), post.getID());
     }
 
@@ -257,11 +259,5 @@ public class PostDetail extends android.support.v4.app.Fragment
          * @param comment The specified comment
          */
         public void addComment(Post comment) { comments.add(comment); }
-    }
-
-    public interface OnFragmentInteractionListener
-    {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

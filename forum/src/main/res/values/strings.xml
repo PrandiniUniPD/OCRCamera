@@ -39,6 +39,7 @@
     <string name="postParameterKey">post</string>
     <string name="usernameFrgParam">username</string>
     <string name="loggedUser">user</string>
+    <string name="defaultUsername">default.user</string>
 
     <!-- Add comment messaged -->
     <string name="addCommentSuccess">Comment successfully added!</string>

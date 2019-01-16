@@ -58,8 +58,7 @@ public class ShowPosts extends Fragment {
         viewModel = ViewModelProviders.of(this).get(ShowPosts_VM.class);
 
         //Fragment parameters reading
-        final String DEFAULT_USERNAME = "default.user";
-        loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), DEFAULT_USERNAME);
+        loggedUser = getArguments().getString(getResources().getString(R.string.usernameFrgParam), getString(R.string.defaultUsername));
 
         //Enabling the possibility to have an options menu in this fragment
         setHasOptionsMenu(true);
