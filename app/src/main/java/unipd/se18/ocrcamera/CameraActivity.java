@@ -35,9 +35,6 @@ public class CameraActivity extends AppCompatActivity {
     private CameraKitView cameraKitView;
     private static String orientationResult="P";
 
-    public String getDir() {
-        return getExternalFilesDir(null).getAbsolutePath();
-    }
     /**
      * onCreate method of the Android Activity Lifecycle
      * @param savedInstanceState The Bundle of the last instance state saved
@@ -52,7 +49,7 @@ public class CameraActivity extends AppCompatActivity {
         //Load sensor for understand the orientation of the phone
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(new SensorEventListener() {
-            public int mOrientationDeg; //last rotation in degrees
+            private int mOrientationDeg; //last rotation in degrees
             private static final int _DATA_X = 0;
             private static final int _DATA_Y = 1;
             private static final int _DATA_Z = 2;
@@ -88,7 +85,7 @@ public class CameraActivity extends AppCompatActivity {
                     View takePicButton = findViewById(R.id.take_photo_button);
 
                     //figure out actual orientation
-                    if(orientation == -1){//basically flat
+                    if(orientation == ORIENTATION_UNKNOWN){//basically flat
                     }
                     else if(orientation <= 45 || orientation > 315){//round to 0
                         Log.d("Sensor", "P"); //Portrait
@@ -152,7 +149,7 @@ public class CameraActivity extends AppCompatActivity {
                     case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
                     case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
                     case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
-                    default: break;
+                    default: break; //orientationResult by default is Portrait, if none of the previous cases are triggered i leave the image  as is.
                 }
 
                 //Temporary stores the captured photo into a file that will be used from the Camera Result activity
@@ -160,7 +157,7 @@ public class CameraActivity extends AppCompatActivity {
 
                 SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
                 SharedPreferences.Editor edit = prefs.edit();
-                edit.putString("imagePath", filePath.trim());
+                edit.putString(getString(R.string.sharedPrefNameForImagePath), filePath.trim());
                 edit.apply();
 
                 //An intent that will launch the activity that will analyse the photo

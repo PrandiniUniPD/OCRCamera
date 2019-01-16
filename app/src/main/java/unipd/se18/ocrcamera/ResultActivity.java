@@ -145,7 +145,7 @@ public class ResultActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         //load the path to the last taken picture, can be null if the user didn't take any picture
-        final String lastImagePath = prefs.getString("imagePath", null);
+        final String lastImagePath = prefs.getString(getString(R.string.sharedPrefNameForImagePath), null);
 
         if(lastImagePath != null) {
 
