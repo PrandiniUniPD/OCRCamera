@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera.performancetester;
+package unipd.se18.ocrcamera.performancetester.testers;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,13 +8,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import unipd.se18.ocrcamera.Utils;
+import unipd.se18.ocrcamera.performancetester.TestElement;
 
 /**
  * Abstract class of a performance tester.
  * It's specific for testing the OCR on pics stored in the device
  * @author Pietro Prandini (g2)
  */
-public abstract class AbstractPerformanceTester implements PerformanceTester {
+abstract class AbstractPerformanceTester implements PerformanceTester {
     /**
      * String used for the logs of this class
      */
@@ -70,8 +71,25 @@ public abstract class AbstractPerformanceTester implements PerformanceTester {
         this.dirPath = directory.getPath();
         Log.d(TAG, "PhotoTester -> dirPath == " + dirPath);
 
-        //create a TestElement object for each original photo - then link all the alterations to the relative original TestElement
+        //create a TestElement object for each original photo
+        // - then link all the alterations to the relative original TestElement
         for(File file : directory.listFiles()) {
+            String filePath = file.getPath();
+            String fileName = Utils.getFilePrefix(filePath);
+
+            //if the file is not an alteration then create a test element for it
+            if(fileName.contains(PHOTO_BASE_NAME)) {
+
+                String fileExtension = Utils.getFileExtension(filePath);
+
+                //check if extension is available
+                if (Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
+                    TestElement originalTest = createTestElements(file,fileName);
+                    if (originalTest != null) {
+                        testElements.add(originalTest);
+                    }
+                }
+            }
         }
     }
 
@@ -93,10 +111,47 @@ public abstract class AbstractPerformanceTester implements PerformanceTester {
         return file;
     }
 
+    //
+    private TestElement createTestElements(File file, String fileName) {
+        //this file is an image -> get file path
+        String originalImagePath = file.getAbsolutePath();
+
+        //Each photo has a description.txt with the same filename - so when an image is found we know the description filename
+        String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
+
+        //create test element giving filename, description and image path
+        //author Luca Moroldo - g3
+
+        JSONObject jsonPhotoDescription = null;
+        try {
+            jsonPhotoDescription = new JSONObject(photoDesc);
+        } catch(JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
+            testListener.onTestFailure(TestListener.JSON_FAILURE);
+        }
+        if(jsonPhotoDescription != null) {
+            TestElement originalTest = new TestElement(originalImagePath, jsonPhotoDescription, fileName);
+
+            //associate the relative image path to each alteration of the original test if there is any
+            String[] alterationsFilenames = originalTest.getAlterationsNames();
+            if(alterationsFilenames != null) {
+                for(String alterationFilename : alterationsFilenames) {
+                    String alterationImagePath = dirPath + "/" + alterationFilename;
+                    originalTest.setAlterationImagePath(alterationFilename, alterationImagePath);
+                }
+            }
+            return originalTest;
+        }
+        return null;
+    }
+
     /**
-     * Elaborate tests using threads, stores the json report in string format to testReport.txt inside the directory given on construction
-     * @return String in JSON format with the test's report, each object is a single test named with the filename and contains:
-     * ingredients, tags, notes, original photo name, confidence and alterations (if any), each alteration contains alteration tags and alteration notes
+     * Elaborate tests using threads, stores the json report in string format to testReport.txt
+     * inside the directory given on construction
+     * @return String in JSON format with the test's report, each object is a single test named
+     * with the filename and contains ingredients, tags, notes, original photo name, confidence
+     * and alterations (if any), each alteration contains alteration tags and alteration notes
      * @author Luca Moroldo (g3)
      */
     public abstract String testAndReport() throws InterruptedException;

@@ -18,7 +18,7 @@ public class TestDetailsActivity extends AppCompatActivity {
     private String TAG = "TestDetailsActivity -> ";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Sets the layout with a fragment container

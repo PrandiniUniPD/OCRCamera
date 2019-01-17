@@ -24,7 +24,7 @@ public class TestsListActivity extends AppCompatActivity {
      * @param savedInstanceState Bundle of the last instance state of the app
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Sets the layout with a fragment container

@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera.performancetester;
+package unipd.se18.ocrcamera.performancetester.testers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -24,6 +24,7 @@ import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 import unipd.se18.ocrcamera.inci.TextSplitIngredientsExtractor;
+import unipd.se18.ocrcamera.performancetester.TestElement;
 import unipd.se18.textrecognizer.OCR;
 import unipd.se18.textrecognizer.OCRListener;
 import unipd.se18.textrecognizer.TextRecognizer;

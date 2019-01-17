@@ -29,6 +29,9 @@ import java.util.Comparator;
 
 import unipd.se18.ocrcamera.PhotoDownloadTask;
 import unipd.se18.ocrcamera.R;
+import unipd.se18.ocrcamera.performancetester.testers.PerformanceTester;
+import unipd.se18.ocrcamera.performancetester.testers.TestListener;
+import unipd.se18.ocrcamera.performancetester.testers.TesterProvider;
 
 /**
  * Activity for showing the result of the tests
@@ -197,6 +200,11 @@ public class TestsListFragment extends Fragment {
                 @Override
                 public void onAlterationAnalyzed() {
                     // not useful in this case
+                }
+
+                @Override
+                public void onTestFailure(int failureCode) {
+                    //TODO implement method
                 }
             };
             tester.setTestListener(testListener);

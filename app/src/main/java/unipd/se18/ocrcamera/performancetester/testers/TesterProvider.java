@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera.performancetester;
+package unipd.se18.ocrcamera.performancetester.testers;
 
 import android.content.Context;
 
