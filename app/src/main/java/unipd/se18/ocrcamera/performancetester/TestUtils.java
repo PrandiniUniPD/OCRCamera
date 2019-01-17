@@ -21,7 +21,7 @@ import unipd.se18.ocrcamera.Utils;
  * Class useful for the testing area
  * @author Pietro Prandini (g2)
  */
-public class TestUtils {
+class TestUtils {
     /*
     Strings used for passing by intent some data to others activity
      */
@@ -42,7 +42,7 @@ public class TestUtils {
      * @return The String formatted
      * @author Pietro Prandini (g2)
      */
-    protected static String formatPercentString(float value) {
+    static String formatPercentString(float value) {
         return new DecimalFormat("#0").format(value) + " %";
     }
 
@@ -55,7 +55,7 @@ public class TestUtils {
      * @return The relative color.
      * @author Pietro Prandini (g2)
      */
-    protected static int chooseColorOfValue(float value, float redUntil, float yellowUntil) {
+    static int chooseColorOfValue(float value, float redUntil, float yellowUntil) {
         if(value < redUntil) {
             return Color.RED;
         } else if (value < yellowUntil) {
@@ -73,7 +73,7 @@ public class TestUtils {
      * @return The relative color.
      * @author Pietro Prandini (g2)
      */
-    protected static int chooseColorOfValue(float value, float redUntil) {
+    static int chooseColorOfValue(float value, float redUntil) {
         if(value < redUntil) {
             return Color.RED;
         } else {
@@ -96,7 +96,7 @@ public class TestUtils {
      * @return Bitmap scaled with the width same as the width of the screen
      * @author Pietro Prandini (g2)
      */
-    protected static Bitmap scaleBitmap(Context context, Bitmap img) {
+    static Bitmap scaleBitmap(Context context, Bitmap img) {
         // Obtains the original dimensions of the pic
         int imgWidth = img.getWidth();
         int imgHeight = img.getHeight();
@@ -125,7 +125,7 @@ public class TestUtils {
      * @param viewDetails True for viewing details of alterations, false otherwise
      * @author Pietro Prandini (g2)
      */
-    protected static void setAlterationsView(Context context, RelativeLayout relativeLayout,
+    static void setAlterationsView(Context context, RelativeLayout relativeLayout,
                                              View belowOf, TestElement element, Boolean viewDetails) {
         // Gets the alterations name (if any)
         String[] alterations = element.getAlterationsNames();
@@ -321,7 +321,7 @@ public class TestUtils {
      * @return The id of the TestElement passed
      * @author Pietro Prandini (g2)
      */
-    protected static long getTestElementId(TestElement element) {
+    static long getTestElementId(TestElement element) {
         // The prefix is "foto", so the suffix starts at 4
         int suffix = 4;
         return Integer.parseInt(element.getFileName().substring(suffix));
