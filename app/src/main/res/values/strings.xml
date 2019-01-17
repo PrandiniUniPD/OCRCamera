@@ -76,4 +76,5 @@
     <string name="download_test_pics">No test pics fond, download them please.</string>
     <string name="forum">Forum</string>
     <string name="selected_allergens_sharedPref">unipd.se18.ocrcamera.SELECTED_ALLERGENS</string>
+    <string name="letter_icon">Letter icon</string>
 </resources>
