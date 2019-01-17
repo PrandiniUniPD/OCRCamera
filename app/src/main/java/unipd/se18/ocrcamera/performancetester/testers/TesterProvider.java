@@ -21,7 +21,8 @@ public class TesterProvider {
      * @return The instance of the performance tester requested
      */
     public static PerformanceTester getTester(TesterProvider.testers tester,
-                                       Context context, String dirPath) {
+                                       Context context, String dirPath)
+                                        throws TestDirectoryException {
         switch (tester) {
             case PhotoTester:
                 return new PhotoTester(context,dirPath);

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,16 @@ class PhotoTester extends AbstractPerformanceTester {
 
     private static final String TAG = "PhotoTester";
 
+    /**
+     * Contains the available extensions for the test
+     */
+    private static final String[] IMAGE_EXTENSIONS = {"jpeg", "jpg"};
+
+    /**
+     * Contains the base name of a photo used for the test
+     */
+    private static final String PHOTO_BASE_NAME = "foto";
+
     //ingredients extractors (Francesco Pham)
     private IngredientsExtractor ocrIngredientsExtractor;
     private IngredientsExtractor correctIngredientsExtractor;
@@ -52,9 +63,33 @@ class PhotoTester extends AbstractPerformanceTester {
      * Load test elements (images + description)
      * @param context The context of the app
      * @param dirPath The path where the photos and descriptions are.
+     * @author Luca Moroldo
      */
-    PhotoTester(Context context, String dirPath) {
+    PhotoTester(Context context, String dirPath) throws TestDirectoryException{
         super(context, dirPath);
+
+        File directory = new File(dirPath);
+        File[] testElementsFiles = directory.listFiles();
+
+        //creates a TestElement object for each original photo
+        // - then links all the alterations to the relative original TestElement
+        for(File file : testElementsFiles) {
+            String filePath = file.getPath();
+            String fileName = Utils.getFilePrefix(filePath);
+
+            // If the file is not an alteration then creates a test element for it
+            if(fileName != null && fileName.contains(PHOTO_BASE_NAME)) {
+                // Checks if the extension is supported
+                String fileExtension = Utils.getFileExtension(filePath);
+                if (Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
+                    // Extension supported -> Parses the test element
+                    TestElement testElement = parseTestElement(file);
+                    if(testElement != null) {
+                        testElements.add(testElement);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -64,7 +99,6 @@ class PhotoTester extends AbstractPerformanceTester {
      * @author Luca Moroldo (g3)
      */
     public String testAndReport() throws InterruptedException {
-
 
         Log.i(TAG,"testAndReport started");
         long started = java.lang.System.currentTimeMillis();
@@ -130,9 +164,51 @@ class PhotoTester extends AbstractPerformanceTester {
     }
 
     /**
+     * Parse a text file to get a TestElement
+     * @param file .txt file that contains Test data in JSON format
+     * @return parsed TestElement object
+     * @author Luca Moroldo
+     */
+    private TestElement parseTestElement(File file) {
+
+        String fileName = Utils.getFilePrefix(file.getPath());
+        //this file is an image -> get file path
+        String originalImagePath = file.getAbsolutePath();
+        //Each photo has a description.txt with the same filename
+        // - so when an image is found we know the description filename
+        String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
+
+        TestElement originalTest = null;
+
+        // Parses test element giving filename, description and image path
+        try {
+            JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
+            originalTest =
+                    new TestElement(originalImagePath, jsonPhotoDescription, fileName);
+
+            String[] alterationsFilenames = originalTest.getAlterationsNames();
+            if(alterationsFilenames != null) {
+                for(String alterationFilename : alterationsFilenames) {
+                    String alterationImagePath = dirPath + "/" + alterationFilename;
+                    originalTest.setAlterationImagePath(alterationFilename, alterationImagePath);
+                }
+            }
+
+        } catch(JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
+            if(testListener != null) {
+                testListener.onTestFailure(TestListener.JSON_PARSING_FAILURE, fileName);
+            }
+
+        }
+        return originalTest;
+    }
+
+    /**
      * Save report to file
-     *
      * @return true if report was correctly saved, false in case of error or if report is null
+     * @author Luca Moroldo
      */
     boolean saveReportToFile() {
 
@@ -279,6 +355,7 @@ class PhotoTester extends AbstractPerformanceTester {
      * @param bitmap from which the text is extracted - this method blocks the calling thread
      * and waits for the text extraction from the OCR
      * @return String - the text extracted
+     * @author Luca Moroldo, Pietro Prandini
      */
     private String executeOcr(Bitmap bitmap) {
 
@@ -366,6 +443,7 @@ class PhotoTester extends AbstractPerformanceTester {
          * Evaluate a test setting the recognized text and the confidence with the recognition
          * @param test TestElement to evaluate
          * @modify test
+         * @author Luca Moroldo
          */
         private void evaluateTest(TestElement test) {
             String imagePath = test.getImagePath();
@@ -451,6 +529,7 @@ class PhotoTester extends AbstractPerformanceTester {
          * Evaluate each alteration (if any) setting the recognized text and the confidence with the recognition
          * @param test TestElement to evaluate
          * @modify test
+         * @author Luca Moroldo
          */
         private void evaluateTestAlterations(TestElement test) {
             String[] alterationsFileNames = test.getAlterationsNames();
@@ -474,7 +553,9 @@ class PhotoTester extends AbstractPerformanceTester {
         }
 
         /**
-         * Signal the end of a single test by calling TestListener.onTestFinished if a listener has been set
+         * Signal the end of a single test by calling TestListener.onTestFinished if a listener
+         * has been set
+         * @author Luca Moroldo
          */
         private synchronized void signalTestFinished() {
             if(testListener != null) {

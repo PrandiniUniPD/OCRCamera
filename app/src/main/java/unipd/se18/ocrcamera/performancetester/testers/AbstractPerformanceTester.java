@@ -22,16 +22,6 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
     private static final String TAG = "PerformanceTester";
 
     /**
-     * Contains the available extensions for the test
-     */
-    private static final String[] IMAGE_EXTENSIONS = {"jpeg", "jpg"};
-
-    /**
-     * Contains the base name of a photo used for the test
-     */
-    private static final String PHOTO_BASE_NAME = "foto";
-
-    /**
      * String used as file name for the report
      */
     static final String REPORT_FILENAME = "report.txt";
@@ -62,7 +52,7 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
      * @param dirPath The path where the photos and descriptions are.
      * @author Luca Moroldo (g3) - Modified by Pietro Prandini (g2)
      */
-    AbstractPerformanceTester(Context context, String dirPath) {
+    AbstractPerformanceTester(Context context, String dirPath) throws TestDirectoryException {
         // Initializes the context
         this.context = context;
 
@@ -75,81 +65,24 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
             Log.e(TAG, directory.getAbsolutePath() + "It's not a directory");
 
             // Launches the not valid directory event
-            testListener.onNotValidDirectory(dirPath);
+            throw new TestDirectoryException(dirPath + " is not a directory.");
+        }
 
-            // Nothing to analyze
-            return;
+        // Gets the files contained in the directory
+        File[] testElementsFiles = directory.listFiles();
+
+        // Checks if the directory is empty, if yes there is nothing to analyze
+        if (testElementsFiles.length == 0) {
+            // Launches the empty directory event
+            throw new TestDirectoryException(dirPath + " is empty.");
         }
 
         // Saves the path of the directory
         this.dirPath = directory.getPath();
         Log.d(TAG, "PhotoTester -> dirPath == " + dirPath);
-
-        // Gets the files contained in the directory
-        File[] testElementsFiles = directory.listFiles();
-
-        // Checks if the directory is empty, if yes there are nothing to analyze
-        if (testElementsFiles.length == 0) {
-            // Launches the empty directory event
-            testListener.onEmptyDirectory(dirPath);
-
-            // Nothing to analyze
-            return;
-        }
-
-        //creates a TestElement object for each original photo
-        // - then links all the alterations to the relative original TestElement
-        for(File file : testElementsFiles) {
-            String filePath = file.getPath();
-            String fileName = Utils.getFilePrefix(filePath);
-
-            // If the file is not an alteration then creates a test element for it
-            if(fileName != null && fileName.contains(PHOTO_BASE_NAME)) {
-                // Checks if the extension is supported
-                String fileExtension = Utils.getFileExtension(filePath);
-                if (Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
-                    // Extension supported -> Parses the test element
-                    parseTestElement(file,fileName);
-                }
-            }
-        }
     }
 
-    /**
-     * Creates a TestElement
-     * @param file The File compatible to a TestElement
-     * @param fileName The filename of the file
-     */
-    void parseTestElement(File file, String fileName) {
-        //this file is an image -> get file path
-        String originalImagePath = file.getAbsolutePath();
 
-        //Each photo has a description.txt with the same filename
-        // - so when an image is found we know the description filename
-        String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
-
-        // Parses test element giving filename, description and image path
-        try {
-            JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
-            TestElement originalTest =
-                    new TestElement(originalImagePath, jsonPhotoDescription, fileName);
-            String[] alterationsFilenames = originalTest.getAlterationsNames();
-            if(alterationsFilenames != null) {
-                for(String alterationFilename : alterationsFilenames) {
-                    String alterationImagePath = dirPath + "/" + alterationFilename;
-                    originalTest.setAlterationImagePath(alterationFilename, alterationImagePath);
-                }
-            }
-
-
-            // Adds the test element parsed if it's parsed correctly
-            testElements.add(originalTest);
-        } catch(JSONException e) {
-            e.printStackTrace();
-            Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
-            testListener.onTestFailure(TestListener.JSON_PARSING_FAILURE);
-        }
-    }
 
     /**
      * Elaborate tests using threads, stores the json report in string format to testReport.txt
@@ -183,4 +116,6 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
      * Convert statistics returned by getTagsStats() into a readable text
      */
     public abstract String getTagsStatsString();
+
+
 }

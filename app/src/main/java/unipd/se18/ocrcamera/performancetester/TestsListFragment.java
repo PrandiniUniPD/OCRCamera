@@ -29,6 +29,7 @@ import java.util.Comparator;
 
 import unipd.se18.ocrcamera.R;
 import unipd.se18.ocrcamera.performancetester.testers.PerformanceTester;
+import unipd.se18.ocrcamera.performancetester.testers.TestDirectoryException;
 import unipd.se18.ocrcamera.performancetester.testers.TestListener;
 import unipd.se18.ocrcamera.performancetester.testers.TesterProvider;
 
@@ -83,8 +84,14 @@ public class TestsListFragment extends Fragment {
             ListView listEntriesView = getActivity().findViewById(R.id.test_entries_list);
 
             // Sets the elements of the list as AsyncTask
-            AsyncReport report = new AsyncReport(listEntriesView);
-            report.execute();
+            try {
+                AsyncReport report = new AsyncReport(listEntriesView);
+                report.execute();
+            } catch (TestDirectoryException e) {
+                Log.e(TAG, "Error creating tester: " + e.getMessage());
+                Toast.makeText(getContext(), "Error creating tester: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
         } else {
             // Needs downloading tests pics
             Log.v(TAG, "Checks about tests existence not passed");
@@ -146,9 +153,11 @@ public class TestsListFragment extends Fragment {
          * Constructor of the class
          * @param listEntriesView The ListView used for showing the results as list
          */
-        AsyncReport(ListView listEntriesView) {
-            this.listEntriesView = listEntriesView;
+        AsyncReport(ListView listEntriesView) throws TestDirectoryException {
             this.dirPath = PhotoDownloadTask.PHOTOS_FOLDER;
+            this.tester = TesterProvider.getTester(TesterProvider.testers.PhotoTester , getContext(), dirPath);
+            this.listEntriesView = listEntriesView;
+
         }
 
         /**
@@ -159,6 +168,29 @@ public class TestsListFragment extends Fragment {
         protected void onPreExecute() {
             progressBar = getActivity().findViewById(R.id.tests_progress_bar);
             progressText = getActivity().findViewById(R.id.progress_testing_text);
+
+            // Listener useful for updating the progress bar
+            TestListener testListener = new TestListener() {
+                @Override
+                public void onTestFinished() {
+                    // +1 test finished -> +1 progress bar
+                    publishProgress(++testedElements);
+                }
+
+                @Override
+                public void onTestFailure(int failureCode, final String testName) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(),
+                                    "Error parsing: " + testName, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }
+            };
+            tester.setTestListener(testListener);
+
         }
 
         /**
@@ -173,7 +205,6 @@ public class TestsListFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... voids) {
             // Starts the elaboration of the tests
-            this.tester = TesterProvider.getTester(TesterProvider.testers.PhotoTester , getContext(), dirPath);
 
             // Sets the starting information about the progress
             totalTestElements = tester.getTestSize();
@@ -187,30 +218,7 @@ public class TestsListFragment extends Fragment {
                 }
             });
 
-            // Listener useful for updating the progress bar
-            TestListener testListener = new TestListener() {
-                @Override
-                public void onTestFinished() {
-                    // +1 test finished -> +1 progress bar
-                    publishProgress(++testedElements);
-                }
 
-                @Override
-                public void onEmptyDirectory(String dirPath) {
-                    //TODO launches the download process
-                }
-
-                @Override
-                public void onNotValidDirectory(String dirPath) {
-                    //TODO launches the download process
-                }
-
-                @Override
-                public void onTestFailure(int failureCode) {
-                    //TODO Warns the user about this failure
-                }
-            };
-            tester.setTestListener(testListener);
 
             // publishes progress
             try {

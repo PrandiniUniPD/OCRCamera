@@ -16,20 +16,8 @@ public interface TestListener {
     void onTestFinished();
 
     /**
-     * The path of the directory used for finding the test pics is empty
-     * @param dirPath The path of the empty directory of the test pics
-     */
-    void onEmptyDirectory(String dirPath);
-
-    /**
-     * The path of the directory used for finding the test pics is not valid
-     * @param dirPath The path of the not valid directory of the test pics
-     */
-    void onNotValidDirectory(String dirPath);
-
-    /**
      * A test is failed
      * @param failureCode The code of failure
      */
-    void onTestFailure(int failureCode);
+    void onTestFailure(int failureCode, String testName);
 }
