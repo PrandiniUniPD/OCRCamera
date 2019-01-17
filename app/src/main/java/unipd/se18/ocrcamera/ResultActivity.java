@@ -162,53 +162,6 @@ public class ResultActivity extends AppCompatActivity {
             analyzeImageUpdateUI(lastImagePath, true); //TODO not work on virtual machine
         }
 
-        //Set the toolbar as the action bar
-        Toolbar toolbar= findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        //Set up the Action Bar with the menu button
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
-        }
-
-        //set up Hamburger menu layout items
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-                        //choose which activity to start depending on the selected item
-
-                        switch (menuItem.getItemId()){
-                            case R.id.allergens_activity:
-                                startActivity( new Intent(ResultActivity.this, MainAllergensActivity.class));
-                                return true;
-                            case R.id.gallery_activity:
-                                startActivity(new Intent (ResultActivity.this, GalleryActivity.class));
-                                return true;
-                            case R.id.forum_activity:
-                                Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
-                                startActivity(forumIntent);
-                                return true;
-                            case R.id.test:
-                                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
-                                startActivity(i);
-                                return true;
-                            case R.id.download_photos:
-                                Intent download_intent = new Intent(ResultActivity.this,
-                                        DownloadDbActivity.class);
-                                startActivity(download_intent);
-                                return true;
-                        }
-
-                        return false;
-                    }
-                }
-        );
-
         //set reference to the BottomNavigationView
         BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
 

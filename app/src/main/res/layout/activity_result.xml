@@ -14,14 +14,6 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:id="@+id/relLayoutTopBar"
-            android:layout_alignParentTop="true">
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/relLayoutMiddle"
             android:layout_below="@id/relLayoutTopBar"
@@ -34,23 +26,17 @@
                 android:layout_height="match_parent"
                 tools:context=".ResultActivity">
 
-                <android.support.v7.widget.Toolbar
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="?attr/colorPrimary"
-                    android:theme="@style/ToolbarStyle"
-                    app:layout_constraintTop_toTopOf="parent">
-                </android.support.v7.widget.Toolbar>
-
                 <ImageView
                     android:id="@+id/img_captured_view"
                     android:layout_width="match_parent"
                     android:layout_height="250dp"
+                    android:layout_marginTop="8dp"
                     android:contentDescription="@string/pic_captured"
                     android:padding="20sp"
                     app:layout_constraintBottom_toTopOf="@id/progress_bar"
-                    app:layout_constraintTop_toBottomOf="@id/toolbar" />
+                    app:layout_constraintTop_toTopOf="parent">
+
+                </ImageView>
 
                 <ListView
                     android:id="@+id/ingredients_list"
@@ -83,14 +69,6 @@
                 </ProgressBar>
 
             </android.support.constraint.ConstraintLayout>
-
-            <android.support.design.widget.NavigationView
-                android:id="@+id/nav_view"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="start"
-                android:fitsSystemWindows="true"
-                app:menu="@menu/drawer_view" />
 
         </RelativeLayout>
 
