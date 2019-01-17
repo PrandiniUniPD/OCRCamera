@@ -203,8 +203,18 @@ public class TestsListFragment extends Fragment {
                 }
 
                 @Override
+                public void onEmptyDirectory(String dirPath) {
+
+                }
+
+                @Override
+                public void onNotValidDirectory(String dirPath) {
+
+                }
+
+                @Override
                 public void onTestFailure(int failureCode) {
-                    //TODO implement method
+
                 }
             };
             tester.setTestListener(testListener);

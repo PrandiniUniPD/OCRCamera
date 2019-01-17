@@ -71,6 +71,12 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         this.dirPath = directory.getPath();
         Log.d(TAG, "PhotoTester -> dirPath == " + dirPath);
 
+        // Checks if the
+        File[] testElementsFiles = directory.listFiles();
+        if (testElementsFiles.length == 0) {
+            testListener.onEmptyDirectory(dirPath);
+            return;
+        }
         //create a TestElement object for each original photo
         // - then link all the alterations to the relative original TestElement
         for(File file : directory.listFiles()) {
@@ -78,13 +84,13 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
             String fileName = Utils.getFilePrefix(filePath);
 
             //if the file is not an alteration then create a test element for it
-            if(fileName.contains(PHOTO_BASE_NAME)) {
+            if(fileName != null && fileName.contains(PHOTO_BASE_NAME)) {
 
                 String fileExtension = Utils.getFileExtension(filePath);
 
                 //check if extension is available
                 if (Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
-                    TestElement originalTest = createTestElements(file,fileName);
+                    TestElement originalTest = parseTestElement(file,fileName);
                     if (originalTest != null) {
                         testElements.add(originalTest);
                     }
@@ -105,35 +111,32 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         File file = new File(dirPath);
         if(!file.isDirectory()) {
             Log.e(TAG, file.getAbsolutePath() + "It's not a directory");
+            testListener.onNotValidDirectory(dirPath);
         } else {
             Log.d(TAG, "Directory of tests => " + file.getAbsolutePath());
         }
         return file;
     }
 
-    //
-    private TestElement createTestElements(File file, String fileName) {
+    /**
+     * Creates a TestElement
+     * @param file The File compatible to a TestElement
+     * @param fileName The filename of the file
+     * @return The TestElement found, null if problem when parsing of the JSON file
+     */
+    private TestElement parseTestElement(File file, String fileName) {
         //this file is an image -> get file path
         String originalImagePath = file.getAbsolutePath();
 
-        //Each photo has a description.txt with the same filename - so when an image is found we know the description filename
+        //Each photo has a description.txt with the same filename
+        // - so when an image is found we know the description filename
         String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
 
-        //create test element giving filename, description and image path
-        //author Luca Moroldo - g3
-
-        JSONObject jsonPhotoDescription = null;
+        // Parses test element giving filename, description and image path
         try {
-            jsonPhotoDescription = new JSONObject(photoDesc);
-        } catch(JSONException e) {
-            e.printStackTrace();
-            Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
-            testListener.onTestFailure(TestListener.JSON_FAILURE);
-        }
-        if(jsonPhotoDescription != null) {
-            TestElement originalTest = new TestElement(originalImagePath, jsonPhotoDescription, fileName);
-
-            //associate the relative image path to each alteration of the original test if there is any
+            JSONObject jsonPhotoDescription = new JSONObject(photoDesc);
+            TestElement originalTest =
+                    new TestElement(originalImagePath, jsonPhotoDescription, fileName);
             String[] alterationsFilenames = originalTest.getAlterationsNames();
             if(alterationsFilenames != null) {
                 for(String alterationFilename : alterationsFilenames) {
@@ -142,6 +145,10 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
                 }
             }
             return originalTest;
+        } catch(JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
+            testListener.onTestFailure(TestListener.JSON_FAILURE);
         }
         return null;
     }

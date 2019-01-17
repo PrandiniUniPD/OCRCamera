@@ -27,7 +27,7 @@ public class TestDetailsFragment extends Fragment {
     private String TAG = "TestDetailsFragment -> ";
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(unipd.se18.ocrcamera.R.layout.fragment_test_element_details, container, false);
+        return inflater.inflate(R.layout.fragment_test_element_details, container, false);
     }
 
     @Override
