@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,6 +13,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
+
+import unipd.se18.ocrcamera.R;
+import unipd.se18.ocrcamera.Utils;
 
 /**
  * Class useful for the testing area
@@ -204,7 +207,7 @@ public class TestUtils {
                                               View belowOf, TestElement element, String alteration) {
         // Obtains the altered pic
         String imagePath = element.getAlterationImagePath(alteration);
-        Bitmap img = scaleBitmap(context,Utils.loadBitmapFromFile(imagePath));
+        Bitmap img = scaleBitmap(context, Utils.loadBitmapFromFile(imagePath));
         ImageView picView = new ImageView(context);
         picView.setImageBitmap(img);
 

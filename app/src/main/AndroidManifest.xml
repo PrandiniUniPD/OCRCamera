@@ -70,9 +70,9 @@
             android:name=".GalleryActivity"
             android:parentActivityName=".ResultActivity"/>
 
-        <activity android:name=".TestsListActivity" />
+        <activity android:name=".performancetester.TestsListActivity" />
 
-        <activity android:name=".TestDetailsActivity" />
+        <activity android:name=".performancetester.TestDetailsActivity" />
 
         <activity android:name=".MainAllergensActivity"
             android:parentActivityName=".ResultActivity"

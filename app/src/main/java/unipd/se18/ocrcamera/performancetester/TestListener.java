@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
 public interface TestListener {
     void onTestFinished();

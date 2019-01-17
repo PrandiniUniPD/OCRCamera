@@ -47,7 +47,7 @@ public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     private LinearLayout layoutDownload;
     private LinearLayout layoutLogin;
 
-    protected static final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
+    public static final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
     private final String LOGINGINFORMATION_FILE = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"/ingsoftwareftp.txt";
     private final String REMOTE_FOLDER = "/htdocs/foto/";
     private final String TAG = "FTP";

@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
 import android.util.Log;
 
@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import unipd.se18.ocrcamera.Utils;
 
 /**
  * Class that contains a single test element, used in PhotoTester to build a single test and on

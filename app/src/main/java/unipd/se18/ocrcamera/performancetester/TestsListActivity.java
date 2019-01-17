@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+
+import unipd.se18.ocrcamera.PhotoDownloadTask;
+import unipd.se18.ocrcamera.R;
 
 /**
  * Activity for showing the result of the tests
