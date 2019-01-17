@@ -116,12 +116,64 @@ public class ResultActivity extends AppCompatActivity {
 
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
-        emptyTextView.setText(R.string.finding_text);
         ingredientsListView.setEmptyView(emptyTextView);
+        //set message
+        emptyTextView.setText(R.string.processing_image);
+        progressBar.setVisibility(ProgressBar.VISIBLE);
 
         //show analyzed text view
         analyzedTextView = new TextView(ResultActivity.this);
         ingredientsListView.addHeaderView(analyzedTextView);
+
+
+
+        //Set the toolbar as the action bar
+        Toolbar toolbar= findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //Set up the Action Bar with the menu button
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+        }
+
+        //set up Hamburger menu layout items
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+                        //choose which activity to start depending on the selected item
+
+                        switch (menuItem.getItemId()){
+                            case R.id.allergens_activity:
+                                startActivity( new Intent(ResultActivity.this, MainAllergensActivity.class));
+                                return true;
+                            case R.id.gallery_activity:
+                                startActivity(new Intent (ResultActivity.this, GalleryActivity.class));
+                                return true;
+                            case R.id.forum_activity:
+                                Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
+                                startActivity(forumIntent);
+                                return true;
+                            case R.id.test:
+                                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
+                                startActivity(i);
+                                return true;
+                            case R.id.download_photos:
+                                Intent download_intent = new Intent(ResultActivity.this,
+                                        DownloadDbActivity.class);
+                                startActivity(download_intent);
+                                return true;
+                        }
+
+                        return false;
+                    }
+                }
+        );
+
 
         //set on click on ingredient launching IngredientDetailsFragment
         ingredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -172,73 +224,55 @@ public class ResultActivity extends AppCompatActivity {
                 }
             });
 
-            analyzeImageUpdateUI(lastImagePath, true); //TODO not work on virtual machine
+            //launch image processing
+            new AsyncImageProcess(ResultActivity.this, true).execute(lastImagePath);
         }
 
-        //Set the toolbar as the action bar
-        Toolbar toolbar= findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        //Set up the Action Bar with the menu button
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+    }
+
+    private static class AsyncImageProcess extends AsyncTask<String, Void, Bitmap> {
+
+        private boolean autoSkew;
+        private WeakReference<ResultActivity> activityReference;
+
+        /**
+         * Constructor
+         * @param autoSkew True if automatic rotation of the image is required, false otherwise.
+         */
+        AsyncImageProcess(ResultActivity context, boolean autoSkew){
+            this.autoSkew = autoSkew;
+            activityReference = new WeakReference<>(context);
         }
 
-        //set up Hamburger menu layout items
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+            // get Bitmap of the image
+            String imagePath = strings[0];
+            Bitmap image = BitmapFactory.decodeFile(imagePath);
 
-                        //choose which activity to start depending on the selected item
+            //process image adjusting brightness and eventually autorotating
+            PreProcessing processing = new PreProcessing();
+            image = processing.doImageProcessing(image, autoSkew);
 
-                        switch (menuItem.getItemId()){
-                            case R.id.allergens_activity:
-                                startActivity( new Intent(ResultActivity.this, MainAllergensActivity.class));
-                                return true;
-                            case R.id.gallery_activity:
-                                startActivity(new Intent (ResultActivity.this, GalleryActivity.class));
-                                return true;
-                            case R.id.forum_activity:
-                                Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
-                                startActivity(forumIntent);
-                                return true;
-                            case R.id.test:
-                                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
-                                startActivity(i);
-                                return true;
-                            case R.id.download_photos:
-                                Intent download_intent = new Intent(ResultActivity.this,
-                                        DownloadDbActivity.class);
-                                startActivity(download_intent);
-                                return true;
-                        }
+            return image;
+        }
 
-                        return false;
-                    }
-                }
-        );
+        @Override
+        protected void onPostExecute(Bitmap processedImage) {
+            super.onPostExecute(processedImage);
+            ResultActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) return;
 
+            activity.analyzeImageUpdateUI(processedImage);
+        }
     }
 
     /**
      * Show image, extract text from the image, extract ingredients and update UI showing results.
-     * @param imagePath Path of the image which has to be analyzed
-     * @param autoSkew True if automatic rotation of the image is required, false otherwise.
+     * @param image Image which has to be analyzed
      */
-    private void analyzeImageUpdateUI(final String imagePath, boolean autoSkew) {
-
-        // get Bitmap of the image
-        Bitmap image = BitmapFactory.decodeFile(imagePath);
-
-        //process image adjusting brightness and eventually autorotating
-        PreProcessing processing = new PreProcessing();
-        image = processing.doImageProcessing(image, autoSkew);
-
-        final Bitmap finalImage = image;
+    private void analyzeImageUpdateUI(final Bitmap image) {
 
         // Sets the image to the view
         mImageView.setImageBitmap(
@@ -257,7 +291,7 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void onTextRecognized(String text) {
                 //search for ingredients in the INCI db and update the UI
-                AsyncIngredientsExtraction extraction = new AsyncIngredientsExtraction(ResultActivity.this, finalImage);
+                AsyncIngredientsExtraction extraction = new AsyncIngredientsExtraction(ResultActivity.this, image);
                 extraction.execute(text);
             }
 
@@ -280,7 +314,9 @@ public class ResultActivity extends AppCompatActivity {
 
         //extract text
         textRecognizer.getTextFromImg(image);
-        progressBar.setVisibility(ProgressBar.VISIBLE);
+
+        //set message
+        emptyTextView.setText(R.string.finding_text);
 
 
         // Analyze the brightness of the taken photo  @author Balzan Pietro
@@ -296,7 +332,8 @@ public class ResultActivity extends AppCompatActivity {
             final Uri resultUri = UCrop.getOutput(data);
 
             if (resultUri != null) {
-                analyzeImageUpdateUI(resultUri.getPath(), false);
+                String imagePath = resultUri.getPath();
+                new AsyncImageProcess(ResultActivity.this, true).execute(imagePath);
             }
         }
     }

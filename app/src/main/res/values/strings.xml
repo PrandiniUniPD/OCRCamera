@@ -32,6 +32,7 @@
     <string name="error_code">"Error code: "</string>
     <string name="view_details">Details</string>
     <string name="searching_ingredients">Searching for ingredients</string>
+    <string name="processing_image">Processing image</string>
     <string name="finding_text">Finding text</string>
     <string name="no_ingredient_found">No ingredient found</string>
     <string name="function_title">Function:</string>
