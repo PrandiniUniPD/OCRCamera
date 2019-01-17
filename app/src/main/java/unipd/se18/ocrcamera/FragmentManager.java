@@ -22,6 +22,8 @@ public class FragmentManager extends AppCompatActivity {
     private Fragment allergensFragment;
     private Fragment forumFragment;
 
+    private Fragment camera2Fragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,8 +31,10 @@ public class FragmentManager extends AppCompatActivity {
 
 
         galleryFragment = new GalleryFragment();
-        allergensFragment = new Fragment();
+
+        //allergensFragment = new Fragment();
         forumFragment = new Fragment();
+        camera2Fragment = new Camera2Fragment();
 
         mMainFrame = (FrameLayout)findViewById(R.id.main_frame);
         mMainNav = (BottomNavigationView)findViewById(R.id.main_nav);
@@ -45,9 +49,9 @@ public class FragmentManager extends AppCompatActivity {
                         mMainNav.setItemBackgroundResource(R.color.colorPrimary);
                         setFragment(galleryFragment);
                         return true;
-                    case R.id.allergens :
+                    case R.id.allergens : //this now opens the camera
                         mMainNav.setItemBackgroundResource(R.color.colorAccent);
-                        setFragment(allergensFragment);
+                        setFragment(camera2Fragment);
                         return true;
                     case R.id.forum :
                         mMainNav.setItemBackgroundResource(R.color.colorPrimaryDark);
