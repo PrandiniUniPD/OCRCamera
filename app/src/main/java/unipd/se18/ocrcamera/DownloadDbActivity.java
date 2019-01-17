@@ -2,6 +2,7 @@ package unipd.se18.ocrcamera;
 
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -84,13 +85,6 @@ public class DownloadDbActivity extends AppCompatActivity {
 
         ///Load other UI elements
         clickButtonDownload = findViewById(R.id.downloadDbButton);
-        clickButtonDownload.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PhotoDownloadTask task = new PhotoDownloadTask(DownloadDbActivity.this);
-                task.execute();
-            }
-        });
 
         clickButtonLogin = findViewById(R.id.downloadLoginButton);
         clickButtonLogin.setOnClickListener( new View.OnClickListener() {
@@ -100,48 +94,23 @@ public class DownloadDbActivity extends AppCompatActivity {
             }
         });
 
+        //Verify if I can download the images
         verifyDoLogin();
 
     }
 
     /**
-     * Load the infos from EditText and create the login file
+     * action when is pressed the login button from the UI when the LoginLayout is visible
      *
      * @author Stefano Romanello (g3)
      */
     private void doLogin()
     {
         //When I do the login I will save the credentials so I don't need to re-write them each time
-        //If the creadentials are wrong they will be auto-deleted when I try to download the files.
-        String username = txtUsername.getText().toString();
-        String password = txtPassword.getText().toString();
-        String hostname = txtHostname.getText().toString();
-        try {
-            File dirDocuments = new File(LOGININFORMATION_DIRECTORY);
-            if(!dirDocuments.exists() || !dirDocuments.isDirectory())
-            {
-                dirDocuments.mkdir();
-            }
-
-            FileOutputStream fOut = new FileOutputStream(LOGININFORMATION_FILE);
-
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fOut));
-
-            bw.write(username);
-            bw.newLine();
-            bw.write(password);
-            bw.newLine();
-            bw.write(hostname);
-
-            bw.close();
-
-            fOut.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            layoutLogin.setVisibility(View.GONE);
-            txtLoginStatus.setVisibility(View.VISIBLE);
-        }
-
+        //If the credentials are wrong they will be auto-deleted
+        final String username = txtUsername.getText().toString();
+        final String password = txtPassword.getText().toString();
+        final String hostname = txtHostname.getText().toString();
 
         //In the login section I also check if the folder for photos exists
         File dirPhotos = new File(PHOTOS_FOLDER);
@@ -150,32 +119,52 @@ public class DownloadDbActivity extends AppCompatActivity {
             dirPhotos.mkdir();
         }
 
-
-        DownloadCredentials credentials = new DownloadCredentials(username,password,hostname);
+        //Create credential object
+        final DownloadCredentials credentials = new DownloadCredentials(username,password,hostname);
         //Launch only the login part and understand if the the login is successful
         VerifyLoginCredentials loginCredentials = new VerifyLoginCredentials();
         loginCredentials.execute(credentials);
 
-        setCustomLoginListener(new OnCustomLoginListener()
+        //Wait for the login verification
+        setCustomNewLoginListener(new OnCustomLoginListener()
         {
             public void onLogin(Boolean returnStatus)
             {
+                manageLoginResult(returnStatus, credentials);
+
+                //Save the credentials only if the login is successful
                 if(returnStatus)
                 {
-                    layoutDownload.setVisibility(View.VISIBLE);
-                    layoutLogin.setVisibility(View.GONE);
-                    txtLoginStatus.setVisibility(View.GONE);
-                }
-                else
-                {
-                    layoutDownload.setVisibility(View.GONE);
-                    txtLoginStatus.setVisibility(View.VISIBLE);
-                    layoutLogin.setVisibility(View.VISIBLE);
+                    try {
+                        File dirDocuments = new File(LOGININFORMATION_DIRECTORY);
+                        if(!dirDocuments.exists() || !dirDocuments.isDirectory())
+                        {
+                            dirDocuments.mkdir();
+                        }
+
+                        FileOutputStream fOut = new FileOutputStream(LOGININFORMATION_FILE);
+
+                        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fOut));
+
+                        bw.write(username);
+                        bw.newLine();
+                        bw.write(password);
+                        bw.newLine();
+                        bw.write(hostname);
+
+                        bw.close();
+
+                        fOut.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        layoutLogin.setVisibility(View.GONE);
+                        txtLoginStatus.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });
-
     }
+
     /**
      * Verify if the user granted the permission
      *
@@ -206,6 +195,7 @@ public class DownloadDbActivity extends AppCompatActivity {
      */
     private void verifyDoLogin()
     {
+        //Test internet permission
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         //Check and in case Ask for permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -227,21 +217,76 @@ public class DownloadDbActivity extends AppCompatActivity {
         }
         else if(file.exists()) //Can do the login
         {
+            //Test if the saved credentials are still working
+            String[] fileCredentials = getFTPCredentials();
+            final DownloadCredentials credentials = new DownloadCredentials(fileCredentials[0],fileCredentials[1],fileCredentials[2]);
+            VerifyLoginCredentials verifyLoginCredentials = new VerifyLoginCredentials();
+            verifyLoginCredentials.execute(credentials);
+
+            setCustomVerifyLoginListener(new OnCustomLoginListener()
+            {
+                public void onLogin(Boolean returnStatus)
+                {
+                    manageLoginResult(returnStatus, credentials);
+                }
+            });
+        }
+    }
+
+    /**
+     * Manage the login results. Show the download layout or ask again the credentials
+     * @param result value that I want to manage, true if the login is successful
+     * @param credentials the credentials used for the login verification. Need to pass this parameter
+     *                    for PhotoDownloadTask so I dont need to re-check the credentials there.
+     */
+    private void manageLoginResult(Boolean result, final DownloadCredentials credentials)
+    {
+        if(result)
+        {
             layoutDownload.setVisibility(View.VISIBLE);
+            layoutLogin.setVisibility(View.GONE);
+            txtLoginStatus.setVisibility(View.GONE);
+            clickButtonDownload.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PhotoDownloadTask task = new PhotoDownloadTask(DownloadDbActivity.this);
+                    task.execute(credentials);
+                }
+            });
+        }
+        else
+        {
+            layoutDownload.setVisibility(View.GONE);
+            txtLoginStatus.setVisibility(View.VISIBLE);
+            layoutLogin.setVisibility(View.VISIBLE);
+
+            //Delete credentials file and ask again on the next reload
+            final File file = new File(LOGININFORMATION_FILE);
+            file.delete();
         }
     }
 
 
+    /**
+     * Async used to test the login credentials
+     */
     private class VerifyLoginCredentials extends AsyncTask<DownloadCredentials, Integer, Boolean>
     {
 
         private FTPClient ftp;
         private final String REMOTE_FOLDER = "/htdocs/foto/";
+        private ProgressDialog progressDialog;
 
         @Override
         protected void onPreExecute()
         {
+            //Load the FTPClient and a simple spinner dialog.
             ftp = new FTPClient();
+            progressDialog = new ProgressDialog(DownloadDbActivity.this);
+            progressDialog.setTitle("Login");
+            progressDialog.setMessage("Loading...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
         }
 
         /***
@@ -252,22 +297,22 @@ public class DownloadDbActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(DownloadCredentials... voids)
         {
+            //Start the connection test
             if(voids.length!=3)
                 return connectToServer(voids[0].username, voids[0].password, voids[0].hostname);
             else
                 return false; //Return false because I don't have enough credentials.
         }
 
+        /**
+         * The test is ended. Dismiss the dialog e call the listener
+         * @param params is the result of the connection test
+         */
         @Override
         protected void onPostExecute(Boolean params)
         {
+            progressDialog.dismiss();
             loginListener.onLogin(params);
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values)
-        {
-
         }
 
         /**
@@ -304,27 +349,69 @@ public class DownloadDbActivity extends AppCompatActivity {
         }
     }
 
+    /** Simple Lisner for manage the login result **/
+
     private interface OnCustomLoginListener {
         void onLogin(Boolean connectionStatus);
     }
 
     OnCustomLoginListener loginListener;
 
-    private void setCustomLoginListener(OnCustomLoginListener loginListener) {
-        loginListener = loginListener;
+    private void setCustomNewLoginListener(OnCustomLoginListener loginLis) {
+        loginListener = loginLis;
     }
 
+    private void setCustomVerifyLoginListener(OnCustomLoginListener loginLis) {
+        loginListener = loginLis;
+    }
+
+    /**
+     * Class used to store the credentials
+     */
     public class DownloadCredentials
     {
         public String hostname;
         public String password;
         public String username;
-        public DownloadCredentials(String host, String psw, String user)
+        public DownloadCredentials(String user, String psw, String host)
         {
             hostname=host;
             password=psw;
             username=user;
         }
+    }
+
+    /**
+     * Obtain the credentials from the file
+     * @author Stefano Romanello
+     */
+    private String[] getFTPCredentials()
+    {
+        FileInputStream is;
+        BufferedReader reader;
+        final File file = new File(LOGININFORMATION_FILE);
+
+        ArrayList lines= new ArrayList();
+        if (file.exists()) {
+            try {
+                is = new FileInputStream(file);
+                reader = new BufferedReader(new InputStreamReader(is));
+                String line = reader.readLine();
+                lines.add(line);
+                while(line != null){
+                    line = reader.readLine();
+                    lines.add(line);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Object[] objNames = lines.toArray();
+        String[] outCredentials = Arrays.copyOf(objNames, objNames.length, String[].class);
+        return outCredentials;
     }
 }
 
