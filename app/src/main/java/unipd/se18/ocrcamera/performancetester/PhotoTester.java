@@ -491,7 +491,7 @@ public class PhotoTester {
             Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
 
             //process image adjusting brightness and eventually autorotating
-            testBitmap = processing.doImageProcessing(testBitmap, false);
+            //testBitmap = processing.doImageProcessing(testBitmap, false);
 
             String ocrText = executeOcr(testBitmap);
 
