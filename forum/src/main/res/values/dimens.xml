@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="layout_bottom_margin">240dp</dimen>
+    <dimen name="layout_all_margin">48dp</dimen>
 </resources>

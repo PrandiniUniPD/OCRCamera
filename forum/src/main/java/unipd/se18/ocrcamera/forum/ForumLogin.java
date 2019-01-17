@@ -165,8 +165,10 @@ public class ForumLogin extends Fragment {
             @Override
             public void onClick(View v) {
 
-                //The username and password inserted are gathered from the
-                //EditText objects which have been filled by the user
+                /**
+                 * When the login button is clicked, the username and password are gathered from
+                 * the EditText objects which have been filled by the user
+                 */
                 userName = usernameEditText.getText().toString();
                 userPwd = pwdEditText.getText().toString();
 
@@ -188,7 +190,7 @@ public class ForumLogin extends Fragment {
         registerEditText.setOnClickListener(new View.OnClickListener(){
 
             /**
-             * When the register label is clicked a new fragment is launched
+             * When the register label is clicked a new ForumRegister fragment is launched
              * in order to make the user create the required account
              *
              * @param v the view where the click event is performed
@@ -196,7 +198,18 @@ public class ForumLogin extends Fragment {
             @Override
             public void onClick(View v) {
 
-                Log.d("REGISTER LISTENER", "REGISTER LABEL CLICKED");
+                //creates an instance of the fragment to be launched
+                ForumRegister forumRegisterFragment = new ForumRegister();
+
+                //performs the fragment transaction
+                getActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(
+                                R.id.fragmentContainer,
+                                forumRegisterFragment
+                        )
+                        .commit();
             }
         });
 

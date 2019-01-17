@@ -83,6 +83,8 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                                 forumRegisterListeners);
                     }
                     else {
+
+                        //If not, the view is required to show an error
                         forumRegisterListener.onRegisterFailure(
                                 context.getString(
                                         R.string.registerUsernameAlreayUsedMessage
@@ -93,13 +95,16 @@ public class Register_VM extends ViewModel implements RegisterMethods {
             }
         };
 
-        //Asks the database if the chosen username is unique since it will be the db key
-        DatabaseManager.checkUsername(context, username, forumRegisterListeners);
-
+        /**
+         * Definition of the listeners that will be triggered as soon as there
+         * is a response to the registerUser request from the database
+         */
         forumRegisterListeners.successListener = new OnSuccessListener() {
             @Override
             public void onSuccess(Object o) {
 
+                //If the registration process succeeds, the view is told to react properly
+                forumRegisterListener.onRegisterSuccess(username);
             }
         };
 
@@ -107,8 +112,17 @@ public class Register_VM extends ViewModel implements RegisterMethods {
             @Override
             public void onFailure(@NonNull Exception e) {
 
+                //If the registration process fails, the view is required to show an error
+                forumRegisterListener.onRegisterFailure(
+                        context.getString(
+                                R.string.registerFailedMessage
+                        )
+                );
             }
         };
+
+        //Asks the database if the chosen username is unique since it will be the db key
+        DatabaseManager.checkUsername(context, username, forumRegisterListeners);
     }
 
     /**

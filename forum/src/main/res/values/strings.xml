@@ -11,6 +11,7 @@
     <string name="jPostCommentsField">comments</string>
     <string name="jPostLikesField">likes</string>
     <string name="jPostAuthorField">author</string>
+
     <string name="requestFailedMessage">An error occurred while getting the posts. Please retry by refreshing the page</string>
     <string name="post_added">Post added successfully</string>
     <string name="posting_failure">There was an error when trying to adding your post. Try to check your internet connection or try again later.</string>
@@ -35,9 +36,9 @@
     <string name="loginFailedMessage">A login error occurred. Please check your credentials</string>
 
     <!-- View model Register_VM identifiers -->
-    <string name="registerFailedMessage"> **** </string>
+    <string name="registerFailedMessage">A sign up error occurred. Please try again later</string>
     <string name="registerUsernameAlreayUsedMessage">This username is already used. Please
-        choose another one.</string>
+        choose another one</string>
 
     <!-- Fragment back stack identifiers -->
     <string name="fgShowPosts">ShowPosts</string>
