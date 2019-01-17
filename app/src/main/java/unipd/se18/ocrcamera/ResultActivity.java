@@ -333,7 +333,7 @@ public class ResultActivity extends AppCompatActivity {
 
             if (resultUri != null) {
                 String imagePath = resultUri.getPath();
-                new AsyncImageProcess(ResultActivity.this, true).execute(imagePath);
+                new AsyncImageProcess(ResultActivity.this, false).execute(imagePath);
             }
         }
     }
