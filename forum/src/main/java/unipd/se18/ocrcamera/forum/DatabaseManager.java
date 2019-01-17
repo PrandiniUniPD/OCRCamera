@@ -46,8 +46,8 @@ public class DatabaseManager
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection(context.getString(R.string.userCollectionName))
-                .whereEqualTo(context.getString(R.string.usernameKey), username)
-                .whereEqualTo(context.getString(R.string.passwordKey), password)
+                .whereEqualTo(context.getString(R.string.userUsernameKey), username)
+                .whereEqualTo(context.getString(R.string.userPasswordKey), password)
                 .get()
                 .addOnCompleteListener(listeners.completeListener);
     }
