@@ -6,7 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.amulyakhare.textdrawable.TextDrawable;
 
 import java.util.List;
 
@@ -73,22 +76,26 @@ public class AdapterIngredient extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.ingredient_element, parent, false);
         }
 
+        //get ingredient name and functions capitalizing first letter
         Ingredient ingredient = ingredients.get(position);
-        final String inciName = ingredient.getInciName();
-        final String description = ingredient.getDescription();
-        final String function = ingredient.getFunction();
+        String inciName = ingredient.getInciName();
+        String function = ingredient.getFunction();
+        final String capitalizedInciName = inciName.substring(0, 1).toUpperCase() + inciName.substring(1).toLowerCase();
+        final String capitalizedFunction = function.substring(0, 1).toUpperCase() + function.substring(1).toLowerCase();
+
+        //set drawable text, a gmail like letter icon showing first letter of the ingredient
+        String firstLetter = Character.toString(inciName.charAt(0));
+        TextDrawable drawableLetter = TextDrawable.builder().buildRound(firstLetter, Color.CYAN);
+        ImageView image = convertView.findViewById(R.id.letter_icon_view);
+        image.setImageDrawable(drawableLetter);
 
         // Set the inci name
         TextView nameText = convertView.findViewById(R.id.inci_name_view);
-        nameText.setText(inciName);
-
-        // Set description
-        TextView descriptionView = convertView.findViewById(R.id.description_view);
-        descriptionView.setText(description);
+        nameText.setText(capitalizedInciName);
 
         // Set function
         TextView functionView = convertView.findViewById(R.id.function_view);
-        functionView.setText(function);
+        functionView.setText(capitalizedFunction);
 
         // Highlight if it is an allergen
         if(ingredientsLabels[position] == IngredientWarningType.SELECTEDALLERGEN)
