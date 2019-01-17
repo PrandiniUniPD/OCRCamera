@@ -71,26 +71,33 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         this.dirPath = directory.getPath();
         Log.d(TAG, "PhotoTester -> dirPath == " + dirPath);
 
-        // Checks if the
+        // Gets the files contained in the directory
         File[] testElementsFiles = directory.listFiles();
+
+        // Checks if the directory is empty, if yes there are nothing to analyze
         if (testElementsFiles.length == 0) {
+            // Launches the empty directory event
             testListener.onEmptyDirectory(dirPath);
+
+            // Nothing to analyze
             return;
         }
-        //create a TestElement object for each original photo
-        // - then link all the alterations to the relative original TestElement
-        for(File file : directory.listFiles()) {
+
+        //creates a TestElement object for each original photo
+        // - then links all the alterations to the relative original TestElement
+        for(File file : testElementsFiles) {
             String filePath = file.getPath();
             String fileName = Utils.getFilePrefix(filePath);
 
-            //if the file is not an alteration then create a test element for it
+            // If the file is not an alteration then creates a test element for it
             if(fileName != null && fileName.contains(PHOTO_BASE_NAME)) {
-
+                // Checks if the extension is supported
                 String fileExtension = Utils.getFileExtension(filePath);
-
-                //check if extension is available
                 if (Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
+                    // Extension supported -> Parses the test element
                     TestElement originalTest = parseTestElement(file,fileName);
+
+                    // Adds the test element parsed if it's parsed correctly
                     if (originalTest != null) {
                         testElements.add(originalTest);
                     }
@@ -115,14 +122,14 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         } else {
             Log.d(TAG, "Directory of tests => " + file.getAbsolutePath());
         }
-        return file;
+        return null;
     }
 
     /**
      * Creates a TestElement
      * @param file The File compatible to a TestElement
      * @param fileName The filename of the file
-     * @return The TestElement found, null if problem when parsing of the JSON file
+     * @return The TestElement found, null if there was a problem when parsing of the JSON file
      */
     private TestElement parseTestElement(File file, String fileName) {
         //this file is an image -> get file path
