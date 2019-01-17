@@ -2,6 +2,8 @@ package unipd.se18.ocrcamera.performancetester;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -24,77 +26,23 @@ public class TestDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test_element_details);
 
-        // Retrieves the TestElement to be viewed (default == 0)
-        Intent lastIntent = getIntent();
-        int position = lastIntent.getIntExtra(TestUtils.positionString,0);
-        TestElement entry = TestsListAdapter.getTestElements()[position];
+        // Sets the layout with a fragment container
+        setContentView(R.layout.activity_with_a_fragment_container);
 
-        // Retrieves the limits for the correctness color
-        int redUntil = lastIntent.getIntExtra(
-                TestUtils.redUntilString,
-                TestUtils.defaultRedUntil
-        );
-        int yellowUntil = lastIntent.getIntExtra(
-                TestUtils.yellowUntilString,
-                TestUtils.defaultYellowUntil
-        );
+        // Gets the support from the FragmentManager
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
-        // Sets the correctness value
-        TextView correctness = findViewById(R.id.correctness_view);
-        float confidence = entry.getConfidence();
-        correctness.setText(TestUtils.formatPercentString(confidence));
+        // Initializes the transaction (TestsListActivity to TestsListFragment)
+        FragmentTransaction testListFragmentTransaction = fragmentManager.beginTransaction();
 
-        // Sets the color of the correctness text value
-        correctness.setTextColor(TestUtils.chooseColorOfValue(confidence,redUntil,yellowUntil));
+        // Creates a TestsListFragment instance
+        TestDetailsFragment testsListFragment = new TestDetailsFragment();
 
-        // Sets the name of the pic
-        TextView name = findViewById(R.id.pic_name_view);
-        String picName = entry.getFileName();
-        name.setText(picName);
+        // Adds the testsListFragment to the transaction
+        testListFragmentTransaction.add(R.id.fragment_container,testsListFragment);
 
-        // Sets the pic view
-        ImageView analyzedPic = findViewById(R.id.pic_view);
-        String imagePath = entry.getImagePath();
-        Bitmap img = Utils.loadBitmapFromFile(imagePath);
-        analyzedPic.setImageBitmap(TestUtils.scaleBitmap(TestDetailsActivity.this, img));
-
-        // Sets the Tags text
-        TextView tags = findViewById(R.id.tags_view);
-        StringBuilder assignedTags = new StringBuilder();
-        for(String tag: entry.getTags()) {
-            assignedTags.append(tag).append(", ");
-        }
-        tags.setText(assignedTags.toString());
-
-        // Sets the ingredients text
-        TextView ingredients = findViewById(R.id.ingredients_view);
-        StringBuilder realIngredients = new StringBuilder();
-        for(String ingredient: entry.getIngredientsArray()) {
-            realIngredients.append(ingredient).append(", ");
-        }
-        ingredients.setText(realIngredients);
-
-        // Sets the extracted text
-        TextView extractedText = findViewById(R.id.extractedText_view);
-        extractedText.setText(entry.getRecognizedText());
-
-        // Sets the notes text
-        TextView notes = findViewById(R.id.notes_view);
-        notes.setText(entry.getNotes());
-
-        // Sets the ingredients extraction report
-        TextView extractedIngredientsView = findViewById(R.id.extracted_ingredients_view);
-        extractedIngredientsView.setText(entry.getIngredientsExtraction());
-
-        // Sets the alterations view
-        TestUtils.setAlterationsView(
-                TestDetailsActivity.this,
-                (RelativeLayout) findViewById(R.id.result_view),
-                extractedIngredientsView,
-                entry,
-                true
-        );
+        // Commits the transaction
+        testListFragmentTransaction.commit();
     }
 }
