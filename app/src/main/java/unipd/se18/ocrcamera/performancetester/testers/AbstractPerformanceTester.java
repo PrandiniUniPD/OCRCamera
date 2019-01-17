@@ -155,7 +155,7 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         } catch(JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
-            testListener.onTestFailure(TestListener.JSON_FAILURE);
+            testListener.onTestFailure(TestListener.JSON_PARSING_FAILURE);
         }
         return null;
     }

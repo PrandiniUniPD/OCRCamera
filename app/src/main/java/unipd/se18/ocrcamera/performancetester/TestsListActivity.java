@@ -39,7 +39,7 @@ public class TestsListActivity extends AppCompatActivity {
         // Creates a TestsListFragment instance
         TestsListFragment testsListFragment = new TestsListFragment();
 
-        // Adds the testsListFragment to the transaction
+        // Adds the TestsListFragment to the transaction
         testListFragmentTransaction.add(R.id.fragment_container,testsListFragment);
 
         // Commits the transaction

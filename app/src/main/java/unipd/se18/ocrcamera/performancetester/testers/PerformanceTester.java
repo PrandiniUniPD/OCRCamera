@@ -4,11 +4,11 @@ import unipd.se18.ocrcamera.performancetester.TestElement;
 
 /**
  * The interface of a performance tester
- * @author Pietro Prandini (g2)
+ * @author Pietro Prandini (g2) - Luca Moroldo (g3)
  */
 public interface PerformanceTester {
     /**
-     * Elaborate tests using threads, stores the json report in string format to testReport.txt
+     * Elaborates tests using threads, stores the json report in string format to testReport.txt
      * inside the directory given on construction
      * @return String in JSON format with the test's report, each object is a single test named
      * with the filename and contains ingredients, tags, notes, original photo name, confidence
@@ -28,13 +28,13 @@ public interface PerformanceTester {
     public int getTestSize();
 
     /**
-     * Set a listener whose function will be called at the end of each test
+     * Sets a listener whose function will be called at the end of each test
      * @param testListener The TestListener used for communicating events about the progress
      */
     public void setTestListener(TestListener testListener);
 
     /**
-     * Convert statistics returned by getTagsStats() into a readable text
+     * Converts statistics returned by getTagsStats() into a readable text
      */
     public String getTagsStatsString();
 }

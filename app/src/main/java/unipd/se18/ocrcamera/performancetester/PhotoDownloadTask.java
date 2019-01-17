@@ -1,7 +1,5 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -27,6 +25,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import unipd.se18.ocrcamera.R;
 
 
 /**

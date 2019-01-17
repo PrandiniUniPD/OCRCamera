@@ -8,7 +8,7 @@ public interface TestListener {
     /**
      *
      */
-    public static final int JSON_FAILURE = 0;
+    public static final int JSON_PARSING_FAILURE = 0;
 
     /**
      *

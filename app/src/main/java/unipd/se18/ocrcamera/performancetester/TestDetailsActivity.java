@@ -4,7 +4,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
 import unipd.se18.ocrcamera.R;
 
 /**
@@ -27,16 +26,16 @@ public class TestDetailsActivity extends AppCompatActivity {
         // Gets the support from the FragmentManager
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        // Initializes the transaction (TestsListActivity to TestsListFragment)
-        FragmentTransaction testListFragmentTransaction = fragmentManager.beginTransaction();
+        // Initializes the transaction (TestDetailsActivity to TestDetailsFragment)
+        FragmentTransaction testDetailsFragmentTransaction = fragmentManager.beginTransaction();
 
-        // Creates a TestsListFragment instance
-        TestDetailsFragment testsListFragment = new TestDetailsFragment();
+        // Creates a TestDetailsFragment instance
+        TestDetailsFragment testDetailsFragment = new TestDetailsFragment();
 
-        // Adds the testsListFragment to the transaction
-        testListFragmentTransaction.add(R.id.fragment_container,testsListFragment);
+        // Adds the TestDetailsFragment to the transaction
+        testDetailsFragmentTransaction.add(R.id.fragment_container,testDetailsFragment);
 
         // Commits the transaction
-        testListFragmentTransaction.commit();
+        testDetailsFragmentTransaction.commit();
     }
 }

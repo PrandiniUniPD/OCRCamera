@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
-import unipd.se18.ocrcamera.PhotoDownloadTask;
 import unipd.se18.ocrcamera.R;
 import unipd.se18.ocrcamera.performancetester.testers.PerformanceTester;
 import unipd.se18.ocrcamera.performancetester.testers.TestListener;
@@ -204,17 +203,17 @@ public class TestsListFragment extends Fragment {
 
                 @Override
                 public void onEmptyDirectory(String dirPath) {
-
+                    //TODO launches the download process
                 }
 
                 @Override
                 public void onNotValidDirectory(String dirPath) {
-
+                    //TODO launches the download process
                 }
 
                 @Override
                 public void onTestFailure(int failureCode) {
-
+                    //TODO Warns the user about this failure
                 }
             };
             tester.setTestListener(testListener);
