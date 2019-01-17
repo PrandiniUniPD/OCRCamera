@@ -62,7 +62,6 @@ public class TestsListFragment extends Fragment {
             String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
             ActivityCompat.requestPermissions(getActivity(), permissions,
                     MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
-            return;
         }
     }
 
@@ -194,11 +193,6 @@ public class TestsListFragment extends Fragment {
                 public void onTestFinished() {
                     // +1 test finished -> +1 progress bar
                     publishProgress(++testedElements);
-                }
-
-                @Override
-                public void onAlterationAnalyzed() {
-                    // not useful in this case
                 }
 
                 @Override

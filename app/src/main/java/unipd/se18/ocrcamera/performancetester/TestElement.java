@@ -17,7 +17,7 @@ import unipd.se18.ocrcamera.Utils;
  * @author Luca Moroldo, Francesco Pham
  */
 
-public class TestElement {
+class TestElement {
 
     private static final String TAG = "TestElement";
 
@@ -42,7 +42,7 @@ public class TestElement {
      * @param fileName name of the test
      * @author Luca Moroldo - g3
      */
-    public TestElement(String imagePath, JSONObject jsonObject, String fileName) {
+    TestElement(String imagePath, JSONObject jsonObject, String fileName) {
         this.imagePath = imagePath;
         this.jsonObject = jsonObject;
         this.fileName = fileName;
@@ -60,7 +60,7 @@ public class TestElement {
      * Array of Strings, each string is an ingredient, ingredients are separated on comma
      * @return Array of strings, each string is an ingredient
      */
-    public String[] getIngredientsArray() {
+    String[] getIngredientsArray() {
         String ingredients = getIngredients();
         String[] ingredientsArr = ingredients.trim().split("\\s*,\\s*"); //split removing whitespaces
         return ingredientsArr;
@@ -70,7 +70,7 @@ public class TestElement {
      * @return ingredients text of this test if exist, null otherwise
      * @author Luca Moroldo - g3
      */
-    public String getIngredients() {
+    String getIngredients() {
         try {
             return jsonObject.getString(INGREDIENTS_KEY);
         } catch (JSONException e) {
@@ -83,7 +83,7 @@ public class TestElement {
      * @return array of tags of this test if exist, null otherwise
      * @author Luca Moroldo - g3
      */
-    public String[] getTags() {
+    String[] getTags() {
         try {
             return Utils.getStringArrayFromJSON(jsonObject, TAGS_KEY);
         } catch (JSONException e) {
@@ -96,14 +96,14 @@ public class TestElement {
      * @return String with the path to the image associated with this test, can be null if it hasn't
      * been set
      */
-    public String getImagePath() {
+    String getImagePath() {
         return imagePath;
     }
 
     /**
      * @return name of this test
      */
-    public String getFileName() {
+    String getFileName() {
         return fileName;
     }
 
@@ -111,7 +111,7 @@ public class TestElement {
      * @return notes text of this test if exist, null otherwise
      * @author Luca Moroldo - g3
      */
-    public String getNotes() {
+    String getNotes() {
         try {
             return jsonObject.getString(NOTES_KEY);
         } catch (JSONException e) {
@@ -125,7 +125,7 @@ public class TestElement {
      * @return array of strings if the element has any alteration (each string is a filename), null otherwise
      * @author Luca Moroldo - g3
      */
-    public String[] getAlterationsNames() {
+    String[] getAlterationsNames() {
 
         JSONObject alterations = null;
         try {
@@ -151,7 +151,7 @@ public class TestElement {
      * @return Float confidence of this test if present, -1 otherwise
      * @author Luca Moroldo - g3
      */
-    public float getConfidence() {
+    float getConfidence() {
         try {
             String confidence = jsonObject.getString(CONFIDENCE_KEY);
             return Float.parseFloat(confidence);
@@ -165,7 +165,7 @@ public class TestElement {
      * @return String recognized text of this test if present, null otherwise
      * @author Luca Moroldo - g3
      */
-    public String getRecognizedText() {
+    String getRecognizedText() {
         try {
             return jsonObject.getString(EXTRACTED_TEST_KEY);
         } catch (JSONException e) {
@@ -180,7 +180,7 @@ public class TestElement {
      * @return alteration recognized text if it's set, null if recognized text hasn't been set or if there isn't any alteration named with the given param
      * @author Luca Moroldo - g3
      */
-    public String getAlterationRecognizedText(String alterationName) {
+    String getAlterationRecognizedText(String alterationName) {
         JSONObject jsonAlteration = getAlterationWithName(alterationName);
         if(jsonAlteration != null) {
             try {
@@ -198,7 +198,7 @@ public class TestElement {
      * @return confidence if it has been set, -1 if the confidence hasn't been set or if there isn't any alteration named with the given param
      * @author Luca Moroldo - g3
      */
-    public float getAlterationConfidence(String alterationName) {
+    float getAlterationConfidence(String alterationName) {
 
         JSONObject jsonAlteration = getAlterationWithName(alterationName);
         if(jsonAlteration != null) {
@@ -219,7 +219,7 @@ public class TestElement {
      * null if the image hasn't been set or if there isn't any alteration named with the given param
      * @author Luca Moroldo - g3
      */
-    public String getAlterationImagePath(String alterationName) {
+    String getAlterationImagePath(String alterationName) {
         if(alterationsImagesPath.containsKey(alterationName))
             return alterationsImagesPath.get(alterationName);
         else
@@ -232,7 +232,7 @@ public class TestElement {
      * @return notes text, null if there isn't any alteration named with the given param or if there aren't notes in this test
      * @author Luca Moroldo - g3
      */
-    public String getAlterationNotes(String alterationName) {
+    String getAlterationNotes(String alterationName) {
         JSONObject jsonAlteration = getAlterationWithName(alterationName);
         if(jsonAlteration != null) {
             try {
@@ -249,7 +249,7 @@ public class TestElement {
      * @return tags array, null  if there isn't any alteration named with the given param
      * @author Luca Moroldo - g3
      */
-    public String[] getAlterationTags(String alterationName) {
+    String[] getAlterationTags(String alterationName) {
 
         JSONObject jsonAlteration = getAlterationWithName(alterationName);
         if(jsonAlteration != null) {
@@ -265,13 +265,13 @@ public class TestElement {
     /**
      * @return JSONObject associated to this test
      */
-    public JSONObject getJsonObject() { return jsonObject; }
+    JSONObject getJsonObject() { return jsonObject; }
 
     /**
      * @param confidence Float that will be associated to this test with key 'confidence'
      * @modify jsonObject of this TestElement
      */
-    public void setConfidence(float confidence) {
+    void setConfidence(float confidence) {
         try {
             jsonObject.put(CONFIDENCE_KEY, Float.toString(confidence));
         } catch (JSONException e) {
@@ -284,7 +284,7 @@ public class TestElement {
      * @modify jsonObject of this TestElement
      * @author Luca Moroldo - g3
      */
-    public void setRecognizedText(String text) {
+    void setRecognizedText(String text) {
         try {
             jsonObject.put(EXTRACTED_TEST_KEY, text);
         } catch (JSONException e) {
@@ -300,7 +300,7 @@ public class TestElement {
      * @return true if image was set correctly, false if alteration name doesn't exist
      * @author Luca Moroldo - g3
      */
-    public boolean setAlterationImagePath(String alterationName, String imagePath) {
+    boolean setAlterationImagePath(String alterationName, String imagePath) {
         if(alterationsImagesPath.containsKey(alterationName)) {
             alterationsImagesPath.put(alterationName, imagePath);
             return true;
@@ -316,7 +316,7 @@ public class TestElement {
      * @modify jsonObject of this TestElement
      * @author Luca Moroldo - g3
      */
-    public void setAlterationRecognizedText(String alterationName, String text) {
+    void setAlterationRecognizedText(String alterationName, String text) {
 
         JSONObject jsonAlteration = getAlterationWithName(alterationName);
         if(jsonAlteration != null) {
@@ -334,7 +334,7 @@ public class TestElement {
      * @modify jsonObject of this TestElement
      * @author Luca Moroldo - g3
      */
-    public void setAlterationConfidence(String alterationName, float alterationConfidence) {
+    void setAlterationConfidence(String alterationName, float alterationConfidence) {
 
         JSONObject jsonAlteration = getAlterationWithName(alterationName);
         if(jsonAlteration != null) {
@@ -378,7 +378,7 @@ public class TestElement {
      * @modify jsonObject of this TestElement
      * @author Francesco Pham - g3
      */
-    public void setIngredientsExtraction(String report) {
+    void setIngredientsExtraction(String report) {
         try {
             jsonObject.put(INGREDIENTS_EXTRACTION, report);
         } catch (JSONException e) {
@@ -390,7 +390,7 @@ public class TestElement {
      * @return Report of ingredients extraction, null otherwise
      * @author Francesco Pham - g3
      */
-    public String getIngredientsExtraction() {
+    String getIngredientsExtraction() {
         try {
             return jsonObject.getString(INGREDIENTS_EXTRACTION);
         } catch (JSONException e) {
@@ -404,7 +404,7 @@ public class TestElement {
      * @return percentage of correct ingredients extracted from the ocr.
      * @author Francesco Pham
      */
-    public float getPercentCorrectIngredients() {
+    float getPercentCorrectIngredients() {
         return percentCorrectIngredients;
     }
 
@@ -413,7 +413,7 @@ public class TestElement {
      * @param percentCorrectIngredients Percentage of correct ingredients extracted from the ocr.
      * @author Francesco Pham
      */
-    public void setPercentCorrectIngredients(float percentCorrectIngredients) {
+    void setPercentCorrectIngredients(float percentCorrectIngredients) {
         this.percentCorrectIngredients = percentCorrectIngredients;
     }
 }

@@ -8,17 +8,12 @@ public interface TestListener {
     /**
      * Code of the JSON parsing error
      */
-    public static final int JSON_PARSING_FAILURE = 0;
+    int JSON_PARSING_FAILURE = 0;
 
     /**
      * The tests has finished
      */
     void onTestFinished();
-
-    /**
-     * An alteration has been analyzed
-     */
-    void onAlterationAnalyzed();
 
     /**
      * The path of the directory used for finding the test pics is empty

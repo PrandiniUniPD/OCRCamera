@@ -119,7 +119,6 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
      * Creates a TestElement
      * @param file The File compatible to a TestElement
      * @param fileName The filename of the file
-     * @return The TestElement found, null if there was a problem when parsing of the JSON file
      */
     void parseTestElement(File file, String fileName) {
         //this file is an image -> get file path
