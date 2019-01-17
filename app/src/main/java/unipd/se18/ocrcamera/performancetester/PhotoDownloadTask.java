@@ -32,7 +32,7 @@ import unipd.se18.ocrcamera.R;
 /**
  * @author Leonardo Rossi (g2) and Stefano Romanello (g3)
  */
-public class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
+class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
 {
 
     private FTPClient ftp;

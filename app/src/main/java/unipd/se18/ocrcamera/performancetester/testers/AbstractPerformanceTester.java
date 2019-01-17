@@ -66,8 +66,22 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         // Initializes the context
         this.context = context;
 
-        // Retrieves the directory where the test pics are stored
-        File directory = getStorageDir(dirPath);
+        // Gets File of the path
+        File directory = new File(dirPath);
+
+        // Checks if it's a directory
+        if(!directory.isDirectory()) {
+            // It's not a directory
+            Log.e(TAG, directory.getAbsolutePath() + "It's not a directory");
+
+            // Launches the not valid directory event
+            testListener.onNotValidDirectory(dirPath);
+
+            // Nothing to analyze
+            return;
+        }
+
+        // Saves the path of the directory
         this.dirPath = directory.getPath();
         Log.d(TAG, "PhotoTester -> dirPath == " + dirPath);
 
@@ -95,34 +109,10 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
                 String fileExtension = Utils.getFileExtension(filePath);
                 if (Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
                     // Extension supported -> Parses the test element
-                    TestElement originalTest = parseTestElement(file,fileName);
-
-                    // Adds the test element parsed if it's parsed correctly
-                    if (originalTest != null) {
-                        testElements.add(originalTest);
-                    }
+                    parseTestElement(file,fileName);
                 }
             }
         }
-    }
-
-
-    /**
-     * Get a File directory from a path String
-     * @param dirPath The path of the directory
-     * @return the file relative to the environment and the dirName
-     * @author Pietro Prandini (g2)
-     */
-    private File getStorageDir(String dirPath) {
-        // Get the directory for the user's public pictures directory.
-        File file = new File(dirPath);
-        if(!file.isDirectory()) {
-            Log.e(TAG, file.getAbsolutePath() + "It's not a directory");
-            testListener.onNotValidDirectory(dirPath);
-        } else {
-            Log.d(TAG, "Directory of tests => " + file.getAbsolutePath());
-        }
-        return null;
     }
 
     /**
@@ -131,7 +121,7 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
      * @param fileName The filename of the file
      * @return The TestElement found, null if there was a problem when parsing of the JSON file
      */
-    private TestElement parseTestElement(File file, String fileName) {
+    void parseTestElement(File file, String fileName) {
         //this file is an image -> get file path
         String originalImagePath = file.getAbsolutePath();
 
@@ -151,13 +141,15 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
                     originalTest.setAlterationImagePath(alterationFilename, alterationImagePath);
                 }
             }
-            return originalTest;
+
+
+            // Adds the test element parsed if it's parsed correctly
+            testElements.add(originalTest);
         } catch(JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
             testListener.onTestFailure(TestListener.JSON_PARSING_FAILURE);
         }
-        return null;
     }
 
     /**
