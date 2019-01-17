@@ -11,8 +11,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -89,11 +91,6 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView analyzedTextView;
 
-    /**
-     * the DrawerLayout that provides the "Hamburger" Menu for the options
-     */
-    private DrawerLayout mDrawerLayout;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,16 +100,6 @@ public class ResultActivity extends AppCompatActivity {
         mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
         progressBar = findViewById(R.id.progress_bar);
-        mDrawerLayout= findViewById(R.id.drawer_layout);
-
-        // Floating action buttons listeners (Francesco Pham)
-        FloatingActionButton fabNewPic = findViewById(R.id.newPictureFab);
-        fabNewPic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ResultActivity.this, CameraActivity.class));
-            }
-        });
 
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
@@ -222,6 +209,17 @@ public class ResultActivity extends AppCompatActivity {
                 }
         );
 
+        //set reference to the BottomNavigationView
+        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
+
+        //react to clicks on the items of bottomView
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+
+        //set this activity's menu icon as checked
+        Menu menu= bottomNav.getMenu();
+        MenuItem thisActivityMenuIcon = menu.getItem(1);
+        thisActivityMenuIcon.setChecked(true);
+
     }
 
     /**
@@ -320,22 +318,6 @@ public class ResultActivity extends AppCompatActivity {
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
         return true;
-    }
-
-    /**
-     * Handling click events on the menu
-     * @author Francesco Pham - modified by Stefano Romanello - modified by Pietro Balzan
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case android.R.id.home:   //menu button is pressed
-                mDrawerLayout.openDrawer(GravityCompat.START);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
 
@@ -505,4 +487,36 @@ public class ResultActivity extends AppCompatActivity {
                 Toast.makeText(activity, tooDark, Toast.LENGTH_LONG).show();
         }
     }
+
+    //create a private listener to use in this Activity
+    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    Intent newActivity;
+                    //start an activity depending on what was chosen
+                    switch (menuItem.getItemId()){
+                        case R.id.nav_allergens:
+                            newActivity= new Intent(ResultActivity.this, MainAllergensActivity.class);
+                            startActivity(newActivity);
+                            finish();
+                            break;
+                        case R.id.nav_result:
+                            //we already are in this activity
+                            break;
+                        case R.id.nav_picture:
+                            newActivity= new Intent(ResultActivity.this, CameraActivity.class);
+                            startActivity(newActivity);
+                            finish();
+                            break;
+                        case R.id.nav_gallery:
+                            newActivity= new Intent(ResultActivity.this, GalleryActivity.class);
+                            startActivity(newActivity);
+                            finish();
+                            break;
+                    }
+
+                    return false;
+                }
+            };
 }

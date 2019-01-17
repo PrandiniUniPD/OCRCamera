@@ -4,8 +4,11 @@ package unipd.se18.ocrcamera;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -57,6 +60,17 @@ public class GalleryActivity extends AppCompatActivity {
         {
             loadHomeFragment();
         }
+
+        //set reference to the BottomNavigationView
+        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
+
+        //react to clicks on the items of bottomView
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+
+        //set this activity's menu icon as checked
+        Menu menu= bottomNav.getMenu();
+        MenuItem thisActivityMenuIcon = menu.getItem(3);
+        thisActivityMenuIcon.setChecked(true);
     }
 
     /**
@@ -401,5 +415,37 @@ public class GalleryActivity extends AppCompatActivity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
+
+    //create a private listener to use in this Activity
+    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    Intent newActivity;
+                    //start an activity depending on what was chosen
+                    switch (menuItem.getItemId()){
+                        case R.id.nav_allergens:
+                            newActivity= new Intent(GalleryActivity.this, MainAllergensActivity.class);
+                            startActivity(newActivity);
+                            finish();
+                            break;
+                        case R.id.nav_result:
+                            newActivity= new Intent(GalleryActivity.this, ResultActivity.class);
+                            startActivity(newActivity);
+                            finish();
+                            break;
+                        case R.id.nav_picture:
+                            newActivity= new Intent(GalleryActivity.this, CameraActivity.class);
+                            startActivity(newActivity);
+                            finish();
+                            break;
+                        case R.id.nav_gallery:
+                            //we already are in this activity
+                            break;
+                    }
+
+                    return false;
+                }
+            };
 
 }

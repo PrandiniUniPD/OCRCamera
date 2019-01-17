@@ -2,15 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="unipd.se18.ocrcamera">
-
     <!-- Permissions for using the external storage  - author (g3) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Permissions for using the camera - author Pietro Prandini (g2) -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Permissions for using the camera - author Pietro Prandini (g2) -->
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -21,9 +17,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
-
-
         <!-- Content Provider configurations - author (g3) -->
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -38,26 +31,23 @@
         <activity
             android:name=".CameraActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".ResultActivity"/>
-
+            android:parentActivityName=".ResultActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ResultActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:value=".CameraActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:value=".CameraActivity">
 
             <!-- Search item meta-data  -  Luca Moroldo -->
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
-        </activity>
-        <!-- Useful for automatic upgrades of the ocr models - author Pietro Prandini (g2) -->
+        </activity> <!-- Useful for automatic upgrades of the ocr models - author Pietro Prandini (g2) -->
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="ocr" />
-        <!-- To use multiple models: android:value="ocr,model2,model3" -->
+            android:value="ocr" /> <!-- To use multiple models: android:value="ocr,model2,model3" -->
         <activity android:name=".LauncherActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -68,7 +58,7 @@
         <activity android:name=".DownloadDbActivity" />
         <activity
             android:name=".GalleryActivity"
-            android:parentActivityName=".ResultActivity"/>
+            android:parentActivityName=".ResultActivity" />
 
         <activity android:name=".TestsListActivity" />
 
@@ -76,26 +66,26 @@
 
         <activity android:name=".MainAllergensActivity"
             android:parentActivityName=".ResultActivity"
-            android:windowSoftInputMode="adjustNothing">
-        </activity>
-        <activity android:name=".forum.Forum" />
+            android:windowSoftInputMode="adjustNothing"></activity>
+        <activity android:name=".forum.Forum" /> <!-- Activity launched to search for an ingredient -->
 
-        <!-- Activity launched to search for an ingredient -->
         <activity android:name=".SearchResultsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                android:resource="@xml/searchable"/>
-        </activity>
-        <!-- Declare searchable (ingredient) -->
-        <meta-data android:name="android.app.default_searchable" android:value=".SearchResultsActivity"/>
 
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity> <!-- Declare searchable (ingredient) -->
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".SearchResultsActivity" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

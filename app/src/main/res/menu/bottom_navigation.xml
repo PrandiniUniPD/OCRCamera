@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_allergens"
+        android:icon="@drawable/ic_allergen"
+        android:title="@string/allergens_fragment_name" />
+
+    <item
+        android:id="@+id/nav_result"
+        android:icon="@drawable/ic_result_list_24dp"
+        android:title="@string/result_fragment_name" />
+
+    <item
+        android:id="@+id/nav_picture"
+        android:icon="@drawable/ic_add_a_photo_black_24dp"
+        android:title="@string/camera_fragment_name" />
+
+    <item
+        android:id="@+id/nav_gallery"
+        android:icon="@drawable/ic_gallery_black_24dp"
+        android:title="@string/gallery_fragment_name" />
+</menu>
