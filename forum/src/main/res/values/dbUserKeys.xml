@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="userCollectionName">users</string>
-    <string name="usernameKey">username</string>
-    <string name="passwordKey">password</string>
-    <string name="nameKey">name</string>
-    <string name="surnameKey">surname</string>
+    <string name="userUsernameKey">username</string>
+    <string name="userPasswordKey">password</string>
+    <string name="userNameKey">name</string>
+    <string name="userSurnameKey">surname</string>
 </resources>

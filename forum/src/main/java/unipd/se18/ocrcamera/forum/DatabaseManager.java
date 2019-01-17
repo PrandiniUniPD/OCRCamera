@@ -1,10 +1,12 @@
 package unipd.se18.ocrcamera.forum;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -172,4 +174,45 @@ public class DatabaseManager
                 .update(context.getString(R.string.postCommentsKey), prevComments+1);
     }
 
+    /**
+     * Adds a new user into the db
+     * @param context The reference to the activity/fragment that has invoked this method
+     * @param name The new user's name
+     * @param surname The new user's surname
+     * @param username Thew new user's username
+     * @param password The new user's password
+     * @param listeners The listeners that have to be executed when the communication with the database has ended
+     */
+    public static void registerUser(Context context, String name, String surname, String username, String password, Listeners listeners)
+    {
+        //The user that has to be added is converted into a map, which is the format
+        //used by Firestore to handle elements addition
+        Map<String, Object> toAdd = new HashMap<>();
+        toAdd.put(context.getString(R.string.userNameKey), name);
+        toAdd.put(context.getString(R.string.userSurnameKey), surname);
+        toAdd.put(context.getString(R.string.userUsernameKey), username);
+        toAdd.put(context.getString(R.string.userPasswordKey), password);
+
+        //The new user is added into the db
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(context.getString(R.string.userCollectionName))
+                .add(toAdd)
+                .addOnSuccessListener(listeners.successListener)
+                .addOnFailureListener(listeners.failureListener);
+    }
+
+    /**
+     * Checks if the given username is already present in the db
+     * @param context The reference to the activity/fragment that has invoked this method
+     * @param username The username that has to be checked
+     * @param listeners The listeners that have to be executed when the communication with the database has ended
+     */
+    public static void checkUsername(Context context, String username, Listeners listeners)
+    {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(context.getString(R.string.userCollectionName))
+                .whereEqualTo(context.getString(R.string.userUsernameKey), username)
+                .get()
+                .addOnCompleteListener(listeners.completeListener);
+    }
 }
