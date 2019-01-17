@@ -3,18 +3,12 @@ package unipd.se18.ocrcamera.performancetester;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
-
-import com.example.imageprocessing.PreProcessing;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +16,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import unipd.se18.ocrcamera.InciSingleton;
 import unipd.se18.ocrcamera.R;
 import unipd.se18.ocrcamera.Utils;
@@ -31,10 +24,6 @@ import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
 import unipd.se18.ocrcamera.inci.TextAutoCorrection;
 import unipd.se18.ocrcamera.inci.TextSplitIngredientsExtractor;
-
-// OCR module
-import unipd.se18.ocrcamera.performancetester.TestElement;
-import unipd.se18.ocrcamera.performancetester.TestListener;
 import unipd.se18.textrecognizer.OCR;
 import unipd.se18.textrecognizer.OCRListener;
 import unipd.se18.textrecognizer.TextRecognizer;
@@ -44,129 +33,28 @@ import unipd.se18.textrecognizer.TextRecognizer;
  * providing a JSON report containing stats and results.
  * @author Luca Moroldo (g3) - Francesco Pham (g3)
  */
-public class PhotoTester {
+class PhotoTester extends AbstractPerformanceTester {
 
     private static final String TAG = "PhotoTester";
 
-    /**
-     * Contains the available extensions for the test
-     */
-    public static final String[] IMAGE_EXTENSIONS = {"jpeg", "jpg"};
-
-    /**
-     * Contains the base name of a photo used for the test
-     */
-    public static final String PHOTO_BASE_NAME = "foto";
-
-    /**
-     * String used as file name for the report
-     */
-    private static final String REPORT_FILENAME = "report.txt";
-
-    private ArrayList<TestElement> testElements = new ArrayList<>();
-
-    private TestListener testListener;
-
-    //stores the path of the directory containing test files
-    private String dirPath;
-
-    private String report;
-
-
-
-
     //ingredients extractors (Francesco Pham)
-    private Context context;
     private IngredientsExtractor ocrIngredientsExtractor;
     private IngredientsExtractor correctIngredientsExtractor;
     private TextAutoCorrection textCorrector;
 
-    //image processor
-    private PreProcessing processing;
-
-
+    /**
+     * The String of a JSON report
+     */
+    private String report;
 
     /**
-     *
      * Load test elements (images + description)
+     * @param context The context of the app
      * @param dirPath The path where the photos and descriptions are.
      */
-    public PhotoTester(Context context, String dirPath) {
-        this.context = context;
-
-
-        File directory = getStorageDir(dirPath);
-        this.dirPath = directory.getPath();
-        Log.v(TAG, "PhotoTester -> dirPath == " + dirPath);
-
-        //create a TestElement object for each original photo - then link all the alterations to the relative original TestElement
-        for(File file : directory.listFiles()) {
-
-            String filePath = file.getPath();
-            String fileName = Utils.getFilePrefix(filePath);
-
-            //if the file is not an alteration then create a test element for it
-            if(fileName.contains(PHOTO_BASE_NAME)) {
-
-                String fileExtension = Utils.getFileExtension(filePath);
-
-                //check if extension is available
-                if(Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
-
-                    //this file is an image -> get file path
-                    String originalImagePath = file.getAbsolutePath();
-
-                    //Each photo has a description.txt with the same filename - so when an image is found we know the description filename
-                    String photoDesc= Utils.getTextFromFile(dirPath + "/" + fileName + ".txt");
-
-                    //create test element giving filename, description and image path
-                    //author Luca Moroldo - g3
-
-                    JSONObject jsonPhotoDescription = null;
-                    try {
-                        jsonPhotoDescription = new JSONObject(photoDesc);
-                    } catch(JSONException e) {
-                        e.printStackTrace();
-                        Log.e(TAG, "PhotoTester constructor -> Error decoding JSON");
-                    }
-                    if(jsonPhotoDescription != null) {
-
-                        TestElement originalTest = new TestElement(originalImagePath, jsonPhotoDescription, fileName);
-
-                        //associate the relative image path to each alteration of the original test if there is any
-                        String[] alterationsFilenames = originalTest.getAlterationsNames();
-                        if(alterationsFilenames != null) {
-                            for(String alterationFilename : alterationsFilenames) {
-                                String alterationImagePath = dirPath + "/" + alterationFilename;
-                                originalTest.setAlterationImagePath(alterationFilename, alterationImagePath);
-                            }
-                        }
-
-                        testElements.add(originalTest);
-                    }
-                }
-            }
-        }
+    PhotoTester(Context context, String dirPath) {
+        super(context, dirPath);
     }
-
-
-    /**
-     * Get a File directory from a path String
-     * @param dirPath The path of the directory
-     * @return the file relative to the environment and the dirName
-     * @author Pietro Prandini (g2)
-     */
-    private File getStorageDir(String dirPath) {
-        // Get the directory for the user's public pictures directory.
-        File file = new File(dirPath);
-        if(!file.isDirectory()) {
-            Log.e(TAG, file.getAbsolutePath() + "It's not a directory");
-        } else {
-            Log.v(TAG, "Directory => " + file.getAbsolutePath());
-        }
-        return file;
-    }
-
 
     /**
      * Elaborate tests using threads, stores the json report in string format to testReport.txt inside the directory given on construction
@@ -187,9 +75,6 @@ public class PhotoTester {
         ocrIngredientsExtractor = InciSingleton.getInstance(context).getIngredientsExtractor();
         List<Ingredient> listInciIngredients = InciSingleton.getInstance(context).getListInciIngredients();
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
-
-        //image processor initialization
-        processing = new PreProcessing();
 
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(testElements.size());
@@ -248,7 +133,7 @@ public class PhotoTester {
      *
      * @return true if report was correctly saved, false in case of error or if report is null
      */
-    public boolean saveReportToFile() {
+    boolean saveReportToFile() {
 
         //check if report is not null
         if(report == null)
@@ -264,11 +149,6 @@ public class PhotoTester {
         //error occurred
         return false;
     }
-
-    public TestElement[] getTestElements() {
-        return testElements.toArray(new TestElement[0]);
-    }
-    public int getTestSize() { return testElements.size(); }
 
     /**
      * Compare the list of ingredients extracted by OCR and the correct list of ingredients
@@ -436,7 +316,7 @@ public class PhotoTester {
      * Class used to run a single test
      * @author Luca Moroldo (g3)
      */
-    public class RunnableTest implements Runnable {
+    class RunnableTest implements Runnable {
         private TestElement test;
         private JSONObject jsonReport;
         private CountDownLatch countDownLatch;
@@ -446,7 +326,7 @@ public class PhotoTester {
          * @param test element of a test - must contain an image path and ingredients fields
          * @param countDownLatch used to signal the task completion
          */
-        public RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
+        RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
             this.jsonReport = jsonReport;
             this.test = test;
             this.countDownLatch = countDownLatch;
@@ -603,14 +483,6 @@ public class PhotoTester {
             }
 
         }
-    }
-
-    /**
-     * Set a listener whose function will be called at the end of each test
-     * @param testListener
-     */
-    public void setTestListener(TestListener testListener) {
-        this.testListener = testListener;
     }
 
     /**

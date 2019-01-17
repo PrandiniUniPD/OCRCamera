@@ -117,7 +117,7 @@ public class TestsListFragment extends Fragment {
         /**
          * Instance of PhotoTester used for doing the tests
          */
-        private PhotoTester tester;
+        private PerformanceTester tester;
 
         /**
          * The String where will be stored the report
@@ -172,7 +172,7 @@ public class TestsListFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... voids) {
             // Starts the elaboration of the tests
-            this.tester = new PhotoTester(getContext(), dirPath);
+            this.tester = TesterProvider.getTester(TesterProvider.testers.PhotoTester , getContext(), dirPath);
 
             // Sets the starting information about the progress
             totalTestElements = tester.getTestSize();

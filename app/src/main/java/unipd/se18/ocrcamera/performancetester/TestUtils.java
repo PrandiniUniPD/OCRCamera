@@ -126,7 +126,7 @@ class TestUtils {
      * @author Pietro Prandini (g2)
      */
     static void setAlterationsView(Context context, RelativeLayout relativeLayout,
-                                             View belowOf, TestElement element, Boolean viewDetails) {
+                                   View belowOf, TestElement element, Boolean viewDetails) {
         // Gets the alterations name (if any)
         String[] alterations = element.getAlterationsNames();
 
