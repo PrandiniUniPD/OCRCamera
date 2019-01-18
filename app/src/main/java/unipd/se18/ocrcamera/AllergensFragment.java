@@ -12,7 +12,7 @@ import android.view.ViewGroup;
  */
 public class AllergensFragment extends Fragment {
 
-    private static final String TAG = "GalleryFragment";
+    private static final String TAG = "ResultActivityFragment";
 
 
     public AllergensFragment() {
