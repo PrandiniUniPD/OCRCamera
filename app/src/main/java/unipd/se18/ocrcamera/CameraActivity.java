@@ -52,19 +52,20 @@ public class CameraActivity extends AppCompatActivity {
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(new SensorEventListener() {
             private int mOrientationDeg; //last rotation in degrees
-            private static final int _DATA_X = 0;
-            private static final int _DATA_Y = 1;
-            private static final int _DATA_Z = 2;
             private int ORIENTATION_UNKNOWN = -1;
 
+            /**
+             * Called when there is a new sensor event. Note that "on changed" is somewhat of a misnomer, as this will also be called if we have a new reading from a sensor with the exact same sensor values (but a newer timestamp).
+             * Documentation for SensorEvent: https://developer.android.com/reference/android/hardware/SensorEvent
+             */
             @Override
             public void onSensorChanged(SensorEvent event)
             {
                 float[] values = event.values;
                 int orientation = ORIENTATION_UNKNOWN;
-                float X = -values[_DATA_X];
-                float Y = -values[_DATA_Y];
-                float Z = -values[_DATA_Z];
+                float X = -values[0];
+                float Y = -values[1];
+                float Z = -values[2];
                 float magnitude = X*X + Y*Y;
                 // Don't trust the angle if the magnitude is small compared to the y value
                 if (magnitude * 4 >= Z*Z) {

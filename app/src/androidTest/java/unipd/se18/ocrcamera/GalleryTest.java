@@ -19,7 +19,7 @@ public class GalleryTest {
     @Test
     public void getDeletedPhotoPosition() throws IOException {
         Context ContextTest = InstrumentationRegistry.getContext();
-        ArrayList<GalleryManager.PhotoStructure> photos = GalleryManager.getImages(ContextTest);
+        ArrayList<GalleryManager.PhotoStructure> photos = GalleryManager.getImages();
         GalleryManager.RecycleCardsAdapter cardAdapter = new GalleryManager.RecycleCardsAdapter(ContextTest, photos);
 
         GalleryManager.PhotoStructure photoToDelete = photos.get(2);
@@ -30,7 +30,6 @@ public class GalleryTest {
 
     @Test
     public void cropImage() {
-
         int w = 200, h = 200;
 
         Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
@@ -42,15 +41,12 @@ public class GalleryTest {
         assertEquals(newBmp.getWidth(), 100);
     }
 
-
     @Test
     public void getItemCount() {
-
         Context contextTest = InstrumentationRegistry.getContext();
-        ArrayList<GalleryManager.PhotoStructure> photos = GalleryManager.getImages(contextTest);
+        ArrayList<GalleryManager.PhotoStructure> photos = GalleryManager.getImages();
         GalleryManager.RecycleCardsAdapter cardAdapter = new GalleryManager.RecycleCardsAdapter(contextTest, photos);
         assertEquals(photos.size(), cardAdapter.getItemCount());
-
     }
 
 }

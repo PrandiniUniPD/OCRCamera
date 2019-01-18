@@ -60,11 +60,10 @@ public class GalleryManager
 
     /**
      * Loads images and metadata
-     * @param context The reference to the activity where the gallery is displayed
      * @return A list of the photos with the corresponding metadata
      * @author Leonardo Rossi
      */
-    public static ArrayList<PhotoStructure> getImages(Context context)
+    public static ArrayList<PhotoStructure> getImages()
     {
         //Definition of the list that contains all the images in the data directory
         ArrayList<PhotoStructure> imagesStructures = new ArrayList<>();
@@ -313,6 +312,7 @@ public class GalleryManager
 
         /**
          * Update the CardViewHolder contents with the item at the given position
+         * Method called for each card
          * @param holder Holder of the card containing all its elements
          * @param listPosition auto-increment value starting from 0 that tells me which position is working
          */
@@ -325,10 +325,14 @@ public class GalleryManager
             Bitmap lastPhoto = currentPhoto.photo;
 
             //Set imageView properties
+
             holder.imageView.setImageBitmap(resize(lastPhoto,WIDTHSIZECARD,HEIGHTSIZECARD));
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            //Set txtView properties with the number of allergens found
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            options.inSampleSize = 3;
+            ;
 
 
             //Get a single string with all ingredients fount from the ocr
@@ -340,9 +344,8 @@ public class GalleryManager
             IngredientsExtractor extractor = InciSingleton.getInstance(mainActivity).getIngredientsExtractor();
             List<Ingredient> ingredientsToScan = extractor.findListIngredients(formattedIngredients);
 
-            //ArrayList<Allergen> allergensFound = InciSingleton.getInstance(mainActivity).getAllergensManager().checkListForSelectedAllergens(ingredientsToScan);
-            AllergensManager test = new AllergensManager(mainActivity);
-            ArrayList<Allergen> allergensFound = test.checkListForSelectedAllergens(ingredientsToScan);
+            AllergensManager showAllergen = new AllergensManager(mainActivity);
+            ArrayList<Allergen> allergensFound = showAllergen.checkListForSelectedAllergens(ingredientsToScan);
             holder.txtTitle.setText(allergensFound.size()+ " allergens found");
         }
 
