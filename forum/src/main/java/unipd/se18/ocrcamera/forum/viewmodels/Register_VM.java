@@ -71,8 +71,7 @@ public class Register_VM extends ViewModel implements RegisterMethods {
     /**
      * String used for logs to introduce Firestore
      */
-    private final String LOG_USERNAME_ALREADY_FOUND =
-            String.valueOf(R.string.logTagUsernameAlreadyFound);
+    private final String LOG_NULL_TASK_RESULT = String.valueOf(R.string.logTagNullTaskResult);
 
     @Override
     public void registerUserToForum(final Context context, final String username, final String password, final String name, final String surname) {
@@ -95,38 +94,46 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                 if (task.isSuccessful()) {
 
                     /*
-                     * The method "size" returns the number of documents in the QuerySnapshot.
-                     * A QuerySnapshot contains the results of a query. It can contain zero
-                     * or more DocumentSnapshot objects. A DocumentSnapshot contains data read
-                     * from a document in the Firestore database
-                     *
-                     * See also: https://firebase.google.com/docs/reference/android/com/google/firebase/firestore/QuerySnapshot
-                     *
-                     * The database is queried to fetch all the documents containing the username
-                     * which has to be checked. In order to consider the username as usable for
-                     * registration the number of documents found at the end of the query must be
-                     * zero, meaning that the chosen username is unique
+                     * Since the task result can be potentially null, in order to avoid exceptions
+                     * further on a not-null condition supplied with error logs is added
                      */
-                    if (task.getResult().size() == 0) {
+                    if (task.getResult() != null) {
 
                         /*
-                         * If the username is allowed, a request is sent to the database to
-                         * finalize the account creation by adding missing information
+                         * The method "size" returns the number of documents in the QuerySnapshot.
+                         * A QuerySnapshot contains the results of a query. It can contain zero
+                         * or more DocumentSnapshot objects. A DocumentSnapshot contains data read
+                         * from a document in the Firestore database
+                         *
+                         * See also: https://firebase.google.com/docs/reference/android/com/google/firebase/firestore/QuerySnapshot
+                         *
+                         * The database is queried to fetch all the documents containing the username
+                         * which has to be checked. In order to consider the username as usable for
+                         * registration the number of documents found at the end of the query must be
+                         * zero, meaning that the chosen username is unique
                          */
-                        DatabaseManager.registerUser(context, name, surname, username, password,
-                                dbListeners);
+                        if (task.getResult().size() == 0) {
+                            /*
+                             * If the username is allowed, a request is sent to the database to
+                             * finalize the account creation by adding missing information
+                             */
+                            DatabaseManager.registerUser(context, name, surname, username, password,
+                                    dbListeners);
+                        }
+                        else {
+
+                            //If not, the view is required to show an error
+                            forumRegisterListener.onRegisterFailure(
+                                    context.getString(
+                                            R.string.registerUsernameAlreayUsedMessage
+                                    )
+                            );
+                        }
                     }
                     else {
 
-                        //If not, the view is required to show an error
-                        forumRegisterListener.onRegisterFailure(
-                                context.getString(
-                                        R.string.registerUsernameAlreayUsedMessage
-                                )
-                        );
-
-                        //If a task.getResult exception is thrown, here it's caught
-                        Log.e(LOG_TAG, LOG_USERNAME_ALREADY_FOUND, task.getException());
+                        //If a task result is null an error log is printed
+                        Log.e(LOG_TAG, LOG_NULL_TASK_RESULT);
                     }
                 }
                 else {
