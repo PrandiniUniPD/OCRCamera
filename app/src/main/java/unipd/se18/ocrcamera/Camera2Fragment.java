@@ -6,8 +6,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -46,6 +49,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +58,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class Camera2Fragment extends Fragment
         implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -748,9 +754,24 @@ public class Camera2Fragment extends Fragment
 
     /**
      * Initiate a still image capture.
+     *
+     * @Leonardo Pratesi
      */
     private void takePicture() {
         lockFocus();
+        //precapture sequence
+        runPrecaptureSequence();
+        //take the photo
+        captureStillPicture();
+
+        String filePath = mFile.getAbsolutePath();
+        Log.e("path", filePath);
+        SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString("filePath", filePath.trim());
+        edit.apply();
+
+
     }
 
     /**
@@ -952,6 +973,7 @@ public class Camera2Fragment extends Fragment
         }
 
     }
+
 
     /**
      * Shows an error message dialog.

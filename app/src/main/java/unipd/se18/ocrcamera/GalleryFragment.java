@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.widget.ImageView;
 
 import java.io.File;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Fragment that manages the gallery
  * @author Leonardo Pratesi
@@ -19,6 +22,9 @@ import java.io.File;
 public class GalleryFragment extends Fragment {
 
     private static final String TAG = "GalleryFragment";
+
+    private Bitmap lastPhoto;
+
 
 
     public GalleryFragment() {
@@ -30,17 +36,13 @@ public class GalleryFragment extends Fragment {
         View view = inflater.inflate(R.layout.gallery_layout, container, false);
 
 
-        File imgFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
-        if (imgFile.exists()) {
+        SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = prefs.getString("filePath", null);
+        //String OCRText = prefs.getString("text", null);
 
-            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-            ImageView myImage = view.findViewById(R.id.imageView);
-            myImage.setImageBitmap(myBitmap);
-            Log.e("imageload", "imageloaded");
-        } else {
-            Log.e("IMAGENOTLOADED", "ERROR");
-
-        }
+        lastPhoto = BitmapFactory.decodeFile(pathImage);
+        ImageView imageView =view.findViewById(R.id.imageView);
+        imageView.setImageBitmap(lastPhoto);
 
             return view;
         }
