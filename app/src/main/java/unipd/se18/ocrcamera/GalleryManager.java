@@ -329,12 +329,6 @@ public class GalleryManager
             holder.imageView.setImageBitmap(resize(lastPhoto,WIDTHSIZECARD,HEIGHTSIZECARD));
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            options.inSampleSize = 3;
-            ;
-
-
             //Get a single string with all ingredients fount from the ocr
             String formattedIngredients = currentPhoto.ingredients.toString()
                     .replace("[", "")  //remove the right bracket
