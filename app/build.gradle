@@ -44,6 +44,23 @@ dependencies {
     //for json testing
     testImplementation 'org.json:json:20140107'
 
+    //START - For android tests
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    // required if you want to use Mockito for unit tests
+    androidTestImplementation 'org.mockito:mockito-core:2.23.4'
+    // required if you want to use Mockito for Android tests
+    androidTestImplementation 'org.mockito:mockito-android:2.23.4'
+    //END - for android test
+
+
+
+
+
+
     implementation 'com.android.support:design:28.0.0'
 
     //for Levenshtein string comparison
