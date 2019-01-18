@@ -17,19 +17,19 @@ import android.widget.FrameLayout;
  * Class that manages all the Fragment changes
  * @author Leonardo Pratesi
  */
-public class FragmentManager extends AppCompatActivity {
+public class FragmentManagerDesign extends AppCompatActivity {
 
     private BottomNavigationView mMainNav;
     private ViewPager mMainPager;
 
     private Fragment resultActivityFragment;
-    private Fragment allergensFragment;
-    private Fragment forumFragment;
+    private Fragment galleryFragment;
+    private Fragment camera2Fragment;
+
 
     MenuItem prevMenuItem;
 
 
-    private Fragment camera2Fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,15 +45,17 @@ public class FragmentManager extends AppCompatActivity {
 
                 switch (menuItem.getItemId()) {
 
-                    case R.id.camera :
-                        mMainNav.setItemBackgroundResource(R.color.colorPrimary);
+
+                    case R.id.result : //this now opens the camera
+                        mMainNav.setItemBackgroundResource(R.color.colorAccent);
                         mMainPager.setCurrentItem(0);
                         return true;
-                    case R.id.allergens : //this now opens the camera
-                        mMainNav.setItemBackgroundResource(R.color.colorAccent);
+                    case R.id.camera :
+                        mMainNav.setItemBackgroundResource(R.color.colorPrimary);
                         mMainPager.setCurrentItem(1);
                         return true;
-                    case R.id.forum :
+
+                    case R.id.gallery :
                         mMainNav.setItemBackgroundResource(R.color.colorPrimaryDark);
                         mMainPager.setCurrentItem(2);
                         return true;
@@ -102,11 +104,11 @@ public class FragmentManager extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         resultActivityFragment = new ResultActivityFragment();
-        forumFragment = new Fragment();
+        galleryFragment = new GalleryFragment();
         camera2Fragment = new Camera2Fragment();
         viewPagerAdapter.addFragment(resultActivityFragment);
         viewPagerAdapter.addFragment(camera2Fragment);
-        viewPagerAdapter.addFragment(forumFragment);
+        viewPagerAdapter.addFragment(galleryFragment);
         viewPager.setAdapter(viewPagerAdapter);
     }
 
