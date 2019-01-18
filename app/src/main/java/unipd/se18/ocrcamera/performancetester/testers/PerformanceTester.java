@@ -37,4 +37,10 @@ public interface PerformanceTester {
      * Converts statistics returned by getTagsStats() into a readable text
      */
     public String getTagsStatsString();
+
+    /**
+     * Initialize the test converting files into TestElements. Required before calling
+     * testAndReport().
+     */
+    public void loadTests();
 }

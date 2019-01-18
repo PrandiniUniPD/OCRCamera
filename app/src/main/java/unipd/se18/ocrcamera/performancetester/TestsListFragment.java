@@ -204,7 +204,8 @@ public class TestsListFragment extends Fragment {
          */
         @Override
         protected Void doInBackground(Void... voids) {
-            // Starts the elaboration of the tests
+            //load test files
+            tester.loadTests();
 
             // Sets the starting information about the progress
             totalTestElements = tester.getTestSize();
