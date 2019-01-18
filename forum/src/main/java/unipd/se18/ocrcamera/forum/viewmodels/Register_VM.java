@@ -3,6 +3,7 @@ package unipd.se18.ocrcamera.forum.viewmodels;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -57,30 +58,63 @@ public class Register_VM extends ViewModel implements RegisterMethods {
      */
     private ForumRegisterListener forumRegisterListener;
 
+    /**
+     * String used for logs to identify the fragment throwing it
+     */
+    private final String LOG_TAG = String.valueOf(R.string.logTagRegister_VM);
+
+    /**
+     * String used for logs to introduce Firestore task exceptions
+     */
+    private final String LOG_TASK_NOT_SUCCESSFUL = String.valueOf(R.string.logTagTaskNotSuccessful);
+
+    /**
+     * String used for logs to introduce Firestore
+     */
+    private final String LOG_USERNAME_ALREADY_FOUND =
+            String.valueOf(R.string.logTagUsernameAlreadyFound);
+
     @Override
     public void registerUserToForum(final Context context, final String username, final String password, final String name, final String surname) {
 
-        /**
+        /*
          * Initialization of the listener useful to react to responses
          * from the database requests, as soon as they are available
          */
-        final DatabaseManager.Listeners forumRegisterListeners = new DatabaseManager.Listeners();
+        final DatabaseManager.Listeners dbListeners = new DatabaseManager.Listeners();
 
-        /**
+        /*
          * Definition of the listener that will be triggered as soon as there
          * is a response to the checkUsername request from the database
          */
-        forumRegisterListeners.completeListener = new OnCompleteListener<QuerySnapshot>() {
+        dbListeners.completeListener = new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull Task<QuerySnapshot> task) throws NullPointerException {
 
+                //The task is considered as successful when the db query ends
                 if (task.isSuccessful()) {
+
+                    /*
+                     * The method "size" returns the number of documents in the QuerySnapshot.
+                     * A QuerySnapshot contains the results of a query. It can contain zero
+                     * or more DocumentSnapshot objects. A DocumentSnapshot contains data read
+                     * from a document in the Firestore database
+                     *
+                     * See also: https://firebase.google.com/docs/reference/android/com/google/firebase/firestore/QuerySnapshot
+                     *
+                     * The database is queried to fetch all the documents containing the username
+                     * which has to be checked. In order to consider the username as usable for
+                     * registration the number of documents found at the end of the query must be
+                     * zero, meaning that the chosen username is unique
+                     */
                     if (task.getResult().size() == 0) {
 
-                        //If the username is allowed, sends a request to the database to finalize
-                        // the account creation by adding missing information
+                        /*
+                         * If the username is allowed, a request is sent to the database to
+                         * finalize the account creation by adding missing information
+                         */
                         DatabaseManager.registerUser(context, name, surname, username, password,
-                                forumRegisterListeners);
+                                dbListeners);
                     }
                     else {
 
@@ -90,16 +124,24 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                                         R.string.registerUsernameAlreayUsedMessage
                                 )
                         );
+
+                        //If a task.getResult exception is thrown, here it's caught
+                        Log.e(LOG_TAG, LOG_USERNAME_ALREADY_FOUND, task.getException());
                     }
+                }
+                else {
+
+                    //If a task exception is thrown, here it's caught
+                    Log.d(LOG_TAG, LOG_TASK_NOT_SUCCESSFUL, task.getException());
                 }
             }
         };
 
-        /**
+        /*
          * Definition of the listeners that will be triggered as soon as there
          * is a response to the registerUser request from the database
          */
-        forumRegisterListeners.successListener = new OnSuccessListener() {
+        dbListeners.successListener = new OnSuccessListener() {
             @Override
             public void onSuccess(Object o) {
 
@@ -108,7 +150,7 @@ public class Register_VM extends ViewModel implements RegisterMethods {
             }
         };
 
-        forumRegisterListeners.failureListener = new OnFailureListener() {
+        dbListeners.failureListener = new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 
@@ -122,7 +164,7 @@ public class Register_VM extends ViewModel implements RegisterMethods {
         };
 
         //Asks the database if the chosen username is unique since it will be the db key
-        DatabaseManager.checkUsername(context, username, forumRegisterListeners);
+        DatabaseManager.checkUsername(context, username, dbListeners);
     }
 
     /**

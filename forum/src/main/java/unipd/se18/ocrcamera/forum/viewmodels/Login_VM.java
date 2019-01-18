@@ -63,10 +63,10 @@ public class Login_VM extends ViewModel implements LoginMethods {
          * Initialization of the listener useful to react to responses
          * from the database requests, as soon as they are available
          */
-        final DatabaseManager.Listeners forumLoginListeners = new DatabaseManager.Listeners();
+        final DatabaseManager.Listeners dbListeners = new DatabaseManager.Listeners();
 
         //Definition of the listener that will be triggered when the login process finishes
-        forumLoginListeners.completeListener = new OnCompleteListener<QuerySnapshot>() {
+        dbListeners.completeListener = new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task)
             {
@@ -85,7 +85,7 @@ public class Login_VM extends ViewModel implements LoginMethods {
         };
 
         //Sends a netword request to check if the provided credentials are correct
-        DatabaseManager.loginUser(context, username, password, forumLoginListeners);
+        DatabaseManager.loginUser(context, username, password, dbListeners);
     }
 
     /**
