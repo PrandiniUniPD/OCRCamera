@@ -1,28 +1,31 @@
 package unipd.se18.ocrcamera;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Camera;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import com.camerakit.CameraKitView;
-import com.yalantis.ucrop.UCrop;
+import android.widget.Toast;
 
+import com.camerakit.CameraKitView;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 /**
  * The Activity useful for making photos
@@ -30,10 +33,11 @@ import java.io.OutputStream;
 public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
-    private static String orientationResult;
+    private static String orientationResult="P";
 
-    private final String CROPPED_IMAGE_PATH = "/data/user/0/unipd.se18.ocrcamera/cache/AFile.jpg";
-
+    public String getDir() {
+        return getExternalFilesDir(null).getAbsolutePath();
+    }
     /**
      * onCreate method of the Android Activity Lifecycle
      * @param savedInstanceState The Bundle of the last instance state saved
@@ -43,7 +47,6 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-
         cameraKitView = findViewById(R.id.cameraKitView);
 
         //Load sensor for understand the orientation of the phone
@@ -132,95 +135,42 @@ public class CameraActivity extends AppCompatActivity {
 
     /**
      * Takes a photo, saves it inside internal storage and resets the last extracted text
+     *
      * @modify SharedPreferences
-     * @author Romanello Stefano - modified by Leonardo Rossi
+     * @author Romanello Stefano - modified by Leonardo Rossi and Balzan Pietro
      */
-    private void takePhoto()
-    {
-        //Calling camera kit capture photo method.
-        //It has as parameters the view that has captured the image and
-        //an array of bytes representing the image data
+    private void takePhoto() {
         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
             @Override
             public void onImage(CameraKitView cameraKitView, final byte[] photo) {
 
-                //First of all the byte array is converted into bitmap for an easier manipulation
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(photo, 0, photo.length, null);
 
-                //If the app has detected the capture's image orientation we go ahead with the code
-                if(orientationResult != null)
+                //Image rotation
+                switch (orientationResult)
                 {
-                    //Based on the detected image's rotation, it is rotated so that it will always be portrait
-                    switch (orientationResult)
-                    {
-                        case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
-                        case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
-                        case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
-                        default: break;
-                    }
-
-                    //Temporary stores the captured photo into a file that will be used by the Camera Result activity
-                    //So that the captured image can be passed with an intent
-                    String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
-
-                    //At this point of code we will give the user the ability to crop or manually
-                    //rotate the image so that the ingredients portion can be easily detected by OCR.
-                    //To do this the UCrop library is used and in particular it works with Uris so,
-                    //first of all we have to convert our paths into Uri objects
-
-                    //First the path where the cropped image will be saved is defined and converted into Uri
-                    final Uri resultImageUri = Uri.fromFile(new File(CROPPED_IMAGE_PATH));
-                    //Second the captured image's path is converted into Uri object
-                    Uri.Builder builder = new Uri.Builder().scheme("file").path(filePath);
-                    final Uri captureImageUri = builder.build();
-
-                    //Now the UCrop library is ready to be used but first some crop options are defined
-                    UCrop.Options options = new UCrop.Options();
-                    options.setHideBottomControls(false); //Crop buttons are used to manipulate the photo
-                    options.setFreeStyleCropEnabled(true); //The crop rectangle's size can be modified like user wants
-                    //Some color options are defined
-                    options.setActiveWidgetColor(getResources().getColor(R.color.colorPrimary));
-                    options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
-                    options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
-                    //The crop activity title is defined
-                    options.setToolbarTitle("Focus on the ingredients");
-                    //The crop activity is finally called
-                    UCrop.of(captureImageUri, resultImageUri)
-                            .withOptions(options)
-                            .start(CameraActivity.this);
+                    case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
+                    case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
+                    case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
+                    default: break;
                 }
+
+                //Temporary stores the captured photo into a file that will be used from the Camera Result activity
+                String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
+
+                SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+                SharedPreferences.Editor edit = prefs.edit();
+                edit.putString("imagePath", filePath.trim());
+                edit.apply();
+
+                //An intent that will launch the activity that will analyse the photo
+                Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                startActivity(i);
             }
         });
-
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        //If the user has successfully used UCrop activity we enter into the if
-        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP)
-        {
-            //The cropped image's Uri is caught from the UCrop activity
-            final Uri resultUri = UCrop.getOutput(data);
 
-            //The cropped image's path is stored into shared preferences so that it can be
-            //reused by the app and in particular by result activity to invoke on it the OCR
-            SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-            SharedPreferences.Editor edit = prefs.edit();
-            edit.putString("imagePath", resultUri.getPath());
-            edit.apply();
-
-            //At this point the crop process is finished and the app can show the user the result activity
-            Intent i = new Intent(CameraActivity.this, ResultActivity.class);
-            startActivity(i);
-
-        }
-        else if (resultCode == UCrop.RESULT_ERROR)
-        {
-            //If an error happens after cropping the image this exception is thrown
-            final Throwable cropError = UCrop.getError(data);
-        }
-    }
 
     @Override
     protected void onStart() {
@@ -259,11 +209,12 @@ public class CameraActivity extends AppCompatActivity {
      * @param context The reference of the current activity
      * @param bitmap The captured image to store into the file. Not null or empty.
      * @param name The name of the file. Not null or empty.
-     * @return The file's path
+     * @return The files path
      * @author Leonardo Rossi
      */
     private String tempFileImage(Context context, Bitmap bitmap, String name)
     {
+
         //Creating an instance of the file where the image will be saved
         //It will be stored at the path contained into the variable outputDir
         //It name will be the composition of the name variable's value and .jpg
@@ -275,7 +226,8 @@ public class CameraActivity extends AppCompatActivity {
             //Enabling the previous file to writing
             OutputStream os = new FileOutputStream(imageFile);
             //Before storing the image it is compressed in JPEG format and then written into the file's output stream
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            final int IMAGE_QUALITY = 100;
+            bitmap.compress(Bitmap.CompressFormat.JPEG, IMAGE_QUALITY, os);
             //This method ensures that all the bytes in the output stream will be written into the specified file
             os.flush();
             //At the end the output stream is closed
@@ -305,12 +257,4 @@ public class CameraActivity extends AppCompatActivity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
-
-
-
-
-
-
 }
-
-
