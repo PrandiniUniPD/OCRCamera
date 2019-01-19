@@ -15,7 +15,12 @@ import android.widget.TextView;
 import android.widget.ImageView;
 import android.media.ExifInterface;
 import android.util.Log;
+
+
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -193,7 +198,7 @@ public class GalleryManager
         File image = new File(PATH, name+".jpg");
 
         OutputStream outStream = new FileOutputStream(image);
-        toStore.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+        toStore.compress(Bitmap.CompressFormat.JPEG, 50, outStream);
         outStream.flush();
         outStream.close();
         
@@ -327,7 +332,10 @@ public class GalleryManager
             //Set imageView properties
 
             holder.imageView.setImageBitmap(resize(lastPhoto,WIDTHSIZECARD,HEIGHTSIZECARD));
+
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+
 
             //Get a single string with all ingredients fount from the ocr
             String formattedIngredients = currentPhoto.ingredients.toString()
