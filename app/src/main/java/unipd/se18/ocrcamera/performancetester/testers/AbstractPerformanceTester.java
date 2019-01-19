@@ -125,8 +125,6 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         }
     }
 
-
-
     /**
      * Elaborate tests using threads, stores the json report in string format to testReport.txt
      * inside the directory given on construction
@@ -191,7 +189,6 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
                     originalTest.setAlterationImagePath(alterationFilename, alterationImagePath);
                 }
             }
-
         } catch(JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "PhotoTester constructor -> Error decoding JSON with name: " + fileName);
@@ -199,7 +196,6 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
             if(testListener != null) {
                 testListener.onTestFailure(TestListener.JSON_PARSING_FAILURE, fileName);
             }
-
         }
         return originalTest;
     }
