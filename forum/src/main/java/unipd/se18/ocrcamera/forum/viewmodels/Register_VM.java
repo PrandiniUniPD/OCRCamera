@@ -28,12 +28,12 @@ public class Register_VM extends ViewModel implements RegisterMethods {
      * ********************
      */
 
-    /**
-     * Listener useful for communicating with the corresponding view ForumRegister
-     * according to the Model-View-View model architecture
-     *
-     * Real user's name and surname are not made accessible through the listener
-     * since they are not meant to be used inside the forum
+    /*
+    Listener useful for communicating with the corresponding view ForumRegister
+    according to the Model-View-View model architecture
+
+    Real user's name and surname are not made accessible through the listener
+    since they are not meant to be used inside the forum
      */
     public interface ForumRegisterListener {
 
@@ -58,33 +58,21 @@ public class Register_VM extends ViewModel implements RegisterMethods {
      */
     private ForumRegisterListener forumRegisterListener;
 
-    /**
-     * String used for logs to identify the fragment throwing it
-     */
+    //String used for logs to identify the fragment throwing it
     private final String LOG_TAG = String.valueOf(R.string.logTagRegister_VM);
-
-    /**
-     * String used for logs to introduce Firestore task exceptions
-     */
-    private final String LOG_TASK_NOT_SUCCESSFUL = String.valueOf(R.string.logTagTaskNotSuccessful);
-
-    /**
-     * String used for logs to introduce Firestore
-     */
-    private final String LOG_NULL_TASK_RESULT = String.valueOf(R.string.logTagNullTaskResult);
 
     @Override
     public void registerUserToForum(final Context context, final String username, final String password, final String name, final String surname) {
 
         /*
-         * Initialization of the listener useful to react to responses
-         * from the database requests, as soon as they are available
+        Initialization of the listener useful to react to responses
+        from the database requests, as soon as they are available
          */
         final DatabaseManager.Listeners dbListeners = new DatabaseManager.Listeners();
 
         /*
-         * Definition of the listener that will be triggered as soon as there
-         * is a response to the checkUsername request from the database
+        Definition of the listener that will be triggered as soon as there
+        is a response to the checkUsername request from the database
          */
         dbListeners.completeListener = new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -94,23 +82,17 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                 if (task.isSuccessful()) {
 
                     /*
-                     * Since the task result can be potentially null, in order to avoid exceptions
-                     * further on a not-null condition supplied with error logs is added
+                    Since the task result can be potentially null, in order to avoid exceptions
+                    further on a not-null condition supplied with error logs is added
                      */
                     if (task.getResult() != null) {
 
                         /*
-                         * The method "size" returns the number of documents in the QuerySnapshot.
-                         * A QuerySnapshot contains the results of a query. It can contain zero
-                         * or more DocumentSnapshot objects. A DocumentSnapshot contains data read
-                         * from a document in the Firestore database
-                         *
-                         * See also: https://firebase.google.com/docs/reference/android/com/google/firebase/firestore/QuerySnapshot
-                         *
-                         * The database is queried to fetch all the documents containing the username
-                         * which has to be checked. In order to consider the username as usable for
-                         * registration the number of documents found at the end of the query must be
-                         * zero, meaning that the chosen username is unique
+                        @see <a href="https://firebase.google.com/docs/reference/android/com/google/firebase/firestore/QuerySnapshot">
+                            Useful Firestore documentation </a>
+
+                        Checks if there are correspondences of the chosen username in the database
+                        If not, the size results zero, so the username is unique and can be used
                          */
                         if (task.getResult().size() == 0) {
                             /*
@@ -125,7 +107,7 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                             //If not, the view is required to show an error
                             forumRegisterListener.onRegisterFailure(
                                     context.getString(
-                                            R.string.registerUsernameAlreayUsedMessage
+                                            R.string.checkUsernameErrorMessage
                                     )
                             );
                         }
@@ -133,20 +115,34 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                     else {
 
                         //If a task result is null an error log is printed
-                        Log.e(LOG_TAG, LOG_NULL_TASK_RESULT);
+                        Log.e(LOG_TAG, "The result of a task is null!");
+
+                        //An error occurred retrieving task information, so it's shown to the user
+                        forumRegisterListener.onRegisterFailure(
+                                context.getString(
+                                        R.string.checkUsernameErrorMessage
+                                )
+                        );
                     }
                 }
                 else {
 
                     //If a task exception is thrown, here it's caught
-                    Log.d(LOG_TAG, LOG_TASK_NOT_SUCCESSFUL, task.getException());
+                    Log.d(LOG_TAG, "Error getting Firestore documents: ", task.getException());
+
+                    //An error occurred completing the task, so it's shown to the user
+                    forumRegisterListener.onRegisterFailure(
+                            context.getString(
+                                    R.string.registerUsernameAlreayUsedMessage
+                            )
+                    );
                 }
             }
         };
 
         /*
-         * Definition of the listeners that will be triggered as soon as there
-         * is a response to the registerUser request from the database
+        Definition of the listeners that will be triggered as soon as there
+        is a response to the registerUser request from the database
          */
         dbListeners.successListener = new OnSuccessListener() {
             @Override
