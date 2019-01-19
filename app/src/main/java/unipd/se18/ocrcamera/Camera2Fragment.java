@@ -79,6 +79,8 @@ public class Camera2Fragment extends Fragment
         ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
 
+    //// temporarysolution
+    int resultfragmentindex=0;
     /**
      * Tag for the {@link Log}.
      */
@@ -418,7 +420,6 @@ public class Camera2Fragment extends Fragment
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         view.findViewById(R.id.picture).setOnClickListener(this);
-        view.findViewById(R.id.info).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
     }
 
@@ -771,6 +772,24 @@ public class Camera2Fragment extends Fragment
         SharedPreferences.Editor edit = prefs.edit();
         edit.putString("filePath", filePath.trim());
         edit.apply();
+
+        //refresh result activity fragment with new photo
+        //TODO now i found a solution that changes the item selected
+        //TODO to always refresh the resultfragment with index i, should use findFragmentbytag
+        Fragment fragm = getFragmentManager().getFragments().get(resultfragmentindex);
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(fragm);
+        ft.attach(fragm);
+        ft.commit();
+
+        /// this is a temporary solution
+        if (resultfragmentindex == 0) {
+            resultfragmentindex =1;
+        }
+        else {
+            resultfragmentindex = 0;
+        }
+
 
     }
 

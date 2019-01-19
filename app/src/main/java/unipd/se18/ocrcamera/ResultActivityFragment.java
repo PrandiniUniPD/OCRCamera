@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -50,25 +51,11 @@ public class ResultActivityFragment extends Fragment {
         //null constructor
     }
 
-    /**
-     * method to refresh the resultimage everytime the fragment change
-     * @param isVisibleToUser
-     */
-
-    //TODO works but not efficient, i don't need to refresh everytime
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            // Refresh your fragment here
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.detach(this);
-            fragmentTransaction.attach(this);
-            fragmentTransaction.commit();
-        }
-    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        //refresh the result activity with the new image
+        // TODO find a better way
+
         View view = inflater.inflate(R.layout.activity_result, container, false);
 
         ImageView mImageView = view.findViewById(R.id.img_captured_view);
@@ -88,7 +75,9 @@ public class ResultActivityFragment extends Fragment {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-
+        if (OCRText != null) {
+            //do things here
+        }
             // text from OCR
             ResultActivityFragment.AsyncLoad ocrTask =
                     new AsyncLoad(mOCRTextView,getString(R.string.processing));

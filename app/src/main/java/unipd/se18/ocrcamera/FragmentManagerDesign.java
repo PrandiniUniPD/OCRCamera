@@ -60,6 +60,7 @@ public class FragmentManagerDesign extends AppCompatActivity {
         mMainPager = (ViewPager) findViewById(R.id.main_viewpager);
         mMainNav = (BottomNavigationView)findViewById(R.id.main_nav);
 
+        //listener for menu selection
         mMainNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -67,7 +68,7 @@ public class FragmentManagerDesign extends AppCompatActivity {
                 switch (menuItem.getItemId()) {
 
                     case R.id.result :
-                        mMainNav.setItemBackgroundResource(R.color.colorPrimary);
+                        mMainNav.setItemBackgroundResource(R.color.design_default_color_primary_dark);
                         mMainPager.setCurrentItem(0);
                         return true;
                     case R.id.camera : //this now opens the camera
@@ -75,7 +76,7 @@ public class FragmentManagerDesign extends AppCompatActivity {
                         mMainPager.setCurrentItem(1);
                         return true;
                     case R.id.forum :
-                        mMainNav.setItemBackgroundResource(R.color.colorPrimaryDark);
+                        mMainNav.setItemBackgroundResource(R.color.common_google_signin_btn_text_dark);
                         mMainPager.setCurrentItem(2);
                         return true;
                     default:
@@ -85,6 +86,7 @@ public class FragmentManagerDesign extends AppCompatActivity {
             }
         });
 
+        //listener for swipe gestures
         mMainPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -130,10 +132,6 @@ public class FragmentManagerDesign extends AppCompatActivity {
         viewPagerAdapter.addFragment(forumFragment);
         viewPager.setAdapter(viewPagerAdapter);
     }
-
-
-
-
 
 
     /** NOT USEFULL ANYMORE MAYBE USEFULL LATER

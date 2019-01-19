@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to manage the swipe gestures between Fragments
+ * Class that holds all the Fragments
  * @author Leonardo Pratesi
  */
 
