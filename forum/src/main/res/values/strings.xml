@@ -32,6 +32,12 @@
     <string name="loginButton">Login</string>
     <string name="registerLabel">Need an account? Register now!</string>
 
+    <!-- Fragment ForumRegister identifiers -->
+    <string name="pwdEditTextsDoNotMatch">The passwords inserted don\'t match. Please try
+        again</string>
+    <string name="allFieldsNotFilled">Some fields have been left blank. Please fill them
+        and try again</string>
+
     <!-- View model Login_VM identifiers -->
     <string name="loginFailedMessage">A login error occurred. Please check your credentials</string>
 

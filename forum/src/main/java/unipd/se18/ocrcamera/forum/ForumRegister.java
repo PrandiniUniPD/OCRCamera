@@ -59,7 +59,7 @@ public class ForumRegister extends Fragment {
     private EditText confirmPwdEditText;
     private Button signUpButton;
 
-    //Variables to retain registration fields by the user
+    //Support variables to retain registration fields by the user
     private String userUsername;
     private String userName;
     private String userSurname;
@@ -97,6 +97,7 @@ public class ForumRegister extends Fragment {
         nameEditText = view.findViewById(R.id.nameEditText);
         surnameEditText = view.findViewById(R.id.surnameEditText);
         pwdEditText = view.findViewById(R.id.pwdEditText);
+        confirmPwdEditText = view.findViewById(R.id.confirmPwdEditText);
         signUpButton = view.findViewById(R.id.signUpButton);
 
         //Definition of view model listener
@@ -168,9 +169,49 @@ public class ForumRegister extends Fragment {
             @Override
             public void onClick(View v) {
 
-                userUsername = usernameEditText.getText().toString();
-                viewModel.registerUserToForum(requireContext(),userUsername, userPwd, userName,
-                        userSurname);
+                //Checks if all fields have been filled by using a support constant
+                final boolean areAllFieldsFilled =
+                        usernameEditText.getText() != null &&
+                        nameEditText.getText() != null &&
+                        surnameEditText.getText() != null &&
+                        pwdEditText.getText() != null &&
+                        confirmPwdEditText.getText() != null;
+
+                if (areAllFieldsFilled) {
+
+                    //If so, texts from these fields can be retrieved
+                    userUsername = usernameEditText.getText().toString();
+                    userName = nameEditText.getText().toString();
+                    userSurname = surnameEditText.getText().toString();
+
+                    //Checks if password and confirmation password fields are equal
+                    if (pwdEditText.getText().toString()
+                            .equals(confirmPwdEditText.getText().toString())) {
+
+                        //If so, also password variable is definitively initialized
+                        userPwd = pwdEditText.getText().toString();
+
+                        //The registration request is sent to the database through the view model
+                        viewModel.registerUserToForum(requireContext(),userUsername, userPwd, userName,
+                                userSurname);
+                    }
+                    else {
+
+                        //If the two password fields doesn't match, the user is shown an error toast
+                        Toast.makeText(getContext(), R.string.pwdEditTextsDoNotMatch,
+                                Toast.LENGTH_LONG).show();
+
+                        //The invalid password fields are also made blank again
+                        pwdEditText.setText(null);
+                        confirmPwdEditText.setText(null);
+                    }
+                }
+                else {
+
+                    //If not, the user is required to insert the missing information
+                    Toast.makeText(getContext(), R.string.allFieldsNotFilled,
+                            Toast.LENGTH_LONG).show();
+                }
             }
         });
 

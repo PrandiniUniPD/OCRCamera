@@ -95,6 +95,14 @@ public class ForumLogin extends Fragment {
         loginButton = view.findViewById(R.id.loginButton);
         registerEditText = view.findViewById(R.id.registerEditText);
 
+        /*
+        If the view is launched after a successful registration process, the username field is
+        already set to the registration one to speed up the login process and to provide feedback
+         */
+        if (savedInstanceState != null) {
+            usernameEditText.setText(savedInstanceState.getString(KEY_USERNAME));
+        }
+
         //Definition of view model listener
         viewModel.setForumLoginListener(new Login_VM.ForumLoginListener() {
 
