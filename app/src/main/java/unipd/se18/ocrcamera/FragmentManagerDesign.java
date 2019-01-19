@@ -17,19 +17,40 @@ import android.widget.FrameLayout;
  * Class that manages all the Fragment changes
  * @author Leonardo Pratesi
  */
-public class FragmentManager extends AppCompatActivity {
+public class FragmentManagerDesign extends AppCompatActivity {
 
+    /**
+     * The bottom layout with all the buttons
+     */
     private BottomNavigationView mMainNav;
+
+    /**
+     * Object handling Fragments transitions
+     */
     private ViewPager mMainPager;
 
+    /**
+     *  Result activity Fragment
+     */
     private Fragment resultActivityFragment;
-    private Fragment allergensFragment;
+
+    /**
+     * Camera Fragment
+     */
+    private Fragment camera2Fragment;
+
+    /**
+     * Forum Fragment //TODO implements this
+     */
     private Fragment forumFragment;
 
+
+    /**
+     * variable indicating the menu item selected
+     */
     MenuItem prevMenuItem;
 
 
-    private Fragment camera2Fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +66,11 @@ public class FragmentManager extends AppCompatActivity {
 
                 switch (menuItem.getItemId()) {
 
-                    case R.id.camera :
+                    case R.id.result :
                         mMainNav.setItemBackgroundResource(R.color.colorPrimary);
                         mMainPager.setCurrentItem(0);
                         return true;
-                    case R.id.allergens : //this now opens the camera
+                    case R.id.camera : //this now opens the camera
                         mMainNav.setItemBackgroundResource(R.color.colorAccent);
                         mMainPager.setCurrentItem(1);
                         return true;
@@ -120,7 +141,7 @@ public class FragmentManager extends AppCompatActivity {
      * @param fragment the frangment that needs to be inflated
      * @author Leonardo Pratesi
      */
-    private void setFragment(Fragment fragment) {
+    public void setFragment(Fragment fragment) {
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.main_viewpager, fragment);

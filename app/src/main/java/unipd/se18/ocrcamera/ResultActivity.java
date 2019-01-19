@@ -28,6 +28,8 @@ import android.widget.Toast;
  */
 public class ResultActivity extends AppCompatActivity {
 
+
+
     /**
      * The TextView of the extracted test from the captured photo.
      */
@@ -105,10 +107,7 @@ public class ResultActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.test:
-                Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
-                startActivity(i);
-                return true;
+
             case R.id.download_photos:
                 Intent download_intent = new Intent(ResultActivity.this, DownloadDbActivity.class);
                 startActivity(download_intent);

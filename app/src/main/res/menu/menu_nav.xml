@@ -2,13 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/camera"
+        android:id="@+id/result"
         android:icon="@drawable/common_google_signin_btn_icon_dark_normal"
-        android:title="camera" />
+        android:title="result" />
     <item
-        android:id="@+id/allergens"
+        android:id="@+id/camera"
         android:icon="@drawable/common_google_signin_btn_icon_dark"
-        android:title="allergens" />
+        android:title="camera" />
     <item
         android:id="@+id/forum"
         android:enabled="false"

@@ -35,6 +35,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Size;
@@ -753,7 +754,7 @@ public class Camera2Fragment extends Fragment
     }
 
     /**
-     * Initiate a still image capture.
+     * Initiate a still image capture, refresh the fragment with the new image
      *
      * @Leonardo Pratesi
      */
@@ -770,7 +771,6 @@ public class Camera2Fragment extends Fragment
         SharedPreferences.Editor edit = prefs.edit();
         edit.putString("filePath", filePath.trim());
         edit.apply();
-
 
     }
 

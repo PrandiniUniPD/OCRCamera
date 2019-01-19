@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,6 +50,23 @@ public class ResultActivityFragment extends Fragment {
         //null constructor
     }
 
+    /**
+     * method to refresh the resultimage everytime the fragment change
+     * @param isVisibleToUser
+     */
+
+    //TODO works but not efficient, i don't need to refresh everytime
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            // Refresh your fragment here
+            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            fragmentTransaction.detach(this);
+            fragmentTransaction.attach(this);
+            fragmentTransaction.commit();
+        }
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_result, container, false);
@@ -70,21 +88,12 @@ public class ResultActivityFragment extends Fragment {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-        //Displaying the text, from OCR or preferences
-        if(OCRText != null) {
-            // Text in preferences
-            if(OCRText.equals("")) {
-                mOCRTextView.setText(R.string.no_text_found);
-            } else {
-                //Show the text of the last image
-                mOCRTextView.setText(OCRText);
-            }
-        } else{
+
             // text from OCR
             ResultActivityFragment.AsyncLoad ocrTask =
                     new AsyncLoad(mOCRTextView,getString(R.string.processing));
             ocrTask.execute(lastPhoto);
-        }
+
 
         return view;
         }
