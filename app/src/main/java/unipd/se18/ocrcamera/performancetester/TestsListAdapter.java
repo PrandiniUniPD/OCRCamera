@@ -50,9 +50,7 @@ public class TestsListAdapter extends BaseAdapter {
     public Object getItem(int position) { return entries[position]; }
 
     @Override
-    public long getItemId(int position) {
-        return TestUtils.getTestElementId(entries[position]);
-    }
+    public long getItemId(int position) { return TestUtils.getTestElementId(entries[position]); }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -102,9 +100,14 @@ public class TestsListAdapter extends BaseAdapter {
                 final Intent testDetailsActivity = new Intent(context, TestDetailsActivity.class);
 
                 // Prepares the values to be passed by the intent
-                testDetailsActivity.putExtra(TestUtils.positionString,position);
-                testDetailsActivity.putExtra(TestUtils.redUntilString,TestUtils.defaultRedUntil);
-                testDetailsActivity.putExtra(TestUtils.yellowUntilString,TestUtils.defaultYellowUntil);
+                testDetailsActivity
+                        .putExtra(TestUtils.positionString,position);
+
+                testDetailsActivity
+                        .putExtra(TestUtils.redUntilString,TestUtils.defaultRedUntil);
+
+                testDetailsActivity
+                        .putExtra(TestUtils.yellowUntilString,TestUtils.defaultYellowUntil);
 
                 // Starts the details activity
                 context.startActivity(testDetailsActivity);

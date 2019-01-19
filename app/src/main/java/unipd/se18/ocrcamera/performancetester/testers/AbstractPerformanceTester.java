@@ -86,9 +86,7 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
             // Launches the empty directory event
             throw new TestDirectoryException(dirPath + " is empty.");
         }
-
         this.dirPath = dirPath;
-
     }
 
     /**
@@ -205,6 +203,4 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         }
         return originalTest;
     }
-
-
 }

@@ -95,7 +95,8 @@ public class TestDetailsFragment extends Fragment {
         notes.setText(entry.getNotes());
 
         // Sets the ingredients extraction report
-        TextView extractedIngredientsView = requireActivity().findViewById(R.id.extracted_ingredients_view);
+        TextView extractedIngredientsView =
+                requireActivity().findViewById(R.id.extracted_ingredients_view);
         extractedIngredientsView.setText(entry.getIngredientsExtraction());
 
         // Sets the alterations view
