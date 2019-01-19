@@ -1,0 +1,39 @@
+Checklist per codereview
+
+SPECIFICHE:
+1- Le specifiche di una data funzione sono esplicitate in maniera chiara ed esaustiva?
+2- La funzione in considerazione rispetta le specifiche indicate?
+3- La classe che si sta sviluppando ha uno scopo ben definito? 
+
+CLASSI:
+1- Il nome della classe è concorde e coerente con la sua funzione principale?
+2- I metodi che la classe implementa sono stati definiti all'interno di un'interfaccia così da garantirne un livello di astrazione sufficiente?
+3- Le firme dei metodi sono chiare a sufficienza da permettere l'utilizzo della classe come una sorta di black box, non costringendo così l'utilizzatore a pensare troppo a come approcciarsi ad essa?
+4- La classe garantisce l'incapsulamento dei sui attributi così da garantirne integrità e sicurezza?
+
+METODI:
+1- Hanno una firma chiara a sufficienza da spiegarne la funzione, senza conoscere l'implementazione vera e propria?
+2- Il metodo è implementato in maniera tale da svolgere una ed una sola operazione in maniera corretta?
+3- I parametri in ingresso sono tutti effettivamente utilizzati?
+4- Il valore di ritorno viene effettivamente utilizzato?
+5- Il metodo restitisce un valore sensato tutte le possibili circostanze?
+
+ECCEZIONI:
+1- E' strettamente necessario utilizzare un'eccezione in un dato punto del codice?
+2- L'eccezione è gestita localmente anziché essere propagata nel codice?
+3- Il codice evita di lanciare eccezione nel costruttore di una data classe?
+4- Il codice è privo di blocchi catch vuoti?
+5- I messaggi associati alle eccezioni sono esplicativi a sufficienza?
+
+VARIABILI:
+1- Le variabili sono dichiarate vicino al punto in cui poi sono effettivamente utilizzate?
+2- Dove possibile le variabili sono inizializzate nello stesso punto in cui vengono dichiarate?
+3- Le variabili nel codice sono sempre dichiarate con un ottica scope-oriented?
+4- Tutte le variabili dichiarate sono effettivamente poi utilizzate?
+5- Le variabili hanno un nome coerente con la funzione che svolgono?
+6- Le variabili booleane hanno un nome chiaro a sufficienza da supportare il loro valore quando sono TRUE?
+7- La nomenclatura utilizzata distingue costanti, enum e variabili?
+
+SWICTH:
+1- I vari case elencati sono esaustivi per controllare tutti i casi possibili?
+2- L'utilizzo del defualt è leggitimato?
