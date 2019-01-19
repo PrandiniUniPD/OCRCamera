@@ -96,7 +96,7 @@ public class DownloadDbActivity extends AppCompatActivity {
     }
 
     /**
-     * action when is pressed the login button from the UI when the LoginLayout is visible
+     * Method called when is pressed the login button from the UI when the LoginLayout is visible
      *
      * @author Stefano Romanello (g3)
      */
@@ -126,6 +126,7 @@ public class DownloadDbActivity extends AppCompatActivity {
         {
             public void onLogin(Boolean returnStatus)
             {
+
                 manageLoginResult(returnStatus, credentials);
 
                 //Save the credentials only if the login is successful
@@ -176,7 +177,7 @@ public class DownloadDbActivity extends AppCompatActivity {
                 txtPermissionStatus.setVisibility(View.GONE);
 
             } else {
-                // permission denied
+                // permission denied, show the textView containing the error
                 txtPermissionStatus.setVisibility(View.VISIBLE);
                 layoutLogin.setVisibility(View.GONE);
                 layoutDownload.setVisibility(View.GONE);
@@ -201,21 +202,20 @@ public class DownloadDbActivity extends AppCompatActivity {
         }
 
         //Verify if the login is already done and if there is internet connection
-        final File file = new File(LOGININFORMATION_FILE);
+        final File loginInformationFile = new File(LOGININFORMATION_FILE);
 
         if(cm.getActiveNetworkInfo() == null) //No internet
         {
             txtInternetStatus.setVisibility(View.VISIBLE);
         }
-        else if (!file.exists()) //No file, have to do the login
+        else if (!loginInformationFile.exists()) //No file, have to do the login
         {
             layoutLogin.setVisibility(View.VISIBLE);
         }
-        else if(file.exists()) //Can do the login
+        else //Can do the login
         {
             //Test if the saved credentials are still working
-            String[] fileCredentials = getFTPCredentials();
-            final DownloadCredentials credentials = new DownloadCredentials(fileCredentials[0],fileCredentials[1],fileCredentials[2]);
+            final DownloadCredentials credentials = getFTPCredentials();
             VerifyLoginCredentials verifyLoginCredentials = new VerifyLoginCredentials();
             verifyLoginCredentials.execute(credentials);
 
@@ -279,8 +279,8 @@ public class DownloadDbActivity extends AppCompatActivity {
             //Load the FTPClient and a simple spinner dialog.
             ftp = new FTPClient();
             progressDialog = new ProgressDialog(DownloadDbActivity.this);
-            progressDialog.setTitle("Login");
-            progressDialog.setMessage("Loading...");
+            progressDialog.setTitle(getString(R.string.progressDialogDownloadTitle));
+            progressDialog.setMessage(getString(R.string.progressDialogDownloadMessage));
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.show();
         }
@@ -381,7 +381,7 @@ public class DownloadDbActivity extends AppCompatActivity {
      * Obtain the credentials from the file
      * @author Stefano Romanello
      */
-    private String[] getFTPCredentials()
+    private DownloadCredentials getFTPCredentials()
     {
         FileInputStream is;
         BufferedReader reader;
@@ -407,9 +407,7 @@ public class DownloadDbActivity extends AppCompatActivity {
             //with the given credential
         }
 
-        Object[] objNames = lines.toArray();
-        String[] outCredentials = Arrays.copyOf(objNames, objNames.length, String[].class);
-        return outCredentials;
+        return new DownloadCredentials(lines.get(0).toString(),lines.get(1).toString(),lines.get(2).toString());
     }
 }
 

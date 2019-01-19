@@ -76,4 +76,10 @@
     <string name="forum">Forum</string>
     <string name="selected_allergens_sharedPref">unipd.se18.ocrcamera.SELECTED_ALLERGENS</string>
     <string name="sharedPrefNameForImagePath">imagePath</string>
+    <string name="progressDialogGalleryTitle">Gallery</string>
+    <string name="progressDialogGalleryMessage">Loading images...</string>
+    <string name="alertDialogGalleryTitle">Permission error</string>
+    <string name="alertDialogGalleryMessage">You did not have authorized the app to use internal storage.</string>
+    <string name="progressDialogDownloadTitle">Login</string>
+    <string name="progressDialogDownloadMessage">Loading...</string>
 </resources>

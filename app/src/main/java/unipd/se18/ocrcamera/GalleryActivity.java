@@ -102,8 +102,8 @@ public class GalleryActivity extends AppCompatActivity {
         protected void onPreExecute()
         {
             progressDialog = new ProgressDialog(GalleryActivity.this);
-            progressDialog.setTitle("Gallery");
-            progressDialog.setMessage("Loading images...");
+            progressDialog.setTitle(getString(R.string.progressDialogGalleryTitle));
+            progressDialog.setMessage(getString(R.string.progressDialogGalleryMessage));
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.show();
         }
@@ -435,8 +435,8 @@ public class GalleryActivity extends AppCompatActivity {
         } else {
             builder = new AlertDialog.Builder(this);
         }
-        builder.setTitle("Permission error")
-                .setMessage("You did not have authorized the app to use internal storage.")
+        builder.setTitle(R.string.alertDialogGalleryTitle)
+                .setMessage(R.string.alertDialogGalleryMessage)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // continue with closing the activity

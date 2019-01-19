@@ -139,11 +139,8 @@ public class PhotoDownloadTask extends AsyncTask<DownloadDbActivity.DownloadCred
 
             //enter passive mode
             ftp.enterLocalPassiveMode();
-            //get system name
-            System.out.println("Remote system is " + ftp.getSystemType());
             //change current directory
             ftp.changeWorkingDirectory(REMOTE_FOLDER);
-            System.out.println("Current directory is " + ftp.printWorkingDirectory());
             return true;
         } catch (IOException e) {
             return false;

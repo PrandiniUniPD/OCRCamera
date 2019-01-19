@@ -335,17 +335,17 @@ public class GalleryManager
 
             holder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-
-
             //Get a single string with all ingredients fount from the ocr
             String formattedIngredients = currentPhoto.ingredients.toString()
                     .replace("[", "")  //remove the right bracket
                     .replace("]", "")  //remove the left bracket
                     .trim();
 
+            //Convert the string of ingredients to a List<Ingredient>
             IngredientsExtractor extractor = InciSingleton.getInstance(mainActivity).getIngredientsExtractor();
             List<Ingredient> ingredientsToScan = extractor.findListIngredients(formattedIngredients);
 
+            //Get the allergens from the List<Ingredient> and count them
             AllergensManager showAllergen = new AllergensManager(mainActivity);
             ArrayList<Allergen> allergensFound = showAllergen.checkListForSelectedAllergens(ingredientsToScan);
             holder.txtTitle.setText(allergensFound.size()+ " allergens found");
