@@ -32,7 +32,7 @@ import unipd.se18.ocrcamera.performancetester.testers.TestListener;
 import unipd.se18.ocrcamera.performancetester.testers.TesterProvider;
 
 /**
- * Activity for showing the result of the tests
+ * Fragment for showing the result of the tests
  * Pietro Prandini (g2)
  */
 public class TestsListFragment extends Fragment {

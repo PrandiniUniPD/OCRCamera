@@ -11,7 +11,7 @@ public interface OCR {
      * Launches the text recognizing process from a given image.
      * See OCRListener.java of this package for retrieving the output of this process.
      * @param img The image in the Bitmap format
-     * @author Commonly decided by all the groups, modified by a suggestion from the doctor Li Daohong
+     * @author Commonly decided by all the groups, modified by a suggestion from Li Daohong
      */
     void getTextFromImg(Bitmap img);
 }
