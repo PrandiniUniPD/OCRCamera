@@ -1,10 +1,7 @@
-package unipd.se18.ocrcamera.forum;
-
-import unipd.se18.ocrcamera.forum.models.Post;
+package unipd.se18.ocrcamera.forum.models;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -159,17 +156,12 @@ public class PostTest {
      * @param date The date that has to be converted
      * @return The date in the new format
      */
-    private Date convertDate(Date date)
-    {
+    private Date convertDate(Date date) {
         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
         String sDate = format.format(date);
-
-        try
-        {
+        try {
             return format.parse(sDate);
-        }
-        catch (ParseException e)
-        {
+        } catch (ParseException e) {
             return null;
         }
     }

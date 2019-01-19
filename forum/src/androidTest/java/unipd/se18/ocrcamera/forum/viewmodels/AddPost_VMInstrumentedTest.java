@@ -1,32 +1,22 @@
-package unipd.se18.ocrcamera.forum;
+package unipd.se18.ocrcamera.forum.viewmodels;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-
-import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import unipd.se18.ocrcamera.forum.viewmodels.AddPost_VM;
-
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-
 
 /**
  * AddPost_VM instrumented test, which will execute on an Android device.
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
+@RunWith(AndroidJUnit4.class)
 public class AddPost_VMInstrumentedTest {
     // Parameter for posting a new post
     private Context context;
-
-    // Strings sent by the AddPost_VM listener
-    private String postadded;
-    private String addingPostFailure;
-    private String parametersNotValidErrorString;
 
     // Valid Strings for a new post
     private final String validTitle = "Valid test title";
@@ -38,12 +28,9 @@ public class AddPost_VMInstrumentedTest {
      * @author Pietro Prandini (g2)
      */
     @Before
-    public void setUpAddPostVMEnvironment() throws JSONException {
+    public void setUpAddPostVMEnvironment() {
         // Initialization of the variables
         context = InstrumentationRegistry.getTargetContext();
-        postadded = context.getString(R.string.post_added);
-        addingPostFailure = context.getString(R.string.posting_failure);
-        parametersNotValidErrorString = context.getString(R.string.not_valid_parameters);
     }
 
     /*
@@ -77,7 +64,7 @@ public class AddPost_VMInstrumentedTest {
         addPostViewModel.addPostToForum(context,title,message,author);
 
         // Checks the interaction with the AddPost_VM class
-        verify(addPostViewModelListener).onNotValidParameters(parametersNotValidErrorString);
+        verify(addPostViewModelListener).onNotValidParameters(any(String.class));
     }
 
     /**
@@ -322,25 +309,8 @@ public class AddPost_VMInstrumentedTest {
         addPostToForumWithInvalidParameters("", null, "");
     }
 
-    /**
-     * Test the method addPostToForum with valid parameters
-     * @author Pietro Prandini (g2)
+    /*
+    The case with valid parameters is strictly related to the DatabaseManager class.
+    If that class works also the method with valid parameters works.
      */
-    /*@Test
-    public void addPostToForumValidParameters() {
-        // ViewModel instance
-        AddPost_VM addPostViewModel = new AddPost_VM();
-
-        // Events listener of the AddPost ViewModel
-        AddPost_VM.addPostListener addPostViewModelListener = mock(AddPost_VM.addPostListener.class);
-
-        // Sets the listener to the ViewModel
-        addPostViewModel.setAddPostListener(addPostViewModelListener);
-
-        // Tries to add a valid post
-        //when(addPostViewModel.addPostToForum(validTitle,validMessage,validAuthor));
-
-        // Checks if the method is invoked
-        verify(addPostViewModelListener).onPostAdded(postadded);
-    }*/
 }
