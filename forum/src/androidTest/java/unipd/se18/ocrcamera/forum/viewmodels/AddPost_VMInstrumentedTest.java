@@ -311,6 +311,6 @@ public class AddPost_VMInstrumentedTest {
 
     /*
     The case with valid parameters is strictly related to the DatabaseManager class.
-    If that class works also the method with valid parameters works.
+    The testing about this case depends from the test of the DatabaseManager class.
      */
 }
