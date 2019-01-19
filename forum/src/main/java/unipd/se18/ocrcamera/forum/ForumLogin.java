@@ -119,7 +119,7 @@ public class ForumLogin extends Fragment {
                     //passes the bundle to the fragment as an argument
                     showPostsFragment.setArguments(bundle);
 
-                    //performs the fragment transaction
+                    //performs the fragment transition
                     getActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
@@ -165,9 +165,9 @@ public class ForumLogin extends Fragment {
             @Override
             public void onClick(View v) {
 
-                /**
-                 * When the login button is clicked, the username and password are gathered from
-                 * the EditText objects which have been filled by the user
+                /*
+                When the login button is clicked, the username and password are gathered from
+                the EditText objects which have been filled by the user
                  */
                 userName = usernameEditText.getText().toString();
                 userPwd = pwdEditText.getText().toString();

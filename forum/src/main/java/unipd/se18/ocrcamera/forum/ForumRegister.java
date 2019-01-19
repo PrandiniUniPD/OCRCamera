@@ -68,6 +68,7 @@ public class ForumRegister extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         //View model initialization
@@ -75,7 +76,8 @@ public class ForumRegister extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_forum_registration, container, false);
     }
 
@@ -115,15 +117,27 @@ public class ForumRegister extends Fragment {
                     //passes the bundle to the fragment as an argument
                     forumLoginFragment.setArguments(bundle);
 
-                    //performs the fragment transaction
-                    getActivity()
-                            .getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(
-                                    R.id.fragmentContainer,
-                                    forumLoginFragment
-                            )
-                            .commit();
+                    //Checks if the device is still in the correct activity
+                    if (getActivity() != null) {
+
+                        //performs the fragment transition
+                        getActivity()
+                                .getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(
+                                        R.id.fragmentContainer,
+                                        forumLoginFragment
+                                )
+                                .commit();
+                    }
+                    else {
+
+                        /*
+                        Due to the fact that there are not async tasks or callbacks to wait for
+                        it should never end up here, so only a debug log is added
+                         */
+                        Log.d(LOG_TAG, "Fragment parent activity is NULL!");
+                    }
                 }
                 else {
                     Log.d(LOG_TAG, LOG_NULL_USERNAME);
@@ -153,6 +167,7 @@ public class ForumRegister extends Fragment {
             @Override
             public void onClick(View v) {
 
+                //
             }
         });
 

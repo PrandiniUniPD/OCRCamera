@@ -115,7 +115,7 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                     else {
 
                         //If a task result is null an error log is printed
-                        Log.e(LOG_TAG, "The result of a task is null!");
+                        Log.e(LOG_TAG, "The result of a task is NULL!");
 
                         //An error occurred retrieving task information, so it's shown to the user
                         forumRegisterListener.onRegisterFailure(
@@ -128,7 +128,7 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                 else {
 
                     //If a task exception is thrown, here it's caught
-                    Log.d(LOG_TAG, "Error getting Firestore documents: ", task.getException());
+                    Log.e(LOG_TAG, "Error getting Firestore documents: ", task.getException());
 
                     //An error occurred completing the task, so it's shown to the user
                     forumRegisterListener.onRegisterFailure(
