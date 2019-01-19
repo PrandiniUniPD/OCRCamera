@@ -12,35 +12,36 @@ public interface PerformanceTester {
      * inside the directory given on construction
      * @return String in JSON format with the test's report, each object is a single test named
      * with the filename and contains ingredients, tags, notes, original photo name, confidence
-     * and alterations (if any), each alteration contains alteration tags and alteration notes*/
-    public String testAndReport() throws InterruptedException;
+     * and alterations (if any), each alteration contains alteration tags and alteration notes
+     */
+    String testAndReport() throws InterruptedException;
 
     /**
      * Retrieves the TestElements loaded by this class
      * @return The array of TestElement loaded.
      */
-    public TestElement[] getTestElements();
+    TestElement[] getTestElements();
 
     /**
      * Retrieves the number of the TestElements loaded by this class
      * @return The number of the TestElements loaded by this class
      */
-    public int getTestSize();
+    int getTestSize();
 
     /**
      * Sets a listener whose function will be called at the end of each test
      * @param testListener The TestListener used for communicating events about the progress
      */
-    public void setTestListener(TestListener testListener);
+    void setTestListener(TestListener testListener);
 
     /**
      * Converts statistics returned by getTagsStats() into a readable text
      */
-    public String getTagsStatsString();
+    String getTagsStatsString();
 
     /**
      * Initialize the test converting files into TestElements. Required before calling
      * testAndReport().
      */
-    public void loadTests();
+    void loadTests();
 }

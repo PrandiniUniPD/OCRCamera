@@ -18,6 +18,7 @@ public interface TestListener {
     /**
      * A test is failed
      * @param failureCode The code of failure
+     * @param testName The name of the test that has failed
      */
     void onTestFailure(int failureCode, String testName);
 }

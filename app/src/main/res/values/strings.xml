@@ -75,4 +75,6 @@
     <string name="download_test_pics">No test pics fond, download them please.</string>
     <string name="forum">Forum</string>
     <string name="selected_allergens_sharedPref">unipd.se18.ocrcamera.SELECTED_ALLERGENS</string>
+    <string name="error_creating_tester">Test pics not found, redirecting to the download section</string>
+    <string name="error_while_parsing_a_test">Error while parsing a test</string>
 </resources>

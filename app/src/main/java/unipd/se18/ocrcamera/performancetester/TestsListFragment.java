@@ -2,7 +2,6 @@ package unipd.se18.ocrcamera.performancetester;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -21,7 +20,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,63 +46,54 @@ public class TestsListFragment extends Fragment {
      */
     private static final int MY_READ_EXTERNAL_STORAGE_REQUEST_CODE = 300;
 
-    /**
-     * Prepares the activity to show the test results.
-     * More details at: {@link ActivityCompat#checkSelfPermission(Context, String)}
-     * @param savedInstanceState Bundle of the last instance state of the app
-     */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Checks the permissions
-        if (ActivityCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
-            ActivityCompat.requestPermissions(getActivity(), permissions,
-                    MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
-        }
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(unipd.se18.ocrcamera.R.layout.fragment_tests_list, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
-        // Checks if some test pics is downloaded
-        File testsDir = new File(PhotoDownloadTask.PHOTOS_FOLDER);
-        if(testsDir.exists() && testsDir.list() != null && testsDir.list().length > 0) {
-            // The tests directory exist, it's a directory and it's not empty
-            // -> Launches the analyzing process
-            Log.v(TAG, "Checks about tests existence passed");
+        super.onViewCreated(view, savedInstanceState);
 
-            // Sets the view of the list
-            ListView listEntriesView = getActivity().findViewById(R.id.test_entries_list);
-
-            // Sets the elements of the list as AsyncTask
-            try {
-                AsyncReport report = new AsyncReport(listEntriesView);
-                report.execute();
-            } catch (TestDirectoryException e) {
-                Log.e(TAG, "Error creating tester: " + e.getMessage());
-                Toast.makeText(getContext(), "Error creating tester: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-
+        // Checks the permissions
+        if (ActivityCompat.checkSelfPermission(requireActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
+            ActivityCompat.requestPermissions(requireActivity(), permissions,
+                    MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
         } else {
-            // Needs downloading tests pics
-            Log.v(TAG, "Checks about tests existence not passed");
-            TextView title = getActivity().findViewById(R.id.progress_testing_text);
-            title.setText(R.string.download_test_pics);
-            Toast.makeText(getContext(),
-                    R.string.download_test_pics, Toast.LENGTH_LONG).show();
+            startTests();
         }
-
     }
 
+    /**
+     * Starts the tests
+     * @author Pietro Prandini (g2)
+     */
+    private void startTests() {
+        // Sets the view of the list
+        ListView listEntriesView = requireActivity().findViewById(R.id.test_entries_list);
 
+        // Sets the elements of the list as AsyncTask
+        try {
+            AsyncReport report = new AsyncReport(listEntriesView);
+            report.execute();
+        } catch (TestDirectoryException e) {
+            Log.e(TAG, "Error creating tester: " + e.getMessage());
 
+            // Notifies the problem
+            Toast.makeText(requireContext(),
+                    R.string.error_creating_tester,
+                    Toast.LENGTH_LONG
+            ).show();
+
+            // Starts the download activity in order to solve the problem
+            Intent downloadTestPicsIntent =
+                    new Intent(requireActivity(), DownloadDbActivity.class);
+            startActivity(downloadTestPicsIntent);
+        }
+    }
 
     /**
      * Executes the ocr task for every test pic in the storage
@@ -154,10 +143,18 @@ public class TestsListFragment extends Fragment {
          * @param listEntriesView The ListView used for showing the results as list
          */
         AsyncReport(ListView listEntriesView) throws TestDirectoryException {
+            // The path where the test pics are stored
             this.dirPath = PhotoDownloadTask.PHOTOS_FOLDER;
-            this.tester = TesterProvider.getTester(TesterProvider.testers.PhotoTester , getContext(), dirPath);
-            this.listEntriesView = listEntriesView;
 
+            // The tester to use
+            this.tester = TesterProvider.getTester(
+                    TesterProvider.testers.PhotoTester ,
+                    requireContext(),
+                    dirPath
+            );
+
+            // The view where publishing the results
+            this.listEntriesView = listEntriesView;
         }
 
         /**
@@ -166,8 +163,8 @@ public class TestsListFragment extends Fragment {
          */
         @Override
         protected void onPreExecute() {
-            progressBar = getActivity().findViewById(R.id.tests_progress_bar);
-            progressText = getActivity().findViewById(R.id.progress_testing_text);
+            progressBar = requireActivity().findViewById(R.id.tests_progress_bar);
+            progressText = requireActivity().findViewById(R.id.progress_testing_text);
 
             // Listener useful for updating the progress bar
             TestListener testListener = new TestListener() {
@@ -179,18 +176,19 @@ public class TestsListFragment extends Fragment {
 
                 @Override
                 public void onTestFailure(int failureCode, final String testName) {
-                    getActivity().runOnUiThread(new Runnable() {
+                    requireActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(),
-                                    "Error parsing: " + testName, Toast.LENGTH_SHORT).show();
+                            // Error while parsing a test
+                            Toast.makeText(requireContext(),
+                                    R.string.error_while_parsing_a_test
+                                            + "(" + testName + ")", Toast.LENGTH_SHORT).show();
                         }
                     });
 
                 }
             };
             tester.setTestListener(testListener);
-
         }
 
         /**
@@ -212,16 +210,14 @@ public class TestsListFragment extends Fragment {
             progressBar.setMax(totalTestElements);
             int initialValue = 0;
             final String progress = getTestingProgressString(initialValue, totalTestElements);
-            getActivity().runOnUiThread(new Runnable() {
+            requireActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     progressText.setText(progress);
                 }
             });
 
-
-
-            // publishes progress
+            // Does the tests
             try {
                 report = tester.testAndReport();
             } catch (InterruptedException e) {
@@ -229,7 +225,7 @@ public class TestsListFragment extends Fragment {
                 report = getString(R.string.elaboration_interrupted);
             }
 
-            // Sorts the TestElements for a sorted list view
+            // Sorts the TestElements for obtaining a sorted list view
             ArrayList<TestElement> testElementsList =
                     new ArrayList<>(Arrays.asList(tester.getTestElements())) ;
             Comparator<TestElement> testElementComparator = new Comparator<TestElement>() {
@@ -244,12 +240,13 @@ public class TestsListFragment extends Fragment {
             Collections.sort(testElementsList,testElementComparator);
             final TestElement[] testElementsArray = testElementsList.toArray(new TestElement[0]);
 
-            getActivity().runOnUiThread(new Runnable() {
+            // Updates the UI with the list of tests
+            requireActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     TestsListAdapter adapter =
                             new TestsListAdapter(
-                                    getContext(),
+                                    requireContext(),
                                     testElementsArray
                             );
                     listEntriesView.setAdapter(adapter);
@@ -283,12 +280,8 @@ public class TestsListFragment extends Fragment {
         @Override
         protected void onPostExecute(Void v) {
             // add statistics author: Francesco Pham
-            TextView statsView = new TextView(getContext());
-            String statsText = "";
-
-            statsText = tester.getTagsStatsString();
-
-            statsView.setText(statsText);
+            TextView statsView = new TextView(requireContext());
+            statsView.setText(tester.getTagsStatsString());
             listEntriesView.addHeaderView(statsView);
         }
     }
@@ -301,9 +294,8 @@ public class TestsListFragment extends Fragment {
      * @author Pietro Prandini (g2)
      */
     private String getTestingProgressString(int progress, int max) {
-        String progressString = getString(R.string.tested) + " " + progress + " "
+        return getString(R.string.tested) + " " + progress + " "
                 + getString(R.string.of) + " " + max;
-        return progressString;
     }
 
     /**
@@ -324,15 +316,18 @@ public class TestsListFragment extends Fragment {
                         grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     // Permissions is not granted
                     // notifies it by a toast
-                    getActivity().runOnUiThread(new Runnable() {
+                    requireActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(),
+                            Toast.makeText(requireContext(),
                                     R.string.permissions_not_granted, Toast.LENGTH_LONG).show();
                         }
                     });
-                    // Destroy the activity
-                    getActivity().finish();
+                    // Destroys the activity
+                    requireActivity().finish();
+                } else {
+                    // Starts tests
+                    startTests();
                 }
             }
         }

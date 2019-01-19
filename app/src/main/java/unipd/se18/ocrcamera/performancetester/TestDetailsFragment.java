@@ -25,17 +25,19 @@ public class TestDetailsFragment extends Fragment {
      * String used for the log of this class
      */
     private String TAG = "TestDetailsFragment -> ";
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_test_element_details, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onViewCreated(view, savedInstanceState);
 
         // Retrieves the TestElement to be viewed (default == 0)
-        Intent lastIntent = getActivity().getIntent();
+        Intent lastIntent = requireActivity().getIntent();
         int position = lastIntent.getIntExtra(TestUtils.positionString,0);
         TestElement entry = TestsListAdapter.getTestElements()[position];
 
@@ -50,7 +52,7 @@ public class TestDetailsFragment extends Fragment {
         );
 
         // Sets the correctness value
-        TextView correctness = getActivity().findViewById(R.id.correctness_view);
+        TextView correctness = requireActivity().findViewById(R.id.correctness_view);
         float confidence = entry.getConfidence();
         correctness.setText(TestUtils.formatPercentString(confidence));
 
@@ -58,18 +60,18 @@ public class TestDetailsFragment extends Fragment {
         correctness.setTextColor(TestUtils.chooseColorOfValue(confidence,redUntil,yellowUntil));
 
         // Sets the name of the pic
-        TextView name = getActivity().findViewById(R.id.pic_name_view);
+        TextView name = requireActivity().findViewById(R.id.pic_name_view);
         String picName = entry.getFileName();
         name.setText(picName);
 
         // Sets the pic view
-        ImageView analyzedPic = getActivity().findViewById(R.id.pic_view);
+        ImageView analyzedPic = requireActivity().findViewById(R.id.pic_view);
         String imagePath = entry.getImagePath();
         Bitmap img = Utils.loadBitmapFromFile(imagePath);
-        analyzedPic.setImageBitmap(TestUtils.scaleBitmap(getContext(), img));
+        analyzedPic.setImageBitmap(TestUtils.scaleBitmap(requireContext(), img));
 
         // Sets the Tags text
-        TextView tags = getActivity().findViewById(R.id.tags_view);
+        TextView tags = requireActivity().findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
         for(String tag: entry.getTags()) {
             assignedTags.append(tag).append(", ");
@@ -77,7 +79,7 @@ public class TestDetailsFragment extends Fragment {
         tags.setText(assignedTags.toString());
 
         // Sets the ingredients text
-        TextView ingredients = getActivity().findViewById(R.id.ingredients_view);
+        TextView ingredients = requireActivity().findViewById(R.id.ingredients_view);
         StringBuilder realIngredients = new StringBuilder();
         for(String ingredient: entry.getIngredientsArray()) {
             realIngredients.append(ingredient).append(", ");
@@ -85,21 +87,21 @@ public class TestDetailsFragment extends Fragment {
         ingredients.setText(realIngredients);
 
         // Sets the extracted text
-        TextView extractedText = getActivity().findViewById(R.id.extractedText_view);
+        TextView extractedText = requireActivity().findViewById(R.id.extractedText_view);
         extractedText.setText(entry.getRecognizedText());
 
         // Sets the notes text
-        TextView notes = getActivity().findViewById(R.id.notes_view);
+        TextView notes = requireActivity().findViewById(R.id.notes_view);
         notes.setText(entry.getNotes());
 
         // Sets the ingredients extraction report
-        TextView extractedIngredientsView = getActivity().findViewById(R.id.extracted_ingredients_view);
+        TextView extractedIngredientsView = requireActivity().findViewById(R.id.extracted_ingredients_view);
         extractedIngredientsView.setText(entry.getIngredientsExtraction());
 
         // Sets the alterations view
         TestUtils.setAlterationsView(
-                getContext(),
-                (RelativeLayout) getActivity().findViewById(R.id.result_view),
+                requireContext(),
+                (RelativeLayout) requireActivity().findViewById(R.id.result_view),
                 extractedIngredientsView,
                 entry,
                 true

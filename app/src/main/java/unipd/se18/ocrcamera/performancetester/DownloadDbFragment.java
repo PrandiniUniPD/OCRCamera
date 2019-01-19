@@ -63,28 +63,28 @@ public class DownloadDbFragment extends Fragment {
      */
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onViewCreated(view, savedInstanceState);
 
-        layoutDownload = (LinearLayout) getActivity().findViewById(R.id.LayoutDownload);
-        layoutLogin = (LinearLayout) getActivity().findViewById(R.id.LayoutLogin);
-        txtHostname = (EditText) getActivity().findViewById(R.id.txtHostnameDownload);
-        txtPassword = (EditText) getActivity().findViewById(R.id.txtPasswordDownload);
-        txtUsername = (EditText) getActivity().findViewById(R.id.txtUsernameDownload);
-        txtInternetStatus = (TextView) getActivity().findViewById(R.id.txtInternetStatusDownload);
-        txtPermissionStatus = (TextView) getActivity().findViewById(R.id.txtPermissionStatusDownload);
-        txtLoginStatus = (TextView) getActivity().findViewById(R.id.txtLoginStatusDownload);
+        layoutDownload = (LinearLayout) requireActivity().findViewById(R.id.LayoutDownload);
+        layoutLogin = (LinearLayout) requireActivity().findViewById(R.id.LayoutLogin);
+        txtHostname = (EditText) requireActivity().findViewById(R.id.txtHostnameDownload);
+        txtPassword = (EditText) requireActivity().findViewById(R.id.txtPasswordDownload);
+        txtUsername = (EditText) requireActivity().findViewById(R.id.txtUsernameDownload);
+        txtInternetStatus = (TextView) requireActivity().findViewById(R.id.txtInternetStatusDownload);
+        txtPermissionStatus = (TextView) requireActivity().findViewById(R.id.txtPermissionStatusDownload);
+        txtLoginStatus = (TextView) requireActivity().findViewById(R.id.txtLoginStatusDownload);
 
         ///Load other UI elements
-        clickButtonDownload = (Button) getActivity().findViewById(R.id.downloadDbButton);
+        clickButtonDownload = (Button) requireActivity().findViewById(R.id.downloadDbButton);
         clickButtonDownload.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PhotoDownloadTask task = new PhotoDownloadTask(getContext());
+                PhotoDownloadTask task = new PhotoDownloadTask(requireContext());
                 task.execute();
             }
         });
 
-        clickButtonLogin = (Button) getActivity().findViewById(R.id.downloadLoginButton);
+        clickButtonLogin = (Button) requireActivity().findViewById(R.id.downloadLoginButton);
         clickButtonLogin.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,10 +174,10 @@ public class DownloadDbFragment extends Fragment {
      */
     private void verifyDoLogin()
     {
-        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         //Check and in case Ask for permission
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(),
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_PERMISSION_CODE);
         }

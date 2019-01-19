@@ -6,6 +6,10 @@ package unipd.se18.ocrcamera.performancetester.testers;
  * @author Luca Moroldo
  */
 public class TestDirectoryException extends Exception {
+    /**
+     * Exception relative to the directory that should be contained the test pics
+     * @param errorMessage The error message of the specif error founded
+     */
     TestDirectoryException(String errorMessage) {
         super(errorMessage);
     }

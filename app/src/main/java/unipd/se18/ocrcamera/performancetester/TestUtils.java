@@ -204,7 +204,8 @@ class TestUtils {
      * @author Pietro Prandini (g2)
      */
     private static View viewAlterationDetails(Context context, RelativeLayout relativeLayout,
-                                              View belowOf, TestElement element, String alteration) {
+                                              View belowOf, TestElement element,
+                                              String alteration) {
         // Obtains the altered pic
         String imagePath = element.getAlterationImagePath(alteration);
         Bitmap img = scaleBitmap(context, Utils.loadBitmapFromFile(imagePath));
