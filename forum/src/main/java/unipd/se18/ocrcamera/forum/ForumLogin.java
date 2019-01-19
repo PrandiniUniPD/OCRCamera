@@ -120,7 +120,7 @@ public class ForumLogin extends Fragment {
                     showPostsFragment.setArguments(bundle);
 
                     //performs the fragment transition
-                    getActivity()
+                    requireActivity()
                             .getSupportFragmentManager()
                             .beginTransaction()
                             .replace(
@@ -158,7 +158,7 @@ public class ForumLogin extends Fragment {
 
             /**
              * When the login button is clicked a login request is sent through the view model
-             * so as the user can access the forum providing his credentials
+             * so that the user can access the forum providing his credentials
              *
              * @param v the view where the click event is performed
              */
@@ -176,7 +176,7 @@ public class ForumLogin extends Fragment {
                 if (!userName.equals("") && !userPwd.equals("")) {
 
                     //If not, the credentials are handed to the view model method to be checked
-                    viewModel.loginToForum(getContext(), userName, userPwd);
+                    viewModel.loginToForum(requireContext(), userName, userPwd);
                 }
                 else {
 

@@ -59,6 +59,12 @@ public class ForumRegister extends Fragment {
     private EditText confirmPwdEditText;
     private Button signUpButton;
 
+    //Variables to retain registration fields by the user
+    private String userUsername;
+    private String userName;
+    private String userSurname;
+    private String userPwd;
+
     //Corresponding view model declaration
     private Register_VM viewModel;
 
@@ -117,27 +123,15 @@ public class ForumRegister extends Fragment {
                     //passes the bundle to the fragment as an argument
                     forumLoginFragment.setArguments(bundle);
 
-                    //Checks if the device is still in the correct activity
-                    if (getActivity() != null) {
-
-                        //performs the fragment transition
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(
-                                        R.id.fragmentContainer,
-                                        forumLoginFragment
-                                )
-                                .commit();
-                    }
-                    else {
-
-                        /*
-                        Due to the fact that there are not async tasks or callbacks to wait for
-                        it should never end up here, so only a debug log is added
-                         */
-                        Log.d(LOG_TAG, "Fragment parent activity is NULL!");
-                    }
+                    //performs the fragment transition
+                    requireActivity()
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(
+                                    R.id.fragmentContainer,
+                                    forumLoginFragment
+                            )
+                            .commit();
                 }
                 else {
                     Log.d(LOG_TAG, LOG_NULL_USERNAME);
@@ -164,10 +158,19 @@ public class ForumRegister extends Fragment {
         });
 
         signUpButton.setOnClickListener(new View.OnClickListener() {
+
+            /**
+             * When the sign up button is clicked a registration request is sent through the view
+             * model so that the user can confirm his credentials before logging in
+             *
+             * @param v the view where the click event is performed
+             */
             @Override
             public void onClick(View v) {
 
-                //
+                userUsername = usernameEditText.getText().toString();
+                viewModel.registerUserToForum(requireContext(),userUsername, userPwd, userName,
+                        userSurname);
             }
         });
 
