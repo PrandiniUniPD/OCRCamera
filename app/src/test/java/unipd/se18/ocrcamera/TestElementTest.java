@@ -9,6 +9,7 @@ import unipd.se18.ocrcamera.performancetester.TestElement;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Class used to test TestElement class
@@ -55,34 +56,115 @@ public class TestElementTest {
     }
 
     @Test
+    public void getAlterationRecognizedText() {
+        String expected = "RecognizedText";
+        String actual = testElement.getAlterationRecognizedText("alteration10.jpeg");
+        assertEquals(expected, actual);
+
+        actual = testElement.getAlterationRecognizedText("alteration11.jpeg");
+        assertEquals(expected, actual);
+
+        testElement.setAlterationRecognizedText("alteration10.jpeg", "");
+        actual = testElement.getAlterationRecognizedText("alteration10.jpeg");
+        assertEquals("", actual);
+
+        actual = testElement.getAlterationRecognizedText("non-existing");
+        assertNull(actual);
+
+    }
+
+    @Test
+    public void getAlterationConfidence() {
+        float expected = 1;
+        float actual = testElement.getAlterationConfidence("alteration10.jpeg");
+
+        assertEquals(expected, actual, 0);
+
+        actual= testElement.getAlterationConfidence("alteration11.jpeg");
+
+        assertEquals(expected, actual, 0);
+
+        //non existing must return -1
+        actual = testElement.getAlterationConfidence("non-existing");
+        assertEquals(-1, actual, 0);
+    }
+
+    @Test
+    public void getAlterationNotes() {
+        String expected = "alterationTestNotes";
+        String actual = testElement.getAlterationNotes("alteration10.jpeg");
+
+        assertEquals(expected,actual);
+
+        actual = testElement.getAlterationNotes("non-existing");
+        assertNull(actual);
+    }
+
+    @Test
+    public void getAlterationTags() {
+        String[] expected = {"tagliata"};
+        String[] actual = testElement.getAlterationTags("alteration10.jpeg");
+
+        assertArrayEquals(expected, actual);
+
+        actual = testElement.getAlterationTags("non-existing");
+        assertNull(actual);
+    }
+
+    @Test
+    public void getConfidence() {
+        float expected = 1;
+        float actual = testElement.getConfidence();
+
+        assertEquals(expected, actual, 0);
+
+        //setting negative confidence must produce no change
+        testElement.setConfidence(-10);
+        actual = testElement.getConfidence();
+
+        assertEquals(1, actual, 0);
+    }
+
+    @Test
+    public void getRecognizedText() {
+        String expected = "testRecogText";
+        String actual = testElement.getRecognizedText();
+
+        assertEquals(expected, actual);
+
+        testElement.setRecognizedText("");
+        actual = testElement.getRecognizedText();
+        assertEquals("", actual);
+
+        testElement.setRecognizedText(null);
+        actual = testElement.getRecognizedText();
+        assertNull(actual);
+    }
+
+    @Test
     public void getIngredientsArray() {
-            String[] expected = {"testIng1", "testIng2" ,"TestIng3"};
-            String[] actual = testElement.getIngredientsArray();
-
-
-            assertArrayEquals(expected, actual);
+        String[] expected = {"testIng1", "testIng2" ,"TestIng3"};
+        String[] actual = testElement.getIngredientsArray();
+        assertArrayEquals(expected, actual);
 
     }
 
     @Test
     public void getIngredients() {
-            String expected = "testIng1, testIng2 ,TestIng3";
-            String actual = testElement.getIngredients();
+        String expected = "testIng1, testIng2 ,TestIng3";
+        String actual = testElement.getIngredients();
 
-            assertEquals(expected, actual);
-
+        assertEquals(expected, actual);
     }
 
     @Test
     public void getTags() {
 
-            String[] expected = {"testTag1", "testTag2" ,"testTag3"};
-            String[] actual = testElement.getTags();
+        String[] expected = {"testTag1", "testTag2" ,"testTag3"};
+        String[] actual = testElement.getTags();
 
-
-            assertArrayEquals(expected, actual);
+        assertArrayEquals(expected, actual);
     }
-
 
     @Test
     public void getFileName() {
@@ -96,28 +178,11 @@ public class TestElementTest {
 
     @Test
     public void getNotes() {
-            String expected = "testNote";
-            String actual = testElement.getNotes();
+        String expected = "testNote";
+        String actual = testElement.getNotes();
 
-            assertEquals(expected, actual);
+        assertEquals(expected, actual);
 
-    }
-
-    @Test
-    public void getConfidence() {
-            float expected = 1;
-            float actual = testElement.getConfidence();
-
-            assertEquals(expected, actual, 0);
-
-    }
-
-    @Test
-    public void getRecognizedText() {
-            String expected = "testRecogText";
-            String actual = testElement.getRecognizedText();
-
-            assertEquals(expected, actual);
     }
 
     @Test
@@ -128,44 +193,5 @@ public class TestElementTest {
         assertArrayEquals(expected, actual);
     }
 
-    @Test
-    public void getAlterationRecognizedText() {
-            String expected = "RecognizedText";
-            String actual = testElement.getAlterationRecognizedText("alteration10.jpeg");
 
-            assertEquals(expected, actual);
-
-            actual = testElement.getAlterationRecognizedText("alteration11.jpeg");
-
-            assertEquals(expected, actual);
-    }
-
-    @Test
-    public void getAlterationConfidence() {
-            float expected = 1;
-            float actual = testElement.getAlterationConfidence("alteration10.jpeg");
-
-            assertEquals(expected, actual, 0);
-
-            actual= testElement.getAlterationConfidence("alteration11.jpeg");
-
-            assertEquals(expected, actual, 0);
-
-    }
-
-    @Test
-    public void getAlterationNotes() {
-        String expected = "alterationTestNotes";
-        String actual = testElement.getAlterationNotes("alteration10.jpeg");
-
-        assertEquals(expected,actual);
-    }
-
-    @Test
-    public void getAlterationTags() {
-        String[] expected = {"tagliata"};
-        String[] actual = testElement.getAlterationTags("alteration10.jpeg");
-
-        assertArrayEquals(expected, actual);
-    }
 }

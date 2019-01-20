@@ -268,10 +268,13 @@ public class TestElement {
     public JSONObject getJsonObject() { return jsonObject; }
 
     /**
-     * @param confidence Float that will be associated to this test with key 'confidence'
+     * @param confidence Float that will be associated to this test with key 'confidence', must
+     *                   be > 0
      * @modify jsonObject of this TestElement
      */
     public void setConfidence(float confidence) {
+        if(confidence < 0)
+            return;
         try {
             jsonObject.put(CONFIDENCE_KEY, Float.toString(confidence));
         } catch (JSONException e) {

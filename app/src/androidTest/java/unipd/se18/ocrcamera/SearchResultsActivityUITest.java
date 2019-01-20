@@ -3,7 +3,6 @@ package unipd.se18.ocrcamera;
 
 import android.app.SearchManager;
 import android.content.Intent;
-import android.support.test.espresso.ViewAction;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -12,20 +11,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import unipd.se18.ocrcamera.inci.Ingredient;
-import unipd.se18.ocrcamera.inci.IngredientsExtractor;
-
 import static android.support.test.espresso.Espresso.*;
 import static android.support.test.espresso.action.ViewActions.*;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 
+
 import static org.hamcrest.CoreMatchers.anything;
-import static org.mockito.Mockito.*;
 
 @RunWith(AndroidJUnit4.class)
 public class SearchResultsActivityUITest {
@@ -44,6 +36,8 @@ public class SearchResultsActivityUITest {
 
     @Test
     public void performSearch() {
+
+        //test ingredient found
         onView(withId(R.id.ingredients_auto_complete_text_view))
                 .perform(click())
                 .perform(replaceText("acetone"));
@@ -53,12 +47,33 @@ public class SearchResultsActivityUITest {
                 .perform(click())
                 .perform(replaceText("end"));
 
-        //onView(withText("acetone")).check(matches(isDisplayed()));
-
         onData(anything())
                 .inAdapterView(withId(R.id.ingredients_list))
                 .atPosition(0)
                 .onChildView(withId(R.id.inci_name_view))
                 .check(matches(withText("ACETONE")));
+
+        //test ingredient not found
+        onView(withId(R.id.ingredients_auto_complete_text_view))
+                .perform(click())
+                .perform(replaceText("non-existent ingredient"));
+        onView(withId(R.id.auto_complete_text_view_button))
+                .perform(click());
+        onView(withId(R.id.ingredients_auto_complete_text_view))
+                .perform(click())
+                .perform(replaceText("end"));
+
+        onView(withId(R.id.message_text_view)).check(matches(withSubstring("Nothing found")));
+    }
+
+    @Test
+    public void onEmptyResultHint() {
+        //test clickable hint visibility in case the research produced empty result
+        onView(withId(R.id.ingredients_auto_complete_text_view))
+                .perform(click())
+                .perform(replaceText("acetoni"));
+        onView(withId(R.id.auto_complete_text_view_button))
+                .perform(click());
+        onView(withId(R.id.message_text_view)).check(matches(withSubstring("ACETONE")));
     }
 }
