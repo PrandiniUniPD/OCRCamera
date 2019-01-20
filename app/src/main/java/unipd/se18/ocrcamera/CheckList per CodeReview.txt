@@ -1,0 +1,25 @@
+
+CheckList per CodeReview
+
+Controllo:
+
+- Che non ci sia hardcoding sul codice.
+- Che il testo non sia scritto in grandi blocchi di codice ma che sia invece suddiviso in sottometodi per poter testarlo meglio.
+
+- Che le classi abbiano nomi corretti che descrivino l'obbiettivo della classe.
+
+- Che i metodi e le variabili pubbliche siano in posizioni adeguate sul codice e che non siano mescolati tra loro
+- Che i metodi facciano quello per cui sono stati creati (come da specifiche).
+- Che i metodi abbiano nomi corretti che descrivino l'obbiettivo del metodo
+- Che ogni metodo abbia le specifiche adeguate con il suo scopo, parametri e cio' che potrebbe ritornare. 
+- Che il codice all'interno di un metodo sia commentato adeguatamante in modo da capire ogni parte di esso.
+
+- Che le variabili abbiano nomi corretti e che descrivino l'obbiettivo per la quale sono state create e la corretta formattazione di come sono scritte.
+- Che le variabili pubbliche siano utilizzate adeguatamente (ad esempio evitare di creare variabili pubbliche anche se vengono usate solo su un metodo).
+
+- Che i metodi e variabili siano effettivamente utilizzati
+
+- Che le eccezzioni siano gestite e verifico in caso di errore se bisogna mandare all'autente un avviso o se e' il metodo chiamante a dover gestire l'eccezzione.
+
+- Un modo alternativo per poter fare meglio o semplificare ci� che la classe o metodo fa attualmente migliorando cosi' il codice. 
+ 
