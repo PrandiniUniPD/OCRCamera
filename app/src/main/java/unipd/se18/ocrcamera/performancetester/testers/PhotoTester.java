@@ -53,7 +53,6 @@ class PhotoTester extends AbstractPerformanceTester {
      * Load test elements (images + description)
      * @param context The context of the app
      * @param dirPath The path where the photos and descriptions are.
-     * @author Luca Moroldo
      */
     PhotoTester(Context context, String dirPath) throws TestDirectoryException{
         super(context, dirPath);
@@ -82,6 +81,7 @@ class PhotoTester extends AbstractPerformanceTester {
         CountDownLatch countDownLatch = new CountDownLatch(testElements.size());
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
+
         //leave a processor for the OS
         if(max_concurrent_tasks > 1) {
             max_concurrent_tasks--;
@@ -130,29 +130,6 @@ class PhotoTester extends AbstractPerformanceTester {
         return fullReport;
     }
 
-
-
-    /**
-     * Save report to file
-     * @return true if report was correctly saved, false in case of error or if report is null
-     * @author Luca Moroldo
-     */
-    boolean saveReportToFile() {
-
-        //check if report is not null
-        if(report == null)
-            return false;
-
-        try {
-            writeReportToExternalStorage(report, dirPath, REPORT_FILENAME);
-            return true;
-        } catch (IOException e) {
-            Log.e(TAG, "Error writing report to file.");
-            e.printStackTrace();
-        }
-        //error occurred
-        return false;
-    }
 
     /**
      * Compare the list of ingredients extracted by OCR and the correct list of ingredients
@@ -264,15 +241,13 @@ class PhotoTester extends AbstractPerformanceTester {
 
         try {
             stream = new FileOutputStream(file);
-
-            try {
-                stream.write(report.getBytes());
-            } finally {
-                stream.close();
-            }
+            stream.write(report.getBytes());
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
             Log.e(TAG, "File not found");
+        } finally {
+            //close res
+            if(stream != null)
+                stream.close();
         }
     }
 
@@ -327,7 +302,7 @@ class PhotoTester extends AbstractPerformanceTester {
         private CountDownLatch countDownLatch;
 
         /**
-         * @param jsonReport JSONObject containing tests data
+         * @param jsonReport JSONObject containing tests data that will be updated
          * @param test element of a test - must contain an image path and ingredients fields
          * @param countDownLatch used to signal the task completion
          */
@@ -342,7 +317,6 @@ class PhotoTester extends AbstractPerformanceTester {
 
             Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
             long started = java.lang.System.currentTimeMillis();
-
 
             //evaluate text extraction - set recognized text and confidence with the recognition
             evaluateTest(test);
@@ -376,11 +350,9 @@ class PhotoTester extends AbstractPerformanceTester {
             String imagePath = test.getImagePath();
             Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
 
-            //process image adjusting brightness and eventually autorotating
-            //testBitmap = processing.doImageProcessing(testBitmap, false);
-
             String ocrText = executeOcr(testBitmap);
 
+            //compare extracted ingredients with real ingredients
             String correctIngredients = test.getIngredients();
             float confidence = ingredientsTextComparison(correctIngredients, ocrText);
 
@@ -468,8 +440,11 @@ class PhotoTester extends AbstractPerformanceTester {
 
                     String alterationExtractedIngredients = "";
                     if(alterationBitmap != null) {
+                        //get ingredients recognized by the OCR
                         alterationExtractedIngredients = executeOcr(alterationBitmap);
                     }
+
+                    //calculate confidence with recognition
                     float alterationConfidence = ingredientsTextComparison(test.getIngredients(), alterationExtractedIngredients);
 
                     //insert evaluation
@@ -481,16 +456,14 @@ class PhotoTester extends AbstractPerformanceTester {
 
         /**
          * Signal the end of a single test by calling TestListener.onTestFinished if a listener
-         * has been set
+         * has been set, otherwise end silently
          * @author Luca Moroldo
          */
         private synchronized void signalTestFinished() {
             if(testListener != null) {
                 testListener.onTestFinished();
-            } else {
-                Log.v(TAG, "No listener set");
-            }
-
+            } else
+                return;
         }
     }
 
@@ -538,29 +511,35 @@ class PhotoTester extends AbstractPerformanceTester {
 
     /**
      *
-     * @return an HashMap: (Tag, Value)  where value is the average gain result of the alterated photo tagged with that Tag
-     * @author Luca Moroldo - Credits: Nicolò Cerco (the structure of this method is the same of getTagsStats)
+     * @return an HashMap: (Tag, Value)  where value is the average gain result
+     * of the alterated photo tagged with that Tag
+     * @author Luca Moroldo -
+     * Credits: Nicolò Cerco (the structure of this method is the same of getTagsStats)
      */
     private HashMap getAlterationsTagsGainStats() {
 
-        //TODO think about: would it be better to get the stats for each tags collection rather than for each tag?
-        //for example: do we loose information if a photo is both rotated and cropped, and we don't consider that an extraordinary gain could be
-        //a consequence of this particular coupling of tags?
-
-        HashMap<String, Float> alterationTagsGain = new HashMap<>(); //contains the % earning for each alteration tag
-        HashMap<String, Integer> alterationTagsOccurrences = new HashMap<>(); //contains the occurrences of each tag
+        //contains the % earning for each alteration tag
+        HashMap<String, Float> alterationTagsGain = new HashMap<>();
+        //contains the occurrences of each tag
+        HashMap<String, Integer> alterationTagsOccurrences = new HashMap<>();
 
         for(TestElement element : testElements) {
+
             //evaluate alterations if any
-
-
             String[] alterationsNames = element.getAlterationsNames();
             if(alterationsNames != null) {
+
+                //evaluate all the alterations
                 for(String alterationName : alterationsNames) {
+
+                    //for each tag calculate gain
                     for(String tag : element.getAlterationTags(alterationName)) {
-                        Log.v(TAG, "AlterationTag " + tag);
+                        //If the tag already exist then update the gain, otherwise add the tag
+                        //with the current gain
                         if(alterationTagsGain.containsKey(tag)) {
-                            float newGain = alterationTagsGain.get(tag) + (element.getAlterationConfidence(alterationName) - element.getConfidence());
+                            float newGain = alterationTagsGain.get(tag)
+                                            + (element.getAlterationConfidence(alterationName)
+                                            - element.getConfidence());
                             alterationTagsGain.put(tag, newGain);
                             alterationTagsOccurrences.put(tag, alterationTagsOccurrences.get(tag) + 1);
                         } else{
@@ -572,6 +551,8 @@ class PhotoTester extends AbstractPerformanceTester {
                 }
             }
         }
+
+        //calculate avarage gain for each tag
         for(String tag : alterationTagsGain.keySet()){
             alterationTagsGain.put(tag, alterationTagsGain.get(tag)/alterationTagsOccurrences.get(tag)); // average of the scores
             Log.i(TAG, "-" + tag + " score: " + alterationTagsGain.get(tag));

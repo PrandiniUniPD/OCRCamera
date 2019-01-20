@@ -7,10 +7,13 @@ import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -27,6 +30,7 @@ import java.util.List;
 
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
+import unipd.se18.ocrcamera.inci.LevenshteinStringDistance;
 
 
 /**
@@ -80,7 +84,6 @@ public class SearchResultsActivity extends AppCompatActivity {
      */
     private static final int SUGGESTION_THRESHOLD = 2;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -100,6 +103,45 @@ public class SearchResultsActivity extends AppCompatActivity {
         ingredientsExtractor = InciSingleton.getInstance(getApplicationContext()).getIngredientsExtractor();
 
 
+        //set button click listener to get text inside AutoCompleteTV, search for ingredients and
+        //update mIndgredientsListView adapter. If a research produce an empty result then
+        //finds a hint for the user.
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //toUpperCase() used because the database stores data with uppercase only
+                String query = mAutoCompleteTextView.getText().toString().toUpperCase();
+
+                //find similar ingredients list
+                List<Ingredient> ingredientsFound =
+                        ingredientsExtractor.findListIngredients(query);
+
+                //show ingredients list if any
+                AdapterIngredient adapter =
+                        new AdapterIngredient(getApplicationContext(), ingredientsFound);
+                mIngredientsListView.setAdapter(adapter);
+
+                //is the research result is empty, then suggest the closest ingredient in terms
+                //of Levenshtein distance
+                if(ingredientsFound.size() == 0) {
+                    mMessageTextView.setText(getString(R.string.empty_ingredients_list_message));
+                    String suggestion = searchSuggestion(query);
+                    if(suggestion != null) {
+                        SpannableString clickableSuggestion = getClickableSuggestion(suggestion);
+                        mMessageTextView.append("\n" + getString(R.string.did_you_mean));
+                        mMessageTextView.append(clickableSuggestion);
+                        mMessageTextView.append("?");
+                        mMessageTextView.setMovementMethod(LinkMovementMethod.getInstance());
+                    }
+
+                }
+
+                //hide dropdown hints to make ingredients list visible
+                mAutoCompleteTextView.dismissDropDown();
+            }
+        });
+
         //add on item list click listener to show a dialog with ingredient's data
         mIngredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -117,34 +159,6 @@ public class SearchResultsActivity extends AppCompatActivity {
             }
         });
 
-
-        //set button click listener to get text inside AutoCompleteTV, search for ingredients and
-        //update mIndgredientsListView adapter
-        mSearchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String query = mAutoCompleteTextView.getText().toString();
-
-                //find similar ingredients list - toUpperCase() used because the database stores
-                //data with uppercase only
-                List<Ingredient> ingredientsFound =
-                        ingredientsExtractor.findListIngredients(query.toUpperCase());
-
-                //show ingredients list if any
-                AdapterIngredient adapter =
-                        new AdapterIngredient(getApplicationContext(), ingredientsFound);
-                mIngredientsListView.setAdapter(adapter);
-
-                if(ingredientsFound.size() == 0)
-                    mMessageTextView.setText(getString(R.string.empty_ingredients_list_message));
-
-                //hide dropdown hints to make ingredients list visible
-                mAutoCompleteTextView.dismissDropDown();
-            }
-        });
-
-
         //load the complete ingredients list and setup the AutoCompleteTextView
         new AutoCompleteTVSetup().run();
 
@@ -152,6 +166,12 @@ public class SearchResultsActivity extends AppCompatActivity {
         handleIntent(getIntent());
     }
 
+    /**
+     * If the activity is re-launched then handle the new intent.
+     * More information about onNewIntent:
+     * https://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent)
+     * @param intent
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         handleIntent(intent);
@@ -172,23 +192,8 @@ public class SearchResultsActivity extends AppCompatActivity {
             mAutoCompleteTextView.setText(query);
             mAutoCompleteTextView.setSelection(query.length());
 
-            //find similar ingredients list
-            List<Ingredient> ingredientsFound = ingredientsExtractor.findListIngredients(query.toUpperCase());
-
-            if(ingredientsFound != null && ingredientsFound.size() > 0) {
-
-                //show ingredients list if any
-                AdapterIngredient adapter =
-                        new AdapterIngredient(getApplicationContext(), ingredientsFound);
-                mIngredientsListView.setAdapter(adapter);
-
-                //in case of results, hide dropdown suggestions
-                mAutoCompleteTextView.dismissDropDown();
-            } else {
-                //message that nothing has been found
-                mMessageTextView.setText("Nothing found");
-            }
-
+            //act like the search button was pressed (this will perform a research and update the UI)
+            mSearchButton.performClick();
         } else {
 
             //if the intent action is not an ACTION_SEARCH then close the activity and display an error
@@ -237,7 +242,6 @@ public class SearchResultsActivity extends AppCompatActivity {
 
             mAutoCompleteTextView.setAdapter(dropDownListAdapter);
 
-
             //on suggestion click: update ingredients listview
             mAutoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -271,6 +275,9 @@ public class SearchResultsActivity extends AppCompatActivity {
      * This filter provides smart suggestions selected from the full list of INCI ingredients by
      * ordering suggestions alphabetically and prioritizing shorter words that starts with the
      * constraint given by the user.
+     * More info about Filter:
+     * @see http://developer.android.com/reference/android/widget/Filter
+     * @author Luca Moroldo g3
      * @author Luca Moroldo g3
      */
     private class IngredientsFilter extends Filter {
@@ -296,7 +303,6 @@ public class SearchResultsActivity extends AppCompatActivity {
         protected FilterResults performFiltering(CharSequence constraint) {
             //this function is called every time the user type anything inside the
             //autocomplete textview; the constraint is what the user typed so far
-
 
             FilterResults results = new FilterResults();
 
@@ -404,6 +410,62 @@ public class SearchResultsActivity extends AppCompatActivity {
         for(Ingredient ingredient : listInciIngredients)
             fullIngredientsList.add(ingredient.getInciName());
         return fullIngredientsList;
+    }
+
+    /**
+     * Search a suggestion for a mistyped text looking in the INCI database, the suggestion returned
+     * will have the smaller Levenshtein distance.
+     * @param query text for which will be searched a suggestion
+     * @return a suggestion that has the minimum Levenshtein distance inside the full ingredients
+     * list.
+     */
+    private String searchSuggestion(String query) {
+        String suggestion = null;
+        LevenshteinStringDistance levenshteinStringDistance =
+                new LevenshteinStringDistance();
+        ArrayList<String> fullList = getFullIngredientsList();
+        int minIndex = -1;
+        double minDistance = Double.MAX_VALUE;
+        for(int i = 0; i < fullList.size(); i++) {
+            double distance = levenshteinStringDistance
+                    .getNormalizedDistance(fullList.get(i), query);
+
+            if(distance < minDistance) {
+                minDistance = distance;
+                minIndex = i;
+            }
+        }
+
+        if(minIndex > -1)
+            suggestion = fullList.get(minIndex);
+
+        return suggestion;
+    }
+
+    /**
+     * Given a non-null text, return a SpannableString that once clicked updates
+     * mAutoCompleteTextView and perform a search.
+     * @param text String to convert into SpannableString
+     * @return clickable SpannableString
+     */
+    private SpannableString getClickableSuggestion(final String text) {
+        SpannableString spannableString = new SpannableString(text);
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                mAutoCompleteTextView.setText(text);
+                mAutoCompleteTextView.setSelection(text.length());
+                mSearchButton.performClick();
+            }
+        };
+        spannableString.setSpan(
+                clickableSpan,
+                0,
+                text.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+
+        return spannableString;
     }
 
 }

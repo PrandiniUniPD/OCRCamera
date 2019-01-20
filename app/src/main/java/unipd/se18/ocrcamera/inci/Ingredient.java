@@ -24,7 +24,7 @@ public class Ingredient implements Comparable<String> {
     private int endPositionFound;
 
 
-    Ingredient() {
+    public Ingredient() {
         this.cosingRefNo = "";
         this.inciName = "";
         this.description = "";
