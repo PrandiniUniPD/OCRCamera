@@ -181,7 +181,7 @@ public class TestsListFragment extends Fragment {
                         public void run() {
                             // Error while parsing a test
                             Toast.makeText(requireContext(),
-                                    R.string.error_while_parsing_a_test
+                                    getString(R.string.error_while_parsing_a_test)
                                             + "(" + testName + ")", Toast.LENGTH_SHORT).show();
                         }
                     });
