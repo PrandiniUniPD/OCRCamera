@@ -328,6 +328,7 @@ class PhotoTester extends AbstractPerformanceTester {
                 addTestElement(jsonReport, test);
             } catch (JSONException e) {
                 Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
+                testListener.onTestFailure(TestListener.TEST_ADDITION_FAILURE, test.getFileName());
             }
 
             //calls TestListener.onTestFinished (synchronized to avoid concurrency)

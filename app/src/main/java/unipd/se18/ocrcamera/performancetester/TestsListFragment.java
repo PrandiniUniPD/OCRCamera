@@ -175,14 +175,16 @@ public class TestsListFragment extends Fragment {
                 }
 
                 @Override
-                public void onTestFailure(int failureCode, final String testName) {
+                public void onTestFailure(final int failureCode, final String testName) {
                     requireActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             // Error while parsing a test
                             Toast.makeText(requireContext(),
-                                    getString(R.string.error_while_parsing_a_test)
-                                            + "(" + testName + ")", Toast.LENGTH_SHORT).show();
+                                    getString(R.string.error_with_test)
+                                            + "(" + testName + ") - Error code: "
+                                            + failureCode,
+                                    Toast.LENGTH_SHORT).show();
                         }
                     });
 

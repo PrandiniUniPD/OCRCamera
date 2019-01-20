@@ -11,6 +11,11 @@ public interface TestListener {
     int JSON_PARSING_FAILURE = 0;
 
     /**
+     * Code of the test addition error
+     */
+    int TEST_ADDITION_FAILURE = 1;
+
+    /**
      * The tests has finished
      */
     void onTestFinished();
