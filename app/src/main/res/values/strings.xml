@@ -84,4 +84,5 @@
     <string name="progressDialogDownloadTitle">Login</string>
     <string name="progressDialogDownloadMessage">Loading...</string>
     <string name="letter_icon">Letter icon</string>
+    <string name="sharedPrefNameProcessedImage">processedImageDataPath</string>
 </resources>

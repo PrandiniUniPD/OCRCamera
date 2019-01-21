@@ -198,6 +198,7 @@ public class ResultActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         //load the path to the last taken picture, can be null if the user didn't take any picture
         final String lastImagePath = prefs.getString(getString(R.string.sharedPrefNameForImagePath), null);
+        final String processedImagePath = prefs.getString(getString(R.string.sharedPrefNameProcessedImage), null);
 
         if(lastImagePath != null) {
 
@@ -224,13 +225,20 @@ public class ResultActivity extends AppCompatActivity {
                 }
             });
 
-            //launch image processing
-            new AsyncImageProcess(ResultActivity.this, true).execute(lastImagePath);
+            if(processedImagePath == null) {
+                //launch image processing if not already processed
+                new AsyncImageProcess(ResultActivity.this, true).execute(lastImagePath);
+            } else {
+                //analyze image immediately if already processed
+                Bitmap lastImage = BitmapFactory.decodeFile(processedImagePath);
+                analyzeImageUpdateUI(lastImage);
+            }
         }
-
-
     }
 
+    /**
+     * Asynctask for image processing
+     */
     private static class AsyncImageProcess extends AsyncTask<String, Void, Bitmap> {
 
         private boolean autoSkew;
@@ -245,6 +253,11 @@ public class ResultActivity extends AppCompatActivity {
             activityReference = new WeakReference<>(context);
         }
 
+        /**
+         * Do image processing in background
+         * @param strings Path of the image to be processed
+         * @return Processed image
+         */
         @Override
         protected Bitmap doInBackground(String... strings) {
             // get Bitmap of the image
@@ -258,6 +271,10 @@ public class ResultActivity extends AppCompatActivity {
             return image;
         }
 
+        /**
+         * When image processing finished analyze image extracting ingredients and update UI
+         * @param processedImage The processed image
+         */
         @Override
         protected void onPostExecute(Bitmap processedImage) {
             super.onPostExecute(processedImage);
@@ -265,6 +282,10 @@ public class ResultActivity extends AppCompatActivity {
             if (activity == null || activity.isFinishing()) return;
 
             activity.analyzeImageUpdateUI(processedImage);
+
+            //save processed image
+            String filePath= Utils.tempFileImage(activity, processedImage,"processedImage");
+            activity.saveProcessedImage(filePath);
         }
     }
 
@@ -334,6 +355,8 @@ public class ResultActivity extends AppCompatActivity {
             if (resultUri != null) {
                 String imagePath = resultUri.getPath();
                 new AsyncImageProcess(ResultActivity.this, false).execute(imagePath);
+
+                saveProcessedImage(imagePath);
             }
         }
     }
@@ -500,6 +523,17 @@ public class ResultActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Method for saving processed image into shared preferences
+     * @param imagePath Path of the processed image
+     */
+    private void saveProcessedImage(String imagePath){
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString("processedImageDataPath", imagePath);
+        edit.apply();
     }
 
 

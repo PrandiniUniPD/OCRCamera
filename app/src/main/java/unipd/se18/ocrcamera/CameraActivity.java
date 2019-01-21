@@ -5,27 +5,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Camera;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.camerakit.CameraKitView;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
 
 /**
  * The Activity useful for making photos
@@ -156,11 +146,12 @@ public class CameraActivity extends AppCompatActivity {
                 }
 
                 //Temporary stores the captured photo into a file that will be used from the Camera Result activity
-                String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
+                String filePath= Utils.tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
 
                 SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
                 SharedPreferences.Editor edit = prefs.edit();
                 edit.putString(getString(R.string.sharedPrefNameForImagePath), filePath.trim());
+                edit.putString(getString(R.string.sharedPrefNameProcessedImage), null);
                 edit.apply();
 
                 //An intent that will launch the activity that will analyse the photo
@@ -199,35 +190,6 @@ public class CameraActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         cameraKitView.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-
-    /**
-     * Stores the captured image into a temporary file useful to pass large data between activities
-     * and returns the file's path.
-     * @param context The reference of the current activity
-     * @param bitmap The captured image to store into the file. Not null or empty.
-     * @param name The name of the file. Not null or empty.
-     * @return The files path
-     * @author Leonardo Rossi
-     */
-    private String tempFileImage(Context context, Bitmap bitmap, String name)
-    {
-
-        File outputDir = context.getCacheDir();
-        File imageFile = new File(outputDir, name + ".jpg");
-
-        OutputStream os;
-        try {
-            os = new FileOutputStream(imageFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
-            os.flush();
-            os.close();
-        } catch (Exception e) {
-            Log.e(context.getClass().getSimpleName(), "Error writing file", e);
-        }
-
-        return imageFile.getAbsolutePath();
     }
 
 
