@@ -262,8 +262,9 @@ public class TextAutoCorrection {
         //Searches the tree for elements whose distance satisfy max distance
         // for the demostration of the distance upper bound see:
         // https://github.com/frankplus/incidb/blob/master/maxNormalizedDistanceFormulaDim.jpg
+        int distanceUpperBound = (int) (word.length()*maxNormalizedDistance/(1-maxNormalizedDistance));
         Set<BkTreeSearcher.Match<? extends String>> matches =
-                searcher.search(word, (int) (word.length()*maxNormalizedDistance/(1-maxNormalizedDistance)));
+                searcher.search(word, distanceUpperBound);
 
         //find the word with minimum distance
         double minDistance = Double.MAX_VALUE;
