@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import unipd.se18.ocrcamera.forum.viewmodels.Login_VM;
 import unipd.se18.ocrcamera.forum.viewmodels.Register_VM;
 
@@ -169,15 +171,8 @@ public class ForumRegister extends Fragment {
             @Override
             public void onClick(View v) {
 
-                //Checks if all fields have been filled by using a support constant
-                final boolean areAllFieldsFilled =
-                        usernameEditText.getText() != null &&
-                        nameEditText.getText() != null &&
-                        surnameEditText.getText() != null &&
-                        pwdEditText.getText() != null &&
-                        confirmPwdEditText.getText() != null;
-
-                if (areAllFieldsFilled) {
+                //Checks if all fields have been filled by using a support function
+                if (areAllFieldsFilled()) {
 
                     //If so, texts from these fields can be retrieved
                     userUsername = usernameEditText.getText().toString();
@@ -215,6 +210,65 @@ public class ForumRegister extends Fragment {
             }
         });
 
+    }
+
+    /**
+     * Support function to ensure that all the EditTexts of this fragment have not left totally
+     * blank by the user during the registration process
+     *
+     * @return if all EditTexts of the current view are at least partially filled
+     */
+    private boolean areAllFieldsFilled() {
+
+        //String used to indicate that a NULL field occurred
+        final String LOG_NULL_FIELD_ERROR_MESSAGE = "A NULL field to check occurred!";
+
+        //String used to indicate that a NULL fieldText occurred
+        final String LOG_NULL_FIELDTEXT_ERROR_MESSAGE = "A NULL fieldText to check occurred!";
+
+        //A list of the EditTexts to check is created and filled
+        ArrayList<EditText> fieldsList = new ArrayList<>();
+
+        fieldsList.add(usernameEditText);
+        fieldsList.add(nameEditText);
+        fieldsList.add(surnameEditText);
+        fieldsList.add(pwdEditText);
+        fieldsList.add(confirmPwdEditText);
+
+        //Checks if all fields are not null nor empty
+        for (EditText field: fieldsList) {
+
+            //The text object is prepared to be checked
+            try {
+                Object fieldText = field.getText();
+
+                //If only one of the fields is null, a negative response is returned
+                if (fieldText == null) {
+                    return false;
+                }
+
+                //If the text object is not null, its value is prepared to be checked
+                try {
+                    String fieldTextValue = fieldText.toString();
+
+                    //If only one of the fields is empty, a negative response is returned
+                    if (fieldTextValue.equals("")) {
+                        return false;
+                    }
+                }
+                catch (NullPointerException e) {
+                    //The variable "fieldText" should not be null because it was previously checked
+                    Log.d(LOG_TAG, LOG_NULL_FIELDTEXT_ERROR_MESSAGE);
+                }
+            }
+            catch (NullPointerException e) {
+                //The variable "field" should not be null because the list is manually filled
+                Log.d(LOG_TAG, LOG_NULL_FIELD_ERROR_MESSAGE);
+            }
+        }
+
+        //If no fields resulted null or empty, a positive response is returned
+        return true;
     }
 
 }

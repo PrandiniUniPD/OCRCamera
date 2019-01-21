@@ -107,7 +107,7 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                             //If not, the view is required to show an error
                             forumRegisterListener.onRegisterFailure(
                                     context.getString(
-                                            R.string.checkUsernameErrorMessage
+                                            R.string.registerUsernameAlreadyUsedMessage
                                     )
                             );
                         }
@@ -133,7 +133,7 @@ public class Register_VM extends ViewModel implements RegisterMethods {
                     //An error occurred completing the task, so it's shown to the user
                     forumRegisterListener.onRegisterFailure(
                             context.getString(
-                                    R.string.registerUsernameAlreayUsedMessage
+                                    R.string.checkUsernameErrorMessage
                             )
                     );
                 }

@@ -44,7 +44,7 @@
     <!-- View model Register_VM identifiers -->
     <string name="logTagRegister_VM">--Register_VM--</string>
     <string name="registerFailedMessage">A sign up error occurred. Please try again later</string>
-    <string name="registerUsernameAlreayUsedMessage">This username is already used. Please
+    <string name="registerUsernameAlreadyUsedMessage">This username is already used. Please
         choose another one</string>
     <string name="checkUsernameErrorMessage">An error occurred checking the chosen
         username eligibility</string>
