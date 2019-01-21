@@ -33,11 +33,10 @@ import java.util.ArrayList;
 public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
-    private static String orientationResult="P";
+    //Se the default orientation as portrait
+    private static DeviceOrientation orientationResult = DeviceOrientation.PORTRAIT;
 
-    public String getDir() {
-        return getExternalFilesDir(null).getAbsolutePath();
-    }
+
     /**
      * onCreate method of the Android Activity Lifecycle
      * @param savedInstanceState The Bundle of the last instance state saved
@@ -52,20 +51,21 @@ public class CameraActivity extends AppCompatActivity {
         //Load sensor for understand the orientation of the phone
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(new SensorEventListener() {
-            public int mOrientationDeg; //last rotation in degrees
-            private static final int _DATA_X = 0;
-            private static final int _DATA_Y = 1;
-            private static final int _DATA_Z = 2;
+            private int mOrientationDeg; //last rotation in degrees
             private int ORIENTATION_UNKNOWN = -1;
 
+            /**
+             * Called when there is a new sensor event. Note that "on changed" is somewhat of a misnomer, as this will also be called if we have a new reading from a sensor with the exact same sensor values (but a newer timestamp).
+             * Documentation for SensorEvent: https://developer.android.com/reference/android/hardware/SensorEvent
+             */
             @Override
             public void onSensorChanged(SensorEvent event)
             {
                 float[] values = event.values;
                 int orientation = ORIENTATION_UNKNOWN;
-                float X = -values[_DATA_X];
-                float Y = -values[_DATA_Y];
-                float Z = -values[_DATA_Z];
+                float X = -values[0];
+                float Y = -values[1];
+                float Z = -values[2];
                 float magnitude = X*X + Y*Y;
                 // Don't trust the angle if the magnitude is small compared to the y value
                 if (magnitude * 4 >= Z*Z) {
@@ -88,26 +88,26 @@ public class CameraActivity extends AppCompatActivity {
                     View takePicButton = findViewById(R.id.take_photo_button);
 
                     //figure out actual orientation
-                    if(orientation == -1){//basically flat
+                    if(orientation == ORIENTATION_UNKNOWN){//basically flat
                     }
                     else if(orientation <= 45 || orientation > 315){//round to 0
-                        Log.d("Sensor", "P"); //Portrait
-                        orientationResult="P";
+                        //Portrait
+                        orientationResult=DeviceOrientation.PORTRAIT;
                         takePicButton.setRotation(0); //rotate take picture button
                     }
                     else if(orientation > 45 && orientation <= 135){//round to 90
-                        Log.d("Sensor", "LR"); //LandscapeRight
-                        orientationResult="LR";
+                        //LandscapeRight
+                        orientationResult=DeviceOrientation.LANDSCAPERIGHT;
                         takePicButton.setRotation(270);
                     }
                     else if(orientation > 135 && orientation <= 225){//round to 180
-                        Log.d("Sensor", "PU"); //PortraitUpside
-                        orientationResult="PU";
+                        //PortraitUpside
+                        orientationResult=DeviceOrientation.PORTRAITUPSIDEDOWN;
                         takePicButton.setRotation(180);
                     }
                     else if(orientation > 225 && orientation <= 315){//round to 270
-                        Log.d("Sensor", "LL"); //LandscapeLeft
-                        orientationResult="LL";
+                        //LandscapeLeft
+                        orientationResult=DeviceOrientation.LANDSCAPELEFT;
                         takePicButton.setRotation(90);
                     }
 
@@ -149,10 +149,10 @@ public class CameraActivity extends AppCompatActivity {
                 //Image rotation
                 switch (orientationResult)
                 {
-                    case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
-                    case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
-                    case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
-                    default: break;
+                    case LANDSCAPERIGHT: bitmapImage=rotateImage(bitmapImage,90); break;
+                    case LANDSCAPELEFT: bitmapImage=rotateImage(bitmapImage,270); break;
+                    case PORTRAITUPSIDEDOWN: bitmapImage=rotateImage(bitmapImage,180); break;
+                    default: break; //orientationResult by default is Portrait, if none of the previous cases are triggered i leave the image  as is.
                 }
 
                 //Temporary stores the captured photo into a file that will be used from the Camera Result activity
@@ -160,7 +160,7 @@ public class CameraActivity extends AppCompatActivity {
 
                 SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
                 SharedPreferences.Editor edit = prefs.edit();
-                edit.putString("imagePath", filePath.trim());
+                edit.putString(getString(R.string.sharedPrefNameForImagePath), filePath.trim());
                 edit.apply();
 
                 //An intent that will launch the activity that will analyse the photo
@@ -169,7 +169,6 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
     }
-
 
 
     @Override
@@ -243,5 +242,34 @@ public class CameraActivity extends AppCompatActivity {
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
+    }
+
+    /**
+     * Enum used to manage the orientation of the device
+     */
+    private enum DeviceOrientation {
+        PORTRAIT(0),
+        PORTRAITUPSIDEDOWN(1),
+        LANDSCAPELEFT(2),
+        LANDSCAPERIGHT(3);
+
+        private int value;
+
+        /**
+         * Constructor
+         * @param value The number assigned to the constant
+         */
+        DeviceOrientation(int value){
+            this.value = value;
+        }
+
+
+        /**
+         * Return the mode
+         * @return the mode of the constant
+         */
+        int getValue(){
+            return this.value;
+        }
     }
 }

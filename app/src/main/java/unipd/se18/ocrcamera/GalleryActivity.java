@@ -3,8 +3,10 @@ package unipd.se18.ocrcamera;
 
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -28,6 +30,9 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,7 +60,8 @@ public class GalleryActivity extends AppCompatActivity {
 
         if(verifyStoragePermission())
         {
-            loadHomeFragment();
+            LoadHomeCards loadHomeCards = new LoadHomeCards();
+            loadHomeCards.execute();
         }
     }
 
@@ -82,6 +88,44 @@ public class GalleryActivity extends AppCompatActivity {
             fm.popBackStack();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    /**
+     * Simple async for load the images while showing a SpinnerDialog
+     */
+    private class LoadHomeCards extends AsyncTask<View, Integer, Void>
+    {
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute()
+        {
+            progressDialog = new ProgressDialog(GalleryActivity.this);
+            progressDialog.setTitle(getString(R.string.progressDialogGalleryTitle));
+            progressDialog.setMessage(getString(R.string.progressDialogGalleryMessage));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+        }
+
+        /***
+         * Load the actual fragment with the cards
+         */
+        @Override
+        protected Void doInBackground(View... voids)
+        {
+            loadHomeFragment();
+            return null;
+        }
+
+        /**
+         * Dismiss the dialog
+         * @param params is the result of the connection test
+         */
+        @Override
+        protected void onPostExecute(Void params)
+        {
+            progressDialog.dismiss();
         }
     }
 
@@ -140,7 +184,7 @@ public class GalleryActivity extends AppCompatActivity {
             picturesRecycleView.setItemAnimator(new DefaultItemAnimator());
 
             //Load the cards using the RecycleCardsAdapter into the picturesRecycleView
-            ArrayList<GalleryManager.PhotoStructure> photos = GalleryManager.getImages(view.getContext());
+            ArrayList<GalleryManager.PhotoStructure> photos = GalleryManager.getImages();
             cardAdapter = new GalleryManager.RecycleCardsAdapter(view.getContext(), photos);
             picturesRecycleView.setAdapter(cardAdapter);
         }
@@ -354,7 +398,8 @@ public class GalleryActivity extends AppCompatActivity {
             }
             else
             {
-                loadHomeFragment();
+                LoadHomeCards loadHomeCards = new LoadHomeCards();
+                loadHomeCards.execute();
             }
         }
     }
@@ -390,8 +435,8 @@ public class GalleryActivity extends AppCompatActivity {
         } else {
             builder = new AlertDialog.Builder(this);
         }
-        builder.setTitle("Permission error")
-                .setMessage("You did not have authorized the app to use internal storage.")
+        builder.setTitle(R.string.alertDialogGalleryTitle)
+                .setMessage(R.string.alertDialogGalleryMessage)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // continue with closing the activity
