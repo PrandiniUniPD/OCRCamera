@@ -333,6 +333,27 @@ public class ResultActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Handling click events on the menu
+     * @author Francesco Pham - modified by Stefano Romanello - modified by Pietro Balzan
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.test:
+                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
+                startActivity(i);
+                return true;
+            case R.id.download_photos:
+                Intent download_intent = new Intent(ResultActivity.this,
+                        DownloadDbActivity.class);
+                startActivity(download_intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
 
     /**
