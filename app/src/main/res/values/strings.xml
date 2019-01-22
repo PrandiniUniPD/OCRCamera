@@ -1,13 +1,35 @@
 <resources>
     <string name="app_name">OCRCamera</string>
-    <string name="take_photo">Take photo</string>
-    <string name="view_last_photo">Last photo</string>
+    <string name="take_photo">Take pic</string>
+    <string name="view_last_photo">Last pic</string>
     <string name="preview_failed">Preview failed!</string>
     <string name="surface_texture_bug">There is a bug in the SurfaceTexture instance.</string>
     <string name="state_callback_onError">Error in the state of the camera.</string>
     <string name="permissions_not_granted">Missing permissions.</string>
     <string name="update_preview_failed">Update preview failed.</string>
     <string name="no_last_photo">There are not a last photo</string>
-    <string name="no_text_found">No text find, retry please</string>
+    <string name="no_text_found">No text found, please try again</string>
     <string name="processing">Processing..</string>
+    <string name="photoFileName">lastPhoto.jpg</string>
+    <string name="savedPhotoPathKey">savedPhotoPathKey</string>
+    <string name="pic_captured">Pic captured</string>
+    <string name="analyzed_pic">Pic analyzed</string>
+    <string name="tags">TAGs:</string>
+    <string name="ingredients">Ingredients:</string>
+    <string name="notes">Notes:</string>
+    <string name="pic">PIC</string>
+    <string name="test">TEST</string>
+    <string name="extrected_text">Extracted text:</string>
+    <string name="alterations">Alterations:</string>
+    <string name="view_alterations">View alterations</string>
+    <string name="extraction_error">"Something has gone wrong, plese try again."</string>
+    <string name="error_code">"Error code: "</string>
+    <string name="view_details">Details</string>
+    <string name="errorLog1">No filePath preferences found</string>
+    <string name="noTextWarning">OCR found no text in this photo</string>
+    <string name="lessThen10CharWarning">Less then 10 chars found by OCR</string>
+    <string name="lessThen20CharWarning">Less then 20 chars found by OCR</string>
+    <string name="lessThen30CharWarning">Less then 30 chars found by OCR</string>
+
+
 </resources>

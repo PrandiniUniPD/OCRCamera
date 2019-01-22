@@ -1,14 +1,27 @@
 package unipd.se18.ocrcamera;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.File;
+import unipd.se18.ocrcamera.recognizer.OCR;
+import unipd.se18.ocrcamera.recognizer.OCRListener;
+import unipd.se18.ocrcamera.recognizer.TextRecognizer;
+
+import static unipd.se18.ocrcamera.recognizer.TextRecognizer.getTextRecognizer;
 
 /**
  * Class used for showing the result of the OCR processing
@@ -16,14 +29,36 @@ import java.io.File;
 public class ResultActivity extends AppCompatActivity {
 
     /**
-     * The ImageView of the captured photo.
-     */
-    private ImageView mImageView;
-
-    /**
      * The TextView of the extracted test from the captured photo.
      */
     private TextView mOCRTextView;
+
+    /**
+     * Listener used by the extraction process to notify results
+     */
+    private OCRListener textExtractionListener = new OCRListener() {
+        @Override
+        public void onTextRecognized(String text) {
+            /*
+             Text correctly recognized
+             -> prints it on the screen and saves it in the preferences
+             */
+            mOCRTextView.setText(text);
+            saveTheResult(text);
+        }
+
+        @Override
+        public void onTextRecognizedError(int code) {
+            /*
+             Text not correctly recognized
+             -> prints the error on the screen and saves it in the preferences
+             */
+            String errorText = R.string.extraction_error
+                    + " (" + R.string.error_code + code + ")";
+            mOCRTextView.setText(errorText);
+            saveTheResult(errorText);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,67 +66,104 @@ public class ResultActivity extends AppCompatActivity {
         setContentView(R.layout.activity_result);
 
         // UI components
-        mImageView = findViewById(R.id.img_captured_view);
+        ImageView mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
+        mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
+
+        FloatingActionButton fab = findViewById(R.id.newPictureFab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(ResultActivity.this, CameraActivity.class));
+            }
+        });
 
 
-        //Retrieving captured image data and text from intent
-        String pathImage = getIntent().getStringExtra("imageDataPath");
-        String OCRText = getIntent().getStringExtra("text");
+        //Get image path and text of the last image from preferences
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = prefs.getString("imagePath", null);
+        String OCRText = prefs.getString("text", null);
 
-        //Displaying the captured image to the user
-        displayImageFromByteArray(pathImage);
+        Bitmap lastPhoto = BitmapFactory.decodeFile(pathImage);
+
+        if (lastPhoto != null) {
+            mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(),
+                    lastPhoto.getHeight(), false));
+        } else {
+            Log.e("ResultActivity", "error retrieving last photo");
+        }
 
         //Displaying the text, from OCR or preferences
         if(OCRText != null) {
-            //Show the text of the last image
-            mOCRTextView.setText(OCRText);
-        }
-        else{
-            //Utilization of OCR to retrieve text from the given image
-            extractTextFromImage(pathImage);
-        }
-
-        //Text shows when OCR are processing the image
-        mOCRTextView.setText(R.string.processing);
-    }
-    /**
-     * Displays the captured image into UI given a specific byte array
-     * @param path A string that contains the path where is temporary saved the captured image. Not null.
-     * @modify mImageView The image view that is modified by the method
-     * @author Leonardo Rossi
-     */
-    private void displayImageFromByteArray(String path) {
-        File file = new File(path);
-        Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
-        mImageView.setImageBitmap(Bitmap.createScaledBitmap(bmp, 300, 300, false));
-    }
-
-    /**
-     * Retrieves the text from the given byte array
-     * @param path A string that contains the path where is temporary saved the captured image. Not null.
-     * @modify mOCRTextView It will contains the text extracts from the image
-     * @author Leonardo Rossi
-     */
-    private void extractTextFromImage(String path) {
-        //Converting byte array into bitmap
-        File file = new File(path);
-        Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
-        //Call to text extractor method to get the text from the given image
-        TextExtractor extractor = new TextExtractor(this);
-        extractor.getTextFromImg(bmp);
-        //Definition of the observer which will be responsible of updating the UI once the text extractor has finished its work
-        android.arch.lifecycle.Observer<String> obsText = new android.arch.lifecycle.Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                if(s != null && s.equals("")) {
-                    mOCRTextView.setText(R.string.no_text_found);
-                } else if (s != null) {
-                    mOCRTextView.setText(s.toUpperCase());
-                }
+            // Text in preferences
+            if(OCRText.equals("")) {
+                mOCRTextView.setText(R.string.no_text_found);
+            } else {
+                //Show the text of the last image
+                mOCRTextView.setText(OCRText);
             }
-        };
-        extractor.extractedText.observe(this, obsText);
+        } else {
+            // Views processing string
+            mOCRTextView.setText(R.string.processing);
+
+            // Instance of an OCR recognizer
+            OCR ocrProcess = getTextRecognizer(TextRecognizer.Recognizer.mlKit,
+                    textExtractionListener);
+
+            // Runs the operations of text extraction
+            ocrProcess.getTextFromImg(lastPhoto);
+        }
     }
 
+    /**
+     * Saves the result obtained in the "prefs" preferences (Context.MODE_PRIVATE)
+     * - the name of the String is "text"
+     * @param text The text extracted by the process
+     * @author Pietro Prandini (g2)
+     */
+    private void saveTheResult(String text) {
+        // Saving in the preferences
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs",
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("text", text);
+        editor.apply();
+    }
+
+    /**
+     * Menu inflater
+     * @author Francesco Pham
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.result_menu, menu);
+        return true;
+    }
+
+    /**
+     * Handling click events on the menu
+     * @author Francesco Pham - modified by Stefano Romanello
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.test:
+                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
+                startActivity(i);
+                return true;
+            case R.id.download_photos:
+                Intent download_intent = new Intent(ResultActivity.this,
+                        DownloadDbActivity.class);
+                startActivity(download_intent);
+                return true;
+            case R.id.manual_test:
+                Intent manualTest= new Intent(ResultActivity.this, ManualTestOnSinglePhoto.class);
+                startActivity(manualTest);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }
+

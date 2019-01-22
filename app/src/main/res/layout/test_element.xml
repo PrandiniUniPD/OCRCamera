@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Pietro Prandini (g2) -->
+    <RelativeLayout
+        android:id="@+id/result_view"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Correctness -->
+        <TextView
+            android:id="@+id/correctness_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:shadowColor="@color/pureBlack"
+            android:shadowRadius="5"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:padding="5sp"/>
+
+        <!-- Name -->
+        <TextView
+            android:id="@+id/pic_name_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:padding="5sp"/>
+
+        <!-- Button for viewing details -->
+        <Button
+            android:id="@+id/view_details_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignEnd="@id/pic_name_view"
+            android:text="@string/view_details"/>
+
+        <!-- Tags -->
+        <TextView
+            android:id="@+id/tags_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tags"
+            android:layout_below="@id/pic_name_view"
+            android:layout_alignParentStart="true"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:padding="5sp" />
+        <TextView
+            android:id="@+id/tags_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tags_title"
+            android:layout_alignParentStart="true"
+            android:textSize="15sp"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"/>
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>
