@@ -84,6 +84,7 @@ public class SearchResultsActivity extends AppCompatActivity {
      */
     private static final int SUGGESTION_THRESHOLD = 2;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -166,6 +167,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         handleIntent(getIntent());
     }
 
+
     /**
      * If the activity is re-launched then handle the new intent.
      * More information about onNewIntent:
@@ -196,9 +198,11 @@ public class SearchResultsActivity extends AppCompatActivity {
             mSearchButton.performClick();
         } else {
 
-            //if the intent action is not an ACTION_SEARCH then close the activity and display an error
+            //if the intent action is not an ACTION_SEARCH then close the activity
+            // and display an error
             Log.e(TAG, "Activity called without ACTION_SEARCH intent");
-            Toast.makeText(getApplicationContext(), "Error doing search", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Error doing search", Toast.LENGTH_SHORT)
+                    .show();
             finish();
         }
     }
@@ -215,7 +219,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         @Override
         public void run() {
             //specify to run this code on background to avoid slowing down the UI
-            android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 
             //start suggesting with more than SUGGESTION_THRESHOLD chars typed
             mAutoCompleteTextView.setThreshold(SUGGESTION_THRESHOLD);
@@ -271,13 +275,13 @@ public class SearchResultsActivity extends AppCompatActivity {
         }
     }
 
+
     /**
      * This filter provides smart suggestions selected from the full list of INCI ingredients by
      * ordering suggestions alphabetically and prioritizing shorter words that starts with the
      * constraint given by the user.
      * More info about Filter:
      * @see http://developer.android.com/reference/android/widget/Filter
-     * @author Luca Moroldo g3
      * @author Luca Moroldo g3
      */
     private class IngredientsFilter extends Filter {
@@ -293,11 +297,13 @@ public class SearchResultsActivity extends AppCompatActivity {
          */
         private List<String> lastList;
 
+
         private IngredientsFilter() {
             super();
             lastSize = 0;
             lastList = getFullIngredientsList();
         }
+
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
@@ -367,7 +373,6 @@ public class SearchResultsActivity extends AppCompatActivity {
                 }
             });
 
-
             results.values = filteredList;
             results.count = filteredList.size();
 
@@ -377,6 +382,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
             return results;
         }
+
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
@@ -396,6 +402,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         }
     }
 
+
     /**
      * Get the full ingredients names list from the INCI database
      * @return ArrayList of strings, each string is a name of an ingredient
@@ -412,9 +419,10 @@ public class SearchResultsActivity extends AppCompatActivity {
         return fullIngredientsList;
     }
 
+
     /**
      * Search a suggestion for a mistyped text looking in the INCI database, the suggestion returned
-     * will have the smaller Levenshtein distance.
+     * will have the smallest Levenshtein distance.
      * @param query text for which will be searched a suggestion
      * @return a suggestion that has the minimum Levenshtein distance inside the full ingredients
      * list.
@@ -424,9 +432,12 @@ public class SearchResultsActivity extends AppCompatActivity {
         LevenshteinStringDistance levenshteinStringDistance =
                 new LevenshteinStringDistance();
         ArrayList<String> fullList = getFullIngredientsList();
+
+        //find the closest ingredient in terms of Levenshtein distance
         int minIndex = -1;
         double minDistance = Double.MAX_VALUE;
         for(int i = 0; i < fullList.size(); i++) {
+
             double distance = levenshteinStringDistance
                     .getNormalizedDistance(fullList.get(i), query);
 
@@ -442,6 +453,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         return suggestion;
     }
 
+
     /**
      * Given a non-null text, return a SpannableString that once clicked updates
      * mAutoCompleteTextView and perform a search.
@@ -450,6 +462,9 @@ public class SearchResultsActivity extends AppCompatActivity {
      */
     private SpannableString getClickableSuggestion(final String text) {
         SpannableString spannableString = new SpannableString(text);
+
+        //create an onclick listener that, on click, updates mAutoCompleteTextView and perform
+        //a research
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
@@ -458,6 +473,11 @@ public class SearchResultsActivity extends AppCompatActivity {
                 mSearchButton.performClick();
             }
         };
+
+        //set the on click listener for the whole text.
+        //Spanned.SPAN_EXCLUSIVE_EXCLUSIVE do not expand to include text inserted at either
+        // their starting or ending point
+        //see: https://developer.android.com/reference/android/text/Spanned.html#SPAN_EXCLUSIVE_EXCLUSIVE
         spannableString.setSpan(
                 clickableSpan,
                 0,
@@ -467,5 +487,4 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         return spannableString;
     }
-
 }

@@ -2,13 +2,17 @@ package unipd.se18.ocrcamera.performancetester.testers;
 
 import android.content.Context;
 import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import unipd.se18.ocrcamera.Utils;
 import unipd.se18.ocrcamera.performancetester.TestElement;
+
 
 /**
  * Abstract class of a performance tester.
@@ -16,6 +20,7 @@ import unipd.se18.ocrcamera.performancetester.TestElement;
  * @author Pietro Prandini (g2)
  */
 abstract class AbstractPerformanceTester implements PerformanceTester {
+
     /**
      * String used for the logs of this class
      */
@@ -56,6 +61,7 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
      */
     Context context;
 
+
     /**
      * Load test elements (images + description)
      * @param context The context of the app
@@ -89,10 +95,11 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         this.dirPath = dirPath;
     }
 
+
     /**
      * Init all test elements reading files inside the directory pointed by dirPath.
      * If TestListener has been set, then in case of corrupted test calls onTestFailure(int code).
-     * Modifies testElements.
+     * @modifies testElements.
      * @see #parseTestElement(File file)
      * @author Luca Moroldo
      */
@@ -104,8 +111,8 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
         this.dirPath = directory.getPath();
         Log.d(TAG, "PhotoTester -> dirPath == " + dirPath);
 
-        //creates a TestElement object for each original photo
-        // - then links all the alterations to the relative original TestElement
+        //create a TestElement object for each original photo
+        // - and links all the alterations to the relative original TestElement
         for(File file : testElementsFiles) {
             String filePath = file.getPath();
             String fileName = Utils.getFilePrefix(filePath);
@@ -114,6 +121,7 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
             if(fileName != null && fileName.contains(PHOTO_BASE_NAME)) {
                 // Checks if the extension is supported
                 String fileExtension = Utils.getFileExtension(filePath);
+                //check if the file is an image
                 if (Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
                     // Extension supported -> Parses the test element
                     TestElement testElement = parseTestElement(file);
@@ -124,6 +132,7 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
             }
         }
     }
+
 
     /**
      * Elaborate tests using threads, stores the json report in string format to testReport.txt
@@ -158,6 +167,7 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
      */
     public abstract String getTagsStatsString();
 
+
     /**
      * Parse a txt file to get a TestElement, calls testListener.onTestFailure in case of
      * corrupted test file.
@@ -183,6 +193,7 @@ abstract class AbstractPerformanceTester implements PerformanceTester {
                     new TestElement(originalImagePath, jsonPhotoDescription, fileName);
 
             String[] alterationsFilenames = originalTest.getAlterationsNames();
+            //if not null, then the photo has at least one alteration
             if(alterationsFilenames != null) {
                 for(String alterationFilename : alterationsFilenames) {
                     String alterationImagePath = dirPath + "/" + alterationFilename;

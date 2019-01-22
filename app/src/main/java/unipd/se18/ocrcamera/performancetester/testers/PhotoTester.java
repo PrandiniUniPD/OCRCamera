@@ -59,63 +59,52 @@ class PhotoTester extends AbstractPerformanceTester {
     }
 
     /**
-     * Elaborate tests using threads, stores the json report in string format to testReport.txt inside the directory given on construction
-     * @return String in JSON format with the test's report, each object is a single test named with the filename and contains:
-     * ingredients, tags, notes, original photo name, confidence and alterations (if any), each alteration contains alteration tags and alteration notes
+     * Evaluate each TestElement and create a JSON-format report that sums up the test result.
+     * Each JSON object inside the report is related to a test, and contains: ingredients, tags,
+     * notes, original photo name, confidence and alterations (if any); the alterations are JSON
+     * objects too (named with their filename) and contains alteration tags and notes.
+     * The report is saved int txt format, inside the directory given on construction.
+     * @return String containing the test results in JSON format
+     * @throws InterruptedException if the calling thread is interrupted
      * @author Luca Moroldo (g3)
      */
     public String testAndReport() throws InterruptedException {
-
-        Log.i(TAG,"testAndReport started");
-        long started = java.lang.System.currentTimeMillis();
 
         final JSONObject fullJsonReport = new JSONObject();
 
         //load inci db and initialize ingredient extractor (Francesco Pham)
         textCorrector = InciSingleton.getInstance(context).getTextCorrector();
         ocrIngredientsExtractor = InciSingleton.getInstance(context).getIngredientsExtractor();
-        List<Ingredient> listInciIngredients = InciSingleton.getInstance(context).getListInciIngredients();
+        List<Ingredient> listInciIngredients =
+                InciSingleton.getInstance(context).getListInciIngredients();
         correctIngredientsExtractor = new TextSplitIngredientsExtractor(listInciIngredients);
 
         //countDownLatch allows to sync this thread with the end of all the single tests
         CountDownLatch countDownLatch = new CountDownLatch(testElements.size());
 
         int max_concurrent_tasks = Runtime.getRuntime().availableProcessors();
-
-        //leave a processor for the OS
+        //leave a processor for the OS if possible
         if(max_concurrent_tasks > 1) {
             max_concurrent_tasks--;
         }
 
-        Log.i(TAG, "max_concurrent_tasks == " + max_concurrent_tasks + " (number of the available cores)");
-
         //Define a thread executor that will run a maximum of 'max_concurrent_tasks' simultaneously
         ExecutorService executor = Executors.newFixedThreadPool(max_concurrent_tasks);
 
+        //launch a task for each test
         for(TestElement singleTest : testElements) {
             Runnable runnableTest = new RunnableTest(fullJsonReport, singleTest, countDownLatch);
             executor.execute(runnableTest);
         }
 
-        //after shut down the executor will reject any new task
+        //the executor will reject any new task after shutdown
         executor.shutdown();
 
-        //wait until all tests are completed - i.e. when CoundDownLatch.countDown() is called by each runnableTest
+        //wait until all tests are completed -
+        // i.e. when CoundDownLatch.countDown() has been called by each runnableTest
         countDownLatch.await();
 
-        long ended = java.lang.System.currentTimeMillis();
-        Log.i(TAG,"testAndReport ended (" + testElements.size() + " pics tested in " + (ended - started) + " ms)");
-
-        //insert tags stats to json report
-        String tagsStats = getTagsStatsString();
-        try {
-            fullJsonReport.put("stats", tagsStats);
-        } catch(JSONException e) {
-            Log.e(TAG, "Failed to add tags stats to JSON report");
-        }
-
         String fullReport = fullJsonReport.toString();
-
         //write report to file
         try {
             writeReportToExternalStorage(fullReport, dirPath, REPORT_FILENAME);
@@ -123,10 +112,8 @@ class PhotoTester extends AbstractPerformanceTester {
             Log.e(TAG, "Error writing report to file.");
             e.printStackTrace();
         }
-
         //save current report
         this.report = fullReport;
-
         return fullReport;
     }
 
@@ -253,7 +240,6 @@ class PhotoTester extends AbstractPerformanceTester {
 
 
     /**
-     *
      * @param bitmap from which the text is extracted - this method blocks the calling thread
      * and waits for the text extraction from the OCR
      * @return String - the text extracted
@@ -293,17 +279,31 @@ class PhotoTester extends AbstractPerformanceTester {
 
 
     /**
-     * Class used to run a single test
+     * Class used to evaluate a single test
      * @author Luca Moroldo (g3)
      */
     class RunnableTest implements Runnable {
-        private TestElement test;
-        private JSONObject jsonReport;
-        private CountDownLatch countDownLatch;
 
         /**
-         * @param jsonReport JSONObject containing tests data that will be updated
-         * @param test element of a test - must contain an image path and ingredients fields
+         * The test that will be evaluated
+         */
+        private TestElement test;
+
+        /**
+         * The JSONObject where will be added this test evaluation
+         */
+        private JSONObject jsonReport;
+
+        /**
+         * The countdownlatch that will be used to signal the end of the test
+         */
+        private CountDownLatch countDownLatch;
+
+
+        /**
+         * @param jsonReport JSONObject containing tests data that will be updated with current
+         *                   'test'
+         * @param test element of a test - must contain an image's path and ingredients field
          * @param countDownLatch used to signal the task completion
          */
         RunnableTest(JSONObject jsonReport, TestElement test, CountDownLatch countDownLatch) {
@@ -314,30 +314,31 @@ class PhotoTester extends AbstractPerformanceTester {
 
         @Override
         public void run() {
-
-            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" started");
-            long started = java.lang.System.currentTimeMillis();
-
-            //evaluate text extraction - set recognized text and confidence with the recognition
+            //evaluate text extraction updating recognized text and confidence with the
+            //recognition
             evaluateTest(test);
 
-            //evaluate alterations if any - set for each alteration: recognized text and confidence with the extraction
+            //evaluate alterations if any updating, for each alteration, recognized text and
+            // confidence with the extraction
             evaluateTestAlterations(test);
 
             try {
+                //add the test using a synchronized function to avoid concurrency
                 addTestElement(jsonReport, test);
             } catch (JSONException e) {
-                Log.e(TAG, "Failed to add test element '" + test.getFileName() + " to json report");
-                testListener.onTestFailure(TestListener.TEST_ADDITION_FAILURE, test.getFileName());
+                //if a listener has been set, then signal the failure
+                if(testListener != null) {
+                    testListener.onTestFailure(TestListener.TEST_ADDITION_FAILURE, test.getFileName());
+                }
+                Log.e(TAG, "Failed to add test element '"
+                        + test.getFileName() + " to json report");
             }
 
             //calls TestListener.onTestFinished (synchronized to avoid concurrency)
             signalTestFinished();
 
-            //signal the end of this single test
+            //signal the end of the evaluation of this test
             countDownLatch.countDown();
-            long ended = java.lang.System.currentTimeMillis();
-            Log.d(TAG,"RunnableTest -> id \"" + Thread.currentThread().getId() + "\" ended (runned for " + (ended - started) + " ms)");
         }
 
 
@@ -351,13 +352,16 @@ class PhotoTester extends AbstractPerformanceTester {
             String imagePath = test.getImagePath();
             Bitmap testBitmap = Utils.loadBitmapFromFile(imagePath);
 
+            //extract text from the image
             String ocrText = executeOcr(testBitmap);
 
             //compare extracted ingredients with real ingredients
             String correctIngredients = test.getIngredients();
             float confidence = ingredientsTextComparison(correctIngredients, ocrText);
 
-            String ingredientsExtractionReport = buildIngredientsExtractionReport(ocrText, correctIngredients);
+            //credits Francesco Pham
+            String ingredientsExtractionReport =
+                    buildIngredientsExtractionReport(ocrText, correctIngredients);
 
             //insert results in test
             test.setConfidence(confidence);
@@ -426,14 +430,17 @@ class PhotoTester extends AbstractPerformanceTester {
 
 
         /**
-         * Evaluate each alteration (if any) setting the recognized text and the confidence with the recognition
+         * Evaluate each alteration (if any) setting the recognized text and the confidence
+         * with the recognition.
          * @param test TestElement to evaluate
          * @modify test
          * @author Luca Moroldo
          */
         private void evaluateTestAlterations(TestElement test) {
             String[] alterationsFileNames = test.getAlterationsNames();
+            //if not null, then there is at least one alteration
             if(alterationsFileNames != null) {
+                //evaluate each alteration
                 for(String alterationFilename : alterationsFileNames) {
 
                     String alterationImagePath = test.getAlterationImagePath(alterationFilename);
@@ -446,14 +453,22 @@ class PhotoTester extends AbstractPerformanceTester {
                     }
 
                     //calculate confidence with recognition
-                    float alterationConfidence = ingredientsTextComparison(test.getIngredients(), alterationExtractedIngredients);
+                    float alterationConfidence = ingredientsTextComparison(
+                            test.getIngredients(),
+                            alterationExtractedIngredients
+                    );
 
                     //insert evaluation
                     test.setAlterationConfidence(alterationFilename, alterationConfidence);
-                    test.setAlterationRecognizedText(alterationFilename, alterationExtractedIngredients);
+
+                    test.setAlterationRecognizedText(
+                            alterationFilename,
+                            alterationExtractedIngredients
+                    );
                 }
             }
         }
+
 
         /**
          * Signal the end of a single test by calling TestListener.onTestFinished if a listener
@@ -468,8 +483,10 @@ class PhotoTester extends AbstractPerformanceTester {
         }
     }
 
+
     /**
-     * Add a single TestElement associated JSONReport inside the JSONObject jsonReport, multi-thread safe
+     * Add a single TestElement associated JSONReport inside the JSONObject jsonReport,
+     * multi-thread safe
      * @param jsonReport the report containing tests in JSON format
      * @param test element of a test
      * @modify jsonReport
@@ -510,8 +527,9 @@ class PhotoTester extends AbstractPerformanceTester {
         return tagStats;
     }
 
+
     /**
-     *
+     * Calculate the percentage gain for each alteration tag.
      * @return an HashMap: (Tag, Value)  where value is the average gain result
      * of the alterated photo tagged with that Tag
      * @author Luca Moroldo -
@@ -524,6 +542,8 @@ class PhotoTester extends AbstractPerformanceTester {
         //contains the occurrences of each tag
         HashMap<String, Integer> alterationTagsOccurrences = new HashMap<>();
 
+        //for each test get the alterations (if any), for each alteration get the tags linked to it
+        //and calc. gain
         for(TestElement element : testElements) {
 
             //evaluate alterations if any
@@ -539,8 +559,8 @@ class PhotoTester extends AbstractPerformanceTester {
                         //with the current gain
                         if(alterationTagsGain.containsKey(tag)) {
                             float newGain = alterationTagsGain.get(tag)
-                                            + (element.getAlterationConfidence(alterationName)
-                                            - element.getConfidence());
+                                    + (element.getAlterationConfidence(alterationName)
+                                    - element.getConfidence());
                             alterationTagsGain.put(tag, newGain);
                             alterationTagsOccurrences.put(tag, alterationTagsOccurrences.get(tag) + 1);
                         } else{
@@ -552,7 +572,6 @@ class PhotoTester extends AbstractPerformanceTester {
                 }
             }
         }
-
         //calculate avarage gain for each tag
         for(String tag : alterationTagsGain.keySet()){
             alterationTagsGain.put(tag, alterationTagsGain.get(tag)/alterationTagsOccurrences.get(tag)); // average of the scores

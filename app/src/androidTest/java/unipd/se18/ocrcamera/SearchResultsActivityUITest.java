@@ -12,12 +12,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.*;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.*;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.replaceText;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
-
-
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withSubstring;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.anything;
+
 
 @RunWith(AndroidJUnit4.class)
 public class SearchResultsActivityUITest {
@@ -34,6 +41,16 @@ public class SearchResultsActivityUITest {
         mActivityRule.launchActivity(i);
     }
 
+
+    //NB: these tests depends on the implementation of the ingredients finder, which I wasn't able
+    //to mock due to the implementation
+
+    /**
+     * Test that searching for an existing ingredient cause the update of the adapter, and that the
+     * adapter contains the searched ingredient.
+     * On the other side, test that searching for a non-existing ingredient makes visible a text
+     * view with a message.
+     */
     @Test
     public void performSearch() {
 
@@ -66,6 +83,10 @@ public class SearchResultsActivityUITest {
         onView(withId(R.id.message_text_view)).check(matches(withSubstring("Nothing found")));
     }
 
+
+    /**
+     * Test that in case of mistype, the closest ingredient will be suggested.
+     */
     @Test
     public void onEmptyResultHint() {
         //test clickable hint visibility in case the research produced empty result
