@@ -33,27 +33,25 @@ public class ForumLogin extends Fragment {
      * ***************************
      */
 
-    private OnFragmentInteractionListener mListener;
-
     /**
      * String used for logs to identify the fragment throwing it
      */
-    private final String LOG_TAG = "@@ForumLogin";
+    private final String LOG_TAG = String.valueOf(R.string.logTagForumLogin);
 
     /**
      * String used to indicate that no username has been passed
      */
-    private final String LOG_NULL_USERNAME = "A NULL username passed through liveLoginResponse";
+    private final String LOG_NULL_USERNAME = String.valueOf(R.string.logNullUsername);
 
     /**
      * String used to indicate that no error message has been passed
      */
-    private final String LOG_NULL_ERROR_MESSAGE = "A NULL error message passed through liveError";
+    private final String LOG_NULL_ERROR_MESSAGE = String.valueOf(R.string.logNullErrorMessage);
 
     /**
      * Key to identify the username passed to ShowPosts instance
      */
-    private final String KEY_USERNAME = "username";
+    private final String KEY_USERNAME = String.valueOf(R.string.keyUsername);
 
     private EditText usernameEditText;
     private EditText pwdEditText;
@@ -166,7 +164,7 @@ public class ForumLogin extends Fragment {
                 }
                 else
                 {
-                    Toast.makeText(getContext(), "Please enter username and password", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), R.string.loginButtonToast, Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -174,9 +172,4 @@ public class ForumLogin extends Fragment {
 
     }
 
-    public interface OnFragmentInteractionListener
-    {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 }

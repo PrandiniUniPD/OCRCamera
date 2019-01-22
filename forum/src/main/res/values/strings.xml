@@ -25,6 +25,11 @@
     <string name="logWrongJSON"> Error in JSON creation</string>
     <string name="messageWrongJSON"> Error in post creation, retry</string>
     <string name="getPostDetailFailure">An error occurred while getting the post detail. Please retry by refreshing the page</string>
+    <string name="loginButtonToast">Please enter username and password</string>
+    <string name="logTagForumLogin">--ForumLogin--</string>
+    <string name="logNullUsername">A NULL username passed through liveLoginResponse</string>
+    <string name="logNullErrorMessage">A NULL error message passed through liveError</string>
+    <string name="keyUsername">username</string>
 
     <!-- Fragment back stack identifiers -->
     <string name="fgShowPosts">ShowPosts</string>

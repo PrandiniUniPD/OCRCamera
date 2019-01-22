@@ -103,12 +103,28 @@ public class ResultActivity extends AppCompatActivity {
 
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
-        emptyTextView.setText(R.string.finding_text);
         ingredientsListView.setEmptyView(emptyTextView);
+        //set message
+        emptyTextView.setText(R.string.processing_image);
+        progressBar.setVisibility(ProgressBar.VISIBLE);
 
         //show analyzed text view
         analyzedTextView = new TextView(ResultActivity.this);
         ingredientsListView.addHeaderView(analyzedTextView);
+
+
+
+        //set reference to the BottomNavigationView
+        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
+
+        //react to clicks on the items of bottomView
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+
+        //set this activity's menu icon as checked
+        Menu menu= bottomNav.getMenu();
+        MenuItem thisActivityMenuIcon = menu.getItem(1);
+        thisActivityMenuIcon.setChecked(true);
+
 
         //set on click on ingredient launching IngredientDetailsFragment
         ingredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -132,7 +148,8 @@ public class ResultActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         //load the path to the last taken picture, can be null if the user didn't take any picture
-        final String lastImagePath = prefs.getString("imagePath", null);
+        final String lastImagePath = prefs.getString(getString(R.string.sharedPrefNameForImagePath), null);
+        final String processedImagePath = prefs.getString(getString(R.string.sharedPrefNameProcessedImage), null);
 
         if(lastImagePath != null) {
 
@@ -159,37 +176,75 @@ public class ResultActivity extends AppCompatActivity {
                 }
             });
 
-            analyzeImageUpdateUI(lastImagePath, true); //TODO not work on virtual machine
+            if(processedImagePath == null) {
+                //launch image processing if not already processed
+                new AsyncImageProcess(ResultActivity.this, true).execute(lastImagePath);
+            } else {
+                //analyze image immediately if already processed
+                Bitmap lastImage = BitmapFactory.decodeFile(processedImagePath);
+                analyzeImageUpdateUI(lastImage);
+            }
+        }
+    }
+
+    /**
+     * Asynctask for image processing
+     */
+    private static class AsyncImageProcess extends AsyncTask<String, Void, Bitmap> {
+
+        private boolean autoSkew;
+        private WeakReference<ResultActivity> activityReference;
+
+        /**
+         * Constructor
+         * @param autoSkew True if automatic rotation of the image is required, false otherwise.
+         */
+        AsyncImageProcess(ResultActivity context, boolean autoSkew){
+            this.autoSkew = autoSkew;
+            activityReference = new WeakReference<>(context);
         }
 
-        //set reference to the BottomNavigationView
-        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
+        /**
+         * Do image processing in background
+         * @param strings Path of the image to be processed
+         * @return Processed image
+         */
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+            // get Bitmap of the image
+            String imagePath = strings[0];
+            Bitmap image = BitmapFactory.decodeFile(imagePath);
 
-        //react to clicks on the items of bottomView
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
+            //process image adjusting brightness and eventually autorotating
+            PreProcessing processing = new PreProcessing();
+            image = processing.doImageProcessing(image, autoSkew);
 
-        //set this activity's menu icon as checked
-        Menu menu= bottomNav.getMenu();
-        MenuItem thisActivityMenuIcon = menu.getItem(1);
-        thisActivityMenuIcon.setChecked(true);
+            return image;
+        }
 
+        /**
+         * When image processing finished analyze image extracting ingredients and update UI
+         * @param processedImage The processed image
+         */
+        @Override
+        protected void onPostExecute(Bitmap processedImage) {
+            super.onPostExecute(processedImage);
+            ResultActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) return;
+
+            activity.analyzeImageUpdateUI(processedImage);
+
+            //save processed image
+            String filePath= Utils.tempFileImage(activity, processedImage,"processedImage");
+            activity.saveProcessedImage(filePath);
+        }
     }
 
     /**
      * Show image, extract text from the image, extract ingredients and update UI showing results.
-     * @param imagePath Path of the image which has to be analyzed
-     * @param autoSkew True if automatic rotation of the image is required, false otherwise.
+     * @param image Image which has to be analyzed
      */
-    private void analyzeImageUpdateUI(final String imagePath, boolean autoSkew) {
-
-        // get Bitmap of the image
-        Bitmap image = BitmapFactory.decodeFile(imagePath);
-
-        //process image adjusting brightness and eventually autorotating
-        PreProcessing processing = new PreProcessing();
-        image = processing.doImageProcessing(image, autoSkew);
-
-        final Bitmap finalImage = image;
+    private void analyzeImageUpdateUI(final Bitmap image) {
 
         // Sets the image to the view
         mImageView.setImageBitmap(
@@ -208,7 +263,7 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void onTextRecognized(String text) {
                 //search for ingredients in the INCI db and update the UI
-                AsyncIngredientsExtraction extraction = new AsyncIngredientsExtraction(ResultActivity.this, finalImage);
+                AsyncIngredientsExtraction extraction = new AsyncIngredientsExtraction(ResultActivity.this, image);
                 extraction.execute(text);
             }
 
@@ -231,7 +286,9 @@ public class ResultActivity extends AppCompatActivity {
 
         //extract text
         textRecognizer.getTextFromImg(image);
-        progressBar.setVisibility(ProgressBar.VISIBLE);
+
+        //set message
+        emptyTextView.setText(R.string.finding_text);
 
 
         // Analyze the brightness of the taken photo  @author Balzan Pietro
@@ -247,7 +304,10 @@ public class ResultActivity extends AppCompatActivity {
             final Uri resultUri = UCrop.getOutput(data);
 
             if (resultUri != null) {
-                analyzeImageUpdateUI(resultUri.getPath(), false);
+                String imagePath = resultUri.getPath();
+                new AsyncImageProcess(ResultActivity.this, false).execute(imagePath);
+
+                saveProcessedImage(imagePath);
             }
         }
     }
@@ -398,6 +458,17 @@ public class ResultActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Method for saving processed image into shared preferences
+     * @param imagePath Path of the processed image
+     */
+    private void saveProcessedImage(String imagePath){
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString("processedImageDataPath", imagePath);
+        edit.apply();
     }
 
 

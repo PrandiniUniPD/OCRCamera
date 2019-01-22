@@ -65,7 +65,11 @@
 
         <activity android:name=".MainAllergensActivity"
             android:parentActivityName=".ResultActivity"
-            android:windowSoftInputMode="adjustNothing"/>
+            android:windowSoftInputMode="adjustNothing">
+        </activity>
+        <activity
+            android:name=".forum.Forum"
+            android:theme="@style/ForumTheme" />
 
         <activity android:name=".forum.Forum" /> <!-- Activity launched to search for an ingredient -->
 
