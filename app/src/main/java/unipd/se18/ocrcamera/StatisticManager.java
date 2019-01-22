@@ -122,8 +122,7 @@ public class StatisticManager {
 
 
     /**
-     * Method to reset all the ingredients
-     *
+     * PRIVATE Method to reset all the ingredients
      * @author Leonardo Pratesi
      */
     public void resetStats() {
@@ -134,9 +133,8 @@ public class StatisticManager {
     }
 
     /**
-     * Method to sort the map by value
-     *
-     * @param hashMap the map that needs to be sorted, if the map is null
+     * PRIVATE Method to sort the map by value
+     * @param hashMap the map that needs to be sorted
      * @return a new sorted hashmap
      * @author Leonardo Pratesi
      */
@@ -158,11 +156,11 @@ public class StatisticManager {
             Log.i("sort", "sorted");
             return result;
         } catch (NullPointerException e){
-                e
-                        .printStackTrace();
+
+            e.printStackTrace();
                 Log.e("error", "map is null");
-                return
-                        null;
+                //to skip runtime exception i return an empty map if the map is null (should not happen)
+                return new HashMap<>();
             }
 }
 }
