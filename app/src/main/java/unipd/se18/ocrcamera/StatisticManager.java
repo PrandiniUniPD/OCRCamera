@@ -124,8 +124,7 @@ public class StatisticManager {
 
 
     /**
-     * PRIVATE Method to reset all the ingredients
-     *
+     *Method to reset all the ingredients
      * @author Leonardo Pratesi
      */
     public void resetStats() {
