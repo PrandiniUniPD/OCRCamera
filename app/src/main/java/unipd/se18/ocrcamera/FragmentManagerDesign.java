@@ -46,7 +46,7 @@ public class FragmentManagerDesign extends AppCompatActivity {
 
 
     /**
-     * variable indicating the menu item selected
+     * variable indicating the menu item currently active
      */
     MenuItem prevMenuItem;
 
@@ -67,16 +67,16 @@ public class FragmentManagerDesign extends AppCompatActivity {
 
                 switch (menuItem.getItemId()) {
 
-                    case R.id.result :
-                        mMainNav.setItemBackgroundResource(R.color.design_default_color_primary_dark);
+                    case R.id.result :  //the position of ResultFragment is 0 in the ViewPagerAdapter List
+                        setMenuChecked(0);
                         mMainPager.setCurrentItem(0);
                         return true;
-                    case R.id.camera : //this now opens the camera
-                        mMainNav.setItemBackgroundResource(R.color.colorAccent);
+                    case R.id.camera :  //the position of ResultFragment is 1 in the ViewPagerAdapter List
+                        setMenuChecked(1);
                         mMainPager.setCurrentItem(1);
                         return true;
-                    case R.id.forum :
-                        mMainNav.setItemBackgroundResource(R.color.common_google_signin_btn_text_dark);
+                    case R.id.forum :   //the position of ResultFragment is 2 in the ViewPagerAdapter List
+                        setMenuChecked(2);
                         mMainPager.setCurrentItem(2);
                         return true;
                     default:
@@ -90,26 +90,19 @@ public class FragmentManagerDesign extends AppCompatActivity {
         mMainPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+                    //do nothing
             }
 
             @Override
             public void onPageSelected(int position) {
-                if (prevMenuItem != null) {
-                    prevMenuItem.setChecked(false);
-                } else {
-                    mMainNav.getMenu().getItem(0).setChecked(false);
-                }
-                Log.d("page", "onPageSelected: " + position);
-                mMainNav.getMenu().getItem(position).setChecked(true);
-                prevMenuItem = mMainNav.getMenu().getItem(position);
+              setMenuChecked(position);
 
             }
 
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
+                //do nothing
             }
         });
 
@@ -118,7 +111,7 @@ public class FragmentManagerDesign extends AppCompatActivity {
     }
 
     /**
-     * method to setup the view Pager
+     * method to setup the view Pager that hold all the fragment in a List
      * @param viewPager
      * @author Leonardo Pratesi
      */
@@ -127,10 +120,27 @@ public class FragmentManagerDesign extends AppCompatActivity {
         resultActivityFragment = new ResultActivityFragment();
         forumFragment = new Fragment();
         camera2Fragment = new Camera2Fragment();
-        viewPagerAdapter.addFragment(resultActivityFragment);
-        viewPagerAdapter.addFragment(camera2Fragment);
-        viewPagerAdapter.addFragment(forumFragment);
+        viewPagerAdapter.addFragment(resultActivityFragment); //first fragment added so position = 0
+        viewPagerAdapter.addFragment(camera2Fragment);        //first fragment added so position = 1
+        viewPagerAdapter.addFragment(forumFragment);          //first fragment added so position = 2
         viewPager.setAdapter(viewPagerAdapter);
+    }
+
+    /**
+     * Method to add a graphic output in the user interface to show a change of page
+     * sets and animation in the icon of the fragment
+     * @param position the position of the fragment in the viewPagerAdapter
+     *
+     */
+    private void setMenuChecked(int position) {
+        if (prevMenuItem != null) {
+            prevMenuItem.setChecked(false);
+        } else {
+            mMainNav.getMenu().getItem(0).setChecked(false);
+        }
+        Log.d("page", "onPageSelected: " + position);
+        mMainNav.getMenu().getItem(position).setChecked(true);
+        prevMenuItem = mMainNav.getMenu().getItem(position);
     }
 
 
