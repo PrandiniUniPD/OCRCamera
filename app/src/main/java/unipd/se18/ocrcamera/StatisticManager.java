@@ -26,6 +26,7 @@ import static java.lang.System.err;
 /**
  * Class that contains all the method related to the statistics about ingredients
  * like saving and loading the map from the phone memory and updating it
+ * the ingredients are saved in a HashMap<String ingredient, int number of time it is found> in the phone memory
  */
 public class StatisticManager {
 
