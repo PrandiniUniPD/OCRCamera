@@ -134,12 +134,15 @@ public class FragmentManagerDesign extends AppCompatActivity {
      */
     private void setMenuChecked(int position) {
         if (prevMenuItem != null) {
+            //remove animation from menu item that has been changed
             prevMenuItem.setChecked(false);
         } else {
             mMainNav.getMenu().getItem(0).setChecked(false);
         }
         Log.d("page", "onPageSelected: " + position);
+        //animation on the new Fragment
         mMainNav.getMenu().getItem(position).setChecked(true);
+        //change the item holder to the new one
         prevMenuItem = mMainNav.getMenu().getItem(position);
     }
 
