@@ -1,0 +1,20 @@
+Codereview checklist:
+
+	- The specs sum up what the code does (input, output, modifications)
+	- The code logic is clean and correct
+	- The code is well commented and the comments are explanatory
+	- The variables/method's names are appropriate
+	- The methods are not too dense of functions and the number of lines is not too high
+	  (according with the context)
+	- The access modifiers are appropriate
+	- The classes and method's architecture is modular
+	- The number of global variables is minimum
+	- The variables have the optimal scope
+	- The method's signature has the minimum number of parameters
+	- The data structures used are appropriate
+	- All the execution flows are considered and properly managed
+	- The exceptions are properly catched (without being generic) and properly handled
+	- The method's limit cases are opportunely handled (according with the specifications)
+	
+Over than highlighting these principles, I've tried to suggest any possible alternative solution
+for the reviewed code, in order to share other possible solutions or code structures.
