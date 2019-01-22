@@ -1,0 +1,10 @@
+Checklist:
+right alignments
+no hardcoding
+similar variable as enum
+check on specifics mostly if any @modify missing
+no wall of code, code split in method
+no void catch
+no catch with generic exeption
+prefer static method
+foreach prefers to normal for when possible
