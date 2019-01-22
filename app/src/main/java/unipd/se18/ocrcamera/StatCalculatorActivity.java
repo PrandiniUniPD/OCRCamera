@@ -66,9 +66,11 @@ public class StatCalculatorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StatisticManager manager = new StatisticManager(getApplicationContext());
+
         //load map
         statmap = manager.loadMap();
         Log.i("HASHFINAL", statmap.toString());
+
         setContentView(R.layout.activity_stat_calculator);
 
         //objectview of the BarChart
@@ -145,6 +147,7 @@ public class StatCalculatorActivity extends AppCompatActivity {
         }
 
         Log.e("xVals",xVals.toString());
+        //i convert the arraylist in a String Array so i can manage it with MyAxisValueFormatter
         String[] xValsToString = new String[xVals.size()];
         xValsToString = xVals.toArray(xValsToString);
 

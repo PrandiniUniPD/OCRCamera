@@ -1,6 +1,7 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.FileInputStream;
@@ -135,13 +136,13 @@ public class StatisticManager {
 
     /**
      * PRIVATE Method to sort the map by value
-     * @param hashMap the map that needs to be sorted
+     * @param hashMap the map that needs to be sorted, cannot be null
      * @return a new sorted hashmap
      * @author Leonardo Pratesi
      */
 
-    public HashMap<String, Integer> sortMap(HashMap<String, Integer> hashMap) throws NullPointerException {
-        try {
+    public HashMap<String, Integer> sortMap(@NonNull HashMap<String, Integer> hashMap) {
+
             List<Map.Entry<String, Integer>> list = new LinkedList(hashMap.entrySet());
             Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
                 @Override
@@ -156,13 +157,6 @@ public class StatisticManager {
             }
             Log.i("sort", "sorted");
             return result;
-        } catch (NullPointerException e){
-
-            e.printStackTrace();
-                Log.e("error", "map is null");
-                //to skip runtime exception i return an empty map if the map is null (should not happen)
-                return new HashMap<>();
             }
-}
 }
 
