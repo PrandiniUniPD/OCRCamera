@@ -70,6 +70,7 @@ public class StatCalculatorActivity extends AppCompatActivity {
         statmap = manager.loadMap();
         Log.i("HASHFINAL", statmap.toString());
         setContentView(R.layout.activity_stat_calculator);
+
         //objectview of the BarChart
         mChart = (HorizontalBarChart) findViewById(R.id.chart1);
 
@@ -107,11 +108,13 @@ public class StatCalculatorActivity extends AppCompatActivity {
         StatisticManager manager = new StatisticManager(getApplicationContext());
         switch (item.getItemId()) {
             case R.id.statsDelete:
+                //delete the graph
                 manager.resetStats();
                 finish();
                 Toast.makeText(this, "statsCleared", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.sort:
+                //sort the graph
                 statmap = manager.sortMap(statmap);
                 setContentView(R.layout.activity_stat_calculator);
                 mChart = (HorizontalBarChart) findViewById(R.id.chart1);
@@ -124,15 +127,16 @@ public class StatCalculatorActivity extends AppCompatActivity {
     }
 
     /**
-     * method to populate the chart
+     * method to populate the barchart
      * @author Leonardo Pratesi
      */
     private void setData() {
 
-        ArrayList<BarEntry> yVals = new ArrayList<>(); //values
-        ArrayList<String> xVals = new ArrayList<>();   //keys
+        ArrayList<BarEntry> yVals = new ArrayList<>(); //values on the horizontal axis (bar length)
+        ArrayList<String> xVals = new ArrayList<>();   //keys (ingredients identificator)
 
         int columnNumber = 0;
+        //fill the arrays with the values from the map
         for (Map.Entry<String, Integer> entry : statmap.entrySet()) {
                     yVals.add(new BarEntry(columnNumber, entry.getValue()));
                     xVals.add(trimStringIfTooLong(entry.getKey()));
@@ -146,9 +150,9 @@ public class StatCalculatorActivity extends AppCompatActivity {
 
         // if you want to show a description change this
         mChart.getDescription().setEnabled(false);
-        BarDataSet set1;
-        set1 = new BarDataSet(yVals, "");
+        BarDataSet set1 = new BarDataSet(yVals, "");
         set1.setColors(ColorTemplate.COLORFUL_COLORS);
+        //set the bar data
         BarData data = new BarData(set1);
 
        //barchart plotted
@@ -159,7 +163,7 @@ public class StatCalculatorActivity extends AppCompatActivity {
         //set the number of names shown (always maximum here)
         xAxis.setLabelCount(statmap.size(),false);
 
-        //show all the ingredients name
+        //show all the ingredients name on the vertical axis
         xAxis.setValueFormatter(new MyXAxisValueFormatter(xValsToString));
 
         //see barChart column values
@@ -181,19 +185,20 @@ public class StatCalculatorActivity extends AppCompatActivity {
     }
 }
 
-/**
- * Class to get the name of every bar in the graph
- */
-class MyXAxisValueFormatter implements IAxisValueFormatter {
-    private String[] mValues;
+    /**
+     * Class that implements the axisformatter interface that is used to show
+     * all the values on the x axis (vertical axix in the horizontal barchart)
+     */
+    class MyXAxisValueFormatter implements IAxisValueFormatter {
+        private String[] mValues;
 
-    public MyXAxisValueFormatter(String[] values) {
-        this.mValues = values;
-    }
+        public MyXAxisValueFormatter(String[] values) {
+            this.mValues = values;
+        }
 
-    @Override
-    public String getFormattedValue(float value, AxisBase axis) {
-        return mValues[(int)value];
+        @Override
+        public String getFormattedValue(float value, AxisBase axis) {
+            return mValues[(int)value];
+        }
     }
-}
 
