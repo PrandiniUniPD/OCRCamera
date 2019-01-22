@@ -71,8 +71,7 @@
             android:name=".forum.Forum"
             android:theme="@style/ForumTheme" />
 
-        <activity android:name=".forum.Forum" /> <!-- Activity launched to search for an ingredient -->
-
+        <!-- Activity launched to search for an ingredient -->
         <activity android:name=".SearchResultsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
