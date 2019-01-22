@@ -15,37 +15,7 @@ import static org.junit.Assert.assertEquals;
 
 public class ManualTestOnSinglePhotoTest {
 
-    private String Tag;
     private Method method;
-
-    @Test
-    public void findWarningText1() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException
-    {
-        //Getting the permission to use private method findWarning
-        method = ManualTestOnSinglePhoto.class.getDeclaredMethod("findWarning", String.class);
-        method.setAccessible(true);
-
-        //first test
-        String expected = "OCR found no text in this photo";
-        String text="";
-        int length=10;
-        String actual = (String) method.invoke(new ManualTestOnSinglePhoto() ,text, length);
-        assertEquals(expected, actual);
-
-        //second test
-        expected = "Less then 20 chars found by OCR";
-        text="example";
-        length=30;
-        actual = (String) method.invoke(new ManualTestOnSinglePhoto() ,text, length);
-        assertEquals(expected, actual);
-
-        //third test
-        expected = "";
-        text="example of string";
-        length=14;
-        actual = (String) method.invoke(new ManualTestOnSinglePhoto() ,text, length);
-        assertEquals(expected, actual);
-    }
 
     @Test
     public void compareStringsText() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException

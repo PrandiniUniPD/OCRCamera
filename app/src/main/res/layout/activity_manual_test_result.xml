@@ -18,11 +18,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/warningTextView"
+        app:layout_constraintBottom_toTopOf="@id/differenceLengthTextView"
         app:layout_constraintTop_toBottomOf="@id/degreeTextView"/>
 
     <TextView
-        android:id="@+id/warningTextView"
+        android:id="@+id/differenceLengthTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/foundTextView"
@@ -34,6 +34,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/warningTextView"
+        app:layout_constraintTop_toBottomOf="@id/differenceLengthTextView"
         app:layout_constraintStart_toStartOf="parent"/>
 </android.support.constraint.ConstraintLayout>

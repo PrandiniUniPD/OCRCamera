@@ -28,8 +28,10 @@ import static unipd.se18.ocrcamera.recognizer.TextRecognizer.getTextRecognizer;
 
 public class ManualTestOnSinglePhoto extends AppCompatActivity {
 
+    /**
+     * Text get from OCR of the last image taken
+     */
     private String startingOCRText;
-
     /**
      * Modification variable
      */
@@ -38,10 +40,9 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
     /**
      * UI
      */
-    private EditText degreeEditText;
     private TextView degreeTextView;
     private TextView confidenceTextView;
-    private TextView warningTextView;
+    private TextView differenceLengthTextView;
     private TextView foundTextView;
 
     /**
@@ -58,10 +59,10 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
             setContentView(R.layout.activity_manual_test_result);
             degreeTextView = findViewById(R.id.degreeTextView);
             confidenceTextView =findViewById(R.id.confidenceTextView);
-            warningTextView = findViewById(R.id.warningTextView);
+            differenceLengthTextView = findViewById(R.id.differenceLengthTextView);
             foundTextView = findViewById(R.id.foundTextView);
 
-            SetResult(text);
+            setResult(text);
         }
 
         @Override
@@ -70,8 +71,8 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
              Text not correctly recognized
              Start CameraActivity to take a new photo
              */
-            Intent i = new Intent(ManualTestOnSinglePhoto.this, CameraActivity.class);
-            startActivity(i);
+            Intent cameraActivity = new Intent(ManualTestOnSinglePhoto.this, CameraActivity.class);
+            startActivity(cameraActivity);
         }
     };
 
@@ -81,18 +82,18 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //UI initialization
         setContentView(R.layout.activity_manual_test);
-        degreeEditText = findViewById(R.id.editText1);
+        final EditText degreeEditText = findViewById(R.id.editText1);
 
 
         //Get image path and text of the last image from preferences
-        SharedPreferences prefs = this.getSharedPreferences("prefs", MODE_PRIVATE);
-        String pathImage = prefs.getString("imagePath", null);
-        startingOCRText = prefs.getString("text", null);
+        SharedPreferences lastImagePref = this.getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = lastImagePref.getString("imagePath", null);
+        startingOCRText = lastImagePref.getString("text", null);
 
         final Bitmap photo = BitmapFactory.decodeFile(pathImage);
 
-        Button fab = findViewById(R.id.btnConfirm);
-        fab.setOnClickListener(new View.OnClickListener() {
+        Button confirmButton = findViewById(R.id.btnConfirm);
+        confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -125,44 +126,16 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
     /**Based on the text received and startingOCRTText, analise information like confidence
      * and show them on textView
      * @param text string got from OCR
-     * @modify degreeTextView, confidenceTextView, warningTextView and foundTextView
+     * @modify degreeTextView, confidenceTextView, differenceLengthTextView and foundTextView
      */
-    private void SetResult(String text){
-        String warning = findWarning(text, startingOCRText.length());
+    private void setResult(String text){
+        String differenceLength = Integer.toString(startingOCRText.length()-text.length());
         String confidence = Double.toString(compareStrings(startingOCRText,text));
 
         degreeTextView.setText(angleRotation);
         confidenceTextView.setText(confidence);
         foundTextView.setText(text);
-        warningTextView.setText(warning);
-    }
-
-    /**
-     *Analise the given string and get the right warnings and add them on waring variable
-     * warning are found
-     * @param text String to analise
-     * @param length int of length of starting string
-     * @return  warnings
-     */
-    private String findWarning(java.lang.String text, int length) {
-        String warnings = "";
-        final int firstBound=10;
-        final int secondBound=20;
-        final int thirdBound=30;
-        final int toleranceValue=4;
-
-
-        if (text.equals("")) {
-            warnings = getResources().getString(R.string.noTextWarning);
-        } else if (text.length() < firstBound && length>firstBound+toleranceValue) {
-            warnings = getResources().getString(R.string.lessThen10CharWarning);
-        } else if (text.length() < secondBound && length>secondBound+toleranceValue) {
-            warnings = getResources().getString(R.string.lessThen20CharWarning);
-        } else if (text.length() < thirdBound && length>thirdBound+toleranceValue) {
-            warnings = getResources().getString(R.string.lessThen30CharWarning);
-        }
-
-        return warnings;
+        differenceLengthTextView.setText(differenceLength);
     }
 
         /**
@@ -181,17 +154,17 @@ public class ManualTestOnSinglePhoto extends AppCompatActivity {
 
 
     /** Calculate Damerau-Levenshtein distance between the strings and return similarity
-     * @param string1 string to split and search in string2
-     * @param string2 string where to search
+     * @param firstString string to split and search in secondString
+     * @param secondString string where to search
      * @return percentage of similarity
      * see the link for more information {@link <a https://github.com/tdebatty/java-string-similarity/
      * blob/master/src/main/java/info/debatty/java/stringsimilarity/Damerau.java">link</a>}
      */
-    public static double compareStrings (String string1, String string2) {
+    public static double compareStrings (String firstString, String secondString) {
 
         Damerau damerau = new Damerau();
-        //Percentage of distance based on string1 length
-        double distance = damerau.distance(string1,string2)/string1.length()*100;
+        //Percentage of distance based on firstString length
+        double distance = damerau.distance(firstString,secondString)/firstString.length()*100;
         return Math.round(100-distance);
     }
 }
