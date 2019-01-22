@@ -223,6 +223,35 @@ public class CameraActivity extends AppCompatActivity {
                 matrix, true);
     }
 
+    /**
+     * Enum used to manage the orientation of the device
+     */
+    private enum DeviceOrientation {
+        PORTRAIT(0),
+        PORTRAITUPSIDEDOWN(1),
+        LANDSCAPELEFT(2),
+        LANDSCAPERIGHT(3);
+
+        private int value;
+
+        /**
+         * Constructor
+         * @param value The number assigned to the constant
+         */
+        DeviceOrientation(int value){
+            this.value = value;
+        }
+
+
+        /**
+         * Return the mode
+         * @return the mode of the constant
+         */
+        int getValue(){
+            return this.value;
+        }
+    }
+
     //create a private listener to use in this Activity
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -254,33 +283,4 @@ public class CameraActivity extends AppCompatActivity {
                     return false;
                 }
             };
-
-    /**
-     * Enum used to manage the orientation of the device
-     */
-    private enum DeviceOrientation {
-        PORTRAIT(0),
-        PORTRAITUPSIDEDOWN(1),
-        LANDSCAPELEFT(2),
-        LANDSCAPERIGHT(3);
-
-        private int value;
-
-        /**
-         * Constructor
-         * @param value The number assigned to the constant
-         */
-        DeviceOrientation(int value){
-            this.value = value;
-        }
-
-
-        /**
-         * Return the mode
-         * @return the mode of the constant
-         */
-        int getValue(){
-            return this.value;
-        }
-    }
 }
