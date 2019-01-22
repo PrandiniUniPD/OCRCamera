@@ -71,7 +71,7 @@ public class StatisticManager {
     /**
      * method to load the map from file
      *
-     * @return HashMap<String ,   I nteger> returns the map saved in memory, if there is no map returns a null value
+     * @return HashMap<String ,   I  n t e g er> returns the map saved in memory, if there is no map returns a null value
      * @author Leonardo Pratesi
      */
     public HashMap<String, Integer> loadMap() {
@@ -125,6 +125,7 @@ public class StatisticManager {
 
     /**
      * PRIVATE Method to reset all the ingredients
+     *
      * @author Leonardo Pratesi
      */
     public void resetStats() {
@@ -136,27 +137,32 @@ public class StatisticManager {
 
     /**
      * PRIVATE Method to sort the map by value
+     *
      * @param hashMap the map that needs to be sorted, cannot be null
      * @return a new sorted hashmap
      * @author Leonardo Pratesi
      */
 
-    public HashMap<String, Integer> sortMap(@NonNull HashMap<String, Integer> hashMap) {
+    public HashMap<String, Integer> sortMap(HashMap<String, Integer> hashMap) throws NullPointerException {
+            if (hashMap != null) {
+                List<Map.Entry<String, Integer>> list = new LinkedList(hashMap.entrySet());
+                Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+                    @Override
+                    public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                        return o2.getValue().compareTo(o1.getValue());
+                    }
+                });
 
-            List<Map.Entry<String, Integer>> list = new LinkedList(hashMap.entrySet());
-            Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
-                @Override
-                public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                    return o2.getValue().compareTo(o1.getValue());
+                HashMap<String, Integer> result = new LinkedHashMap<>();
+                for (Map.Entry<String, Integer> entry : list) {
+                    result.put(entry.getKey(), entry.getValue());
                 }
-            });
+                Log.i("sort", "sorted");
 
-            HashMap<String, Integer> result = new LinkedHashMap<>();
-            for (Map.Entry<String, Integer> entry : list) {
-                result.put(entry.getKey(), entry.getValue());
+                return result;
             }
-            Log.i("sort", "sorted");
-            return result;
+            else {
+                throw new NullPointerException();
             }
+    }
 }
-
