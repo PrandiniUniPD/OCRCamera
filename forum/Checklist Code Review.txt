@@ -1,0 +1,13 @@
+Gli elementi considerati nll'eseguire le code review sono:
+
+- Assenza di hardcoding nel codice, specialmente nel caso in cui possa inficiare la sua mantenibilità;
+- Presenza di specifiche a monte di metodi e classi e rispetto delle stesse;
+- Nomenclatura coerente al tipo di dato e nomi adeguati e non eccessivamente verbosi;
+- Presenza di commenti significativi alla comprensione della logica del codice, in particolare quando non banale;
+- Utilizzo di interfacce per l'astrazione delle classi e per assecondare il modello "black box", quando possibile ed effettivamente utile alla modularità;
+- Utilizzo di metodi di supporto per evitare "muri di codice" in porzioni che rendono meno leggibile il nucleo del codice;
+- Rispetto di scelte di stile particolari ma migliorative alla leggibilità;
+- Cura assoluta della getione delle eccezioni nei metodi pubblici (ovviamente da valutare a seconda dei casi) e almeno finalizzata al debug in quelli privati o di supporto;
+- Effettivo utilizzo di variabili e metodi dichiarati e vicinanza della dichiarazione al punto in cui vengono impiegati;
+- Riferimento a siti di documentazione nel caso siano state usate classi esterne la cui modalità d'uso non va data per scontata;
+- Scelta adeguata dell'accessibilità di metodi e variabili;
