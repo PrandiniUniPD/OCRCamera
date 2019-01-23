@@ -1,7 +1,5 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -22,11 +20,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import unipd.se18.ocrcamera.R;
+
 
 /**
  * @author Leonardo Rossi (g2) and Stefano Romanello (g3)
  */
-public class PhotoDownloadTask extends AsyncTask<DownloadDbActivity.DownloadCredentials, Integer, Void>
+public class PhotoDownloadTask extends AsyncTask<DownloadDbFragment.DownloadCredentials, Integer, Void>
 {
 
     private FTPClient ftp;
@@ -75,7 +75,7 @@ public class PhotoDownloadTask extends AsyncTask<DownloadDbActivity.DownloadCred
      * @param voids DownloadDbActivity.DownloadCredentials containing the credentials for the FTPClient
      */
     @Override
-    protected Void doInBackground(DownloadDbActivity.DownloadCredentials... voids)
+    protected Void doInBackground(DownloadDbFragment.DownloadCredentials... voids)
     {
          Boolean isConnected = connectToServer(voids[0].username, voids[0].password, voids[0].hostname);
 

@@ -1,30 +1,43 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import unipd.se18.ocrcamera.R;
+import unipd.se18.ocrcamera.Utils;
 
 /**
  * Prints to the screen the details of a TestElement
  * @author Pietro Prandini (g2)
  */
-public class TestDetailsActivity extends AppCompatActivity {
+public class TestDetailsFragment extends Fragment {
     /**
      * String used for the log of this class
      */
-    private String TAG = "TestDetailsActivity -> ";
+    private String TAG = "TestDetailsFragment -> ";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test_element_details);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_test_element_details, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // Retrieves the TestElement to be viewed (default == 0)
-        Intent lastIntent = getIntent();
+        Intent lastIntent = requireActivity().getIntent();
         int position = lastIntent.getIntExtra(TestUtils.positionString,0);
         TestElement entry = TestsListAdapter.getTestElements()[position];
 
@@ -39,7 +52,7 @@ public class TestDetailsActivity extends AppCompatActivity {
         );
 
         // Sets the correctness value
-        TextView correctness = findViewById(R.id.correctness_view);
+        TextView correctness = requireActivity().findViewById(R.id.correctness_view);
         float confidence = entry.getConfidence();
         correctness.setText(TestUtils.formatPercentString(confidence));
 
@@ -47,18 +60,18 @@ public class TestDetailsActivity extends AppCompatActivity {
         correctness.setTextColor(TestUtils.chooseColorOfValue(confidence,redUntil,yellowUntil));
 
         // Sets the name of the pic
-        TextView name = findViewById(R.id.pic_name_view);
+        TextView name = requireActivity().findViewById(R.id.pic_name_view);
         String picName = entry.getFileName();
         name.setText(picName);
 
         // Sets the pic view
-        ImageView analyzedPic = findViewById(R.id.pic_view);
+        ImageView analyzedPic = requireActivity().findViewById(R.id.pic_view);
         String imagePath = entry.getImagePath();
         Bitmap img = Utils.loadBitmapFromFile(imagePath);
-        analyzedPic.setImageBitmap(TestUtils.scaleBitmap(TestDetailsActivity.this, img));
+        analyzedPic.setImageBitmap(TestUtils.scaleBitmap(requireContext(), img));
 
         // Sets the Tags text
-        TextView tags = findViewById(R.id.tags_view);
+        TextView tags = requireActivity().findViewById(R.id.tags_view);
         StringBuilder assignedTags = new StringBuilder();
         for(String tag: entry.getTags()) {
             assignedTags.append(tag).append(", ");
@@ -66,7 +79,7 @@ public class TestDetailsActivity extends AppCompatActivity {
         tags.setText(assignedTags.toString());
 
         // Sets the ingredients text
-        TextView ingredients = findViewById(R.id.ingredients_view);
+        TextView ingredients = requireActivity().findViewById(R.id.ingredients_view);
         StringBuilder realIngredients = new StringBuilder();
         for(String ingredient: entry.getIngredientsArray()) {
             realIngredients.append(ingredient).append(", ");
@@ -74,21 +87,22 @@ public class TestDetailsActivity extends AppCompatActivity {
         ingredients.setText(realIngredients);
 
         // Sets the extracted text
-        TextView extractedText = findViewById(R.id.extractedText_view);
+        TextView extractedText = requireActivity().findViewById(R.id.extractedText_view);
         extractedText.setText(entry.getRecognizedText());
 
         // Sets the notes text
-        TextView notes = findViewById(R.id.notes_view);
+        TextView notes = requireActivity().findViewById(R.id.notes_view);
         notes.setText(entry.getNotes());
 
         // Sets the ingredients extraction report
-        TextView extractedIngredientsView = findViewById(R.id.extracted_ingredients_view);
+        TextView extractedIngredientsView =
+                requireActivity().findViewById(R.id.extracted_ingredients_view);
         extractedIngredientsView.setText(entry.getIngredientsExtraction());
 
         // Sets the alterations view
         TestUtils.setAlterationsView(
-                TestDetailsActivity.this,
-                (RelativeLayout) findViewById(R.id.result_view),
+                requireContext(),
+                (RelativeLayout) requireActivity().findViewById(R.id.result_view),
                 extractedIngredientsView,
                 entry,
                 true

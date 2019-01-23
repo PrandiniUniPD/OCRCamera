@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import unipd.se18.ocrcamera.R;
 
 /**
  * Adapter for the view of the processing result of the pics
@@ -49,9 +50,7 @@ public class TestsListAdapter extends BaseAdapter {
     public Object getItem(int position) { return entries[position]; }
 
     @Override
-    public long getItemId(int position) {
-        return TestUtils.getTestElementId(entries[position]);
-    }
+    public long getItemId(int position) { return TestUtils.getTestElementId(entries[position]); }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -90,17 +89,6 @@ public class TestsListAdapter extends BaseAdapter {
         }
         tags.setText(assignedTags.toString());
 
-        /* Commented because it doesn't work properly
-        // Sets the alterations view
-        TestUtils.setAlterationsView(
-                convertView.getContext(),
-                (RelativeLayout) convertView.findViewById(R.id.result_view),
-                tags,
-                entries[position],
-                false
-        );
-        */
-
         // Sets the button that launches the details activity
         Button viewDetailsButton = convertView.findViewById(R.id.view_details_button);
         viewDetailsButton.setOnClickListener(new View.OnClickListener() {
@@ -112,9 +100,14 @@ public class TestsListAdapter extends BaseAdapter {
                 final Intent testDetailsActivity = new Intent(context, TestDetailsActivity.class);
 
                 // Prepares the values to be passed by the intent
-                testDetailsActivity.putExtra(TestUtils.positionString,position);
-                testDetailsActivity.putExtra(TestUtils.redUntilString,TestUtils.defaultRedUntil);
-                testDetailsActivity.putExtra(TestUtils.yellowUntilString,TestUtils.defaultYellowUntil);
+                testDetailsActivity
+                        .putExtra(TestUtils.positionString,position);
+
+                testDetailsActivity
+                        .putExtra(TestUtils.redUntilString,TestUtils.defaultRedUntil);
+
+                testDetailsActivity
+                        .putExtra(TestUtils.yellowUntilString,TestUtils.defaultYellowUntil);
 
                 // Starts the details activity
                 context.startActivity(testDetailsActivity);
