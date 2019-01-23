@@ -38,6 +38,10 @@ public class BlurObject {
         return blur;
     }
 
+    /**
+     * method to show the infos in a textview about the image
+     * @return String imagename + value of blur
+     */
     public String toString()
     {
         return name + " " + Double.toString(blur);

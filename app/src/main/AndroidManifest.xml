@@ -28,28 +28,11 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity
-            android:name=".CameraActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity>
-        <activity
-            android:name=".ResultActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:value=".CameraActivity" />
         <!-- Useful for automatic upgrades of the ocr models - author Pietro Prandini (g2) -->
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
         <!-- To use multiple models: android:value="ocr,model2,model3" -->
-        <activity android:name=".NavigatorActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".TestResultActivity"></activity>
     </application>
 
 </manifest>

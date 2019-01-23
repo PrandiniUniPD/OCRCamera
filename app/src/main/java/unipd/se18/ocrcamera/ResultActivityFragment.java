@@ -3,30 +3,33 @@ package unipd.se18.ocrcamera;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
- * Class used for showing the result of the OCR processing
+ * Fragment that manages the gallery
+ * @author Leonardo Pratesi (refactoring for Fragment conversion)
  */
-public class ResultActivity extends AppCompatActivity {
+public class ResultActivityFragment extends Fragment {
+
+
+    /**
+     * String for LOGS
+     */
+    private static final String TAG = "ResultActivityFragment";
 
     /**
      * The TextView of the extracted test from the captured photo.
@@ -38,85 +41,51 @@ public class ResultActivity extends AppCompatActivity {
      */
     private Bitmap lastPhoto;
 
+
+
+    public ResultActivityFragment() {
+        //null constructor
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_result);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        //refresh the result activity with the new image
+        // TODO find a better way
 
-        // UI components
-        ImageView mImageView = findViewById(R.id.img_captured_view);
-        mOCRTextView = findViewById(R.id.ocr_text_view);
+        View view = inflater.inflate(R.layout.activity_result, container, false);
+
+        ImageView mImageView = view.findViewById(R.id.img_captured_view);
+        mOCRTextView = view.findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
-
-        FloatingActionButton fab = findViewById(R.id.newPictureFab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ResultActivity.this, CameraActivity.class));
-            }
-        });
 
 
         //Get image path and text of the last image from preferences
-        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-        String pathImage = prefs.getString("imagePath", null);
+        SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = prefs.getString("filePath", null);
         String OCRText = prefs.getString("text", null);
 
         lastPhoto = BitmapFactory.decodeFile(pathImage);
-
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
         } else {
             Log.e("ResultActivity", "error retrieving last photo");
         }
 
-        //Displaying the text, from OCR or preferences
-        if(OCRText != null) {
-            // Text in preferences
-            if(OCRText.equals("")) {
-                mOCRTextView.setText(R.string.no_text_found);
-            } else {
-                //Show the text of the last image
-                mOCRTextView.setText(OCRText);
-            }
-        } else{
+        if (OCRText != null) {
+            //do things here
+        }
             // text from OCR
-            AsyncLoad ocrTask = new AsyncLoad(mOCRTextView,getString(R.string.processing));
+            ResultActivityFragment.AsyncLoad ocrTask =
+                    new AsyncLoad(mOCRTextView,getString(R.string.processing));
             ocrTask.execute(lastPhoto);
-        }
-    }
 
-    /**
-     * Menu inflater
-     * @author Francesco Pham
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.result_menu, menu);
-        return true;
-    }
 
-    /**
-     * Handling click events on the menu
-     * @author Francesco Pham
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.test:
-                Intent i = new Intent(ResultActivity.this, TestResultActivity.class);
-                startActivity(i);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        return view;
         }
-    }
 
     /**
      * Execute a task and post the result on the TextView given on construction
-     * (g3) - modified by Rossi Leonardo
+     * (g3) - modified by Leonardo Pratesi for Fragment Integration
      */
     @SuppressLint("StaticFieldLeak")
     private class AsyncLoad extends AsyncTask<Bitmap, Void, String> {
@@ -140,7 +109,7 @@ public class ResultActivity extends AppCompatActivity {
                 {
                     textRecognized = getString(R.string.no_text_found);
                     final String finalTextRecognized = textRecognized;
-                    runOnUiThread(new Runnable() {
+                    getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mOCRTextView.setText(finalTextRecognized);
@@ -150,7 +119,7 @@ public class ResultActivity extends AppCompatActivity {
                 else
                 {
                     final String finalTextRecognized = textRecognized;
-                    runOnUiThread(new Runnable() {
+                    getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mOCRTextView.setText(finalTextRecognized);
@@ -167,7 +136,7 @@ public class ResultActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             progressDialog.dismiss();
             // Saving in the preferences
-            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("text", s);
             editor.apply();
@@ -175,10 +144,11 @@ public class ResultActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(ResultActivity.this,
+            progressDialog = ProgressDialog.show(getActivity(),
                     progressMessage,
                     "");
         }
     }
-}
 
+
+}

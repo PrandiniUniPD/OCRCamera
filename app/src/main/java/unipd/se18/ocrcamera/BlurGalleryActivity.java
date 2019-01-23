@@ -13,9 +13,8 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
-
-import static android.graphics.BitmapFactory.decodeStream;
 
 /** Testing Activity to see if blur could work, shows a gallery with each image associated with it's blur value
  * Leonardo Pratesi - gruppo 1
@@ -49,13 +48,17 @@ public class BlurGalleryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.listlayout);
+        setContentView(R.layout.listavalori);
         super.onCreate(savedInstanceState);
 
         File path = new File(PHOTOS_FOLDER);
         fileNames = path.list();
         if (fileNames != null) {
-            setGallery();
+            try {               //added try catch after Li suggestion
+                setGallery();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         }
         else {
             Toast.makeText(this, "No images found", Toast.LENGTH_SHORT).show();
@@ -65,7 +68,7 @@ public class BlurGalleryActivity extends AppCompatActivity {
 
         //View preparation
         listView = (ListView) findViewById(R.id.listview);
-        BlurObjectAdapter adapter = new BlurObjectAdapter(this, R.layout.listlayout, arrayBlur);
+        BlurObjectAdapter adapter = new BlurObjectAdapter(this, R.layout.listavalori, arrayBlur);
         listView.setAdapter(adapter);
         //show max blur value
         TextView maxview = findViewById(R.id.textViewMax);
@@ -78,24 +81,33 @@ public class BlurGalleryActivity extends AppCompatActivity {
      * Method that creates a blurObject for every image in the folder
      *
      */
-    private void setGallery() {
+    private void setGallery() throws Exception {
+        //counts how many images are loaded (for troubleshooting purpose)
         int count =0;
-        for (int i = 0; i < fileNames.length; i++) {                                                          //imagepath.length = number of elements in the folder
-            if (getExtension(fileNames[i]) == "jpg") {                                          //checks if it is an image
+        for (String fileName : fileNames) {                                //imagepath.length = number of elements in the folder
+            if (getExtension(fileName).equals("jpg")) {                    //checks if it is an image
 
                 try {
-                    File f = new File(PHOTOS_FOLDER, fileNames[i]);                             //creates a new object for each element
-                    Bitmap image = BitmapFactory.decodeStream(new FileInputStream(f));
-                    BlurObject obj = new BlurObject(fileNames[i], image);
+                    File f = new File(PHOTOS_FOLDER, fileName); //creates a new object for each element
+                    FileInputStream stream = new FileInputStream(f);
+                    Bitmap image = BitmapFactory.decodeStream(stream);
+                    BlurObject obj = new BlurObject(fileName, image);
                     arrayBlur.add(obj);
+                    stream.close();
 
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Log.e("err", "filenotfound");
+                    throw e;
                 } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
                     Log.e("err", "illegalargument");
-                }
+                    throw e;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e("err", "IOException");
+                    throw e;
+                    }
+
                 count++; //check how many photos load
                 Log.e("check", Integer.toString(count));
             }
