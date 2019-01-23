@@ -1,84 +1,97 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
+import unipd.se18.ocrcamera.R;
+import unipd.se18.ocrcamera.performancetester.testers.PerformanceTester;
+import unipd.se18.ocrcamera.performancetester.testers.TestDirectoryException;
+import unipd.se18.ocrcamera.performancetester.testers.TestListener;
+import unipd.se18.ocrcamera.performancetester.testers.TesterProvider;
+
 /**
- * Activity for showing the result of the tests
+ * Fragment for showing the result of the tests
  * Pietro Prandini (g2)
  */
-public class TestsListActivity extends AppCompatActivity {
+public class TestsListFragment extends Fragment {
     /**
      * String used for the logs of this class
      */
-    private static final String TAG = "TestsListActivity";
+    private static final String TAG = "TestsListFragment";
 
     /**
      * The custom request code requested for permission use
      */
     private static final int MY_READ_EXTERNAL_STORAGE_REQUEST_CODE = 300;
 
-    /**
-     * Prepares the activity to show the test results.
-     * More details at: {@link ActivityCompat#checkSelfPermission(Context, String)}
-     * @param savedInstanceState Bundle of the last instance state of the app
-     */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(unipd.se18.ocrcamera.R.layout.fragment_tests_list, container, false);
+    }
 
-        // Sets the layout
-        setContentView(R.layout.activity_test_result);
+    @Override
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // Checks the permissions
-        if (ActivityCompat.checkSelfPermission(this,
+        if (ActivityCompat.checkSelfPermission(requireActivity(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE };
-            ActivityCompat.requestPermissions(this, permissions,
+            ActivityCompat.requestPermissions(requireActivity(), permissions,
                     MY_READ_EXTERNAL_STORAGE_REQUEST_CODE);
-            return;
+        } else {
+            startTests();
         }
+    }
 
+    /**
+     * Starts the tests
+     * @author Pietro Prandini (g2)
+     */
+    private void startTests() {
+        // Sets the view of the list
+        ListView listEntriesView = requireActivity().findViewById(R.id.test_entries_list);
 
-        // Checks if some test pics is downloaded
-        File testsDir = new File(PhotoDownloadTask.PHOTOS_FOLDER);
-        if(testsDir.exists() && testsDir.list() != null && testsDir.list().length > 0) {
-            // The tests directory exist, it's a directory and it's not empty
-            // -> Launches the analyzing process
-            Log.v(TAG, "Checks about tests existence passed");
-
-            // Sets the view of the list
-            ListView listEntriesView = findViewById(R.id.test_entries_list);
-
-            // Sets the elements of the list as AsyncTask
+        // Sets the elements of the list as AsyncTask
+        try {
             AsyncReport report = new AsyncReport(listEntriesView);
             report.execute();
-        } else {
-            // Needs downloading tests pics
-            Log.v(TAG, "Checks about tests existence not passed");
-            TextView title = findViewById(R.id.progress_testing_text);
-            title.setText(R.string.download_test_pics);
-            Toast.makeText(TestsListActivity.this,
-                    R.string.download_test_pics, Toast.LENGTH_LONG).show();
+        } catch (TestDirectoryException e) {
+            Log.e(TAG, "Error creating tester: " + e.getMessage());
+
+            // Notifies the problem
+            Toast.makeText(requireContext(),
+                    R.string.error_creating_tester,
+                    Toast.LENGTH_LONG
+            ).show();
+
+            // Starts the download activity in order to solve the problem
+            Intent downloadTestPicsIntent =
+                    new Intent(requireActivity(), DownloadDbActivity.class);
+            startActivity(downloadTestPicsIntent);
         }
     }
 
@@ -101,7 +114,7 @@ public class TestsListActivity extends AppCompatActivity {
         /**
          * Instance of PhotoTester used for doing the tests
          */
-        private PhotoTester tester;
+        private PerformanceTester tester;
 
         /**
          * The String where will be stored the report
@@ -129,9 +142,19 @@ public class TestsListActivity extends AppCompatActivity {
          * Constructor of the class
          * @param listEntriesView The ListView used for showing the results as list
          */
-        AsyncReport(ListView listEntriesView) {
-            this.listEntriesView = listEntriesView;
+        AsyncReport(ListView listEntriesView) throws TestDirectoryException {
+            // The path where the test pics are stored
             this.dirPath = PhotoDownloadTask.PHOTOS_FOLDER;
+
+            // The tester to use
+            this.tester = TesterProvider.getTester(
+                    TesterProvider.testers.PhotoTester ,
+                    requireContext(),
+                    dirPath
+            );
+
+            // The view where publishing the results
+            this.listEntriesView = listEntriesView;
         }
 
         /**
@@ -140,8 +163,34 @@ public class TestsListActivity extends AppCompatActivity {
          */
         @Override
         protected void onPreExecute() {
-            progressBar = findViewById(R.id.tests_progress_bar);
-            progressText = findViewById(R.id.progress_testing_text);
+            progressBar = requireActivity().findViewById(R.id.tests_progress_bar);
+            progressText = requireActivity().findViewById(R.id.progress_testing_text);
+
+            // Listener useful for updating the progress bar
+            TestListener testListener = new TestListener() {
+                @Override
+                public void onTestFinished() {
+                    // +1 test finished -> +1 progress bar
+                    publishProgress(++testedElements);
+                }
+
+                @Override
+                public void onTestFailure(final int failureCode, final String testName) {
+                    requireActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Error while parsing a test
+                            Toast.makeText(requireContext(),
+                                    getString(R.string.error_with_test)
+                                            + "(" + testName + ") - Error code: "
+                                            + failureCode,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }
+            };
+            tester.setTestListener(testListener);
         }
 
         /**
@@ -155,37 +204,22 @@ public class TestsListActivity extends AppCompatActivity {
          */
         @Override
         protected Void doInBackground(Void... voids) {
-            // Starts the elaboration of the tests
-            this.tester = new PhotoTester(getApplicationContext(), dirPath);
+            //load test files
+            tester.loadTests();
 
             // Sets the starting information about the progress
             totalTestElements = tester.getTestSize();
             progressBar.setMax(totalTestElements);
             int initialValue = 0;
             final String progress = getTestingProgressString(initialValue, totalTestElements);
-            runOnUiThread(new Runnable() {
+            requireActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     progressText.setText(progress);
                 }
             });
 
-            // Listener useful for updating the progress bar
-            TestListener testListener = new TestListener() {
-                @Override
-                public void onTestFinished() {
-                    // +1 test finished -> +1 progress bar
-                    publishProgress(++testedElements);
-                }
-
-                @Override
-                public void onAlterationAnalyzed() {
-                    // not useful in this case
-                }
-            };
-            tester.setTestListener(testListener);
-
-            // publishes progress
+            // Does the tests
             try {
                 report = tester.testAndReport();
             } catch (InterruptedException e) {
@@ -193,7 +227,7 @@ public class TestsListActivity extends AppCompatActivity {
                 report = getString(R.string.elaboration_interrupted);
             }
 
-            // Sorts the TestElements for a sorted list view
+            // Sorts the TestElements for obtaining a sorted list view
             ArrayList<TestElement> testElementsList =
                     new ArrayList<>(Arrays.asList(tester.getTestElements())) ;
             Comparator<TestElement> testElementComparator = new Comparator<TestElement>() {
@@ -208,12 +242,13 @@ public class TestsListActivity extends AppCompatActivity {
             Collections.sort(testElementsList,testElementComparator);
             final TestElement[] testElementsArray = testElementsList.toArray(new TestElement[0]);
 
-            runOnUiThread(new Runnable() {
+            // Updates the UI with the list of tests
+            requireActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     TestsListAdapter adapter =
                             new TestsListAdapter(
-                                    TestsListActivity.this,
+                                    requireContext(),
                                     testElementsArray
                             );
                     listEntriesView.setAdapter(adapter);
@@ -247,12 +282,8 @@ public class TestsListActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void v) {
             // add statistics author: Francesco Pham
-            TextView statsView = new TextView(TestsListActivity.this);
-            String statsText = "";
-
-            statsText = tester.getTagsStatsString();
-
-            statsView.setText(statsText);
+            TextView statsView = new TextView(requireContext());
+            statsView.setText(tester.getTagsStatsString());
             listEntriesView.addHeaderView(statsView);
         }
     }
@@ -265,9 +296,8 @@ public class TestsListActivity extends AppCompatActivity {
      * @author Pietro Prandini (g2)
      */
     private String getTestingProgressString(int progress, int max) {
-        String progressString = getString(R.string.tested) + " " + progress + " "
+        return getString(R.string.tested) + " " + progress + " "
                 + getString(R.string.of) + " " + max;
-        return progressString;
     }
 
     /**
@@ -288,15 +318,18 @@ public class TestsListActivity extends AppCompatActivity {
                         grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     // Permissions is not granted
                     // notifies it by a toast
-                    runOnUiThread(new Runnable() {
+                    requireActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(TestsListActivity.this,
+                            Toast.makeText(requireContext(),
                                     R.string.permissions_not_granted, Toast.LENGTH_LONG).show();
                         }
                     });
-                    // Destroy the activity
-                    finish();
+                    // Destroys the activity
+                    requireActivity().finish();
+                } else {
+                    // Starts tests
+                    startTests();
                 }
             }
         }

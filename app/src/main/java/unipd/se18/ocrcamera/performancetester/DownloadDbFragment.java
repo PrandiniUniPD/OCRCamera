@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
 
 import android.Manifest;
@@ -6,15 +6,21 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.os.Bundle;
 
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.os.Bundle;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -36,8 +42,10 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import unipd.se18.ocrcamera.R;
 
-public class DownloadDbActivity extends AppCompatActivity {
+
+public class DownloadDbFragment extends Fragment {
 
     private Button clickButtonDownload;
     private Button clickButtonLogin;
@@ -60,29 +68,40 @@ public class DownloadDbActivity extends AppCompatActivity {
     private TextView txtPermissionStatus;
     private TextView txtLoginStatus;
 
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_download_db, container, false);
+    }
+
     /**
      * Instantiate the UI elements and check if is possible to do the login.
      *
      * @author Stefano Romanello (g3)
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_download_db);
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        layoutDownload = findViewById(R.id.LayoutDownload);
-        layoutLogin = findViewById(R.id.LayoutLogin);
-        txtHostname = findViewById(R.id.txtHostnameDownload);
-        txtPassword = findViewById(R.id.txtPasswordDownload);
-        txtUsername = findViewById(R.id.txtUsernameDownload);
-        txtInternetStatus = findViewById(R.id.txtInternetStatusDownload);
-        txtPermissionStatus = findViewById(R.id.txtPermissionStatusDownload);
-        txtLoginStatus = findViewById(R.id.txtLoginStatusDownload);
+        layoutDownload = (LinearLayout) requireActivity().findViewById(R.id.LayoutDownload);
+        layoutLogin = (LinearLayout) requireActivity().findViewById(R.id.LayoutLogin);
+        txtHostname = (EditText) requireActivity().findViewById(R.id.txtHostnameDownload);
+        txtPassword = (EditText) requireActivity().findViewById(R.id.txtPasswordDownload);
+        txtUsername = (EditText) requireActivity().findViewById(R.id.txtUsernameDownload);
+        txtInternetStatus = (TextView) requireActivity().findViewById(R.id.txtInternetStatusDownload);
+        txtPermissionStatus = (TextView) requireActivity().findViewById(R.id.txtPermissionStatusDownload);
+        txtLoginStatus = (TextView) requireActivity().findViewById(R.id.txtLoginStatusDownload);
 
         ///Load other UI elements
-        clickButtonDownload = findViewById(R.id.downloadDbButton);
+        clickButtonDownload = (Button) requireActivity().findViewById(R.id.downloadDbButton);
+        clickButtonDownload.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PhotoDownloadTask task = new PhotoDownloadTask(requireActivity());
+                task.execute();
+            }
+        });
 
-        clickButtonLogin = findViewById(R.id.downloadLoginButton);
+        clickButtonLogin = (Button) requireActivity().findViewById(R.id.downloadLoginButton);
         clickButtonLogin.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -193,10 +212,10 @@ public class DownloadDbActivity extends AppCompatActivity {
     private void verifyDoLogin()
     {
         //Test internet permission
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         //Check and in case Ask for permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(),
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_PERMISSION_CODE);
         }
@@ -245,7 +264,7 @@ public class DownloadDbActivity extends AppCompatActivity {
             clickButtonDownload.setOnClickListener( new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    PhotoDownloadTask task = new PhotoDownloadTask(DownloadDbActivity.this);
+                    PhotoDownloadTask task = new PhotoDownloadTask(requireActivity());
                     task.execute(credentials);
                 }
             });
@@ -278,7 +297,7 @@ public class DownloadDbActivity extends AppCompatActivity {
         {
             //Load the FTPClient and a simple spinner dialog.
             ftp = new FTPClient();
-            progressDialog = new ProgressDialog(DownloadDbActivity.this);
+            progressDialog = new ProgressDialog(requireContext());
             progressDialog.setTitle(getString(R.string.progressDialogDownloadTitle));
             progressDialog.setMessage(getString(R.string.progressDialogDownloadMessage));
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);

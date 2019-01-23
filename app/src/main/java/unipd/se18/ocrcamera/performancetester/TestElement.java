@@ -1,4 +1,4 @@
-package unipd.se18.ocrcamera;
+package unipd.se18.ocrcamera.performancetester;
 
 import android.util.Log;
 
@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import unipd.se18.ocrcamera.Utils;
 
 /**
  * Class that contains a single test element, used in PhotoTester to build a single test and on
@@ -266,10 +268,13 @@ public class TestElement {
     public JSONObject getJsonObject() { return jsonObject; }
 
     /**
-     * @param confidence Float that will be associated to this test with key 'confidence'
+     * @param confidence Float that will be associated to this test with key 'confidence', must
+     *                   be > 0
      * @modify jsonObject of this TestElement
      */
     public void setConfidence(float confidence) {
+        if(confidence < 0)
+            return;
         try {
             jsonObject.put(CONFIDENCE_KEY, Float.toString(confidence));
         } catch (JSONException e) {
