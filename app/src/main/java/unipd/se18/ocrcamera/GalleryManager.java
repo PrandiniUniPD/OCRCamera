@@ -291,11 +291,11 @@ public class GalleryManager
                     //Understand which image ive clicked
                     int position = cardViewHolder.getAdapterPosition();
 
-                    FragmentManager fm = ((GalleryActivity)mainActivity).getSupportFragmentManager();
+                    FragmentManager fm = ((FragmentManagerDesign)mainActivity).getSupportFragmentManager();
                     FragmentTransaction ft = fm.beginTransaction();
 
                     //Create fragment and pass the parameters as bundle
-                    GalleryActivity.DetailFragment detailedFragment = new GalleryActivity.DetailFragment();
+                    DetailFragment detailedFragment = new DetailFragment();
                     Bundle bundle = new Bundle();
                     //Obtain the object PhotoStructure from the list using the position.
                     bundle.putSerializable(mainActivity.getString(R.string.serializableObjectName),photosList.get(position));
