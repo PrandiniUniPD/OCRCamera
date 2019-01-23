@@ -67,6 +67,11 @@ public class ResultActivity extends AppCompatActivity {
     private final String TAG = "ResultActivity";
 
     /**
+     *  Boolean which specify if we want to automatically preprocess the image.
+     */
+    private static final boolean DO_IMAGE_PROCESSING = true;
+
+    /**
      * ImageView of the captured picture
      */
     private ImageView mImageView;
@@ -95,6 +100,7 @@ public class ResultActivity extends AppCompatActivity {
      * the DrawerLayout that provides the "Hamburger" Menu for the options
      */
     private DrawerLayout mDrawerLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,13 +233,18 @@ public class ResultActivity extends AppCompatActivity {
                 }
             });
 
-            if(processedImagePath == null) {
+            if(DO_IMAGE_PROCESSING && processedImagePath == null) {
                 //launch image processing if not already processed
                 new AsyncImageProcess(ResultActivity.this, true).execute(lastImagePath);
             } else {
-                //analyze image immediately if already processed
-                Bitmap lastImage = BitmapFactory.decodeFile(processedImagePath);
-                analyzeImageUpdateUI(lastImage);
+                //analyze image immediately if already processed or image processing is disabled.
+                Bitmap imageToAnalyze;
+                if(processedImagePath == null)
+                    imageToAnalyze = BitmapFactory.decodeFile(lastImagePath);
+                else
+                    imageToAnalyze = BitmapFactory.decodeFile(processedImagePath);
+
+                analyzeImageUpdateUI(imageToAnalyze);
             }
         }
     }
