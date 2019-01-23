@@ -15,16 +15,10 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import unipd.se18.ocrcamera.R;
 
@@ -32,7 +26,7 @@ import unipd.se18.ocrcamera.R;
 /**
  * @author Leonardo Rossi (g2) and Stefano Romanello (g3)
  */
-class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
+public class PhotoDownloadTask extends AsyncTask<DownloadDbFragment.DownloadCredentials, Integer, Void>
 {
 
     private FTPClient ftp;
@@ -47,13 +41,15 @@ class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
     private LinearLayout layoutDownload;
     private LinearLayout layoutLogin;
 
-    public static final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
-    private final String LOGINGINFORMATION_FILE = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"/ingsoftwareftp.txt";
+    protected static final String PHOTOS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/OCRCameraDB";
     private final String REMOTE_FOLDER = "/htdocs/foto/";
     private final String TAG = "FTP";
     DownloadDbActivity activity;
     PhotoDownloadTask(Context context) { this.context = context; }
 
+    /**
+     * Load all the UI elements
+     */
     @Override
     protected void onPreExecute()
     {
@@ -64,9 +60,9 @@ class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
         button = activity.findViewById(R.id.downloadDbButton);
         scrollCurrentDownload = activity.findViewById(R.id.scrollView);
         txtViewCurrentDownload = activity.findViewById(R.id.textViewCurrentDownload);
-        txtLoginStatus = (TextView) activity.findViewById(R.id.txtLoginStatusDownload);
-        layoutDownload = (LinearLayout) activity.findViewById(R.id.LayoutDownload);
-        layoutLogin = (LinearLayout) activity.findViewById(R.id.LayoutLogin);
+        txtLoginStatus = activity.findViewById(R.id.txtLoginStatusDownload);
+        layoutDownload = activity.findViewById(R.id.LayoutDownload);
+        layoutLogin = activity.findViewById(R.id.LayoutLogin);
 
         //Reset download from the prevous downloads + disable button for preventing multiple downloads
         currentProgress = 0;
@@ -74,25 +70,40 @@ class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
         txtViewCurrentDownload.setText("");
     }
 
+    /**
+     * Get the credentials and starts downloading files
+     * @param voids DownloadDbActivity.DownloadCredentials containing the credentials for the FTPClient
+     */
     @Override
-    protected Void doInBackground(Void... voids)
+    protected Void doInBackground(DownloadDbFragment.DownloadCredentials... voids)
     {
-         Boolean isConnected = connectToServer();
+         Boolean isConnected = connectToServer(voids[0].username, voids[0].password, voids[0].hostname);
 
          if (isConnected)
          {
              retrieveFiles();
          }
+         else
+         {
+             showLoginError();
+         }
 
         return null;
     }
 
+    /**
+     * Re-Enable the download button once everything is finished
+     */
     @Override
     protected void onPostExecute(Void params)
     {
         button.setEnabled(true);
     }
 
+    /**
+     * Update the progress bar
+     * @param values current status of the download
+     */
     @Override
     protected void onProgressUpdate(Integer... values)
     {
@@ -107,45 +118,34 @@ class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
      * @return True if connected, false otherwise
      * @author Stafano Romanello
      */
-    private Boolean connectToServer()
+    private Boolean connectToServer(String username, String password, String hostname)
     {
-        //Line position in the credential file
-        //0 username
-        //1 password
-        //2 hostname
-
         //Trying to connect to the server
         try {
-            String[] credentials = getFTPCredentials();
-            if(credentials.length>0) {
-                ftp.connect(credentials[2]);
+            ftp.connect(hostname);
 
-                //Logging in into the server
-                if (!ftp.login(credentials[0], credentials[1])) {
-                    ftp.logout();
-                }
-
-                int reply = ftp.getReplyCode();
-                //FTPReply stores a set of constants for FTP reply codes.
-                if (!FTPReply.isPositiveCompletion(reply)) {
-                    ftp.disconnect();
-                }
-
-                //enter passive mode
-                ftp.enterLocalPassiveMode();
-                //get system name
-                System.out.println("Remote system is " + ftp.getSystemType());
-                //change current directory
-                ftp.changeWorkingDirectory(REMOTE_FOLDER);
-                System.out.println("Current directory is " + ftp.printWorkingDirectory());
+            //Logging in into the server
+            if (!ftp.login(username, password)) {
+                ftp.logout();
+                throw new IOException();
             }
+
+            int reply = ftp.getReplyCode();
+            //FTPReply stores a set of constants for FTP reply codes.
+            if (!FTPReply.isPositiveCompletion(reply)) {
+                ftp.disconnect();
+                throw new IOException();
+            }
+
+            //enter passive mode
+            ftp.enterLocalPassiveMode();
+            //change current directory
+            ftp.changeWorkingDirectory(REMOTE_FOLDER);
+            return true;
         } catch (IOException e) {
-            //Delete credentials file and ask again on the next reload
-            final File file = new File(LOGINGINFORMATION_FILE);
-            file.delete();
-            showLoginError();
+            return false;
         }
-        return true;
+
     }
 
     /**
@@ -206,7 +206,6 @@ class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
             sendMessageToUI("Finished");
             ftp.logout();
             ftp.disconnect();
-
         }
         catch (Exception e)
         {
@@ -243,38 +242,5 @@ class PhotoDownloadTask extends AsyncTask<Void, Integer, Void>
                 layoutLogin.setVisibility(View.VISIBLE);
             }
         });
-    }
-    /**
-     * Update the scrollable textView in the UI
-     * Obtain the credentials from the file
-     * @author Stefano Romanello
-     */
-    private String[] getFTPCredentials()
-    {
-        FileInputStream is;
-        BufferedReader reader;
-        final File file = new File(LOGINGINFORMATION_FILE);
-        
-        ArrayList lines= new ArrayList();
-        if (file.exists()) {
-            try {
-                is = new FileInputStream(file);
-                reader = new BufferedReader(new InputStreamReader(is));
-                String line = reader.readLine();
-                lines.add(line);
-                while(line != null){
-                    line = reader.readLine();
-                    lines.add(line);
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        Object[] objNames = lines.toArray();
-        String[] outCredentials = Arrays.copyOf(objNames, objNames.length, String[].class);
-        return outCredentials;
     }
 }

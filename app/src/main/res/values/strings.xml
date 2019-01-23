@@ -32,6 +32,7 @@
     <string name="error_code">"Error code: "</string>
     <string name="view_details">Details</string>
     <string name="searching_ingredients">Searching for ingredients</string>
+    <string name="processing_image">Processing image</string>
     <string name="finding_text">Finding text</string>
     <string name="no_ingredient_found">No ingredient found</string>
     <string name="function_title">Function:</string>
@@ -75,6 +76,15 @@
     <string name="download_test_pics">No test pics fond, download them please.</string>
     <string name="forum">Forum</string>
     <string name="selected_allergens_sharedPref">unipd.se18.ocrcamera.SELECTED_ALLERGENS</string>
+    <string name="sharedPrefNameForImagePath">imagePath</string>
+    <string name="progressDialogGalleryTitle">Gallery</string>
+    <string name="progressDialogGalleryMessage">Loading images...</string>
+    <string name="alertDialogGalleryTitle">Permission error</string>
+    <string name="alertDialogGalleryMessage">You did not have authorized the app to use internal storage.</string>
+    <string name="progressDialogDownloadTitle">Login</string>
+    <string name="progressDialogDownloadMessage">Loading...</string>
+    <string name="letter_icon">Letter icon</string>
+    <string name="sharedPrefNameProcessedImage">processedImageDataPath</string>
     <string name="error_creating_tester">Test pics not found, redirecting to the download section</string>
     <string name="error_with_test">Error while elaborating test </string>
     <string name="did_you_mean">Did you mean: </string>
