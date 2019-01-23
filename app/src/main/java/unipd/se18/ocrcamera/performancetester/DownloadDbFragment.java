@@ -264,7 +264,7 @@ public class DownloadDbFragment extends Fragment {
             clickButtonDownload.setOnClickListener( new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    PhotoDownloadTask task = new PhotoDownloadTask();
+                    PhotoDownloadTask task = new PhotoDownloadTask(requireActivity());
                     task.execute(credentials);
                 }
             });
