@@ -4,14 +4,14 @@
     <item
         android:id="@+id/result"
         android:icon="@drawable/common_google_signin_btn_icon_dark_normal"
-        android:title="result" />
+        android:title="@string/bnv_result_title" />
     <item
         android:id="@+id/camera"
         android:icon="@drawable/common_google_signin_btn_icon_dark"
-        android:title="camera" />
+        android:title="@string/bnv_camera_title" />
     <item
         android:id="@+id/forum"
         android:enabled="false"
         android:icon="@drawable/common_google_signin_btn_icon_dark_normal"
-        android:title="forum" />
+        android:title="@string/bnv_forum_title" />
 </menu>

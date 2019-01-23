@@ -96,5 +96,8 @@
     <string name="request_permission">This sample needs camera permission.</string>
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
     <string name="intro_message">Intro</string>
+    <string name="bnv_result_title">result</string>
+    <string name="bnv_camera_title">camera</string>
+    <string name="bnv_forum_title">forum</string>
 
 </resources>
