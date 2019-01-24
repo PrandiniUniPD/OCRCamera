@@ -44,9 +44,9 @@ import java.util.Properties;
 import unipd.se18.ocrcamera.inci.Ingredient;
 
 /**
- * Class to show the statistics about ingredients
- * @author Leonardo Pratesi                                          //LINES CALCULATED 200(statcalculatoractivity) + 150(statisticmanager) + 50(blurobject) + 150(blurgalleryactivity) + 100(blurobjectadapter) + 50(galleryactivity) + 50(resultactivity)
- */                                                                  // 200+150+50+150+100+50+50 = 750
+ * Activity to show the statistics about ingredients in a bar Chart
+ * @author Leonardo Pratesi
+ */
 public class StatCalculatorActivity extends AppCompatActivity {
 
 
