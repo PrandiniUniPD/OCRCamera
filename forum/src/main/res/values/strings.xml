@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">forum</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="jPostIDField">ID</string>
+    <string name="jPostTitleField">title</string>
+    <string name="jPostMessageField">message</string>
+    <string name="jPostDateField">date</string>
+    <string name="jPostCommentsField">comments</string>
+    <string name="jPostLikesField">likes</string>
+    <string name="jPostAuthorField">author</string>
+    <string name="requestFailedMessage">An error occurred while getting the posts. Please retry by refreshing the page</string>
+    <string name="loginFailedMessage">A login error occurred. Please check your credentials</string>
+    <string name="loginButton">Login</string>
+    <string name="insertEmail">Insert your username</string>
+    <string name="insertPassword">Insert your password</string>
+    <string name="post_added">Post added successfully</string>
+    <string name="posting_failure">There was an error when trying to adding your post. Try to check your internet connection or try again later.</string>
+    <string name="not_valid_parameters">Title, message or author are not valid</string>
+    <string name="messagePostAdded"> Post added correctly</string>
+    <string name="messagePostNotAdded"> Post not added, retry</string>
+    <string name="messageWrongParameters">Parameters not valid, retry</string>
+    <string name="logWrongJSON"> Error in JSON creation</string>
+    <string name="messageWrongJSON"> Error in post creation, retry</string>
+    <string name="getPostDetailFailure">An error occurred while getting the post detail. Please retry by refreshing the page</string>
+    <string name="loginButtonToast">Please enter username and password</string>
+    <string name="logTagForumLogin">--ForumLogin--</string>
+    <string name="logNullUsername">A NULL username passed through liveLoginResponse</string>
+    <string name="logNullErrorMessage">A NULL error message passed through liveError</string>
+    <string name="keyUsername">username</string>
+
+    <!-- Fragment back stack identifiers -->
+    <string name="fgShowPosts">ShowPosts</string>
+    <string name="fgAddPost">AddPost</string>
+
+    <!-- Fragment parameters keys -->
+    <string name="postParameterKey">post</string>
+    <string name="usernameFrgParam">username</string>
+    <string name="loggedUser">user</string>
+
+    <!-- Add comment messaged -->
+    <string name="addCommentSuccess">Comment successfully added!</string>
+    <string name="addCommentFailure">An error occurred while adding the comment. Please retry</string>
+
+</resources>

@@ -42,7 +42,7 @@ public class FragmentManagerDesign extends AppCompatActivity {
     /**
      * Forum Fragment //TODO implements this
      */
-    private Fragment forumFragment;
+    private Fragment mainFragment;
 
 
     /**
@@ -118,11 +118,11 @@ public class FragmentManagerDesign extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         resultActivityFragment = new ResultActivityFragment();
-        forumFragment = new Fragment();
+        mainFragment = new MainFragment();
         camera2Fragment = new Camera2Fragment();
         viewPagerAdapter.addFragment(resultActivityFragment); //first fragment added so position = 0
         viewPagerAdapter.addFragment(camera2Fragment);        //first fragment added so position = 1
-        viewPagerAdapter.addFragment(forumFragment);          //first fragment added so position = 2
+        viewPagerAdapter.addFragment(mainFragment);          //first fragment added so position = 2
         viewPager.setAdapter(viewPagerAdapter);
     }
 
