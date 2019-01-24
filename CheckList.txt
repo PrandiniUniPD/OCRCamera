@@ -1,0 +1,14 @@
+Checklist di Leonardo Pratesi,
+nel fare le review ho dato particolare attenzione ai seguenti elementi:
+
+-ho controllato se le specifiche di ogni metodo sono esaustive e ben commentate
+-ho controllato la presenza di HardCoding
+-ho controllato se i metodi di librerie esterne sono sufficientemente documentati
+-presenza di catch vuoti o poco utili
+-ho osservato se il nome del metodo fa intuire abbastanza il suo scopo
+-ho controllato se i metodi sono implementati in modo da svolgere l'operazione in modo corretto
+-ho osservato se i parametri di ingresso sono tutti utilizzati dal metodo 
+-i metodi hanno un return in qualsiasi possibile condizione dell'algoritmo
+-ho controllato che i metodi non lancino eccezioni troppo generiche (es catch(Exception e))
+-ho controllato che Le variabili abbiano un nome coerente con la funzione che eseguono
+
