@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import unipd.se18.ocrcamera.forum.Forum;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
@@ -486,6 +487,11 @@ public class GalleryActivity extends AppCompatActivity {
                             break;
                         case R.id.nav_gallery:
                             //we already are in this activity
+                            break;
+                        case R.id.nav_forum:
+                            intent = new Intent(GalleryActivity.this, Forum.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
                             break;
                     }
 

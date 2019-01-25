@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import unipd.se18.ocrcamera.forum.Forum;
+
 /*
  * @author Pietro Balzan
  */
@@ -136,6 +138,11 @@ public class MainAllergensActivity extends AppCompatActivity {
                             break;
                         case R.id.nav_gallery:
                             intent= new Intent(MainAllergensActivity.this, GalleryActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_forum:
+                            intent = new Intent(MainAllergensActivity.this, Forum.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivityIfNeeded(intent, 0);
                             break;

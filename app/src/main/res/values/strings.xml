@@ -52,13 +52,13 @@
     <string name="tested">Tested:</string>
     <string name="of">of</string>
     <string name="confidence">confidence</string>
-    <string name="drawer_menu_item_Allergens">Allergen Selection</string>
-    <string name="drawer_menu_item_Gallery">Gallery</string>
-    <string name="drawer_menu_item_forum">Forum</string>
-    <string name="result_fragment_name">Results</string>
-    <string name="camera_fragment_name">Camera</string>
-    <string name="allergens_fragment_name">Allergens</string>
-    <string name="gallery_fragment_name">Gallery</string>
+
+    <!-- bottom navigation bar buttons name-->
+    <string name="result_navigation_name">Results</string>
+    <string name="camera_navigation_name">Camera</string>
+    <string name="allergens_navigation_name">Allergens</string>
+    <string name="gallery_navigation_name">Gallery</string>
+    <string name="forum_navigation_name">Forum</string>
 
     <!--List of strings for MainAllergensActivity-->
     <string name="allergens_search_bar">Type an allergen name</string>
@@ -67,10 +67,13 @@
     <string name="togglebutton_add_allergen">add</string>
     <string name="togglebutton_remove_allergen">remove</string>
     <string name="allergens_search_button">Search</string>
+
+    <!-- wikipedia -->
     <string name="wikipedia">Wikipedia:</string>
     <string name="wikipedia_searching">Searching on wikipedia&#8230;</string>
     <string name="wikipedia_not_found">Could not find any wikipedia pages.</string>
     <string name="wikipedia_failed_request">Could not send request to wikipedia.</string>
+
     <string name="search_title">Search an ingredient</string>
     <string name="search_hint">Search an ingredient</string>
     <string name="details_search_button">Search more</string>

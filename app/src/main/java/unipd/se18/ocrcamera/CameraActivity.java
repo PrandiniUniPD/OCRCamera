@@ -23,6 +23,8 @@ import android.view.View;
 
 import com.camerakit.CameraKitView;
 
+import unipd.se18.ocrcamera.forum.Forum;
+
 /**
  * The Activity useful for making photos
  */
@@ -275,6 +277,11 @@ public class CameraActivity extends AppCompatActivity {
                             break;
                         case R.id.nav_gallery:
                             intent= new Intent(CameraActivity.this, GalleryActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_forum:
+                            intent = new Intent(CameraActivity.this, Forum.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivityIfNeeded(intent, 0);
                             break;

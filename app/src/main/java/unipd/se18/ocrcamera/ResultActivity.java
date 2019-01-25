@@ -571,6 +571,11 @@ public class ResultActivity extends AppCompatActivity {
                             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivityIfNeeded(intent, 0);
                             break;
+                        case R.id.nav_forum:
+                            intent = new Intent(ResultActivity.this, Forum.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
                     }
 
                     return false;

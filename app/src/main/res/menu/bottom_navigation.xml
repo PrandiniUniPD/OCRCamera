@@ -3,20 +3,25 @@
     <item
         android:id="@+id/nav_allergens"
         android:icon="@drawable/ic_allergen"
-        android:title="@string/allergens_fragment_name" />
+        android:title="@string/allergens_navigation_name" />
 
     <item
         android:id="@+id/nav_result"
         android:icon="@drawable/ic_result_list_24dp"
-        android:title="@string/result_fragment_name" />
+        android:title="@string/result_navigation_name" />
 
     <item
         android:id="@+id/nav_picture"
-        android:icon="@drawable/ic_add_a_photo_black_24dp"
-        android:title="@string/camera_fragment_name" />
+        android:icon="@drawable/ic_photo_camera_24px"
+        android:title="@string/camera_navigation_name" />
 
     <item
         android:id="@+id/nav_gallery"
         android:icon="@drawable/ic_gallery_black_24dp"
-        android:title="@string/gallery_fragment_name" />
+        android:title="@string/gallery_navigation_name" />
+
+    <item
+        android:id="@+id/nav_forum"
+        android:icon="@drawable/ic_forum_24px"
+        android:title="@string/forum_navigation_name" />
 </menu>
