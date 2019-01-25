@@ -466,23 +466,23 @@ public class GalleryActivity extends AppCompatActivity {
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    Intent newActivity;
+                    Intent intent;
                     //start an activity depending on what was chosen
                     switch (menuItem.getItemId()){
                         case R.id.nav_allergens:
-                            newActivity= new Intent(GalleryActivity.this, MainAllergensActivity.class);
-                            startActivity(newActivity);
-                            finish();
+                            intent= new Intent(GalleryActivity.this, MainAllergensActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
                             break;
                         case R.id.nav_result:
-                            newActivity= new Intent(GalleryActivity.this, ResultActivity.class);
-                            startActivity(newActivity);
-                            finish();
+                            intent= new Intent(GalleryActivity.this, ResultActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
                             break;
                         case R.id.nav_picture:
-                            newActivity= new Intent(GalleryActivity.this, CameraActivity.class);
-                            startActivity(newActivity);
-                            finish();
+                            intent= new Intent(GalleryActivity.this, CameraActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
                             break;
                         case R.id.nav_gallery:
                             //we already are in this activity

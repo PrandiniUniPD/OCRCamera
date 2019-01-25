@@ -257,26 +257,26 @@ public class CameraActivity extends AppCompatActivity {
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    Intent newActivity;
+                    Intent intent;
                     //start an activity depending on what was chosen
                     switch (menuItem.getItemId()){
                         case R.id.nav_allergens:
-                            newActivity= new Intent(CameraActivity.this, MainAllergensActivity.class);
-                            startActivity(newActivity);
-                            finish();
+                            intent= new Intent(CameraActivity.this, MainAllergensActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
                             break;
                         case R.id.nav_result:
-                            newActivity= new Intent(CameraActivity.this, ResultActivity.class);
-                            startActivity(newActivity);
-                            finish();
+                            intent= new Intent(CameraActivity.this, ResultActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
                             break;
                         case R.id.nav_picture:
                             //we already are in this activity
                             break;
                         case R.id.nav_gallery:
-                            newActivity= new Intent(CameraActivity.this, GalleryActivity.class);
-                            startActivity(newActivity);
-                            finish();
+                            intent= new Intent(CameraActivity.this, GalleryActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
                             break;
                     }
 
