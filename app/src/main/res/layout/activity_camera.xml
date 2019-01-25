@@ -6,41 +6,71 @@
     android:layout_height="match_parent"
     tools:context=".CameraActivity">
 
-
-    <LinearLayout
-        android:orientation="vertical"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center">
+        android:id="@+id/relLayout">
 
-        <com.camerakit.CameraKitView
-            android:id="@+id/cameraKitView"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:keepScreenOn="true"
-            app:camera_flash="off"
-            app:camera_facing="back"
-            app:camera_imageJpegQuality="100"
-            app:camera_focus="continuous"
-            app:camera_permissions="camera" />
-    </LinearLayout>
-
-    <RelativeLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <!-- Button to take pics - author (g3) -->
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/take_photo_button"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_photo_camera_24px"
-            android:layout_centerInParent="true"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="20sp"
-            app:backgroundTint="@color/colorPrimary"/>
+            android:id="@+id/relLayoutMiddle"
+            android:layout_above="@+id/relLayoutbottomBar">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+
+                <com.camerakit.CameraKitView
+                    android:id="@+id/cameraKitView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:keepScreenOn="true"
+                    app:camera_flash="off"
+                    app:camera_facing="back"
+                    app:camera_imageJpegQuality="100"
+                    app:camera_focus="continuous"
+                    app:camera_permissions="camera" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <!-- Button to take pics - author (g3) -->
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/take_photo_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/ic_photo_camera_24px"
+                    android:layout_centerInParent="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_margin="20sp"
+                    app:backgroundTint="@color/colorPrimary"/>
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:id="@+id/relLayoutbottomBar"
+            android:layout_alignParentBottom="true">
+
+            <android.support.design.widget.BottomNavigationView
+                android:id="@+id/bottom_navigation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                app:menu="@menu/bottom_navigation"
+                app:itemIconTint="@color/colorPrimary"
+                app:itemTextColor="@color/colorPrimary"
+                android:background="?android:attr/windowBackground"/>
+        </RelativeLayout>
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

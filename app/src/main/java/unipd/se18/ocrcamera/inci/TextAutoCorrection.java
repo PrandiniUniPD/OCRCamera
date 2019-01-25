@@ -91,7 +91,7 @@ public class TextAutoCorrection {
         Pattern pattern = Pattern.compile("[a-zA-Z0-9-]+");
         Matcher matcher = pattern.matcher(text);
 
-        //generate list of words to correct
+        //generate list of words to correct and store their position in the text
         ArrayList<String> wordsToCorrect = new ArrayList<>();
         ArrayList<Integer> wordsStartPos = new ArrayList<>();
         while (matcher.find()) {
@@ -191,7 +191,7 @@ public class TextAutoCorrection {
         for(int i=0; i<concurrentTasks; i++){
             //split the word list to be corrected
             int from = i*wordsPerTask;
-            int to = i==concurrentTasks-1 ? words.size() : (i+1)*wordsPerTask;
+            int to = (i==concurrentTasks-1 ? words.size() : (i+1)*wordsPerTask);
             List<String> wordList = words.subList(from, to);
 
             //start thread

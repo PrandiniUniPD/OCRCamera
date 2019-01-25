@@ -5,9 +5,12 @@ package unipd.se18.ocrcamera;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -38,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import unipd.se18.ocrcamera.forum.Forum;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
@@ -63,6 +67,17 @@ public class GalleryActivity extends AppCompatActivity {
             LoadHomeCards loadHomeCards = new LoadHomeCards();
             loadHomeCards.execute();
         }
+
+        //set reference to the BottomNavigationView
+        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
+
+        //react to clicks on the items of bottomView
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+
+        //set this activity's menu icon as checked
+        Menu menu= bottomNav.getMenu();
+        MenuItem thisActivityMenuIcon = menu.getItem(3);
+        thisActivityMenuIcon.setChecked(true);
     }
 
     /**
@@ -446,5 +461,42 @@ public class GalleryActivity extends AppCompatActivity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
+
+    //create a private listener to use in this Activity
+    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    Intent intent;
+                    //start an activity depending on what was chosen
+                    switch (menuItem.getItemId()){
+                        case R.id.nav_allergens:
+                            intent= new Intent(GalleryActivity.this, MainAllergensActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_result:
+                            intent= new Intent(GalleryActivity.this, ResultActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_picture:
+                            intent= new Intent(GalleryActivity.this, CameraActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_gallery:
+                            //we already are in this activity
+                            break;
+                        case R.id.nav_forum:
+                            intent = new Intent(GalleryActivity.this, Forum.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                    }
+
+                    return false;
+                }
+            };
 
 }

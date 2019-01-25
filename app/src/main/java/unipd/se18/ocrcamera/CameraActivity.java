@@ -11,11 +11,19 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.camerakit.CameraKitView;
+
+import unipd.se18.ocrcamera.forum.Forum;
 
 /**
  * The Activity useful for making photos
@@ -121,6 +129,17 @@ public class CameraActivity extends AppCompatActivity {
                 takePhoto();
             }
         });
+
+        //set reference to the BottomNavigationView
+        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
+
+        //react to clicks on the items of bottomView
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+
+        //set this activity's menu icon as checked
+        Menu menu= bottomNav.getMenu();
+        MenuItem thisActivityMenuIcon = menu.getItem(2);
+        thisActivityMenuIcon.setChecked(true);
     }
 
     /**
@@ -234,4 +253,41 @@ public class CameraActivity extends AppCompatActivity {
             return this.value;
         }
     }
+
+    //create a private listener to use in this Activity
+    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    Intent intent;
+                    //start an activity depending on what was chosen
+                    switch (menuItem.getItemId()){
+                        case R.id.nav_allergens:
+                            intent= new Intent(CameraActivity.this, MainAllergensActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_result:
+                            intent= new Intent(CameraActivity.this, ResultActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_picture:
+                            //we already are in this activity
+                            break;
+                        case R.id.nav_gallery:
+                            intent= new Intent(CameraActivity.this, GalleryActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_forum:
+                            intent = new Intent(CameraActivity.this, Forum.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                    }
+
+                    return false;
+                }
+            };
 }

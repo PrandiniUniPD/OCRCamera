@@ -11,8 +11,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -96,12 +98,6 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView analyzedTextView;
 
-    /**
-     * the DrawerLayout that provides the "Hamburger" Menu for the options
-     */
-    private DrawerLayout mDrawerLayout;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,16 +107,6 @@ public class ResultActivity extends AppCompatActivity {
         mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
         progressBar = findViewById(R.id.progress_bar);
-        mDrawerLayout= findViewById(R.id.drawer_layout);
-
-        // Floating action buttons listeners (Francesco Pham)
-        FloatingActionButton fabNewPic = findViewById(R.id.newPictureFab);
-        fabNewPic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ResultActivity.this, CameraActivity.class));
-            }
-        });
 
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
@@ -135,52 +121,16 @@ public class ResultActivity extends AppCompatActivity {
 
 
 
-        //Set the toolbar as the action bar
-        Toolbar toolbar= findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //set reference to the BottomNavigationView
+        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
 
-        //Set up the Action Bar with the menu button
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
-        }
+        //react to clicks on the items of bottomView
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
 
-        //set up Hamburger menu layout items
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-                        //choose which activity to start depending on the selected item
-
-                        switch (menuItem.getItemId()){
-                            case R.id.allergens_activity:
-                                startActivity( new Intent(ResultActivity.this, MainAllergensActivity.class));
-                                return true;
-                            case R.id.gallery_activity:
-                                startActivity(new Intent (ResultActivity.this, GalleryActivity.class));
-                                return true;
-                            case R.id.forum_activity:
-                                Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
-                                startActivity(forumIntent);
-                                return true;
-                            case R.id.test:
-                                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
-                                startActivity(i);
-                                return true;
-                            case R.id.download_photos:
-                                Intent download_intent = new Intent(ResultActivity.this,
-                                        DownloadDbActivity.class);
-                                startActivity(download_intent);
-                                return true;
-                        }
-
-                        return false;
-                    }
-                }
-        );
+        //set this activity's menu icon as checked
+        Menu menu= bottomNav.getMenu();
+        MenuItem thisActivityMenuIcon = menu.getItem(1);
+        thisActivityMenuIcon.setChecked(true);
 
 
         //set on click on ingredient launching IngredientDetailsFragment
@@ -403,14 +353,19 @@ public class ResultActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case android.R.id.home:   //menu button is pressed
-                mDrawerLayout.openDrawer(GravityCompat.START);
+            case R.id.test:
+                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
+                startActivity(i);
+                return true;
+            case R.id.download_photos:
+                Intent download_intent = new Intent(ResultActivity.this,
+                        DownloadDbActivity.class);
+                startActivity(download_intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
 
     /**
@@ -589,4 +544,41 @@ public class ResultActivity extends AppCompatActivity {
                 Toast.makeText(activity, tooDark, Toast.LENGTH_LONG).show();
         }
     }
+
+    //create a private listener to use in this Activity
+    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    Intent intent;
+                    //start an activity depending on what was chosen
+                    switch (menuItem.getItemId()){
+                        case R.id.nav_allergens:
+                            intent= new Intent(ResultActivity.this, MainAllergensActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_result:
+                            //we already are in this activity
+                            break;
+                        case R.id.nav_picture:
+                            intent= new Intent(ResultActivity.this, CameraActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_gallery:
+                            intent= new Intent(ResultActivity.this, GalleryActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                        case R.id.nav_forum:
+                            intent = new Intent(ResultActivity.this, Forum.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivityIfNeeded(intent, 0);
+                            break;
+                    }
+
+                    return false;
+                }
+            };
 }
