@@ -41,9 +41,10 @@ import unipd.se18.ocrcamera.inci.IngredientsExtractor;
 public class GalleryManager
 {
 
-
     //The path of the directory where all the images are stored
-    private static String DATA_DIRECTORY_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+    private static String DATA_DIRECTORY_PATH = Environment
+            .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+            .toString();
     //The name of the directory where all the images are stored
     private static String IMAGES_DIRECTORY_NAME = "OCRGallery";
     //The complete path to reach images folder
@@ -78,6 +79,7 @@ public class GalleryManager
 
         //Obtaining the reference to the directory
         File imageDirectory = new File(PATH);
+
         //If the directory doesn't exist it will be created
         if (!imageDirectory.exists()){
             imageDirectory.mkdir();
@@ -85,11 +87,15 @@ public class GalleryManager
 
         //Obtaining the files into the specified directory
         File[] images = imageDirectory.listFiles();
-        //Metadata reading
-        for (File image : images)
-        {
-            PhotoStructure toAdd = buildStructure(image);
-            if (toAdd != null){ imagesStructures.add(toAdd); }
+
+        if ( images != null) {
+            //Metadata reading
+            for (File image : images) {
+                PhotoStructure toAdd = buildStructure(image);
+                if (toAdd != null) {
+                    imagesStructures.add(toAdd);
+                }
+            }
         }
 
         return imagesStructures;

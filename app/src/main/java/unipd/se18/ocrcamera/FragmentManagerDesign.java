@@ -40,7 +40,7 @@ public class FragmentManagerDesign extends AppCompatActivity {
     private Fragment camera2Fragment;
 
     /**
-     * Forum Fragment //TODO implements this
+     * Forum Fragment 
      */
     private Fragment mainFragment;
 
