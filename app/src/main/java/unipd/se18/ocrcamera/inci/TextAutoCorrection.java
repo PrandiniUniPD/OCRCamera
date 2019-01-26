@@ -263,8 +263,7 @@ public class TextAutoCorrection {
         // for the demostration of the distance upper bound see:
         // https://github.com/frankplus/incidb/blob/master/maxNormalizedDistanceFormulaDim.jpg
         int distanceUpperBound = (int) (word.length()*maxNormalizedDistance/(1-maxNormalizedDistance));
-        Set<BkTreeSearcher.Match<? extends String>> matches =
-                searcher.search(word, distanceUpperBound);
+        Set<BkTreeSearcher.Match<? extends String>> matches = searcher.search(word, distanceUpperBound);
 
         //find the word with minimum distance
         double minDistance = Double.MAX_VALUE;
@@ -282,7 +281,7 @@ public class TextAutoCorrection {
             int matchLength = match.getMatch().length();
             double normalizedDistance = (double) match.getDistance()/Math.max(wordLength, matchLength);
 
-            //if normalized distance satisfy max distance put it into closest match
+            //only if normalized distance satisfy max distance put it into closest match
             if(normalizedDistance <= maxNormalizedDistance && normalizedDistance < minDistance) {
                 minDistance = normalizedDistance;
                 closest = match.getMatch();

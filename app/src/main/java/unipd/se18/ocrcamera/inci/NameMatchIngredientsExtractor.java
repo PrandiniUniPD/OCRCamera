@@ -67,9 +67,9 @@ public class NameMatchIngredientsExtractor implements IngredientsExtractor {
         for(Ingredient ingredient : listIngredients) {
             String strippedName = ingredient.getStrippedInciName();
 
+            //search the ingredient inside the text
             int foundAtIndex = strippedText.indexOf(strippedName);
             int foundEndIndex = foundAtIndex+strippedName.length()-1;
-
 
             if(foundAtIndex >= 0){
                 int foundAtOriginalIndex = mapIndexes[foundAtIndex];

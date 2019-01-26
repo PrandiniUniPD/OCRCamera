@@ -125,6 +125,7 @@ public class ResultActivity extends AppCompatActivity {
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
         ingredientsListView.setEmptyView(emptyTextView);
+
         //set message
         emptyTextView.setText(R.string.processing_image);
         progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -132,8 +133,6 @@ public class ResultActivity extends AppCompatActivity {
         //show analyzed text view
         analyzedTextView = new TextView(ResultActivity.this);
         ingredientsListView.addHeaderView(analyzedTextView);
-
-
 
         //Set the toolbar as the action bar
         Toolbar toolbar= findViewById(R.id.toolbar);
@@ -189,7 +188,6 @@ public class ResultActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
 
-                //performing a click on OCR recognized text causes a crash (because selectedIngredient is null)
                 if(selectedIngredient != null) {
                     String inciName = selectedIngredient.getInciName();
                     String description = selectedIngredient.getDescription();
@@ -202,9 +200,8 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
-
-        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         //load the path to the last taken picture, can be null if the user didn't take any picture
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         final String lastImagePath = prefs.getString(getString(R.string.sharedPrefNameForImagePath), null);
         final String processedImagePath = prefs.getString(getString(R.string.sharedPrefNameProcessedImage), null);
 
