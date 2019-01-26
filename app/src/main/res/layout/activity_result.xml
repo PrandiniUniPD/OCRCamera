@@ -1,55 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ResultActivity">
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:context=".ResultActivity">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ToolbarStyle"
+            app:layout_constraintTop_toTopOf="parent">
+        </android.support.v7.widget.Toolbar>
 
         <ImageView
             android:id="@+id/img_captured_view"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
-            android:padding="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:contentDescription="@string/pic_captured" />
+            android:layout_height="200dp"
+            android:contentDescription="@string/pic_captured"
+            android:padding="10dp"
+            app:layout_constraintBottom_toTopOf="@id/progress_bar"
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-        <!-- ScrollView - author (g3) -->
-        <!--<ScrollView
+        <ListView
+            android:id="@+id/ingredients_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="2"
             android:scrollbars="vertical"
-            android:fillViewport="true">-->
-            <!-- TextView - author (g2) -->
-            <TextView
-                android:id="@+id/ocr_text_view"
-                android:text="@string/take_photo"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                android:layout_gravity="center_horizontal|center"/>
-        <!--</ScrollView>-->
-    </LinearLayout>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/img_captured_view">
+        </ListView>
 
-    <!-- Camera activity launcher button (Francesco Pham) -->
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/newPictureFab"
+        <TextView
+            android:id="@+id/empty_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/img_captured_view">
+        </TextView>
+
+        <!-- Progress bar showing loading and extraction progress (Francesco Pham) -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:indeterminate="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/img_captured_view">
+        </ProgressBar>
+
+        <!-- Camera activity launcher button (Francesco Pham) -->
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/newPictureFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:src="@drawable/ic_photo_camera_24px"
+            android:layout_margin="20sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:backgroundTint="@color/colorPrimary"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:src="@drawable/ic_photo_camera_24px"
-        android:layout_margin="20sp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:backgroundTint="@color/colorPrimary"/>
-</android.support.constraint.ConstraintLayout>
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/drawer_view" />
+
+</android.support.v4.widget.DrawerLayout>

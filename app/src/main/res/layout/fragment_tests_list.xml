@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".performancetester.TestsListActivity">
+
+    <!-- Pietro Prandini (g2) -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10sp">
+
+        <TextView
+            android:id="@+id/progress_testing_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:text="@string/processing"/>
+
+        <!-- Style from Leonardo Rossi (g2) -->
+        <ProgressBar
+            android:id="@+id/tests_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
+            android:padding="10sp"
+            android:layout_below="@id/progress_testing_text"/>
+
+        <ListView
+            android:id="@+id/test_entries_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:layout_below="@id/tests_progress_bar">
+        </ListView>
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>

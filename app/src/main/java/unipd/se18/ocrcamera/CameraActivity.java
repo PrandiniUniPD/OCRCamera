@@ -13,12 +13,9 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
+
 import com.camerakit.CameraKitView;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 
 /**
  * The Activity useful for making photos
@@ -26,7 +23,9 @@ import java.io.OutputStream;
 public class CameraActivity extends AppCompatActivity {
 
     private CameraKitView cameraKitView;
-    private static String orientationResult="P";
+    //Se the default orientation as portrait
+    private static DeviceOrientation orientationResult = DeviceOrientation.PORTRAIT;
+
 
     /**
      * onCreate method of the Android Activity Lifecycle
@@ -37,26 +36,26 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-
         cameraKitView = findViewById(R.id.cameraKitView);
 
         //Load sensor for understand the orientation of the phone
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(new SensorEventListener() {
-            public int mOrientationDeg; //last rotation in degrees
-            private static final int _DATA_X = 0;
-            private static final int _DATA_Y = 1;
-            private static final int _DATA_Z = 2;
+            private int mOrientationDeg; //last rotation in degrees
             private int ORIENTATION_UNKNOWN = -1;
 
+            /**
+             * Called when there is a new sensor event. Note that "on changed" is somewhat of a misnomer, as this will also be called if we have a new reading from a sensor with the exact same sensor values (but a newer timestamp).
+             * Documentation for SensorEvent: https://developer.android.com/reference/android/hardware/SensorEvent
+             */
             @Override
             public void onSensorChanged(SensorEvent event)
             {
                 float[] values = event.values;
                 int orientation = ORIENTATION_UNKNOWN;
-                float X = -values[_DATA_X];
-                float Y = -values[_DATA_Y];
-                float Z = -values[_DATA_Z];
+                float X = -values[0];
+                float Y = -values[1];
+                float Z = -values[2];
                 float magnitude = X*X + Y*Y;
                 // Don't trust the angle if the magnitude is small compared to the y value
                 if (magnitude * 4 >= Z*Z) {
@@ -79,26 +78,26 @@ public class CameraActivity extends AppCompatActivity {
                     View takePicButton = findViewById(R.id.take_photo_button);
 
                     //figure out actual orientation
-                    if(orientation == -1){//basically flat
+                    if(orientation == ORIENTATION_UNKNOWN){//basically flat
                     }
                     else if(orientation <= 45 || orientation > 315){//round to 0
-                        Log.d("Sensor", "P"); //Portrait
-                        orientationResult="P";
+                        //Portrait
+                        orientationResult=DeviceOrientation.PORTRAIT;
                         takePicButton.setRotation(0); //rotate take picture button
                     }
                     else if(orientation > 45 && orientation <= 135){//round to 90
-                        Log.d("Sensor", "LR"); //LandscapeRight
-                        orientationResult="LR";
+                        //LandscapeRight
+                        orientationResult=DeviceOrientation.LANDSCAPERIGHT;
                         takePicButton.setRotation(270);
                     }
                     else if(orientation > 135 && orientation <= 225){//round to 180
-                        Log.d("Sensor", "PU"); //PortraitUpside
-                        orientationResult="PU";
+                        //PortraitUpside
+                        orientationResult=DeviceOrientation.PORTRAITUPSIDEDOWN;
                         takePicButton.setRotation(180);
                     }
                     else if(orientation > 225 && orientation <= 315){//round to 270
-                        Log.d("Sensor", "LL"); //LandscapeLeft
-                        orientationResult="LL";
+                        //LandscapeLeft
+                        orientationResult=DeviceOrientation.LANDSCAPELEFT;
                         takePicButton.setRotation(90);
                     }
 
@@ -128,7 +127,7 @@ public class CameraActivity extends AppCompatActivity {
      * Takes a photo, saves it inside internal storage and resets the last extracted text
      *
      * @modify SharedPreferences
-     * @author Romanello Stefano - modified by Leonardo Rossi
+     * @author Romanello Stefano - modified by Leonardo Rossi and Balzan Pietro
      */
     private void takePhoto() {
         cameraKitView.captureImage(new CameraKitView.ImageCallback() {
@@ -140,18 +139,19 @@ public class CameraActivity extends AppCompatActivity {
                 //Image rotation
                 switch (orientationResult)
                 {
-                    case "LR": bitmapImage=rotateImage(bitmapImage,90); break;
-                    case "LL": bitmapImage=rotateImage(bitmapImage,270); break;
-                    case "PU": bitmapImage=rotateImage(bitmapImage,180); break;
-                    default: break;
+                    case LANDSCAPERIGHT: bitmapImage=rotateImage(bitmapImage,90); break;
+                    case LANDSCAPELEFT: bitmapImage=rotateImage(bitmapImage,270); break;
+                    case PORTRAITUPSIDEDOWN: bitmapImage=rotateImage(bitmapImage,180); break;
+                    default: break; //orientationResult by default is Portrait, if none of the previous cases are triggered i leave the image  as is.
                 }
 
                 //Temporary stores the captured photo into a file that will be used from the Camera Result activity
-                String filePath= tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
+                String filePath= Utils.tempFileImage(CameraActivity.this, bitmapImage,"capturedImage");
 
                 SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
                 SharedPreferences.Editor edit = prefs.edit();
-                edit.putString("imagePath", filePath.trim());
+                edit.putString(getString(R.string.sharedPrefNameForImagePath), filePath.trim());
+                edit.putString(getString(R.string.sharedPrefNameProcessedImage), null);
                 edit.apply();
 
                 //An intent that will launch the activity that will analyse the photo
@@ -159,9 +159,7 @@ public class CameraActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
     }
-
 
 
     @Override
@@ -196,35 +194,6 @@ public class CameraActivity extends AppCompatActivity {
 
 
     /**
-     * Stores the captured image into a temporary file useful to pass large data between activities
-     * and returns the file's path.
-     * @param context The reference of the current activity
-     * @param bitmap The captured image to store into the file. Not null or empty.
-     * @param name The name of the file. Not null or empty.
-     * @return The files path
-     * @author Leonardo Rossi
-     */
-    private String tempFileImage(Context context, Bitmap bitmap, String name)
-    {
-
-        File outputDir = context.getCacheDir();
-        File imageFile = new File(outputDir, name + ".jpg");
-
-        OutputStream os;
-        try {
-            os = new FileOutputStream(imageFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
-            os.flush();
-            os.close();
-        } catch (Exception e) {
-            Log.e(context.getClass().getSimpleName(), "Error writing file", e);
-        }
-
-        return imageFile.getAbsolutePath();
-    }
-
-
-    /**
      * Rotate the bitmap image of the angle
      * @param source the image
      * @param angle angle of rotation
@@ -237,11 +206,32 @@ public class CameraActivity extends AppCompatActivity {
                 matrix, true);
     }
 
+    /**
+     * Enum used to manage the orientation of the device
+     */
+    private enum DeviceOrientation {
+        PORTRAIT(0),
+        PORTRAITUPSIDEDOWN(1),
+        LANDSCAPELEFT(2),
+        LANDSCAPERIGHT(3);
+
+        private int value;
+
+        /**
+         * Constructor
+         * @param value The number assigned to the constant
+         */
+        DeviceOrientation(int value){
+            this.value = value;
+        }
 
 
-
-
-
+        /**
+         * Return the mode
+         * @return the mode of the constant
+         */
+        int getValue(){
+            return this.value;
+        }
+    }
 }
-
-

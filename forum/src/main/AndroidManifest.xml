@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="unipd.se18.ocrcamera.forum">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+</manifest>
