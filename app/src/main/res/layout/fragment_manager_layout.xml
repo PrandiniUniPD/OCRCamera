@@ -4,9 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".FragmentManagerDesign">
-
-
+    tools:context=".MainActivity">
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/main_nav"
@@ -16,17 +14,12 @@
         android:layout_alignParentBottom="true"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="461dp"
-        app:menu="@menu/menu_nav"
-        >
-    </android.support.design.widget.BottomNavigationView>
+        app:menu="@menu/menu_nav" />
 
     <android.support.v4.view.ViewPager
+        android:id="@+id/main_viewpager"
         android:layout_above="@id/main_nav"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/main_viewpager">
-
-    </android.support.v4.view.ViewPager>
-
+        android:layout_height="match_parent" />
 
 </RelativeLayout>

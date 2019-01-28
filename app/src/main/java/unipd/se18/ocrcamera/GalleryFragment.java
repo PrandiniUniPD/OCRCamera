@@ -2,51 +2,23 @@ package unipd.se18.ocrcamera;
 
 
 
-import android.Manifest;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-
-import unipd.se18.ocrcamera.inci.Ingredient;
-import unipd.se18.ocrcamera.inci.IngredientsExtractor;
-import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 
 /**
  * Fragment of the gallery layout
  * @author Romanello Stefano
  */
-public class MainFragment extends Fragment {
+public class GalleryFragment extends Fragment {
 
     GalleryManager.RecycleCardsAdapter cardAdapter;
 
@@ -57,7 +29,7 @@ public class MainFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        ActionBar actionBar =((FragmentManagerDesign)getActivity()).getSupportActionBar();
+        ActionBar actionBar =((MainActivity)getActivity()).getSupportActionBar();
         actionBar.setTitle(R.string.galleryFragmentTitle);
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setHomeButtonEnabled(false);
@@ -120,7 +92,7 @@ public class MainFragment extends Fragment {
             }
 
             //Restore the actionBar
-            ActionBar actionBar =((FragmentManagerDesign)getActivity()).getSupportActionBar();
+            ActionBar actionBar =((MainActivity)getActivity()).getSupportActionBar();
             actionBar.setTitle(R.string.galleryFragmentTitle);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setHomeButtonEnabled(false);

@@ -5,13 +5,15 @@
         android:id="@+id/result"
         android:icon="@drawable/common_google_signin_btn_icon_dark_normal"
         android:title="@string/bnv_result_title" />
+
     <item
         android:id="@+id/camera"
         android:icon="@drawable/common_google_signin_btn_icon_dark"
         android:title="@string/bnv_camera_title" />
+
     <item
-        android:id="@+id/forum"
-        android:enabled="false"
+        android:id="@+id/gallery"
         android:icon="@drawable/common_google_signin_btn_icon_dark_normal"
         android:title="@string/bnv_forum_title" />
+
 </menu>

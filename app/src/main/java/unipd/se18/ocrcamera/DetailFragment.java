@@ -41,7 +41,7 @@ public class DetailFragment extends Fragment
     {
         super.onActivityCreated(savedInstanceState);
 
-        ActionBar actionBar =((FragmentManagerDesign)getActivity()).getSupportActionBar();
+        ActionBar actionBar =((MainActivity)getActivity()).getSupportActionBar();
         actionBar.setTitle(R.string.galleryDetailsFragmentTitle);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
@@ -99,8 +99,8 @@ public class DetailFragment extends Fragment
             photoInfos = (GalleryManager.PhotoStructure)bundle.getSerializable(getString(R.string.serializableObjectName));
         }
 
-        ListView ingredientsListView = ((FragmentManagerDesign) getActivity()).findViewById(R.id.ingredients_list_gallery);
-        ImageView imageView = ((FragmentManagerDesign) getActivity()).findViewById(R.id.imageViewGalleryDetailPhoto);
+        ListView ingredientsListView = ((MainActivity) getActivity()).findViewById(R.id.ingredients_list_gallery);
+        ImageView imageView = ((MainActivity) getActivity()).findViewById(R.id.imageViewGalleryDetailPhoto);
 
         //Convert the arrayList<String> of ingredients obtained from the metadata to List<Ingredient>
 
@@ -109,11 +109,11 @@ public class DetailFragment extends Fragment
                 .replace("[", "")  //remove the right bracket
                 .replace("]", "")  //remove the left bracket
                 .trim();
-        IngredientsExtractor extractor = InciSingleton.getInstance(((FragmentManagerDesign) getActivity())).getIngredientsExtractor();
+        IngredientsExtractor extractor = InciSingleton.getInstance(((MainActivity) getActivity())).getIngredientsExtractor();
         List<Ingredient> ingredientsToPrint = extractor.findListIngredients(formattedIngredients);
 
         //Use tha adapter to display the ingredients
-        AdapterIngredient adapter = new AdapterIngredient(((FragmentManagerDesign) getActivity()), ingredientsToPrint);
+        AdapterIngredient adapter = new AdapterIngredient(((MainActivity) getActivity()), ingredientsToPrint);
         ingredientsListView.setAdapter(adapter);
 
         //event onClick for display the details of the ingredients

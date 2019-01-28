@@ -17,10 +17,7 @@ import android.media.ExifInterface;
 import android.util.Log;
 
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -297,7 +294,7 @@ public class GalleryManager
                     //Understand which image ive clicked
                     int position = cardViewHolder.getAdapterPosition();
 
-                    FragmentManager fm = ((FragmentManagerDesign)mainActivity).getSupportFragmentManager();
+                    FragmentManager fm = ((MainActivity)mainActivity).getSupportFragmentManager();
                     FragmentTransaction ft = fm.beginTransaction();
 
                     //Create fragment and pass the parameters as bundle
