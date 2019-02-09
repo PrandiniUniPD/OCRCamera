@@ -1,6 +1,9 @@
 package unipd.se18.ocrcamera;
 
 import android.content.Context;
+import android.util.Log;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -17,6 +20,7 @@ import unipd.se18.ocrcamera.inci.TextAutoCorrection;
  */
 public class InciSingleton {
     private static volatile InciSingleton ourInstance;
+    private static final String TAG = "TextAutoCorrection";
 
     private IngredientsExtractor ingredientsExtractor;
     private TextAutoCorrection textCorrector;
@@ -39,14 +43,22 @@ public class InciSingleton {
 
         //Load list of ingredients from INCI DB
         InputStream inciDbStream = context.getResources().openRawResource(R.raw.incidb);
-        this.listInciIngredients = Inci.getListIngredients(inciDbStream);
+        try {
+            this.listInciIngredients = Inci.getListIngredients(inciDbStream);
+        } catch (IOException e) {
+            Log.e(TAG, "Error reading csv");
+        }
 
         //initialize ingredients extractor
         this.ingredientsExtractor = new NameMatchIngredientsExtractor(listInciIngredients);
 
         //Load wordlist and initialize text corrector
         InputStream wordListStream = context.getResources().openRawResource(R.raw.inciwordlist);
-        this.textCorrector = new TextAutoCorrection(wordListStream);
+        try {
+            this.textCorrector = new TextAutoCorrection(wordListStream);
+        } catch (IOException e) {
+            Log.e(TAG,"Error reading word list");
+        }
 
         //Load allergens manager
         this.allergensManager = new AllergensManager(context);

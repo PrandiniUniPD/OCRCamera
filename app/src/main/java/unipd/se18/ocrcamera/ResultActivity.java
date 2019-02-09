@@ -12,15 +12,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
@@ -62,7 +55,7 @@ import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
 
 /**
  * Class used for showing the result of the OCR processing
- * @author Pietro Prandini (g2) - Francesco Pham (g3) - modified by Luca Moroldo (g3)
+ * @author Francesco Pham (g3) - Pietro Prandini (g2) - modified by Luca Moroldo (g3)
  */
 public class ResultActivity extends AppCompatActivity {
 
@@ -71,7 +64,7 @@ public class ResultActivity extends AppCompatActivity {
     /**
      *  Boolean which specify if we want to automatically preprocess the image.
      */
-    private static final boolean DO_IMAGE_PROCESSING = true;
+    private static final boolean DO_IMAGE_PROCESSING = false;
 
     /**
      * ImageView of the captured picture
@@ -120,9 +113,8 @@ public class ResultActivity extends AppCompatActivity {
         ingredientsListView.addHeaderView(analyzedTextView);
 
 
-
         //set reference to the BottomNavigationView
-        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 
         //react to clicks on the items of bottomView
         bottomNav.setOnNavigationItemSelectedListener(navListener);
@@ -201,6 +193,7 @@ public class ResultActivity extends AppCompatActivity {
 
     /**
      * Asynctask for image processing
+     * @author Francesco Pham
      */
     private static class AsyncImageProcess extends AsyncTask<String, Void, Bitmap> {
 
@@ -247,7 +240,7 @@ public class ResultActivity extends AppCompatActivity {
             activity.analyzeImageUpdateUI(processedImage);
 
             //save processed image
-            String filePath= Utils.tempFileImage(activity, processedImage,"processedImage");
+            String filePath = Utils.tempFileImage(activity, processedImage,"processedImage");
             activity.saveProcessedImage(filePath);
         }
     }

@@ -42,7 +42,7 @@ public class TextAutoCorrection {
      * @param wordList InputStream from the word list
      * @author Francesco Pham
      */
-    public TextAutoCorrection(InputStream wordList){
+    public TextAutoCorrection(InputStream wordList) throws IOException{
 
         //open word list
         BufferedReader reader = new BufferedReader(new InputStreamReader(wordList));
@@ -61,12 +61,8 @@ public class TextAutoCorrection {
 
         //add each element to the tree
         String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                bkTree.add(line);
-            }
-        }catch(IOException e){
-            Log.e(TAG,"Error reading word list");
+        while ((line = reader.readLine()) != null) {
+            bkTree.add(line);
         }
 
         //initialize searcher
@@ -77,7 +73,7 @@ public class TextAutoCorrection {
     /**
      * Each word of the text is searched for a best match in the dictionary and
      * if there is a good match the word is corrected
-     * @param text The text (probably taken from ocr) which has to be corrected
+     * @param text The text (taken from ocr) which has to be corrected
      * @return Corrected text
      */
     public String correctText(String text){
@@ -91,7 +87,7 @@ public class TextAutoCorrection {
         Pattern pattern = Pattern.compile("[a-zA-Z0-9-]+");
         Matcher matcher = pattern.matcher(text);
 
-        //generate list of words to correct and store their position in the text
+        //generate list of words to correct and store their starting position in the text
         ArrayList<String> wordsToCorrect = new ArrayList<>();
         ArrayList<Integer> wordsStartPos = new ArrayList<>();
         while (matcher.find()) {
@@ -102,47 +98,14 @@ public class TextAutoCorrection {
             }
         }
 
-
         if(wordsToCorrect.size() == 0)
             return text; //no words to correct
 
         //correct words
         List<String> correctedWords = correctMultipleWords(wordsToCorrect);
 
-        //in this array we store the mapping between indexes of original text and the corrected text.
-        int[] mapIndexes = new int[text.length()];
-        for(int i=0; i<text.length(); i++) mapIndexes[i] = i;
-        String correctedText = text;
-
-        //construct corrected text by substituting the corrected words
-        for(int i=0; i<wordsToCorrect.size(); i++){
-            String oldWord = wordsToCorrect.get(i);
-            String correctedWord = correctedWords.get(i);
-            if (!correctedWord.equals(oldWord)) {
-
-                Log.d(TAG, "word " + oldWord + " corrected with " + correctedWord);
-
-                //get start-end positions of the word to replace
-                int startPos = wordsStartPos.get(i);
-                int endPos = startPos+oldWord.length();
-
-                //substitute with the corrected word
-                String newText = "";
-                if(startPos > 0) newText = correctedText.substring(0, mapIndexes[startPos]);
-                newText = newText + correctedWord;
-                if (endPos < text.length()) newText = newText + correctedText.substring(mapIndexes[endPos]);
-
-                correctedText = newText;
-
-                //shift map indexes by the difference of length between the old word and corrected word
-                int shift = correctedWord.length() - oldWord.length();
-                int from = startPos + Math.min(correctedWord.length(), oldWord.length());
-                for (int j = from; j < text.length(); j++)
-                    mapIndexes[j] += shift;
-            }
-        }
-
-        return correctedText;
+        //substitute the words
+        return substituteWords(text, wordsToCorrect, wordsStartPos, correctedWords);
     }
 
 
@@ -291,5 +254,52 @@ public class TextAutoCorrection {
 
         //If no words within maxNormalizedDistance is found, the same word is returned.
         return closest.equals("") ? word : closest;
+    }
+
+    /**
+     * Method for substituting some words in a string
+     * @param text The original string from which we want to substitute the words
+     * @param wordsToSubstitute Original words which have to be substituted
+     * @param wordsPositions Positions in the original string of the words
+     * @param newWords The replacing words
+     * @return The resulting string after words substitution
+     */
+    private String substituteWords(String text, List<String> wordsToSubstitute, List<Integer> wordsPositions, List<String> newWords){
+
+        //in this array we store the mapping between indexes of original text and the corrected text.
+        int[] mapIndexes = new int[text.length()];
+        for(int i=0; i<text.length(); i++) mapIndexes[i] = i;
+
+        String correctedText = text;
+
+        //construct corrected text by substituting the corrected words
+        for(int i=0; i<wordsToSubstitute.size(); i++){
+            String oldWord = wordsToSubstitute.get(i);
+            String correctedWord = newWords.get(i);
+            if (!correctedWord.equals(oldWord)) {
+
+                Log.d(TAG, "word " + oldWord + " corrected with " + correctedWord);
+
+                //get start-end positions of the word to replace
+                int startPos = wordsPositions.get(i);
+                int endPos = startPos+oldWord.length();
+
+                //substitute with the corrected word
+                String newText = "";
+                if(startPos > 0) newText = correctedText.substring(0, mapIndexes[startPos]);
+                newText = newText + correctedWord;
+                if (endPos < text.length()) newText = newText + correctedText.substring(mapIndexes[endPos]);
+
+                correctedText = newText;
+
+                //shift map indexes by the difference of length between the old word and corrected word
+                int shift = correctedWord.length() - oldWord.length();
+                int from = startPos + Math.min(correctedWord.length(), oldWord.length());
+                for (int j = from; j < text.length(); j++)
+                    mapIndexes[j] += shift;
+            }
+        }
+
+        return correctedText;
     }
 }

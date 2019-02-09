@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class IngredientsExtractionTest {
 
     @Test
     public void textCorrectionTest(){
+        //load word list and text corrector
         File file = new File("src/main/res/raw/inciwordlist.txt");
         InputStream wordListStream;
         try {
@@ -46,7 +48,14 @@ public class IngredientsExtractionTest {
             e.printStackTrace();
             return;
         }
-        TextAutoCorrection corrector = new TextAutoCorrection(wordListStream);
+
+        TextAutoCorrection corrector;
+        try {
+            corrector = new TextAutoCorrection(wordListStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
         //single word correction
         assertEquals("CHOLESTEROL", corrector.correctText("CNOLSTEROL"));
@@ -70,7 +79,7 @@ public class IngredientsExtractionTest {
 
     @Test
     public void ingredientsExtractionTest(){
-        //load word list for text corrector
+        //load word list and text corrector
         File wordListFile = new File("src/main/res/raw/inciwordlist.txt");
         InputStream wordListStream;
         try {
@@ -79,9 +88,15 @@ public class IngredientsExtractionTest {
             e.printStackTrace();
             return;
         }
-        TextAutoCorrection corrector = new TextAutoCorrection(wordListStream);
+        TextAutoCorrection corrector;
+        try {
+            corrector = new TextAutoCorrection(wordListStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
-        //load inci db
+        //load inci db and ingredients extractor
         File inciFile = new File("src/main/res/raw/incidb.csv");
         InputStream inciStream;
         try {
@@ -90,7 +105,13 @@ public class IngredientsExtractionTest {
             e.printStackTrace();
             return;
         }
-        List<Ingredient> totIngredients = Inci.getListIngredients(inciStream);
+        List<Ingredient> totIngredients;
+        try {
+            totIngredients = Inci.getListIngredients(inciStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
         IngredientsExtractor extractor = new NameMatchIngredientsExtractor(totIngredients);
 
         //single word ingredients name

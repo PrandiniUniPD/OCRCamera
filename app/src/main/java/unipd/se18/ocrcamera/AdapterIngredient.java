@@ -34,9 +34,15 @@ public class AdapterIngredient extends BaseAdapter {
         NOTALLERGEN, ALLERGEN, SELECTEDALLERGEN
     }
 
+    //warning labels for each ingredient
     private IngredientWarningType ingredientsLabels[];
 
 
+    /**
+     * Constructor for the adapter initialization
+     * @param context Current activity context
+     * @param ingredients Ingredients to show in the ListView
+     */
     AdapterIngredient(Context context, List<Ingredient> ingredients) {
         this.ingredients = ingredients;
         this.context = context;
