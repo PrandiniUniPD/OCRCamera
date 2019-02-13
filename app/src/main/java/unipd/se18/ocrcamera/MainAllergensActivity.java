@@ -1,28 +1,20 @@
 package unipd.se18.ocrcamera;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import unipd.se18.ocrcamera.forum.Forum;
-
 /*
  * @author Pietro Balzan
  */
-public class MainAllergensActivity extends AppCompatActivity {
+public class MainAllergensActivity extends BaseActivity {
 
     private static final String TAG= "MainAllergensActivity";
     private ViewPager mViewPager;
@@ -30,7 +22,7 @@ public class MainAllergensActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.activity_allergens_main);
+
       Log.i(TAG, "Starting construction of the layout");
 
       //set up the ViewPager with the sections adapter
@@ -41,16 +33,6 @@ public class MainAllergensActivity extends AppCompatActivity {
       TabLayout tabLayout = findViewById(R.id.tabs);
       tabLayout.setupWithViewPager(mViewPager);
 
-      //set reference to the BottomNavigationView
-      BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
-
-      //react to clicks on the items of bottomView
-      bottomNav.setOnNavigationItemSelectedListener(navListener);
-
-      //set this activity's menu icon as checked
-      Menu menu= bottomNav.getMenu();
-      MenuItem thisActivityMenuIcon = menu.getItem(0);
-      thisActivityMenuIcon.setChecked(true);
     }
 
     /**
@@ -115,40 +97,18 @@ public class MainAllergensActivity extends AppCompatActivity {
 
     }
 
-    //create a private listener to use in this Activity
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    Intent intent;
-                    //start an activity depending on what was chosen
-                    switch (menuItem.getItemId()){
-                        case R.id.nav_allergens:
-                            //we already are in this activity
-                            break;
-                        case R.id.nav_result:
-                            intent= new Intent(MainAllergensActivity.this, ResultActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                        case R.id.nav_picture:
-                            intent= new Intent(MainAllergensActivity.this, CameraActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                        case R.id.nav_gallery:
-                            intent= new Intent(MainAllergensActivity.this, GalleryActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                        case R.id.nav_forum:
-                            intent = new Intent(MainAllergensActivity.this, Forum.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                    }
+    /*
+     * override BaseActivity's abstract methods to give information
+     * about the layout and menu item that should be selected
+     */
+    @Override
+    int getContentViewId(){
+        return R.layout.activity_allergens_main;
+    }
 
-                    return false;
-                }
-            };
+    @Override
+    int getNavigationMenuItemId(){
+        return R.id.nav_allergens;
+    }
+
 }
