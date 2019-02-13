@@ -51,7 +51,7 @@ import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
  * Gallery activity
  * @author Stefano Romanello - Fragment suggestion Leonardo Rossi
  */
-public class GalleryActivity extends AppCompatActivity {
+public class GalleryActivity extends BaseActivity {
 
     //Code for internet permission
     private static final int REQUEST_PERMISSION_CODE = 500;
@@ -60,7 +60,7 @@ public class GalleryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gallery);
+
 
         if(verifyStoragePermission())
         {
@@ -68,16 +68,6 @@ public class GalleryActivity extends AppCompatActivity {
             loadHomeCards.execute();
         }
 
-        //set reference to the BottomNavigationView
-        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
-
-        //react to clicks on the items of bottomView
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
-
-        //set this activity's menu icon as checked
-        Menu menu= bottomNav.getMenu();
-        MenuItem thisActivityMenuIcon = menu.getItem(3);
-        thisActivityMenuIcon.setChecked(true);
     }
 
     /**
@@ -462,41 +452,19 @@ public class GalleryActivity extends AppCompatActivity {
                 .show();
     }
 
-    //create a private listener to use in this Activity
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    Intent intent;
-                    //start an activity depending on what was chosen
-                    switch (menuItem.getItemId()){
-                        case R.id.nav_allergens:
-                            intent= new Intent(GalleryActivity.this, MainAllergensActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                        case R.id.nav_result:
-                            intent= new Intent(GalleryActivity.this, ResultActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                        case R.id.nav_picture:
-                            intent= new Intent(GalleryActivity.this, CameraActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                        case R.id.nav_gallery:
-                            //we already are in this activity
-                            break;
-                        case R.id.nav_forum:
-                            intent = new Intent(GalleryActivity.this, Forum.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                    }
+    /*
+     * override BaseActivity's abstract methods to give information
+     * about the layout and menu item that should be selected
+     */
 
-                    return false;
-                }
-            };
+    @Override
+    int getContentViewId(){
+        return R.layout.activity_gallery;
+    }
+
+    @Override
+    int getNavigationMenuItemId(){
+        return R.id.nav_gallery;
+    }
 
 }

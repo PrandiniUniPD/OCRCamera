@@ -64,7 +64,7 @@ import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
  * Class used for showing the result of the OCR processing
  * @author Pietro Prandini (g2) - Francesco Pham (g3) - modified by Luca Moroldo (g3)
  */
-public class ResultActivity extends AppCompatActivity {
+public class ResultActivity extends BaseActivity {
 
     private final String TAG = "ResultActivity";
 
@@ -101,7 +101,6 @@ public class ResultActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_result);
 
         // UI components
         mImageView = findViewById(R.id.img_captured_view);
@@ -118,19 +117,6 @@ public class ResultActivity extends AppCompatActivity {
         //show analyzed text view
         analyzedTextView = new TextView(ResultActivity.this);
         ingredientsListView.addHeaderView(analyzedTextView);
-
-
-
-        //set reference to the BottomNavigationView
-        BottomNavigationView bottomNav= findViewById(R.id.bottom_navigation);
-
-        //react to clicks on the items of bottomView
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
-
-        //set this activity's menu icon as checked
-        Menu menu= bottomNav.getMenu();
-        MenuItem thisActivityMenuIcon = menu.getItem(1);
-        thisActivityMenuIcon.setChecked(true);
 
 
         //set on click on ingredient launching IngredientDetailsFragment
@@ -545,40 +531,18 @@ public class ResultActivity extends AppCompatActivity {
         }
     }
 
-    //create a private listener to use in this Activity
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    Intent intent;
-                    //start an activity depending on what was chosen
-                    switch (menuItem.getItemId()){
-                        case R.id.nav_allergens:
-                            intent= new Intent(ResultActivity.this, MainAllergensActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                        case R.id.nav_result:
-                            //we already are in this activity
-                            break;
-                        case R.id.nav_picture:
-                            intent= new Intent(ResultActivity.this, CameraActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                        case R.id.nav_gallery:
-                            intent= new Intent(ResultActivity.this, GalleryActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                        case R.id.nav_forum:
-                            intent = new Intent(ResultActivity.this, Forum.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivityIfNeeded(intent, 0);
-                            break;
-                    }
+    /*
+     * override BaseActivity's abstract methods to give information
+     * about the layout and menu item that should be selected
+     */
 
-                    return false;
-                }
-            };
+    @Override
+    int getContentViewId(){
+        return R.layout.activity_result;
+    }
+
+    @Override
+    int getNavigationMenuItemId(){
+        return R.id.nav_result;
+    }
 }

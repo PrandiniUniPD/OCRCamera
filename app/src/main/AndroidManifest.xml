@@ -17,6 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".BaseActivity"></activity>
         <!-- Content Provider configurations - author (g3) -->
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -58,20 +59,15 @@
         <activity
             android:name=".GalleryActivity"
             android:parentActivityName=".ResultActivity" />
-
         <activity android:name=".performancetester.TestsListActivity" />
-
         <activity android:name=".performancetester.TestDetailsActivity" />
-
-        <activity android:name=".MainAllergensActivity"
+        <activity
+            android:name=".MainAllergensActivity"
             android:parentActivityName=".ResultActivity"
-            android:windowSoftInputMode="adjustNothing">
-        </activity>
+            android:windowSoftInputMode="adjustNothing"/>
         <activity
             android:name=".forum.Forum"
-            android:theme="@style/ForumTheme" />
-
-        <!-- Activity launched to search for an ingredient -->
+            android:theme="@style/ForumTheme" /> <!-- Activity launched to search for an ingredient -->
         <activity android:name=".SearchResultsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
