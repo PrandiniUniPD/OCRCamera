@@ -11,19 +11,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import com.camerakit.CameraKitView;
-
-import unipd.se18.ocrcamera.forum.Forum;
 
 /**
  * The Activity useful for making photos
@@ -247,7 +238,6 @@ public class CameraActivity extends BaseActivity {
      * override BaseActivity's abstract methods to give information
      * about the layout and menu item that should be selected
      */
-
     @Override
     int getContentViewId(){
         return R.layout.activity_camera;

@@ -40,7 +40,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
     protected void onStart(){
         super.onStart();
 
-        //set the bottombaar menu correctly
+        //set the bottombar menu correctly
         updateNavigationBarState();
     }
 

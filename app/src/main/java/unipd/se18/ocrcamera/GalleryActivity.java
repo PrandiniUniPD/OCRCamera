@@ -5,12 +5,9 @@ package unipd.se18.ocrcamera;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,7 +15,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -32,19 +28,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import unipd.se18.ocrcamera.forum.Forum;
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
-import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 
 
 /**
