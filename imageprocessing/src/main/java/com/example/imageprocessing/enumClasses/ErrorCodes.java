@@ -1,4 +1,4 @@
-package com.example.imageprocessing.exceptions;
+package com.example.imageprocessing.enumClasses;
 
 /**
  * Enum class that contains all the error's definitions

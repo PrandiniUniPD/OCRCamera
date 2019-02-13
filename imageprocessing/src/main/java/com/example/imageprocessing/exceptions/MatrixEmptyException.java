@@ -1,5 +1,7 @@
 package com.example.imageprocessing.exceptions;
 
+import com.example.imageprocessing.enumClasses.ErrorCodes;
+
 /**
  * Exception threw in case that detectTextAreas have an invalid method as parameter
  * @author Thomas Porro (g1)

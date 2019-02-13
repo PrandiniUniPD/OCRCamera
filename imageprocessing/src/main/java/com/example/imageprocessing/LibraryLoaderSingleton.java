@@ -6,15 +6,15 @@ import android.util.Log;
  * Singletone used to avoid more than one library load
  * @author Thomas Porro (g1)
  */
-class LibraryLoaderSingletone {
+class LibraryLoaderSingleton {
 
     private final static String TAG = "Singleton openCV";
-    private static LibraryLoaderSingletone myLibrary;
+    private static LibraryLoaderSingleton myLibrary;
 
     /**
      * Private constructor that load the library
      */
-    private LibraryLoaderSingletone(){
+    private LibraryLoaderSingleton(){
         System.loadLibrary("opencv_java3");
         Log.i(TAG, "Loaded the library");
     }
@@ -24,7 +24,7 @@ class LibraryLoaderSingletone {
      */
     static void loadLibrary(){
         if(myLibrary == null){
-            myLibrary = new LibraryLoaderSingletone();
+            myLibrary = new LibraryLoaderSingleton();
         } else {
             Log.e(TAG, "Library already loaded");
         }

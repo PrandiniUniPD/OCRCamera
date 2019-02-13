@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.example.imageprocessing.exceptions.ConversionFailedException;
-import com.example.imageprocessing.exceptions.ErrorCodes;
+import com.example.imageprocessing.enumClasses.ErrorCodes;
 import com.example.imageprocessing.exceptions.FailedToSave;
 import com.example.imageprocessing.exceptions.MatrixEmptyException;
 
