@@ -113,11 +113,12 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     /**
-     * analyze the photo and return the barcode retrieved
+     * analyze the photo and get the barcode
      * @param photo is the last photo taken
+     * @modify mOCRTextView set with the code retrieved
      * @author Andrea Ton
      */
-    private void analyzeAndRecognize(Bitmap photo){
+    private void getBarcode(Bitmap photo){
 
         //Barcode listener
         BarcodeListener barcodeListener = new BarcodeListener() {
@@ -148,7 +149,7 @@ public class ResultActivity extends AppCompatActivity {
     /**
      * Retrieve the product name and brand from online database
      * @param barcode is the barcode to be searched
-     * @return productInfo information retrieved from the database
+     * @return product information retrieved from the database
      * @author Andrea Ton
      */
     private String getProductInfo(String barcode){
@@ -157,7 +158,7 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     /**
-     * Execute a task and post the result on the TextView given on construction
+     * Execute a task and post the result on the TextView (mOCRTextView)
      * @author Andrea Ton
      */
     @SuppressLint("StaticFieldLeak")
@@ -165,17 +166,20 @@ public class ResultActivity extends AppCompatActivity {
 
         private ProgressDialog progressDialog;
 
+        //in background execute the code retrieving method
         @Override
         protected String doInBackground(Bitmap... bitmaps) {
-            analyzeAndRecognize(lastPhoto);
+            getBarcode(lastPhoto);
             return null;
         }
 
+        //after the execution dismiss the progress message
         @Override
         protected void onPostExecute(String s) {
             progressDialog.dismiss();
         }
 
+        //shows a progress message while the task is executed
         @Override
         protected void onPreExecute() {
             progressDialog = ProgressDialog.show(ResultActivity.this, getString(R.string.processing), "");

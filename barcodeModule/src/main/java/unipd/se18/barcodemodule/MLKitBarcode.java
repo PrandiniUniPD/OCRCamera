@@ -18,7 +18,9 @@ import java.util.concurrent.CountDownLatch;
  */
 public class MLKitBarcode implements Barcode{
 
+    //Firebase detector object needed to perform a scan on the given image
     private final FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector();
+
     private BarcodeListener barcodeListener;
 
     /**
@@ -40,6 +42,7 @@ public class MLKitBarcode implements Barcode{
         if (bitmap == null){
             barcodeListener.onBarcodeRecognizedError(BarcodeListener.BITMAP_NOT_FOUND);
         }
+
         //get the FirebaseImage obj from the bitmap
         final FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
 
@@ -50,7 +53,6 @@ public class MLKitBarcode implements Barcode{
     /**
      * Take the image and detect the barcodes in it using Firebase
      * @param image the image that will be scanned from Firebase
-     * @modify barcode is set with the string of the code retrieved
      */
     private void detectTheBarcode(final FirebaseVisionImage image) {
 
