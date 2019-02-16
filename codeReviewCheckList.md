@@ -1,0 +1,14 @@
+# Code review check list:
+- The code must follow the style document such as:
+   - naming convention (e.g. UpperCamelCase for classes and lowerCamelCase for variables)
+   - formatting
+   - javadoc formatting
+- Write useful comments
+- Specifications must be written (input, output, modifications)
+- Use meaningful and explanatory names (classes, methods, variables...)
+- Proper code modularity: methods shoudn't be too long
+- All exceptions are catched and properly handled
+- Avoid hard coding 
+- Encapsulate as much as possible by:
+  - avoiding global variables when possible
+  - using appropriate access modifiers
