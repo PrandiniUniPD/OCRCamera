@@ -5,7 +5,6 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.core.MatOfInt4;
 import android.graphics.Bitmap;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -418,8 +417,7 @@ class IPBuilder {
     }
 
     /**
-     * Applies the android's Bitmap method getPixels, that Finds line segments in a
-     * binary image using the probabilistic Hough transform
+     * Applies the android's Bitmap method getPixels, that gets the value of pixels into an array
      * @param builder the GetPixelsBuilder that contains the parameters of the
      *                getPixels method
      * @return an array containing a copy of the data in the bitmap

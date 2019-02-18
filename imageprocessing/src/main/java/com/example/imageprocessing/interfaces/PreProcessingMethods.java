@@ -1,7 +1,6 @@
 package com.example.imageprocessing.interfaces;
 
 import android.graphics.Bitmap;
-
 import com.example.imageprocessing.enumClasses.BlurValue;
 
 /**
@@ -17,14 +16,6 @@ public interface PreProcessingMethods {
      * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
     BlurValue isBlurred(Bitmap image);
-
-    /**
-     * Change the brightness of the image into an optimal one if it is necessary
-     * @param image the image we want to modify the brightness
-     * @return the image with the modified brightness
-     * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
-     */
-    BitmapContainer editBright(Bitmap image);
 
     /**
      * Does the image processing brightness adjustment and, if wanted to, it also auto rotates the image

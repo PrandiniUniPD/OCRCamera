@@ -1,7 +1,6 @@
 package com.example.imageprocessing.interfaces;
 
 import android.graphics.Bitmap;
-
 import com.example.imageprocessing.enumClasses.DetectTheTextMethods;
 
 /**

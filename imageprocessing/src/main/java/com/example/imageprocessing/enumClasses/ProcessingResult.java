@@ -20,11 +20,11 @@ public enum ProcessingResult{
 
     /**
      * Constructor of the error object that assings a specific error's code and message
-     * @param id The result's code
+     * @param value The number assigned to the constant
      * @param message The result's message
      */
-    ProcessingResult(int id, String message){
-        resultCode = id;
+    ProcessingResult(int value, String message){
+        resultCode = value;
         resultMessage = message;
     }
 

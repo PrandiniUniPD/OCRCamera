@@ -1,21 +1,21 @@
 package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
-
 import com.example.imageprocessing.enumClasses.ProcessingResult;
 import com.example.imageprocessing.interfaces.BitmapContainer;
-
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
- * Class used to manage the list of bitmaps and the errors
+ * Class used to manage the list of bitmaps and errors
  * @author Thomas Porro (g1)
  */
 class BitmapBox implements BitmapContainer {
     private List<Bitmap> container;
     private int counter;
     private ProcessingResult processingResult;
+
 
     /**
      * Constructor of the class that initialize the bitmaps's list and processingResult
@@ -59,6 +59,7 @@ class BitmapBox implements BitmapContainer {
         container.add(croppedImage);
     }
 
+
     /**
      * Set processingResult to the desired value
      * @param value the new value of processingResult
@@ -66,6 +67,7 @@ class BitmapBox implements BitmapContainer {
     void setProcessingResult(ProcessingResult value){
         processingResult = value;
     }
+
 
     @Override
     public ProcessingResult getProcessingResult(){

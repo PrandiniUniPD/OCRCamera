@@ -1,7 +1,6 @@
 package com.example.imageprocessing.interfaces;
 
 import org.opencv.core.RotatedRect;
-
 import java.util.Iterator;
 import java.util.List;
 

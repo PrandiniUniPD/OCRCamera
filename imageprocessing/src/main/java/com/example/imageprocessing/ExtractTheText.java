@@ -2,14 +2,12 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
-
 import com.example.imageprocessing.enumClasses.DetectTheTextMethods;
 import com.example.imageprocessing.enumClasses.ProcessingResult;
 import com.example.imageprocessing.exceptions.ConversionFailedException;
 import com.example.imageprocessing.interfaces.BitmapContainer;
 import com.example.imageprocessing.interfaces.DetectTheText;
 import com.example.imageprocessing.interfaces.TextRegions;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.Mat;
@@ -236,6 +234,7 @@ public class ExtractTheText extends PreProcessing implements DetectTheText {
             double inclinationAngle=0;
             RotatedRect fullImage = new RotatedRect(center, imageDimensions, inclinationAngle);
             textContainer.addRegion(fullImage);
+            //This flag let the user know that occurred an error during the processing
             textContainer.setProcessingResult(ProcessingResult.CONVERSION_FAILED);
             return textContainer;
         }
@@ -270,6 +269,7 @@ public class ExtractTheText extends PreProcessing implements DetectTheText {
         } catch (ConversionFailedException e){
             Log.e(TAG, e.getErrorMessage());
             imgTextContainer.addBitmap(image);
+            //This flag let the user know that occurred an error during the processing
             imgTextContainer.setProcessingResult(ProcessingResult.CONVERSION_FAILED);
             return imgTextContainer;
         }
@@ -293,11 +293,10 @@ public class ExtractTheText extends PreProcessing implements DetectTheText {
             Log.e(TAG, e.getErrorMessage());
             BitmapBox imgTextContainerFailure = new BitmapBox();
             imgTextContainerFailure.addBitmap(image);
+            //This flag let the user know that occurred an error during the processing
             imgTextContainerFailure.setProcessingResult(ProcessingResult.CONVERSION_FAILED);
             return imgTextContainerFailure;
         }
-        //Debug method
-        //IPDebug.saveBitmapList(imgTextContainer);
         return imgTextContainer;
     }
 }

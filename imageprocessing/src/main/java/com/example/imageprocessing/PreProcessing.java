@@ -211,11 +211,12 @@ public class PreProcessing implements PreProcessingMethods {
     }
 
     /**
-     * @author Thomas Porro(g1), Oscar Garrido (g1), Giovanni Fasan(g1)
-     * See PreProcessingMethods.java
+     * Change the brightness of the image into an optimal one
+     * @param image the image we want to modify the brightness
+     * @return the image with the modified brightness
+     * @author Thomas Porro(g1), Giovanni Fasan(g1), Oscar Garrido(g1)
      */
-    @Override
-    public BitmapContainer editBright(Bitmap image){
+    private BitmapContainer editBright(Bitmap image){
         /*This variable is used to put a limit to the change of the image's brightness.
           The value 240 is derived from the fact that in the for loop we try to modify
           the value of all the pixels of a step, and being the maximum value = 255 (pixel's
@@ -320,7 +321,7 @@ public class PreProcessing implements PreProcessingMethods {
                 .withHeight(laplacianImage.getHeight())
         );
 
-        //searches the maximum value of the pixels in the Laplacin filtered image
+        //Searches the maximum value of the pixels in the Laplacin filtered image
         for(int pixel : pixels){
             if(pixel > maxLap){
                 maxLap = pixel;
