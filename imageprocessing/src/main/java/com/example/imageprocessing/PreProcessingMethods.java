@@ -27,7 +27,4 @@ public interface PreProcessingMethods {
      */
      Bitmap doImageProcessing(Bitmap image, boolean autoSkew);
 
-    /**
-     *
-     */
 }

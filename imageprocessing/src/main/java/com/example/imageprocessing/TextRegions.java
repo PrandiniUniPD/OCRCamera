@@ -16,5 +16,4 @@ public interface TextRegions extends Iterator {
      * @return The arraylist that contains all the region with some text
      */
     List<RotatedRect> getRegions();
-
 }
