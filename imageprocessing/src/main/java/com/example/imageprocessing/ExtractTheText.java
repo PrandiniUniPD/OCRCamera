@@ -249,7 +249,7 @@ public class ExtractTheText extends PreProcessing implements DetectTheText {
             case DETECT_ALL_TEXT_AREAS: rectanglesList = detectTextAreas(filteredMat);
                     break;
         }
-        for(RotatedRect rectangle :  rectanglesList){
+        for(RotatedRect rectangle : rectanglesList){
             textContainer.addRegion(rectangle);
         }
         return textContainer;
@@ -262,7 +262,6 @@ public class ExtractTheText extends PreProcessing implements DetectTheText {
     @Override
     public BitmapContainer extractTextFromBitmap(Bitmap image, TextRegions textContainer) {
         BitmapBox imgTextContainer = new BitmapBox();
-        //List<Bitmap> imgTextContainer = new ArrayList<>();
         Mat img;
 
         //Converts the image into a matrix

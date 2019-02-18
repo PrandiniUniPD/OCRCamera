@@ -143,7 +143,7 @@ public class PreProcessing implements PreProcessingMethods {
      * @return IMAGE_IS_OK if image is neither too bright nor too dark,
      *         IMAGE_IS_BRIGHT if image is too bright,
      *         IMAGE_IS_DARK if image is too dark.
-     * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
+     * @author Thomas Porro(g1), Giovanni Fasan(g1), Oscar Garrido (g1)
      */
     private BrightnessValue isBright(Mat imageMat){
 
@@ -210,7 +210,10 @@ public class PreProcessing implements PreProcessingMethods {
         }
     }
 
-
+    /**
+     * @author Thomas Porro(g1), Oscar Garrido (g1), Giovanni Fasan(g1)
+     * See PreProcessingMethods.java
+     */
     @Override
     public BitmapContainer editBright(Bitmap image){
         /*This variable is used to put a limit to the change of the image's brightness.
