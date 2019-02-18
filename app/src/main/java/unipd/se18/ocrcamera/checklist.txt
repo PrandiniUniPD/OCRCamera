@@ -1,0 +1,8 @@
+CHECKLIST:
+1- Presenza di hardcording
+2- Presenza di commenti essenzali per la compresione del codice
+3- Nome delle variabiri: stile (UpperCamelCase per le classi e lowerCamelCase per le variabili) e significato (coerente con la loro funzione)
+4- Presenza di catch inutili o vuoti
+5- Come sono gestite le eccezioni
+6- Presenza di eccezioni troppo generiche
+7- Specifiche chiare e complente
