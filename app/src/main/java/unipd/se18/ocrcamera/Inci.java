@@ -8,91 +8,91 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+/**
+ * @see <a href="https://en.wikipedia.org/wiki/International_Nomenclature_of_Cosmetic_Ingredients">International Nomenclature of Cosmetic ingredients (INCI)</a>
+ */
 public class Inci {
 
     //list where save the ingredients
-    private ArrayList<String> listInci;
-    //list where save the description of ingredients
-    private ArrayList<String> listInciDescription;
+    private ArrayList<String[]> listInci;
     //list where save the ingredients found
-    private ArrayList<String> listIngredientFound;
+    private ArrayList<String[]> listIngredientFound;
 
     /**
-     * @author Giovanni Fasan(g1)
      * Constructor
-     * @param inputStream of the R.raw.database
      * with loadDB it load Inci ingredients to arraylist
+     * @param inputStream of the R.raw.database
+     * @author Giovanni Fasan(g1)
      */
     public Inci(InputStream inputStream) {
-        listInci = new ArrayList<String>();
-        listInciDescription = new ArrayList<String>();
-        listIngredientFound = new ArrayList<String>();
+        listInci = new ArrayList<String[]>();
+        listIngredientFound = new ArrayList<String[]>();
         loadDB(inputStream);
     }
 
-    public ArrayList<String> getListInci(){
+    public ArrayList<String[]> getListInci(){
         return this.listInci;
     }
 
-    public ArrayList<String> getListInciDescription(){
-        return this.listInciDescription;
-    }
-
-    public ArrayList<String> getListIngredientFound(){
+    public ArrayList<String[]> getListIngredientFound(){
         return this.listIngredientFound;
     }
 
 
     /**
-     * @author Giovanni Fasan(g1)
+     * Load every Inci ingredients to arrayList
      * @param inputStream of the R.raw.database
      * @return void
-     * Load every Inci ingredients to arrayList
+     * @author Giovanni Fasan(g1)
      */
     private void loadDB(InputStream inputStream){
         //define 0 the name of the ingredients
-        int name=0;
+        final int name=0;
         //define 1 the description of the ingredients
-        int description=1;
+        final int description=1;
         //open Buffer Reader for read the database
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
-        String ingredient;
         try {
             //slide every line of the database and add in the appropriate list
-            while ((ingredient = reader.readLine()) != null) {
+            for(String ingredient = reader.readLine(); ingredient != null; ingredient = reader.readLine()){
                 String[] inci=ingredient.split(";");
-                listInci.add(inci[name].trim());
-                //TODO listInciDescription
-                //listInciDescription.add(inci[description].trim());
+                String[] str = {inci[name].trim(), inci[description].trim()};
+                listInci.add(str);
             }
             Log.d("inci", "create listInci");
         }catch (Exception e){
-            e.printStackTrace();
+            String[] error = {"No Inci ingredients"};
+            listInci.add(error);
         }
     }
 
     /**
-     * @author Giovanni Fasan(g1)
-     * @return String with ingredients list of the label
      * Concatenate all the ingredients found in a string. It puts the ingredidients in bold
+     * @return String with ingredients list of the label
+     * @author Giovanni Fasan(g1)
      */
 
     public String ingredientsFoundToString() {
-        String inci="";
+        //define 0 the name of the ingredients
+        final int name=0;
+        //define 1 the description of the ingredients
+        final int description=1;
+        StringBuilder inci = new StringBuilder("");
+        //Inserts the name of the ingredient in bold and the description into the StringBuilder
         for (int j=0; j<this.listIngredientFound.size(); j++){
-            inci = inci + "<b>" + listIngredientFound.get(j) + "</b>; ";
+            inci.append("<b>" + listIngredientFound.get(j)[name] + "</b>:"+listIngredientFound.get(j)[description]+"\n");
         }
 
-        return inci;
+        return inci.toString();
     }
 
     /**
-     * @author Giovanni Fasan(g1)
      * @param text String in which you have to find the ingredients
      * loads all the ingredients inci found in the ArrayList listIngredientFound
+     * @author Giovanni Fasan(g1)
      */
     private void findIngredientsList_old(String text) {
-        listIngredientFound = new ArrayList<String>();
+        listIngredientFound = new ArrayList<String[]>();
         //remove every \n
         //split by Ingredients to reduce the number of words to be analyzed
         String noEnd = text.replaceAll("\n", " ");
@@ -104,24 +104,22 @@ public class Inci {
                 }
             }
         }
-
     }
 
 
     /**
-     * @author Giovanni Fasan(g1)
-     * @param text String in which you have to find the ingredients
      * loads all the ingredients inci found in the ArrayList listIngredientFound
+     * @param text String in which you have to find the ingredients
+     * @author Giovanni Fasan(g1)
      */
     public void findIngredientsList(String text) {
-        listIngredientFound = new ArrayList<String>();
+        listIngredientFound = new ArrayList<String[]>();
         //remove every \n and every :
         //split by Ingredients to reduce the number of words to be analyzed
         String[] noEnd = text.replaceAll("\n", " ").replaceAll(":", " ").split("Ingredients");
         if (noEnd.length==2){
             //if I have a length of the vector is 2, I take the second part of the vector, that is the one where there is the list of ingredients
             String [] word = noEnd[1].split(",");
-            Log.d("inci", "=2");
             for (String w : word) {
                 for (int j=0; j<this.listInci.size(); j++){
                     if (w.trim().toUpperCase().equals(listInci.get(j))) {
@@ -131,7 +129,6 @@ public class Inci {
             }
         }else{
             //in case there are more words Ingredients are forced to scroll and search all vectors to see if I find more lists of ingredients
-            Log.d("inci", ">2 or =1");
             for (String par : noEnd){
                 String [] word = par.split(",");
                 for (String w : word) {
