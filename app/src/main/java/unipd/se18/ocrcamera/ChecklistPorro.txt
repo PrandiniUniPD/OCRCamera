@@ -1,0 +1,16 @@
+Codereview's checklist:
+	-Does the code respect the style guide?
+	-Is the code easy to read?
+	-Are there enough comments?
+	-Does the method respect the specs?
+	-Is the method's name appropriate?
+	-Is it possible to divide the main method to make easier the tests?
+	-Are the desing patterns well used?
+	-Are the access modifiers right?
+	-Does the variable's names reflect their role in the code?
+	-Are the exceptions well managed?
+	-When a code returns a number is it possible to use an enum class?
+	-Is there any harcoding?
+
+These are the main things I've checked while I do the reviews. I've also checked if there were
+a way to improve the code.
