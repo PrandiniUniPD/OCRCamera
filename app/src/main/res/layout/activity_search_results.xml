@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SearchResultsActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <AutoCompleteTextView
+                android:id="@+id/ingredients_auto_complete_text_view"
+                android:minWidth="250dp"
+                android:layout_height="wrap_content"
+                android:maxHeight="100dp"
+                android:hint="Enter ingredient name"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_toLeftOf="@+id/auto_complete_text_view_button"
+                android:layout_alignParentLeft="true"
+                android:singleLine="true" >
+                <!--  Set singleLine=true so on Enter Key we can run a search -->
+                <requestFocus />
+            </AutoCompleteTextView>
+
+            <Button
+                android:id="@+id/auto_complete_text_view_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_search"
+                android:layout_weight="0"
+                android:layout_alignParentRight="true"/>
+        </LinearLayout>
+
+
+
+
+        <ListView
+            android:id="@+id/ingredients_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+
+            android:scrollbars="vertical">
+        </ListView>
+        <TextView
+            android:id="@+id/message_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:paddingTop="20dp"
+            android:textSize="16sp"
+            android:textColor="#cc0c04"
+            android:textAlignment="center"
+            android:scrollbars="vertical">
+        </TextView>
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>
