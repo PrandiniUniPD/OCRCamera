@@ -1,10 +1,8 @@
-package com.example.imageprocessing;
+package com.example.imageprocessing.interfaces;
 
 import android.graphics.Bitmap;
 
 import com.example.imageprocessing.enumClasses.DetectTheTextMethods;
-
-import java.util.List;
 
 /**
  * Interface used to detect the text in an image

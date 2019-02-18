@@ -1,4 +1,4 @@
-package com.example.imageprocessing;
+package com.example.imageprocessing.interfaces;
 
 import org.opencv.core.RotatedRect;
 
