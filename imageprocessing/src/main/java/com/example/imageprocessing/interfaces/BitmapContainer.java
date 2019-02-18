@@ -2,6 +2,8 @@ package com.example.imageprocessing.interfaces;
 
 import android.graphics.Bitmap;
 
+import com.example.imageprocessing.enumClasses.ProcessingResult;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,4 +24,10 @@ public interface BitmapContainer extends Iterator {
      * @return the Bitmap in the first place
      */
     Bitmap getFirstBitmap();
+
+    /**
+     * Get the processingResult value
+     * @return the value of processingResult
+     */
+    ProcessingResult getProcessingResult();
 }

@@ -35,8 +35,6 @@ public class PreProcessing implements PreProcessingMethods {
      * @author Thomas Porro (g1)
      */
     public PreProcessing() {
-        //TODO verify if the library is correctly loaded
-
         //Load the openCV library
         LibraryLoaderSingleton.loadLibrary();
     }

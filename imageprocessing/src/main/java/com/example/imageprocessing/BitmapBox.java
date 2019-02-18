@@ -35,7 +35,7 @@ class BitmapBox implements BitmapContainer {
     BitmapBox(Bitmap image, ProcessingResult value){
         container = new ArrayList<>();
         container.add(image);
-        counter = 1;
+        counter = 0;
         processingResult = value;
     }
 
@@ -67,14 +67,10 @@ class BitmapBox implements BitmapContainer {
         processingResult = value;
     }
 
-    /**
-     * Get the processingResult's value
-     * @return the value of processingResult
-     */
-    ProcessingResult getProcessingResult(){
+    @Override
+    public ProcessingResult getProcessingResult(){
         return processingResult;
     }
-
 
     @Override
     public List<Bitmap> getTextBitmaps() {
@@ -83,7 +79,11 @@ class BitmapBox implements BitmapContainer {
 
     @Override
     public Bitmap getFirstBitmap(){
-        return (Bitmap)this.next();
+        if(this.hasNext()) {
+            return container.get(0);
+        } else {
+            return null;
+        }
     }
 
     @Override
