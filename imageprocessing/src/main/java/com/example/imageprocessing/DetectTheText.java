@@ -29,5 +29,5 @@ public interface DetectTheText {
      * @return A list of bitmaps, each containing some text. If it fails return a List containing
      *         only the full image
      */
-    List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions regions);
+    BitmapContainer extractTextFromBitmap(Bitmap image, TextRegions regions);
 }

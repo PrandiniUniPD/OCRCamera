@@ -45,6 +45,7 @@ class TextAreas implements TextRegions{
         detectedText.add(region);
     }
 
+
     /**
      * Set the value of the enum class
      * @param value the new value of processingResult
@@ -52,6 +53,7 @@ class TextAreas implements TextRegions{
     void setProcessingResult(ProcessingResult value){
         processingResult = value;
     }
+
 
     /**
      * Get the value of the enum class
@@ -63,7 +65,11 @@ class TextAreas implements TextRegions{
 
     @Override
     public Object next(){
-        return detectedText.get(counter++);
+        if(this.hasNext()) {
+            return detectedText.get(counter++);
+        } else {
+            return null;
+        }
     }
 
     @Override
