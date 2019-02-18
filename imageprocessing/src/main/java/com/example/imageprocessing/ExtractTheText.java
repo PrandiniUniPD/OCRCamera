@@ -6,6 +6,10 @@ import android.util.Log;
 import com.example.imageprocessing.enumClasses.DetectTheTextMethods;
 import com.example.imageprocessing.enumClasses.ProcessingResult;
 import com.example.imageprocessing.exceptions.ConversionFailedException;
+import com.example.imageprocessing.interfaces.BitmapContainer;
+import com.example.imageprocessing.interfaces.DetectTheText;
+import com.example.imageprocessing.interfaces.TextRegions;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.Mat;
@@ -25,7 +29,7 @@ import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
  * Class used to analyze the image
  * @author Thomas Porro (g1), Oscar Garrido (g1)
  */
-public class ExtractTheText extends PreProcessing implements DetectTheText{
+public class ExtractTheText extends PreProcessing implements DetectTheText {
 
     /*
         Documentation of the Imgproc class available at:

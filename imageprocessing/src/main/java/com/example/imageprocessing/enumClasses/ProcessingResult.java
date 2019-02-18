@@ -7,7 +7,12 @@ package com.example.imageprocessing.enumClasses;
 public enum ProcessingResult{
     //List of all the error with their messages
     CONVERSION_FAILED(0, "Conversion Failed"),
-    PROCESSING_SUCCESSFUL(1, "Processing successful");
+    PROCESSING_SUCCESSFUL(1, "Processing successful"),
+    PROCESSING_FAILED(2, "Processing Failed"),
+    BRIGHTNESS_MODIFIED(3, "Brightness modified successfully"),
+    BRIGHTNESS_CONVERSION_ERROR(4, "Error while converting the image"),
+    AUTOSKEW_FAILED(5, "Error while converting the image"),
+    AUTOSKEW_SUCCESSFUL(6, "Image successfully rotated");
 
     //Variables of the class
     private int resultCode;

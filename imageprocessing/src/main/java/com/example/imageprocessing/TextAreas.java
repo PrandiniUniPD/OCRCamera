@@ -1,6 +1,7 @@
 package com.example.imageprocessing;
 
 import com.example.imageprocessing.enumClasses.ProcessingResult;
+import com.example.imageprocessing.interfaces.TextRegions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import org.opencv.core.RotatedRect;
  * Class that contains all the regions with a text in an image
  * @author Thomas Porro (g1)
  */
-class TextAreas implements TextRegions{
+class TextAreas implements TextRegions {
     private List<RotatedRect> detectedText;
     private int counter;
     private ProcessingResult processingResult;

@@ -6,14 +6,20 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Interface used to get the list of the cropped images with some text in them
+ * Interface used to manage all the processing's operations
  * @author Thomas Porro (g1)
  */
 public interface BitmapContainer extends Iterator {
 
     /**
-     * Get a list of bitmaps that hopefully contains some text in them
+     * Get the full list of bitmaps
      * @return the list of bitmaps
      */
     List<Bitmap> getTextBitmaps();
+
+    /**
+     * Get the first element of the bitmap's list
+     * @return the Bitmap in the first place
+     */
+    Bitmap getFirstBitmap();
 }

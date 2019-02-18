@@ -3,6 +3,7 @@ package com.example.imageprocessing;
 import android.graphics.Bitmap;
 
 import com.example.imageprocessing.enumClasses.ProcessingResult;
+import com.example.imageprocessing.interfaces.BitmapContainer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,19 @@ class BitmapBox implements BitmapContainer {
         processingResult = ProcessingResult.PROCESSING_SUCCESSFUL;
     }
 
+
+    /**
+     * Constructor of the class that initialize the bitmaps's list with a single image,
+     * and initialize processingResult with the desired value
+     */
+    BitmapBox(Bitmap image, ProcessingResult value){
+        container = new ArrayList<>();
+        container.add(image);
+        counter = 1;
+        processingResult = value;
+    }
+
+
     /**
      * Constructor of the class that initialize the bitmaps's list and processingResult
      * to the desired value
@@ -35,6 +49,7 @@ class BitmapBox implements BitmapContainer {
         counter = 0;
         processingResult = value;
     }
+
 
     /**
      * Add a bitmap to the list
@@ -65,6 +80,12 @@ class BitmapBox implements BitmapContainer {
     public List<Bitmap> getTextBitmaps() {
         return container;
     }
+
+    @Override
+    public Bitmap getFirstBitmap(){
+        return (Bitmap)this.next();
+    }
+
     @Override
     public Object next(){
         if(this.hasNext()) {
