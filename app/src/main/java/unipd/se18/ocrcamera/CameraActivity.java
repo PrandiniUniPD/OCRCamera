@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import com.camerakit.CameraKitView;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -155,8 +156,9 @@ public class CameraActivity extends AppCompatActivity {
                 edit.apply();
 
                 //An intent that will launch the activity that will analyse the photo
-                Intent i = new Intent(CameraActivity.this, ResultActivity.class);
+                Intent i = new Intent(CameraActivity.this, CropActivity.class);
                 startActivity(i);
+
             }
         });
 

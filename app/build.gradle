@@ -35,6 +35,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     testImplementation 'junit:junit:4.12'
@@ -55,5 +56,6 @@ dependencies {
     implementation 'commons-net:commons-net:3.6'
     implementation project(path: ':barcodeModule')
     implementation project(path: ':eanResolveModule')
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.+'
 }
 apply plugin: 'com.google.gms.google-services'

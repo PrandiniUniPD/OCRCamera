@@ -23,7 +23,6 @@
         android:theme="@style/AppTheme">
 
 
-
         <!-- Content Provider configurations - author (g3) -->
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -62,8 +61,10 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity android:name=".DownloadDbActivity"></activity>
-
-
+        <activity android:name=".CropActivity"
+            android:parentActivityName=".CameraActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
 
     </application>
 

@@ -42,8 +42,8 @@ public class ResultActivity extends AppCompatActivity {
     /**
      * Bitmap of the lastPhoto saved
      */
-    private Bitmap lastPhoto;
-
+    static Bitmap lastPhoto;
+    private Bitmap originalPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +63,10 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
-
-        //Get image path and text of the last image from preferences
-        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-        String pathImage = prefs.getString("imagePath", null);
-
-        lastPhoto = BitmapFactory.decodeFile(pathImage);
+        //retrieve the original not cropped image to recrop if needed
+        //SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        //String pathName = prefs.getString("imagePath", null);
+        //originalPhoto = BitmapFactory.decodeFile(pathName);
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
@@ -124,7 +122,7 @@ public class ResultActivity extends AppCompatActivity {
         BarcodeListener barcodeListener = new BarcodeListener() {
             @Override
             public void onBarcodeRecognized(String barcode) {
-                mOCRTextView.setText(barcode);
+                mOCRTextView.setText(getProductInfo(barcode));
             }
 
             @Override
@@ -155,6 +153,14 @@ public class ResultActivity extends AppCompatActivity {
     private String getProductInfo(String barcode){
         EAN eanResolve = eanResolve(EANResolve.API.MIGNIFY);
         return eanResolve.decodeEAN(barcode);
+    }
+
+    /**
+     * let the user recrop the original photo
+     * @param view button to start the crop activity
+     */
+    public void recrop(View view){
+        finish();
     }
 
     /**
