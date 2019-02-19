@@ -1,0 +1,10 @@
+1a) Controlla che il codice sia sufficientemente commentato
+1b) Controlla che vengano utilizzate le convenzioni prestabilite (nomenclatura etc.) 
+2) Controlla se le eccezioni sono usate a sproposito (o troppo poco utilizzate)
+3a) Controlla se vengono creati oggetti non necessari o se è poco chiaro l'utilizzo di un dato oggetto 
+3b) Verifica che gli oggetti vengano inizializzati quando bisogna effettivamente usarli (aumento della leggibilità!)
+3c) *Evita* Hard coding
+4) Controlla se possono esserci dei possibili memory leak
+5) Controlla se è possibile usare Enum piuttosto che "liste di int"
+6) Considera il vantaggio di un possibile/maggior uso delle interfacce
+7) Considera il vantaggio di un possibile/maggior uso di "static"
