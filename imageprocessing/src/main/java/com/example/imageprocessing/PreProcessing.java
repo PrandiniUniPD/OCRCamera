@@ -6,7 +6,11 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import com.example.imageprocessing.enumClasses.BlurValue;
 import com.example.imageprocessing.enumClasses.BrightnessValue;
+import com.example.imageprocessing.enumClasses.ProcessingResult;
 import com.example.imageprocessing.exceptions.ConversionFailedException;
+import com.example.imageprocessing.interfaces.BitmapContainer;
+import com.example.imageprocessing.interfaces.PreProcessingMethods;
+
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt4;
@@ -31,19 +35,18 @@ public class PreProcessing implements PreProcessingMethods {
      * @author Thomas Porro (g1)
      */
     public PreProcessing() {
-        //TODO verify if the library is correctly loaded
-
         //Load the openCV library
         LibraryLoaderSingleton.loadLibrary();
     }
 
     /**
-     * Calculate the angle between the text and the horizontal
+     * Calculate the angle between the text and the horizontal, and rotate the image
      * @param image The image you want to analyze
-     * @return the angle between the text and the horizontal. 0 if it fails
+     * @return a BitmapContainer object that contain the image eventually rotated and the result
+     *         of the process
      * @author Thomas Porro (g1)
      */
-    private double computeSkew(Bitmap image){
+    private BitmapBox computeSkew(Bitmap image){
 
         //Turns the image into a matrix
         Mat img;
@@ -51,7 +54,7 @@ public class PreProcessing implements PreProcessingMethods {
             img = IPUtils.conversionBitmapToMat(image);
         } catch (ConversionFailedException error){
             Log.e(TAG, error.getErrorMessage());
-            return 0;
+            return new BitmapBox(image, ProcessingResult.AUTOSKEW_FAILED);
         }
 
 
@@ -106,7 +109,8 @@ public class PreProcessing implements PreProcessingMethods {
         //Transform the angle in degrees
         double degreesAngle = Math.toDegrees(meanAngle);
         Log.i(TAG, "Mean angle=" + degreesAngle);
-        return degreesAngle;
+        Bitmap rotatedImage = rotateBitmap(image, degreesAngle);
+        return new BitmapBox(rotatedImage, ProcessingResult.AUTOSKEW_SUCCESSFUL);
     }
 
     /**
@@ -134,24 +138,12 @@ public class PreProcessing implements PreProcessingMethods {
 
 
     /**
-     * Performs the skew correction
-     * @param image The image that I want to rotate, must not be null
-     * @return The image corrected
-     * @author Thomas Porro(g1), Giovanni Fasan (g1), Oscar Garrido (g1)
-     */
-    private Bitmap editSkew(@NonNull Bitmap image){
-        double angle = computeSkew(image);
-        return rotateBitmap(image, angle);
-    }
-
-
-    /**
      * Detect if the image is bright
      * @param imageMat the image we want to detect the brightness
      * @return IMAGE_IS_OK if image is neither too bright nor too dark,
      *         IMAGE_IS_BRIGHT if image is too bright,
      *         IMAGE_IS_DARK if image is too dark.
-     * @author Thomas Porro(g1), Giovanni Fasan(g1), Leonardo Pratesi(g1)
+     * @author Thomas Porro(g1), Giovanni Fasan(g1), Oscar Garrido (g1)
      */
     private BrightnessValue isBright(Mat imageMat){
 
@@ -218,19 +210,17 @@ public class PreProcessing implements PreProcessingMethods {
         }
     }
 
-
     /**
      * Change the brightness of the image into an optimal one
      * @param image the image we want to modify the brightness
      * @return the image with the modified brightness
      * @author Thomas Porro(g1), Giovanni Fasan(g1), Oscar Garrido(g1)
      */
-    private Bitmap editBright(Bitmap image){
+    private BitmapContainer editBright(Bitmap image){
         /*This variable is used to put a limit to the change of the image's brightness.
           The value 240 is derived from the fact that in the for loop we try to modify
           the value of all the pixels of a step, and being the maximum value = 255 (pixel's
           color maximum value, we put the limit on 240*/
-        final int MAX_BRIGHTNESS = 240;
         final int STEP = 15;
 
         //Converts the image into a matrix
@@ -239,7 +229,7 @@ public class PreProcessing implements PreProcessingMethods {
             imageMat = IPUtils.conversionBitmapToMat(image);
         } catch (ConversionFailedException error){
             Log.e(TAG, error.getErrorMessage());
-            return image;
+            return new BitmapBox(image, ProcessingResult.BRIGHTNESS_CONVERSION_ERROR);
         }
 
 		/*This variable is used to select the type of matrix we want to abtain in the
@@ -272,10 +262,11 @@ public class PreProcessing implements PreProcessingMethods {
         }
         Log.d(TAG, "IMAGE_IS_OK");
         try {
-            return IPUtils.conversionMatToBitmap(imageMat);
+            Bitmap convertedImage = IPUtils.conversionMatToBitmap(imageMat);
+            return new BitmapBox(convertedImage, ProcessingResult.BRIGHTNESS_MODIFIED);
         } catch (ConversionFailedException error) {
             Log.e(TAG, error.getErrorMessage());
-            return image;
+            return new BitmapBox(image, ProcessingResult.BRIGHTNESS_CONVERSION_ERROR);
         }
     }
 
@@ -330,7 +321,7 @@ public class PreProcessing implements PreProcessingMethods {
                 .withHeight(laplacianImage.getHeight())
         );
 
-        //searches the maximum value of the pixels in the Laplacin filtered image
+        //Searches the maximum value of the pixels in the Laplacin filtered image
         for(int pixel : pixels){
             if(pixel > maxLap){
                 maxLap = pixel;
@@ -353,11 +344,12 @@ public class PreProcessing implements PreProcessingMethods {
      * See PreProcessingMethods.java
      */
     @Override
-    public Bitmap doImageProcessing(Bitmap image, boolean autoSkew) {
+    public BitmapContainer doImageProcessing(Bitmap image, boolean autoSkew) {
         //Call methods that perform the image processing
-        Bitmap modifiedBright = editBright(image);
-        if(autoSkew)
-            modifiedBright = editSkew(modifiedBright);
+        BitmapContainer modifiedBright = editBright(image);
+        if(autoSkew) {
+            modifiedBright = computeSkew(modifiedBright.getFirstBitmap());
+        }
         return modifiedBright;
     }
 }

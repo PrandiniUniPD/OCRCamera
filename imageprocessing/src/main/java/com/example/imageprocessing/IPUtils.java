@@ -2,12 +2,10 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
-
 import com.example.imageprocessing.exceptions.ConversionFailedException;
 import com.example.imageprocessing.enumClasses.ErrorCodes;
 import com.example.imageprocessing.exceptions.FailedToSave;
 import com.example.imageprocessing.exceptions.MatrixEmptyException;
-
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import java.io.File;
@@ -118,5 +116,4 @@ class IPUtils {
         }
         return img;
     }
-
 }

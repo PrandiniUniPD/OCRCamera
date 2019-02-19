@@ -1,7 +1,6 @@
-package com.example.imageprocessing;
+package com.example.imageprocessing.interfaces;
 
 import org.opencv.core.RotatedRect;
-
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,5 +15,4 @@ public interface TextRegions extends Iterator {
      * @return The arraylist that contains all the region with some text
      */
     List<RotatedRect> getRegions();
-
 }

@@ -18,7 +18,7 @@ public enum ErrorCodes{
     /**
      * Constructor of the error object that assings a specific error's code and message
      * @param id The error's code
-     * @param message The errors' message
+     * @param message The error's message
      */
     ErrorCodes(int id, String message){
         this.errorCode = id;

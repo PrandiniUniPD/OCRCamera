@@ -2,9 +2,12 @@ package com.example.imageprocessing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
-
 import com.example.imageprocessing.enumClasses.DetectTheTextMethods;
+import com.example.imageprocessing.enumClasses.ProcessingResult;
 import com.example.imageprocessing.exceptions.ConversionFailedException;
+import com.example.imageprocessing.interfaces.BitmapContainer;
+import com.example.imageprocessing.interfaces.DetectTheText;
+import com.example.imageprocessing.interfaces.TextRegions;
 import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.Mat;
@@ -24,7 +27,7 @@ import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
  * Class used to analyze the image
  * @author Thomas Porro (g1), Oscar Garrido (g1)
  */
-public class ExtractTheText extends PreProcessing implements DetectTheText{
+public class ExtractTheText extends PreProcessing implements DetectTheText {
 
     /*
         Documentation of the Imgproc class available at:
@@ -231,6 +234,8 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
             double inclinationAngle=0;
             RotatedRect fullImage = new RotatedRect(center, imageDimensions, inclinationAngle);
             textContainer.addRegion(fullImage);
+            //This flag let the user know that occurred an error during the processing
+            textContainer.setProcessingResult(ProcessingResult.CONVERSION_FAILED);
             return textContainer;
         }
         //Do the image Processing
@@ -243,7 +248,7 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
             case DETECT_ALL_TEXT_AREAS: rectanglesList = detectTextAreas(filteredMat);
                     break;
         }
-        for(RotatedRect rectangle :  rectanglesList){
+        for(RotatedRect rectangle : rectanglesList){
             textContainer.addRegion(rectangle);
         }
         return textContainer;
@@ -254,8 +259,8 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
      * @author Thomas Porro(g1)
      */
     @Override
-    public List<Bitmap> extractTextFromBitmap(Bitmap image, TextRegions textContainer) {
-        List<Bitmap> imgTextContainer = new ArrayList<>();
+    public BitmapContainer extractTextFromBitmap(Bitmap image, TextRegions textContainer) {
+        BitmapBox imgTextContainer = new BitmapBox();
         Mat img;
 
         //Converts the image into a matrix
@@ -263,7 +268,9 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
             img = IPUtils.conversionBitmapToMat(image);
         } catch (ConversionFailedException e){
             Log.e(TAG, e.getErrorMessage());
-            imgTextContainer.add(image);
+            imgTextContainer.addBitmap(image);
+            //This flag let the user know that occurred an error during the processing
+            imgTextContainer.setProcessingResult(ProcessingResult.CONVERSION_FAILED);
             return imgTextContainer;
         }
 
@@ -280,16 +287,16 @@ public class ExtractTheText extends PreProcessing implements DetectTheText{
                 Mat croppedMat = crop(rectangle, img);
                 //If the conversion failed return a List with only the original image
                 Bitmap croppedBitmap = IPUtils.conversionMatToBitmap(croppedMat);
-                imgTextContainer.add(croppedBitmap);
+                imgTextContainer.addBitmap(croppedBitmap);
             }
         } catch (ConversionFailedException e) {
             Log.e(TAG, e.getErrorMessage());
-            List<Bitmap> imgTextContainerFailure = new ArrayList<>();
-            imgTextContainerFailure.add(image);
+            BitmapBox imgTextContainerFailure = new BitmapBox();
+            imgTextContainerFailure.addBitmap(image);
+            //This flag let the user know that occurred an error during the processing
+            imgTextContainerFailure.setProcessingResult(ProcessingResult.CONVERSION_FAILED);
             return imgTextContainerFailure;
         }
-        //Debug method
-        //IPDebug.saveBitmapList(imgTextContainer);
         return imgTextContainer;
     }
 }

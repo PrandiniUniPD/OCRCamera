@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.imageprocessing.PreProcessing;
+import com.example.imageprocessing.interfaces.BitmapContainer;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -128,7 +129,9 @@ public class ResultActivity extends AppCompatActivity {
             // Bitmap of the lastPhoto saved
             lastPhoto = BitmapFactory.decodeFile(lastImagePath);
             PreProcessing processing = new PreProcessing();
-            lastPhoto = processing.doImageProcessing(lastPhoto);
+            BitmapContainer photo = processing.doImageProcessing(lastPhoto, true);
+            lastPhoto = photo.getFirstBitmap();
+            Log.d(TAG, photo.getProcessingResult().getResultMessage());
 
             // Sets the image to the view
             mImageView.setImageBitmap(

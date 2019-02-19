@@ -1,7 +1,6 @@
-package com.example.imageprocessing;
+package com.example.imageprocessing.interfaces;
 
 import android.graphics.Bitmap;
-
 import com.example.imageprocessing.enumClasses.BlurValue;
 
 /**
@@ -13,7 +12,7 @@ public interface PreProcessingMethods {
     /**
      * Detect if the image is blurred
      * @param image The image we want to discover if is blurred
-     * @return True if the image is blurred. False otherwise or if the detection failed
+     * @return BlurValue type that contains the information of the image
      * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
     BlurValue isBlurred(Bitmap image);
@@ -25,9 +24,6 @@ public interface PreProcessingMethods {
      * @return a Bitmap with adjustment, auto cropping the image and the likes
      * @author Thomas Porro (g1), Giovanni Fasan (g1), Oscar Garrido (g1)
      */
-     Bitmap doImageProcessing(Bitmap image, boolean autoSkew);
+     BitmapContainer doImageProcessing(Bitmap image, boolean autoSkew);
 
-    /**
-     *
-     */
 }
