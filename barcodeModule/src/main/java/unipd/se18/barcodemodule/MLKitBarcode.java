@@ -10,7 +10,6 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * This class implements the MLKit Api for barcode recognition
@@ -28,7 +27,11 @@ public class MLKitBarcode implements Barcode{
      * @param listener
      */
     public MLKitBarcode (BarcodeListener listener){
-        barcodeListener = listener;
+        if (listener != null){
+            barcodeListener = listener;
+        }else{
+            throw new IllegalArgumentException("BarcodeListener must be provided");
+        }
     }
 
     /**
@@ -40,7 +43,7 @@ public class MLKitBarcode implements Barcode{
     public void decodeBarcode(Bitmap bitmap) {
 
         if (bitmap == null){
-            barcodeListener.onBarcodeRecognizedError(BarcodeListener.BITMAP_NOT_FOUND);
+            throw new IllegalArgumentException("No photo was found");
         }
 
         //get the FirebaseImage obj from the bitmap
@@ -67,7 +70,7 @@ public class MLKitBarcode implements Barcode{
                             barcodeListener.onBarcodeRecognized(barcodes.get(0).getRawValue());
                         }
                         else {
-                            barcodeListener.onBarcodeRecognizedError(BarcodeListener.BARCODE_NOT_FOUND);
+                            barcodeListener.onBarcodeRecognizedError(ErrorCode.BARCODE_NOT_FOUND);
                         }
                     }
                 })
@@ -76,7 +79,7 @@ public class MLKitBarcode implements Barcode{
 
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        barcodeListener.onBarcodeRecognizedError(BarcodeListener.DECODING_ERROR);
+                        barcodeListener.onBarcodeRecognizedError(ErrorCode.DECODING_ERROR);
                     }
                 });
     }

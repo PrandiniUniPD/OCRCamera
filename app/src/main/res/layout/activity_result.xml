@@ -17,7 +17,7 @@
         android:layout_marginRight="100dp"
         android:layout_marginBottom="30dp"
         android:layout_toStartOf="@+id/newPictureFab"
-        android:onClick="recrop"
+        android:onClick="reCrop"
         android:src="@android:drawable/ic_menu_crop"
         app:backgroundTint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"

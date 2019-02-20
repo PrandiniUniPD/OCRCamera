@@ -19,10 +19,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import unipd.se18.barcodemodule.Barcode;
 import unipd.se18.barcodemodule.BarcodeListener;
 import unipd.se18.barcodemodule.BarcodeRecognizer;
+import unipd.se18.barcodemodule.ErrorCode;
 import unipd.se18.eanresolvemodule.EAN;
 import unipd.se18.eanresolvemodule.EANResolve;
 
@@ -43,7 +45,6 @@ public class ResultActivity extends AppCompatActivity {
      * Bitmap of the lastPhoto saved
      */
     static Bitmap lastPhoto;
-    private Bitmap originalPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +63,6 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
             }
         });
-
-        //retrieve the original not cropped image to recrop if needed
-        //SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-        //String pathName = prefs.getString("imagePath", null);
-        //originalPhoto = BitmapFactory.decodeFile(pathName);
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
@@ -126,22 +122,19 @@ public class ResultActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onBarcodeRecognizedError(int code) {
-                switch(code){
-                    //TODO manage error cases
-                    case BARCODE_NOT_FOUND:
-                        Log.e("Barcode not found", "No barcode was found");
-                    case DECODING_ERROR:
-                        Log.e("Decoding error", "Error decoding image");
-                    case BITMAP_NOT_FOUND:
-                        Log.e("Bitmap not found", "Bitmap not found");
-
-                }
+            public void onBarcodeRecognizedError(ErrorCode error) {
+                Log.e("BarcodeRecognizedError", error.toString());
+                Toast.makeText(ResultActivity.this, error.getInfo(), Toast.LENGTH_SHORT).show();
             }
         };
 
-        Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit, barcodeListener);
-        barcodeRecognizer.decodeBarcode(photo);
+        try{
+            Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit, barcodeListener);
+            barcodeRecognizer.decodeBarcode(photo);
+        }catch(IllegalArgumentException e){
+            Log.e("barcode error", e.getMessage());
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -159,7 +152,7 @@ public class ResultActivity extends AppCompatActivity {
      * let the user recrop the original photo
      * @param view button to start the crop activity
      */
-    public void recrop(View view){
+    public void reCrop(View view){
         finish();
     }
 

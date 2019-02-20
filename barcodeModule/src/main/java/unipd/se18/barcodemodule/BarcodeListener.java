@@ -4,11 +4,6 @@ import android.graphics.Bitmap;
 
 public interface BarcodeListener {
 
-    public int BITMAP_NOT_FOUND = 0;
-
-    public int BARCODE_NOT_FOUND = 1;
-
-    public int DECODING_ERROR = 2;
 
     /**
      * Method called when barcode is successfully recognized
@@ -19,7 +14,7 @@ public interface BarcodeListener {
 
     /**
      * Method called when the process fail
-     * @param code int of en error code
+     * @param error error message
      */
-    public void onBarcodeRecognizedError(int code);
+    public void onBarcodeRecognizedError(ErrorCode error);
 }
