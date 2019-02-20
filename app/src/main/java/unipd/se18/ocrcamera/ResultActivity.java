@@ -46,6 +46,25 @@ public class ResultActivity extends AppCompatActivity {
      */
     static Bitmap lastPhoto;
 
+    /**
+     * Barcode listener
+     */
+    private BarcodeListener barcodeListener = new BarcodeListener() {
+        @Override
+        public void onBarcodeRecognized(String barcode) {
+            mOCRTextView.setText(getProductInfo(barcode));
+        }
+
+        @Override
+        public void onBarcodeRecognizedError(ErrorCode error) {
+            Log.e("BarcodeRecognizedError", error.toString());
+            Toast.makeText(ResultActivity.this, error.getInfo(), Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    private Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit, barcodeListener);
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,28 +133,14 @@ public class ResultActivity extends AppCompatActivity {
      */
     private void getBarcode(Bitmap photo){
 
-        //Barcode listener
-        BarcodeListener barcodeListener = new BarcodeListener() {
-            @Override
-            public void onBarcodeRecognized(String barcode) {
-                mOCRTextView.setText(getProductInfo(barcode));
-            }
-
-            @Override
-            public void onBarcodeRecognizedError(ErrorCode error) {
-                Log.e("BarcodeRecognizedError", error.toString());
-                Toast.makeText(ResultActivity.this, error.getInfo(), Toast.LENGTH_SHORT).show();
-            }
-        };
-
         try{
-            Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit, barcodeListener);
             barcodeRecognizer.decodeBarcode(photo);
         }catch(IllegalArgumentException e){
             Log.e("barcode error", e.getMessage());
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
 
     /**
      * Retrieve the product name and brand from online database
