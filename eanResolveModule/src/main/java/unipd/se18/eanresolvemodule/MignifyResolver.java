@@ -26,7 +26,8 @@ public class MignifyResolver implements EAN {
     //The authentication string you get from
     //https://market.mashape.com/mignify/product-intelligence#
     //after you subscribe to the Mignify API
-    private static final String MASHAPE_AUTH = "Nx432kOz2Wmsh83IAjUv6cUaxT7Rp1tDUbKjsnu7ueSdRFdOPK";
+    //private static final String MASHAPE_AUTH = "Nx432kOz2Wmsh83IAjUv6cUaxT7Rp1tDUbKjsnu7ueSdRFdOPK";
+    private static final String MASHAPE_AUTH = "m2GurVPnwZmshBibQLntKBBpPe3mp1MdKF6jsnJg4SoxE9qSH0";
     //Name of the header for selecting content type
     private static final String ACCEPT_HEADER_TYPE = "Accept";
     //Content type wanted as response

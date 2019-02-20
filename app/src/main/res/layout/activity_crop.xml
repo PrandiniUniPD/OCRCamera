@@ -32,7 +32,7 @@
             android:layout_margin="20sp"
             android:gravity="center_vertical"
             android:onClick="cropPhoto"
-            android:src="@drawable/ic_photo_camera_24px"
+            android:src="@android:drawable/ic_menu_search"
             app:backgroundTint="@color/colorPrimary" />
     </RelativeLayout>
 

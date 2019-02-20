@@ -52,7 +52,7 @@ public class ResultActivity extends AppCompatActivity {
     private BarcodeListener barcodeListener = new BarcodeListener() {
         @Override
         public void onBarcodeRecognized(String barcode) {
-            mOCRTextView.setText(getProductInfo(barcode));
+            mOCRTextView.setText(barcode);
         }
 
         @Override

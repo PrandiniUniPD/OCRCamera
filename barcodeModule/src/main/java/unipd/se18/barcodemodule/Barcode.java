@@ -8,5 +8,5 @@ import android.graphics.Bitmap;
  */
 
 public interface Barcode {
-    void decodeBarcode(Bitmap image);
+    void decodeBarcode(Bitmap image) throws IllegalArgumentException;
 }

@@ -11,11 +11,13 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import java.util.List;
 
+import static com.google.android.gms.common.internal.Preconditions.checkNotNull;
+
 /**
  * This class implements the MLKit Api for barcode recognition
  * @author Andrea Ton
  */
-public class MLKitBarcode implements Barcode{
+class MLKitBarcode implements Barcode{
 
     //Firebase detector object needed to perform a scan on the given image
     private final FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector();
@@ -24,12 +26,12 @@ public class MLKitBarcode implements Barcode{
 
     /**
      *constructor of the class
-     * @param listener
+     * @param listener listener to manage events outside the module
      */
-    public MLKitBarcode (BarcodeListener listener){
+      MLKitBarcode (BarcodeListener listener) throws IllegalArgumentException{
         if (listener != null){
             barcodeListener = listener;
-        }else{
+        } else{
             throw new IllegalArgumentException("BarcodeListener must be provided");
         }
     }
@@ -37,10 +39,9 @@ public class MLKitBarcode implements Barcode{
     /**
      * implementation of the decodeBarcode method, that would detect the barcode from the given image
      * @param bitmap photo taken from the camera, to be analyzed.
-     * @return barcode String that represent the barcode scanned in the image
      */
     @Override
-    public void decodeBarcode(Bitmap bitmap) {
+    public void decodeBarcode(Bitmap bitmap) throws IllegalArgumentException {
 
         if (bitmap == null){
             throw new IllegalArgumentException("No photo was found");
