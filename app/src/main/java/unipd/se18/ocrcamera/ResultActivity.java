@@ -54,8 +54,10 @@ public class ResultActivity extends AppCompatActivity
      */
     @Override
     public void onBarcodeRecognized(String barcode) {
-        getProductInfo(barcode);
-        //mOCRTextView.setText(barcode);
+        //Since the online database for Mashape is currently down, only the barcode will be
+        //displayed until they resolve the issue
+        //getProductInfo(barcode);
+        mOCRTextView.setText(barcode);
     }
 
     @Override
@@ -69,7 +71,7 @@ public class ResultActivity extends AppCompatActivity
      */
     @Override
     public void onProductFound(String product) {
-        mOCRTextView.setText(product);
+        //mOCRTextView.setText(product);
     }
 
     @Override
