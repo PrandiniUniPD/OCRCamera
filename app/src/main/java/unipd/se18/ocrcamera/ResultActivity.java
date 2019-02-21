@@ -65,7 +65,7 @@ public class ResultActivity extends AppCompatActivity
     }
 
     /**
-     * Barcode listener implementation
+     * EANResolve listener implementation
      */
     @Override
     public void onProductFound(String product) {
