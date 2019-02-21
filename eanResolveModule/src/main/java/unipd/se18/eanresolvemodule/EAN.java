@@ -11,6 +11,6 @@ public interface EAN {
      * @param EANCode the EAN value of a barcode
      * more at https://en.wikipedia.org/wiki/International_Article_Number
      */
-    void decodeEAN(String EANCode);
+    void decodeEAN(String EANCode) throws IllegalArgumentException;
 
 }

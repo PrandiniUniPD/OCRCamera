@@ -27,6 +27,8 @@ import unipd.se18.barcodemodule.BarcodeRecognizer;
 import unipd.se18.barcodemodule.ErrorCode;
 import unipd.se18.eanresolvemodule.EAN;
 import unipd.se18.eanresolvemodule.EANResolve;
+import unipd.se18.eanresolvemodule.EANResolveListener;
+//import unipd.se18.eanresolvemodule.ErrorCode;
 
 import static unipd.se18.barcodemodule.BarcodeRecognizer.barcodeRecognizer;
 import static unipd.se18.eanresolvemodule.EANResolve.eanResolve;
@@ -34,7 +36,8 @@ import static unipd.se18.eanresolvemodule.EANResolve.eanResolve;
 /**
  * Class used for showing the result of the barcode processing
  */
-public class ResultActivity extends AppCompatActivity implements BarcodeListener{
+public class ResultActivity extends AppCompatActivity
+        implements BarcodeListener, EANResolveListener {
 
     /**
      * The TextView of the extracted test from the captured photo.
@@ -51,7 +54,8 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
      */
     @Override
     public void onBarcodeRecognized(String barcode) {
-        mOCRTextView.setText(barcode);
+        getProductInfo(barcode);
+        //mOCRTextView.setText(barcode);
     }
 
     @Override
@@ -61,9 +65,28 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
     }
 
     /**
+     * Barcode listener implementation
+     */
+    @Override
+    public void onProductFound(String product) {
+        mOCRTextView.setText(product);
+    }
+
+    @Override
+    public void onResolveError(unipd.se18.eanresolvemodule.ErrorCode error) {
+        Log.e("BarcodeRecognizedError", error.toString());
+        Toast.makeText(ResultActivity.this, error.getInfo(), Toast.LENGTH_SHORT).show();
+    }
+
+    /**
      * Barcode object used to decode barcode
      */
     private Barcode barcodeRecognizer;
+
+    /**
+     * EAN object used to resolve barcode
+     */
+    private EAN eanResolver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +98,15 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
 
-        try{
+        try {
             barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit, this);
-        }catch(IllegalArgumentException e){
+        } catch(IllegalArgumentException e) {
+            Log.e("Barcode object", e.getMessage());
+        }
+
+        try {
+            eanResolver = eanResolve(EANResolve.API.MIGNIFY, this);
+        } catch(IllegalArgumentException e) {
             Log.e("Barcode object", e.getMessage());
         }
 
@@ -155,13 +184,16 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
     /**
      * Retrieve the product name and brand from online database
      * @param barcode is the barcode to be searched
-     * @return product information retrieved from the database
-     * @author Andrea Ton
+     * @author Andrea Ton, modified by Elia Bedin
      */
-    /*private String getProductInfo(String barcode){
-        EAN eanResolve = eanResolve(EANResolve.API.MIGNIFY);
-        return eanResolve.decodeEAN(barcode);
-    }*/
+    private void getProductInfo(String barcode){
+        try{
+            eanResolver.decodeEAN(barcode);
+        }catch(IllegalArgumentException e){
+            Log.e("EanResolve error", e.getMessage());
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
     /**
      * let the user recrop the original photo
