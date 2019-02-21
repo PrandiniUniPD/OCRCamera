@@ -32,9 +32,9 @@ import static unipd.se18.barcodemodule.BarcodeRecognizer.barcodeRecognizer;
 import static unipd.se18.eanresolvemodule.EANResolve.eanResolve;
 
 /**
- * Class used for showing the result of the OCR processing
+ * Class used for showing the result of the barcode processing
  */
-public class ResultActivity extends AppCompatActivity {
+public class ResultActivity extends AppCompatActivity implements BarcodeListener{
 
     /**
      * The TextView of the extracted test from the captured photo.
@@ -47,23 +47,23 @@ public class ResultActivity extends AppCompatActivity {
     static Bitmap lastPhoto;
 
     /**
-     * Barcode listener
+     * Barcode listener implementation
      */
-    private BarcodeListener barcodeListener = new BarcodeListener() {
-        @Override
-        public void onBarcodeRecognized(String barcode) {
-            mOCRTextView.setText(barcode);
-        }
+    @Override
+    public void onBarcodeRecognized(String barcode) {
+        mOCRTextView.setText(barcode);
+    }
 
-        @Override
-        public void onBarcodeRecognizedError(ErrorCode error) {
-            Log.e("BarcodeRecognizedError", error.toString());
-            Toast.makeText(ResultActivity.this, error.getInfo(), Toast.LENGTH_SHORT).show();
-        }
-    };
+    @Override
+    public void onBarcodeRecognizedError(ErrorCode error) {
+        Log.e("BarcodeRecognizedError", error.toString());
+        Toast.makeText(ResultActivity.this, error.getInfo(), Toast.LENGTH_SHORT).show();
+    }
 
-    private Barcode barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit, barcodeListener);
-
+    /**
+     * Barcode object used to decode barcode
+     */
+    private Barcode barcodeRecognizer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +74,12 @@ public class ResultActivity extends AppCompatActivity {
         ImageView mImageView = findViewById(R.id.img_captured_view);
         mOCRTextView = findViewById(R.id.ocr_text_view);
         mOCRTextView.setMovementMethod(new ScrollingMovementMethod());
+
+        try{
+            barcodeRecognizer = barcodeRecognizer(BarcodeRecognizer.API.mlkit, this);
+        }catch(IllegalArgumentException e){
+            Log.e("Barcode object", e.getMessage());
+        }
 
         FloatingActionButton fab = findViewById(R.id.newPictureFab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -132,7 +138,6 @@ public class ResultActivity extends AppCompatActivity {
      * @author Andrea Ton
      */
     private void getBarcode(Bitmap photo){
-
         try{
             barcodeRecognizer.decodeBarcode(photo);
         }catch(IllegalArgumentException e){
@@ -140,7 +145,6 @@ public class ResultActivity extends AppCompatActivity {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-
 
     /**
      * Retrieve the product name and brand from online database
@@ -156,6 +160,7 @@ public class ResultActivity extends AppCompatActivity {
     /**
      * let the user recrop the original photo
      * @param view button to start the crop activity
+     * @author Andrea Ton
      */
     public void reCrop(View view){
         finish();
