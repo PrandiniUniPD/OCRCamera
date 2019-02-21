@@ -1,5 +1,6 @@
 package unipd.se18.ocrcamera;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -10,6 +11,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 /**
@@ -74,12 +79,13 @@ public class CropActivity extends AppCompatActivity {
         //start the result activity that will retrieve barcode information
         Intent i = new Intent(CropActivity.this, ResultActivity.class);
 
-        //convert Bitmap to byte array in order to insert it into the Intent
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        photoCropped.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] photoConverted = stream.toByteArray();
+        //temporary store the image; its path in the shared prefs
+        String imagePath= CameraActivity.tempFileImage(CropActivity.this, photoCropped,"croppedImage");
 
-        i.putExtra("photoCropped", photoConverted);
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString("imagePath", imagePath.trim());
+        edit.apply();
 
         //start ResultActivity
         startActivity(i);

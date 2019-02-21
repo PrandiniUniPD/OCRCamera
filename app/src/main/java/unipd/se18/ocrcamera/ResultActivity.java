@@ -89,8 +89,11 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
             }
         });
 
-        byte[] photoCropped = getIntent().getByteArrayExtra("photoCropped");
-        lastPhoto = BitmapFactory.decodeByteArray(photoCropped, 0, photoCropped.length);
+        //Get the path of the last image from preferences
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        String pathImage = prefs.getString("imagePath", null);
+
+        lastPhoto = BitmapFactory.decodeFile(pathImage);
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
@@ -155,10 +158,10 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
      * @return product information retrieved from the database
      * @author Andrea Ton
      */
-    private String getProductInfo(String barcode){
+    /*private String getProductInfo(String barcode){
         EAN eanResolve = eanResolve(EANResolve.API.MIGNIFY);
         return eanResolve.decodeEAN(barcode);
-    }
+    }*/
 
     /**
      * let the user recrop the original photo
@@ -166,7 +169,6 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
      * @author Andrea Ton
      */
     public void reCrop(View view){
-        lastPhoto.recycle();
         finish();
     }
 
@@ -199,4 +201,6 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
         }
     }
 }
+
+
 

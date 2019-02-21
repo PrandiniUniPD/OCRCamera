@@ -206,7 +206,7 @@ public class CameraActivity extends AppCompatActivity {
      * @return The files path
      * @author Leonardo Rossi
      */
-    private String tempFileImage(Context context, Bitmap bitmap, String name)
+    static String tempFileImage(Context context, Bitmap bitmap, String name)
     {
 
         File outputDir = context.getCacheDir();
