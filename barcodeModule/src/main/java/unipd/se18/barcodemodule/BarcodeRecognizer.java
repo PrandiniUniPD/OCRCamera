@@ -3,7 +3,7 @@ package unipd.se18.barcodemodule;
 /**
  * Useful set a type of recognition
  * It avoids the single point of failure relative to this process
- * @author Andrea Ton
+ * @author Andrea Ton, modified by Elia Bedin
  */
 public class BarcodeRecognizer {
 
@@ -18,12 +18,13 @@ public class BarcodeRecognizer {
     /**
      * Provides an Barcode recognizer
      * @param type The id of the recognition api requested
-     * @return the object relative to the choosen type
+     * @param barcodeListener the listener for result or errors
+     * @return the object relative to the chosen type
      */
     public static Barcode barcodeRecognizer(API type, BarcodeListener barcodeListener){
         switch (type){
             case mlkit: return new MLKitBarcode(barcodeListener);
-            case zxing: return new ZXingBarcode();
+            case zxing: return new ZXingBarcode(barcodeListener);
             default: return new MLKitBarcode(barcodeListener);
         }
     }

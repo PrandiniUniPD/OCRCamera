@@ -11,7 +11,6 @@ import com.google.zxing.Reader;
 import com.google.zxing.Result;
 import com.google.zxing.RGBLuminanceSource;
 import android.graphics.Bitmap;
-import android.util.Log;
 
 /**
  * This class implements the ZXing API for barcode recognition
@@ -22,8 +21,8 @@ import android.util.Log;
 
 public class ZXingBarcode implements Barcode {
 
-    //The string decoded from the barcode.
-    private String code = "";
+    //The listener that will contain either the barcode value or an error code
+    private BarcodeListener barcodeListener;
     //The following three int will always be zeros
     //The x coordinate of the first pixel to read from the bitmap;
     private static final int  STARTING_X_POSITION = 0;
@@ -31,51 +30,67 @@ public class ZXingBarcode implements Barcode {
     private static final int  STARTING_Y_POSITION = 0;
     //Offset, the first index to write into pixels[];
     private static final int  STARTING_INDEX = 0;
-    //Text of the decoding error
-    private static final String DECODE_ERROR =
-            "ERROR: Barcode decoding unsuccessful, please try again.";
-
 
     /**
-     * implementation of the decodeBarcode method, that would detect the barcode from the given
-     * image
-     * @param bitmap photo taken from the camera, to be analyzed.
+     * Constructor of the class
+     * @param listener the listener for result or error
+     */
+    ZXingBarcode(BarcodeListener listener) throws IllegalArgumentException{
+        if (listener != null) {
+            barcodeListener = listener;
+        } else {
+            throw new IllegalArgumentException("BarcodeListener must be provided");
+        }
+    }
+
+    /**
+     * implementation of the decodeBarcode method, that will process a given bitmap photo to make it
+     * ready to be scanned with the ZXing barcode reader
+     * @param bitmap photo that will be processed for a barcode scan with the ZXing reader
      */
     @Override
     public void decodeBarcode(Bitmap bitmap) {
+        if(bitmap == null){
+            barcodeListener.onBarcodeRecognizedError(ErrorCode.BITMAP_NOT_FOUND);
+        } else {
+            //int array needed by the RGBLuminanceSource constructor
+            int[] pixels = new int[bitmap.getWidth() * bitmap.getHeight()];
+            //getPixels copies pixel data from the Bitmap into the 'pixels' int array
+            bitmap.getPixels(pixels, STARTING_INDEX, bitmap.getWidth(), STARTING_X_POSITION,
+                    STARTING_Y_POSITION, bitmap.getWidth(), bitmap.getHeight());
+            //ZXing library class needed to abstract different bitmap implementations across
+            //platforms into a standard interface for requesting gray scale luminance values
+            LuminanceSource luminanceValues =
+                    new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), pixels);
+            //BinaryBitmap is the core bitmap class used to represent 1 bit data
+            //Reader objects accept a BinaryBitmap and attempt to decode it
+            BinaryBitmap processedBitmap = new BinaryBitmap(new HybridBinarizer(luminanceValues));
+            detectBarcode(processedBitmap);
+        }
+    }
 
-        //int array needed by the RGBLuminanceSource constructor
-        int[] pixels = new int[bitmap.getWidth()*bitmap.getHeight()];
-        //getPixels copies pixel data from the Bitmap into the 'pixels' int array
-        bitmap.getPixels(pixels, STARTING_INDEX, bitmap.getWidth(),
-                STARTING_X_POSITION, STARTING_Y_POSITION, bitmap.getWidth(), bitmap.getHeight());
-        //ZXing library class needed to abstract different bitmap implementations across platforms
-        //into a standard interface for requesting gray scale luminance values
-        LuminanceSource luminanceValues =
-                new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), pixels);
+    /**
+     * Take the processed bitmap and detect the barcode in it using the ZXing reader
+     * @param processedBitmap the image that will be scanned with the ZXing reader
+     */
+    private void detectBarcode(BinaryBitmap processedBitmap) {
         //Reader that can decode an image of a barcode in some format into the String it encodes
         //MultiFormatReader attempts to determine what barcode format is present within the image
         //as well, and then decodes it accordingly
         Reader reader = new MultiFormatReader();
-        //BinaryBitmap is the core bitmap class used to represent 1 bit data
-        //Reader objects accept a BinaryBitmap and attempt to decode it
-        BinaryBitmap processedBitmap = new BinaryBitmap(new HybridBinarizer(luminanceValues));
-
         try {
             //Locates and decodes a barcode within an image
             Result result = reader.decode(processedBitmap);
             //getText() returns the raw text encoded by the barcode
-            code = result.getText();
+            barcodeListener.onBarcodeRecognized(result.getText());
         }
         catch (NotFoundException e) {
-            //If no barcode if found, "" is returned
-            Log.e("NoBarcode", "Error getting barcode from bitmap.", e);
+            //If no barcode if found
+            barcodeListener.onBarcodeRecognizedError(ErrorCode.BARCODE_NOT_FOUND);
         }
         catch (ChecksumException | FormatException e) {
-            //If a barcode is found but decoding it leads to an error, a string that report an
-            // error occurred is returned
-            code = DECODE_ERROR;
-            Log.e("ErrorDecoding", "Error decoding barcode", e);
+            //If a barcode is found but decoding it leads to an error
+            barcodeListener.onBarcodeRecognizedError(ErrorCode.DECODING_ERROR);
         }
     }
 

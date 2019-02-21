@@ -1,6 +1,6 @@
 package unipd.se18.barcodemodule;
 
-public enum ErrorCode{
+public enum ErrorCode {
     BITMAP_NOT_FOUND(100, "Bitmap not found"),
     BARCODE_NOT_FOUND(101, "Barcode not found"),
     DECODING_ERROR(102, "Barcode decoding process failed");
@@ -17,12 +17,12 @@ public enum ErrorCode{
         return code;
     }
 
-    public String getInfo(){
+    public String getInfo() {
         return info;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "("+getCode()+")"+" "+getInfo();
     }
 }
