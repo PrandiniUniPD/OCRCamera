@@ -9,7 +9,7 @@ public interface BarcodeListener {
     void onBarcodeRecognized(String barcode);
 
     /**
-     * Method called when the process fail
+     * Method called when the process fails
      * @param error error message
      */
     void onBarcodeRecognizedError(ErrorCode error);

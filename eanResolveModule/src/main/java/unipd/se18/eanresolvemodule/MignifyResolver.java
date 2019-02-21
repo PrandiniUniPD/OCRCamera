@@ -1,6 +1,5 @@
 package unipd.se18.eanresolvemodule;
 
-import android.util.Log;
 import com.mashape.unirest.http.*;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.JSONArray;
@@ -13,6 +12,8 @@ import org.json.JSONObject;
  * @author Elia Bedin
  */
 public class MignifyResolver implements EAN {
+    //The listener that will contain either the barcode value or an error code
+    private EANResolveListener resolveListener;
     //The string resolved from an EAN product code
     private String product = "";
     /*
@@ -26,7 +27,6 @@ public class MignifyResolver implements EAN {
     //The authentication string you get from
     //https://market.mashape.com/mignify/product-intelligence#
     //after you subscribe to the Mignify API
-    //private static final String MASHAPE_AUTH = "Nx432kOz2Wmsh83IAjUv6cUaxT7Rp1tDUbKjsnu7ueSdRFdOPK";
     private static final String MASHAPE_AUTH = "m2GurVPnwZmshBibQLntKBBpPe3mp1MdKF6jsnJg4SoxE9qSH0";
     //Name of the header for selecting content type
     private static final String ACCEPT_HEADER_TYPE = "Accept";
@@ -44,8 +44,6 @@ public class MignifyResolver implements EAN {
     private static final String LANGUAGE = "languageCode";
     private static final String MESSAGE  = "message";
     /*
-     * Error strings declaration
-     */
     private static final String HTTP_ERROR = "Unable to connect to the server.";
     //Error text if there's no product with entered EAN code in the database
     private static final String NO_PRODUCT_ERROR =
@@ -54,19 +52,29 @@ public class MignifyResolver implements EAN {
     private static final String JSON_ERROR = "Error parsing the response from the server.";
     //Error text if the EAN code was invalid
     private static final String INVALID_BARCODE = "The barcode value is invalid.";
-
+    */
+    /**
+     * Constructor of the class
+     * @param listener the listener for result or error
+     */
+    MignifyResolver(EANResolveListener listener) throws IllegalArgumentException{
+        if (listener != null) {
+            resolveListener = listener;
+        } else {
+            throw new IllegalArgumentException("ResolveListener must be provided");
+        }
+    }
     /**
      *
      * @param EANCode string extracted from an EAN13 barcode
-     * @return the product relative to the input string
      */
     @Override
-    public String decodeEAN(String EANCode) {
+    public void decodeEAN(String EANCode) {
 
         //Adding to the URL request the EAN code taken from the barcode
         String fullURL = BASE_URL + EANCode;
         //HTTP response from get method to Mignify API
-        HttpResponse<JsonNode> response = null;
+        HttpResponse<JsonNode> response;
         //Unirest library useful for making an HTTP request for the Mashape API
         //More at http://unirest.io/java
         try {
@@ -94,7 +102,7 @@ public class MignifyResolver implements EAN {
                 int productListSize = productList.length();
                 //If no product are in the response
                 if (productListSize == 0) {
-                    product = NO_PRODUCT_ERROR;
+                    resolveListener.onResolveError(ErrorCode.NO_PRODUCT_ERROR);
                 } else {
                     String[] productNames = new String[productList.length()];
                     //Future proofing usage of brands and language, still unimplemented
@@ -109,33 +117,37 @@ public class MignifyResolver implements EAN {
                         productLanguages[i] = currentJsonObject.getString(LANGUAGE);
                     }
                     /*
-                     * Selecting the first name in the list as the result product name.
-                     * It should be the most plausible product name.
-                     * In the future a better selection will be made, checking brand and language
+                     * Selecting the english name in the list as the result product name
+                     * If there's no english name, the first result in the list will be returned
+                     * It should be the most plausible product name
                      */
-                    //If there's a product brand string and it isn't already contained inside the
-                    //product name string then it's added to the result
-                    if(!(productBrands[0] == null) && !productNames[0].toLowerCase()
-                            .contains(productBrands[0].toLowerCase())) {
-                        product = productBrands[0] + " ";
+                    int selectedProductIndex = 0;
+                    for (int i = 0; i < productListSize; i++){
+                        if(productLanguages[i].equals("en")){
+                            selectedProductIndex = i;
+                            break;
+                        }
                     }
-                    product += productNames[0];
+                    //If there's a product brand string and it isn't already contained inside
+                    //the product name string then it's added to the result
+                    if(!(productBrands[selectedProductIndex] == null) &&
+                            !productNames[selectedProductIndex].toLowerCase()
+                                    .contains(productBrands[selectedProductIndex].toLowerCase())) {
+                        product = productBrands[selectedProductIndex] + " ";
+                    }
+                    product += productNames[selectedProductIndex];
                 }
             } else if(status.equals("error")){
                 //This else if should never be entered since the Barcode Module already checks
                 //if the barcode value if correct.
                 //In case the EAN wasn't valid, the invalid barcode error is returned
-                Log.d("MignifyResolver -> ",
-                        "onInvalidBarcode ->"+ jsonResponse.getString(MESSAGE));
-                product = INVALID_BARCODE;
+                resolveListener.onResolveError(ErrorCode.INVALID_BARCODE);
             }
         } catch (UnirestException e) {
-            product = HTTP_ERROR;
-            Log.e("Unirest error", e.getMessage());
+            resolveListener.onResolveError(ErrorCode.HTTP_ERROR);
         } catch (JSONException e) {
-            product = JSON_ERROR;
-            Log.e("JSON error", e.getMessage());
+            resolveListener.onResolveError(ErrorCode.JSON_ERROR);
         }
-        return product;
+        resolveListener.onProductFound(product);
     }
 }

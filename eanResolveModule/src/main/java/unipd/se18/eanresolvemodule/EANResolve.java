@@ -18,10 +18,10 @@ public class EANResolve {
      * @param type The id of the recognition api requested
      * @return the object relative to the chosen type
      */
-    public static EAN eanResolve(API type){
+    public static EAN eanResolve(API type, EANResolveListener resolveListener){
         switch (type){
-            case MIGNIFY: return new MignifyResolver();
-            default: return new MignifyResolver();
+            case MIGNIFY: return new MignifyResolver(resolveListener);
+            default: return new MignifyResolver(resolveListener);
         }
     }
 }
