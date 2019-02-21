@@ -11,10 +11,8 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import java.util.List;
 
-import static com.google.android.gms.common.internal.Preconditions.checkNotNull;
-
 /**
- * This class implements the MLKit Api for barcode recognition
+ * This class implements the MLKit Api for barcode recognition (https://firebase.google.com/docs/ml-kit/read-barcodes)
  * @author Andrea Ton
  */
 class MLKitBarcode implements Barcode{

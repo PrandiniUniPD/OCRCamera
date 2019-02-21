@@ -44,7 +44,7 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
     /**
      * Bitmap of the lastPhoto saved
      */
-    static Bitmap lastPhoto;
+    private Bitmap lastPhoto;
 
     /**
      * Barcode listener implementation
@@ -88,6 +88,9 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
                 startActivity(new Intent(ResultActivity.this, CameraActivity.class));
             }
         });
+
+        byte[] photoCropped = getIntent().getByteArrayExtra("photoCropped");
+        lastPhoto = BitmapFactory.decodeByteArray(photoCropped, 0, photoCropped.length);
 
         if (lastPhoto != null) {
             mImageView.setImageBitmap(Bitmap.createScaledBitmap(lastPhoto, lastPhoto.getWidth(), lastPhoto.getHeight(), false));
@@ -163,6 +166,7 @@ public class ResultActivity extends AppCompatActivity implements BarcodeListener
      * @author Andrea Ton
      */
     public void reCrop(View view){
+        lastPhoto.recycle();
         finish();
     }
 

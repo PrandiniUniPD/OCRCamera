@@ -4,22 +4,23 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
+import java.io.ByteArrayOutputStream;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 /**
  * Activity that let user crop the image
+ * This class implements the Android Image Cropper API (https://github.com/ArthurHub/Android-Image-Cropper)
+ * @author Andrea Ton
  * */
 public class CropActivity extends AppCompatActivity {
 
     /**
-     * view that will contains the image to be cropped
+     * View that will contains the image to be cropped
      */
     private CropImageView cropImageView;
 
@@ -68,10 +69,19 @@ public class CropActivity extends AppCompatActivity {
      * @param result result of the cropping process (should be the cropped image)
      */
     private void handleResult(CropImageView.CropResult result){
-        ResultActivity.lastPhoto = result.getBitmap();
+        Bitmap photoCropped = result.getBitmap();
 
         //start the result activity that will retrieve barcode information
         Intent i = new Intent(CropActivity.this, ResultActivity.class);
+
+        //convert Bitmap to byte array in order to insert it into the Intent
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        photoCropped.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] photoConverted = stream.toByteArray();
+
+        i.putExtra("photoCropped", photoConverted);
+
+        //start ResultActivity
         startActivity(i);
     }
 
