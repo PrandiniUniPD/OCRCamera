@@ -15,7 +15,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -29,10 +28,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,14 +35,13 @@ import java.util.List;
 
 import unipd.se18.ocrcamera.inci.Ingredient;
 import unipd.se18.ocrcamera.inci.IngredientsExtractor;
-import unipd.se18.ocrcamera.inci.NameMatchIngredientsExtractor;
 
 
 /**
  * Gallery activity
  * @author Stefano Romanello - Fragment suggestion Leonardo Rossi
  */
-public class GalleryActivity extends AppCompatActivity {
+public class GalleryActivity extends BaseActivity {
 
     //Code for internet permission
     private static final int REQUEST_PERMISSION_CODE = 500;
@@ -56,13 +50,14 @@ public class GalleryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gallery);
+
 
         if(verifyStoragePermission())
         {
             LoadHomeCards loadHomeCards = new LoadHomeCards();
             loadHomeCards.execute();
         }
+
     }
 
     /**
@@ -445,6 +440,21 @@ public class GalleryActivity extends AppCompatActivity {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    /*
+     * override BaseActivity's abstract methods to give information
+     * about the layout and menu item that should be selected
+     */
+
+    @Override
+    int getContentViewId(){
+        return R.layout.activity_gallery;
+    }
+
+    @Override
+    int getNavigationMenuItemId(){
+        return R.id.nav_gallery;
     }
 
 }

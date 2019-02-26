@@ -32,7 +32,7 @@ public class Inci {
      * @param inciDbStream InputStream from inci db csv file
      * @author Francesco Pham
      */
-    public static ArrayList<Ingredient> getListIngredients(InputStream inciDbStream){
+    public static ArrayList<Ingredient> getListIngredients(InputStream inciDbStream) throws IOException{
         Reader reader = new BufferedReader(new InputStreamReader(inciDbStream));
 
         ArrayList<Ingredient> listIngredients = new ArrayList<>(); //initializing list of ingredients
@@ -50,21 +50,16 @@ public class Inci {
         String[] line;
 
         //for each line in the csv add an Ingredient object to the list
-        try {
-            while ((line = csvReader.readNext()) != null) {
-                if(line.length > COL_FUNCTION) {
-                    Ingredient element = new Ingredient();
-                    element.setCosingRefNo(line[COL_COSING_REF_NO]);
-                    element.setInciName(line[COL_INCI_NAME]);
-                    element.setDescription(line[COL_DESCRIPTION]);
-                    element.setFunction(line[COL_FUNCTION]);
-                    listIngredients.add(element);
-                }
-                else Log.d(TAG, "There is an empty line in the database file, line "+csvReader.getLinesRead());
+        while ((line = csvReader.readNext()) != null) {
+            if(line.length > COL_FUNCTION) {
+                Ingredient element = new Ingredient();
+                element.setCosingRefNo(line[COL_COSING_REF_NO]);
+                element.setInciName(line[COL_INCI_NAME]);
+                element.setDescription(line[COL_DESCRIPTION]);
+                element.setFunction(line[COL_FUNCTION]);
+                listIngredients.add(element);
             }
-
-        } catch(IOException e){
-            Log.e(TAG, "Error trying to read csv");
+            else Log.d(TAG, "There is an empty line in the database file, line "+csvReader.getLinesRead());
         }
 
         //closing

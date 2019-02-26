@@ -10,15 +10,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
@@ -52,24 +44,22 @@ import unipd.se18.textrecognizer.OCR;
 import unipd.se18.textrecognizer.OCRListener;
 import unipd.se18.textrecognizer.TextRecognizer;
 
-import unipd.se18.ocrcamera.forum.Forum;
-
 import static unipd.se18.textrecognizer.TextRecognizer.getTextRecognizer;
 
 
 
 /**
  * Class used for showing the result of the OCR processing
- * @author Pietro Prandini (g2) - Francesco Pham (g3) - modified by Luca Moroldo (g3)
+ * @author Francesco Pham (g3) - Pietro Prandini (g2) - modified by Luca Moroldo (g3)
  */
-public class ResultActivity extends AppCompatActivity {
+public class ResultActivity extends BaseActivity {
 
     private final String TAG = "ResultActivity";
 
     /**
      *  Boolean which specify if we want to automatically preprocess the image.
      */
-    private static final boolean DO_IMAGE_PROCESSING = true;
+    private static final boolean DO_IMAGE_PROCESSING = false;
 
     /**
      * ImageView of the captured picture
@@ -96,36 +86,18 @@ public class ResultActivity extends AppCompatActivity {
      */
     private TextView analyzedTextView;
 
-    /**
-     * the DrawerLayout that provides the "Hamburger" Menu for the options
-     */
-    private DrawerLayout mDrawerLayout;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_result);
 
         // UI components
         mImageView = findViewById(R.id.img_captured_view);
         ingredientsListView = findViewById(R.id.ingredients_list);
         progressBar = findViewById(R.id.progress_bar);
-        mDrawerLayout= findViewById(R.id.drawer_layout);
-
-        // Floating action buttons listeners (Francesco Pham)
-        FloatingActionButton fabNewPic = findViewById(R.id.newPictureFab);
-        fabNewPic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ResultActivity.this, CameraActivity.class));
-            }
-        });
 
         //set on empty list view
         emptyTextView= findViewById(R.id.empty_list);
         ingredientsListView.setEmptyView(emptyTextView);
-
         //set message
         emptyTextView.setText(R.string.processing_image);
         progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -134,53 +106,6 @@ public class ResultActivity extends AppCompatActivity {
         analyzedTextView = new TextView(ResultActivity.this);
         ingredientsListView.addHeaderView(analyzedTextView);
 
-        //Set the toolbar as the action bar
-        Toolbar toolbar= findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        //Set up the Action Bar with the menu button
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
-        }
-
-        //set up Hamburger menu layout items
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-                        //choose which activity to start depending on the selected item
-
-                        switch (menuItem.getItemId()){
-                            case R.id.allergens_activity:
-                                startActivity( new Intent(ResultActivity.this, MainAllergensActivity.class));
-                                return true;
-                            case R.id.gallery_activity:
-                                startActivity(new Intent (ResultActivity.this, GalleryActivity.class));
-                                return true;
-                            case R.id.forum_activity:
-                                Intent forumIntent = new Intent(ResultActivity.this, Forum.class);
-                                startActivity(forumIntent);
-                                return true;
-                            case R.id.test:
-                                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
-                                startActivity(i);
-                                return true;
-                            case R.id.download_photos:
-                                Intent download_intent = new Intent(ResultActivity.this,
-                                        DownloadDbActivity.class);
-                                startActivity(download_intent);
-                                return true;
-                        }
-
-                        return false;
-                    }
-                }
-        );
-
 
         //set on click on ingredient launching IngredientDetailsFragment
         ingredientsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -188,6 +113,7 @@ public class ResultActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Ingredient selectedIngredient = (Ingredient) parent.getItemAtPosition(position);
 
+                //performing a click on OCR recognized text causes a crash (because selectedIngredient is null)
                 if(selectedIngredient != null) {
                     String inciName = selectedIngredient.getInciName();
                     String description = selectedIngredient.getDescription();
@@ -200,8 +126,9 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
-        //load the path to the last taken picture, can be null if the user didn't take any picture
+
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        //load the path to the last taken picture, can be null if the user didn't take any picture
         final String lastImagePath = prefs.getString(getString(R.string.sharedPrefNameForImagePath), null);
         final String processedImagePath = prefs.getString(getString(R.string.sharedPrefNameProcessedImage), null);
 
@@ -248,6 +175,7 @@ public class ResultActivity extends AppCompatActivity {
 
     /**
      * Asynctask for image processing
+     * @author Francesco Pham
      */
     private static class AsyncImageProcess extends AsyncTask<String, Void, Bitmap> {
 
@@ -294,7 +222,7 @@ public class ResultActivity extends AppCompatActivity {
             activity.analyzeImageUpdateUI(processedImage);
 
             //save processed image
-            String filePath= Utils.tempFileImage(activity, processedImage,"processedImage");
+            String filePath = Utils.tempFileImage(activity, processedImage,"processedImage");
             activity.saveProcessedImage(filePath);
         }
     }
@@ -400,14 +328,19 @@ public class ResultActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case android.R.id.home:   //menu button is pressed
-                mDrawerLayout.openDrawer(GravityCompat.START);
+            case R.id.test:
+                Intent i = new Intent(ResultActivity.this, TestsListActivity.class);
+                startActivity(i);
+                return true;
+            case R.id.download_photos:
+                Intent download_intent = new Intent(ResultActivity.this,
+                        DownloadDbActivity.class);
+                startActivity(download_intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
 
     /**
@@ -585,5 +518,20 @@ public class ResultActivity extends AppCompatActivity {
             else if (brightnessResult== -1)
                 Toast.makeText(activity, tooDark, Toast.LENGTH_LONG).show();
         }
+    }
+
+
+    /*
+     * override BaseActivity's abstract methods to give information
+     * about the layout and menu item that should be selected
+     */
+    @Override
+    int getContentViewId(){
+        return R.layout.activity_result;
+    }
+
+    @Override
+    int getNavigationMenuItemId(){
+        return R.id.nav_result;
     }
 }

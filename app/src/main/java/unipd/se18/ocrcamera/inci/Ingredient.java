@@ -12,17 +12,9 @@ public class Ingredient implements Comparable<String> {
     private String description;
     private String function;
 
-//    private String innName;
-//    private String phEurName;
-//    private String casNo;
-//    private String ecNo:
-//    private String restriction;
-//    private String updateDate;
-
     private String strippedInciName;
     private int startPositionFound;
     private int endPositionFound;
-
 
     public Ingredient() {
         this.cosingRefNo = "";
@@ -30,6 +22,7 @@ public class Ingredient implements Comparable<String> {
         this.description = "";
         this.function = "";
         startPositionFound = -1;
+        endPositionFound = -1;
     }
 
     @Override

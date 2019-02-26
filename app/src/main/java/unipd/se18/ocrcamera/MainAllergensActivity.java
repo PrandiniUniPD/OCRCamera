@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.List;
 /*
  * @author Pietro Balzan
  */
-public class MainAllergensActivity extends AppCompatActivity {
+public class MainAllergensActivity extends BaseActivity {
 
     private static final String TAG= "MainAllergensActivity";
     private ViewPager mViewPager;
@@ -23,7 +22,7 @@ public class MainAllergensActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.activity_allergens_main);
+
       Log.i(TAG, "Starting construction of the layout");
 
       //set up the ViewPager with the sections adapter
@@ -33,6 +32,7 @@ public class MainAllergensActivity extends AppCompatActivity {
       //initialize the Tab Layout's content
       TabLayout tabLayout = findViewById(R.id.tabs);
       tabLayout.setupWithViewPager(mViewPager);
+
     }
 
     /**
@@ -96,4 +96,19 @@ public class MainAllergensActivity extends AppCompatActivity {
         }
 
     }
+
+    /*
+     * override BaseActivity's abstract methods to give information
+     * about the layout and menu item that should be selected
+     */
+    @Override
+    int getContentViewId(){
+        return R.layout.activity_allergens_main;
+    }
+
+    @Override
+    int getNavigationMenuItemId(){
+        return R.id.nav_allergens;
+    }
+
 }

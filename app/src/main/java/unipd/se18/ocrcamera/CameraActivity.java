@@ -12,7 +12,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.camerakit.CameraKitView;
@@ -20,7 +19,7 @@ import com.camerakit.CameraKitView;
 /**
  * The Activity useful for making photos
  */
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity extends BaseActivity {
 
     private CameraKitView cameraKitView;
     //Se the default orientation as portrait
@@ -35,7 +34,7 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_camera);
+
         cameraKitView = findViewById(R.id.cameraKitView);
 
         //Load sensor for understand the orientation of the phone
@@ -234,4 +233,19 @@ public class CameraActivity extends AppCompatActivity {
             return this.value;
         }
     }
+
+    /*
+     * override BaseActivity's abstract methods to give information
+     * about the layout and menu item that should be selected
+     */
+    @Override
+    int getContentViewId(){
+        return R.layout.activity_camera;
+    }
+
+    @Override
+    int getNavigationMenuItemId(){
+        return R.id.nav_picture;
+    }
+
 }
